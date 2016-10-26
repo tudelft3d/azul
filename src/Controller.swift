@@ -111,18 +111,6 @@ class Controller: NSObject, NSApplicationDelegate {
         }
   
         self.openFiles.insert(url)
-        switch self.openFiles.count {
-        case 0:
-          self.window.representedURL = nil
-          self.window.title = "Azul"
-        case 1:
-          self.window.representedURL = url
-          self.window.title = url.lastPathComponent
-        default:
-          self.window.representedURL = nil
-          self.window.title = "Azul (\(self.openFiles.count) open files)"
-        }
-        
       }
       
       self.regenerateOpenGLRepresentation()
@@ -132,6 +120,17 @@ class Controller: NSObject, NSApplicationDelegate {
       DispatchQueue.main.async {
         self.progressIndicator.stopAnimation(self)
         self.openGLView.renderFrame()
+        switch self.openFiles.count {
+        case 0:
+          self.window.representedURL = nil
+          self.window.title = "Azul"
+        case 1:
+          self.window.representedURL = self.openFiles.first!
+          self.window.title = self.openFiles.first!.lastPathComponent
+        default:
+          self.window.representedURL = nil
+          self.window.title = "Azul (\(self.openFiles.count) open files)"
+        }
       }
     }
   }
