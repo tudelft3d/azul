@@ -239,7 +239,7 @@ class OpenGLView: NSOpenGLView {
     
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
     CVDisplayLinkSetOutputCallback(displayLink!, displayLinkOutputCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
-    CVDisplayLinkStart(displayLink!)
+//    CVDisplayLinkStart(displayLink!)
   }
   
   override var acceptsFirstResponder: Bool {
@@ -271,6 +271,7 @@ class OpenGLView: NSOpenGLView {
                         mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                         mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                         mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+      renderFrame()
     } else {
 //      Swift.print("NaN!")
     }
@@ -288,6 +289,7 @@ class OpenGLView: NSOpenGLView {
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                       mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                       mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    renderFrame()
   }
   
   override func magnify(with event: NSEvent) {
@@ -302,6 +304,7 @@ class OpenGLView: NSOpenGLView {
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                       mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                       mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    renderFrame()
   }
   
   override func keyDown(with event: NSEvent) {
@@ -430,7 +433,7 @@ class OpenGLView: NSOpenGLView {
   }
   
   override func draw(_ dirtyRect: NSRect) {
-//    Swift.print("OpenGLView.draw(NSRect)")
+    Swift.print("OpenGLView.draw(NSRect)")
     super.draw(dirtyRect)
     renderFrame()
   }

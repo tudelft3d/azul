@@ -132,8 +132,10 @@ class Controller: NSObject, NSApplicationDelegate {
       updateProgressTimer.invalidate()
       self.loadingData = false
       
+      DispatchQueue.main.async {
+        self.openGLView.renderFrame()
+      }
     }
-
   }
   
   func regenerateOpenGLRepresentation() {
@@ -184,9 +186,6 @@ class Controller: NSObject, NSApplicationDelegate {
       
       cityGMLParser!.advanceIterator()
     }
-    
-    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count) from roads, \(openGLView.waterTriangles.count) from water bodies, \(openGLView.plantCoverTriangles.count) from plant cover, \(openGLView.genericTriangles.count) from generic objects.")
-    Swift.print("Loaded \(openGLView.edges.count) edges.")
     
     openGLView.openGLContext!.makeCurrentContext()
     if glGetError() != GLenum(GL_NO_ERROR) {
@@ -249,7 +248,9 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading edges into memory: some error occurred!")
     }
+    
+    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count) from roads, \(openGLView.waterTriangles.count) from water bodies, \(openGLView.plantCoverTriangles.count) from plant cover, \(openGLView.genericTriangles.count) from generic objects.")
+    Swift.print("Loaded \(openGLView.edges.count) edges.")
   }
-  
 }
 
