@@ -25,6 +25,10 @@ struct CityGMLParserWrapper {
   parserWrapper->parser->parse(filePath);
 }
 
+- (void) clear {
+  parserWrapper->parser->clear();
+}
+
 - (void) initialiseIterator {
   parserWrapper->parser->currentObject = parserWrapper->parser->objects.begin();
 }

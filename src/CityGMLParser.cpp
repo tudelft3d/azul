@@ -58,6 +58,11 @@ void CityGMLParser::parse(const char *filePath) {
   //  pugi::xpath_node_set npc = doc.select_nodes("//veg:PlantCover");
 }
 
+void CityGMLParser::clear() {
+  objects.clear();
+  firstRing = true;
+}
+
 void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
 //  std::cout << "Parsing object " << node.name() << std::endl;
   const char *nodeType = node.name();

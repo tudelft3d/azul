@@ -19,6 +19,7 @@ struct CityGMLParserWrapper;
 
 - (id) init;
 - (void) parse: (const char *)filePath;
+- (void) clear;
 - (void) initialiseIterator;
 - (void) advanceIterator;
 - (BOOL) hasIteratorEnded;

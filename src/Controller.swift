@@ -57,6 +57,26 @@ class Controller: NSObject, NSApplicationDelegate {
 //    Swift.print("Controller.updateProgressIndicatorUntilDone")
     
   }
+  
+  @IBAction func new(_ sender: NSMenuItem) {
+    Swift.print("Controller.new(NSMenuItem)")
+    
+    openFiles = Set<URL>()
+    self.window.representedURL = nil
+    self.window.title = "Azul"
+    
+    cityGMLParser!.clear()
+    
+    openGLView.buildingsTriangles.removeAll()
+    openGLView.buildingRoofsTriangles.removeAll()
+    openGLView.roadsTriangles.removeAll()
+    openGLView.waterTriangles.removeAll()
+    openGLView.plantCoverTriangles.removeAll()
+    openGLView.terrainTriangles.removeAll()
+    openGLView.edges.removeAll()
+    
+    regenerateOpenGLRepresentation()
+  }
 
   @IBAction func openFile(_ sender: NSMenuItem) {
     Swift.print("Controller.openFile(NSMenuItem)")

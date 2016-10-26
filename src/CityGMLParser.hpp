@@ -121,6 +121,7 @@ public:
   
   CityGMLParser();
   void parse(const char *filePath);
+  void clear();
   
   void parseObject(pugi::xml_node &node, CityGMLObject &object);
   void parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon);
