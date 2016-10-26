@@ -49,13 +49,6 @@ void CityGMLParser::parse(const char *filePath) {
   
   // Regenerate geometries
   regenerateGeometries();
-  
-  // With XPath queries
-  //  pugi::xpath_node_set nb = doc.select_nodes("//bldg:Building");
-  //  pugi::xpath_node_set nr = doc.select_nodes("//tran:Road");
-  //  pugi::xpath_node_set nrf = doc.select_nodes("//dem:ReliefFeature");
-  //  pugi::xpath_node_set nwb = doc.select_nodes("//wtr:WaterBody");
-  //  pugi::xpath_node_set npc = doc.select_nodes("//veg:PlantCover");
 }
 
 void CityGMLParser::clear() {

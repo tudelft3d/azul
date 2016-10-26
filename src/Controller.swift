@@ -53,11 +53,6 @@ class Controller: NSObject, NSApplicationDelegate {
     return true
   }
   
-  func updateProgressIndicator() {
-//    Swift.print("Controller.updateProgressIndicatorUntilDone")
-    
-  }
-  
   @IBAction func new(_ sender: NSMenuItem) {
     Swift.print("Controller.new(NSMenuItem)")
     
@@ -76,6 +71,7 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.edges.removeAll()
     
     regenerateOpenGLRepresentation()
+    openGLView.renderFrame()
   }
 
   @IBAction func openFile(_ sender: NSMenuItem) {
@@ -98,7 +94,8 @@ class Controller: NSObject, NSApplicationDelegate {
     Swift.print("Opening \(urls)")
     
     self.loadingData = true
-    let updateProgressTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.updateProgressIndicator), userInfo: nil, repeats: true)
+    progressIndicator.startAnimation(self)
+//    let updateProgressTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.updateProgressIndicator), userInfo: nil, repeats: true)
     
     DispatchQueue.global().async(qos: .userInitiated) {
       for url in urls {
@@ -129,10 +126,11 @@ class Controller: NSObject, NSApplicationDelegate {
       }
       
       self.regenerateOpenGLRepresentation()
-      updateProgressTimer.invalidate()
+//      updateProgressTimer.invalidate()
       self.loadingData = false
       
       DispatchQueue.main.async {
+        self.progressIndicator.stopAnimation(self)
         self.openGLView.renderFrame()
       }
     }
