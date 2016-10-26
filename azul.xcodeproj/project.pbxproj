@@ -1,0 +1,354 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */; };
+		BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */; };
+		BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */; };
+		BE4AF9D71DB7D93B004FCF22 /* OpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9D61DB7D93B004FCF22 /* OpenGLView.swift */; };
+		BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE61964F1DBFDC320081B3E8 /* libpugixml.a */; };
+		BE9EB5B61DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE9EB5B51DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm */; };
+		BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */; };
+		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
+		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BE4AF9C61DB7D8A0004FCF22 /* azul.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = azul.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
+		BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BE4AF9CE1DB7D8A1004FCF22 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		BE4AF9D01DB7D8A1004FCF22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BE4AF9D61DB7D93B004FCF22 /* OpenGLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenGLView.swift; sourceTree = "<group>"; };
+		BE61964F1DBFDC320081B3E8 /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = ../../../../../usr/local/Cellar/pugixml/1.7/lib/libpugixml.a; sourceTree = "<group>"; };
+		BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Azul-Bridging-Header.h"; sourceTree = "<group>"; };
+		BE9EB5B51DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CityGMLParserWrapperWrapper.mm; sourceTree = "<group>"; };
+		BE9EB5B71DBEA62400C78EC0 /* CityGMLParserWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CityGMLParserWrapperWrapper.h; sourceTree = "<group>"; };
+		BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityGMLParser.cpp; sourceTree = "<group>"; };
+		BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
+		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
+		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BE4AF9C31DB7D8A0004FCF22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BE4AF9BD1DB7D8A0004FCF22 = {
+			isa = PBXGroup;
+			children = (
+				BE4AF9C81DB7D8A0004FCF22 /* Source */,
+				BE4AF9C71DB7D8A0004FCF22 /* Products */,
+				BE61964E1DBFDC320081B3E8 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		BE4AF9C71DB7D8A0004FCF22 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BE4AF9C61DB7D8A0004FCF22 /* azul.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BE4AF9C81DB7D8A0004FCF22 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */,
+				BE4AF9D61DB7D93B004FCF22 /* OpenGLView.swift */,
+				BE9EB5B71DBEA62400C78EC0 /* CityGMLParserWrapperWrapper.h */,
+				BE9EB5B51DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm */,
+				BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */,
+				BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */,
+				BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */,
+				BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */,
+				BE4AF9D01DB7D8A1004FCF22 /* Info.plist */,
+				BEADB0D91DB8A19600B44D7B /* vertex.glsl */,
+				BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */,
+				BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */,
+			);
+			name = Source;
+			path = src;
+			sourceTree = "<group>";
+		};
+		BE61964E1DBFDC320081B3E8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BE61964F1DBFDC320081B3E8 /* libpugixml.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BE4AF9C51DB7D8A0004FCF22 /* azul */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE4AF9D31DB7D8A1004FCF22 /* Build configuration list for PBXNativeTarget "azul" */;
+			buildPhases = (
+				BE4AF9C21DB7D8A0004FCF22 /* Sources */,
+				BE4AF9C31DB7D8A0004FCF22 /* Frameworks */,
+				BE4AF9C41DB7D8A0004FCF22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = azul;
+			productName = "CityGML Viewer";
+			productReference = BE4AF9C61DB7D8A0004FCF22 /* azul.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BE4AF9BE1DB7D8A0004FCF22 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0800;
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = "Ken Arroyo Ohori";
+				TargetAttributes = {
+					BE4AF9C51DB7D8A0004FCF22 = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = 2ZLVW4NF9X;
+						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = BE4AF9C11DB7D8A0004FCF22 /* Build configuration list for PBXProject "azul" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BE4AF9BD1DB7D8A0004FCF22;
+			productRefGroup = BE4AF9C71DB7D8A0004FCF22 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BE4AF9C51DB7D8A0004FCF22 /* azul */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BE4AF9C41DB7D8A0004FCF22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */,
+				BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */,
+				BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */,
+				BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BE4AF9C21DB7D8A0004FCF22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */,
+				BE9EB5B61DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm in Sources */,
+				BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */,
+				BE4AF9D71DB7D93B004FCF22 /* OpenGLView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BE4AF9CE1DB7D8A1004FCF22 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		BE4AF9D11DB7D8A1004FCF22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BE4AF9D21DB7D8A1004FCF22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		BE4AF9D41DB7D8A1004FCF22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 2ZLVW4NF9X;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				INFOPLIST_FILE = src/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/pugixml/1.7/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.12;
+				SWIFT_OBJC_BRIDGING_HEADER = "src/Azul-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		BE4AF9D51DB7D8A1004FCF22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 2ZLVW4NF9X;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				INFOPLIST_FILE = src/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/pugixml/1.7/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.12;
+				SWIFT_OBJC_BRIDGING_HEADER = "src/Azul-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BE4AF9C11DB7D8A0004FCF22 /* Build configuration list for PBXProject "azul" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE4AF9D11DB7D8A1004FCF22 /* Debug */,
+				BE4AF9D21DB7D8A1004FCF22 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BE4AF9D31DB7D8A1004FCF22 /* Build configuration list for PBXNativeTarget "azul" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE4AF9D41DB7D8A1004FCF22 /* Debug */,
+				BE4AF9D51DB7D8A1004FCF22 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BE4AF9BE1DB7D8A0004FCF22 /* Project object */;
+}
