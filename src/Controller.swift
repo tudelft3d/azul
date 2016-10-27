@@ -65,9 +65,11 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.buildingsTriangles.removeAll()
     openGLView.buildingRoofsTriangles.removeAll()
     openGLView.roadsTriangles.removeAll()
+    openGLView.terrainTriangles.removeAll()
     openGLView.waterTriangles.removeAll()
     openGLView.plantCoverTriangles.removeAll()
-    openGLView.terrainTriangles.removeAll()
+    openGLView.genericTriangles.removeAll()
+    openGLView.bridgeTriangles.removeAll()
     openGLView.edges.removeAll()
     
     regenerateOpenGLRepresentation()
@@ -139,9 +141,11 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.buildingsTriangles.removeAll()
     openGLView.buildingRoofsTriangles.removeAll()
     openGLView.roadsTriangles.removeAll()
+    openGLView.terrainTriangles.removeAll()
     openGLView.waterTriangles.removeAll()
     openGLView.plantCoverTriangles.removeAll()
-    openGLView.terrainTriangles.removeAll()
+    openGLView.genericTriangles.removeAll()
+    openGLView.bridgeTriangles.removeAll()
     openGLView.edges.removeAll()
     
     cityGMLParser!.initialiseIterator()
@@ -170,13 +174,15 @@ class Controller: NSObject, NSApplicationDelegate {
       case 2:
         openGLView.roadsTriangles.append(contentsOf: triangles)
       case 3:
-        openGLView.waterTriangles.append(contentsOf: triangles)
-      case 4:
-        openGLView.plantCoverTriangles.append(contentsOf: triangles)
-      case 5:
         openGLView.terrainTriangles.append(contentsOf: triangles)
+      case 4:
+        openGLView.waterTriangles.append(contentsOf: triangles)
+      case 5:
+        openGLView.plantCoverTriangles.append(contentsOf: triangles)
       case 6:
         openGLView.genericTriangles.append(contentsOf: triangles)
+      case 7:
+        openGLView.bridgeTriangles.append(contentsOf: triangles)
       default:
         break
       }
@@ -196,6 +202,7 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading building triangles into memory: some error occurred!")
     }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboBuildingRoofs)
     openGLView.buildingRoofsTriangles.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.buildingRoofsTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -203,6 +210,7 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading building roof triangles into memory: some error occurred!")
     }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboRoads)
     openGLView.roadsTriangles.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.roadsTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -210,6 +218,7 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading road triangles into memory: some error occurred!")
     }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboWater)
     openGLView.waterTriangles.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.waterTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -217,6 +226,7 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading water body triangles into memory: some error occurred!")
     }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboPlantCover)
     openGLView.plantCoverTriangles.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.plantCoverTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -224,6 +234,7 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading plant cover triangles into memory: some error occurred!")
     }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboTerrain)
     openGLView.terrainTriangles.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.terrainTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -231,6 +242,7 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading terrain triangles into memory: some error occurred!")
     }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboGeneric)
     openGLView.genericTriangles.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.genericTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -238,6 +250,15 @@ class Controller: NSObject, NSApplicationDelegate {
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading generic triangles into memory: some error occurred!")
     }
+    
+    glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboBridges)
+    openGLView.bridgeTriangles.withUnsafeBufferPointer { pointer in
+      glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.bridgeTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+    }
+    if glGetError() != GLenum(GL_NO_ERROR) {
+      Swift.print("Loading bridge triangles into memory: some error occurred!")
+    }
+    
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboEdges)
     openGLView.edges.withUnsafeBufferPointer { pointer in
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.edges.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
@@ -246,7 +267,7 @@ class Controller: NSObject, NSApplicationDelegate {
       Swift.print("Loading edges into memory: some error occurred!")
     }
     
-    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count) from roads, \(openGLView.waterTriangles.count) from water bodies, \(openGLView.plantCoverTriangles.count) from plant cover, \(openGLView.genericTriangles.count) from generic objects.")
+    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count) from roads, \(openGLView.waterTriangles.count) from water bodies, \(openGLView.plantCoverTriangles.count) from plant cover, \(openGLView.genericTriangles.count) from generic objects, \(openGLView.bridgeTriangles.count) from bridges.")
     Swift.print("Loaded \(openGLView.edges.count) edges.")
   }
 }

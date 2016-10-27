@@ -24,6 +24,7 @@ class OpenGLView: NSOpenGLView {
   var vboPlantCover: GLuint = 0
   var vboTerrain: GLuint = 0
   var vboGeneric: GLuint = 0
+  var vboBridges: GLuint = 0
   var vboEdges: GLuint = 0
   
   var uniformColour: GLint = 0
@@ -48,6 +49,7 @@ class OpenGLView: NSOpenGLView {
   let plantCoverColour: Array<GLfloat> = [0.4, 0.882352941176471, 0.333333333333333]
   let terrainColour: Array<GLfloat> = [0.713725490196078, 0.882352941176471, 0.623529411764706]
   let genericColour: Array<GLfloat> = [0.7, 0.7, 0.7]
+  let bridgeColour: Array<GLfloat> = [0.247058823529412, 0.247058823529412, 0.247058823529412]
   let edgesColour: Array<GLfloat> = [0.0, 0.0, 0.0]
   
   var buildingsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
@@ -57,6 +59,7 @@ class OpenGLView: NSOpenGLView {
   var plantCoverTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var terrainTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var genericTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var bridgeTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var edges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
   required init?(coder: NSCoder) {
@@ -214,6 +217,7 @@ class OpenGLView: NSOpenGLView {
     glGenBuffers(1, &vboPlantCover)
     glGenBuffers(1, &vboTerrain)
     glGenBuffers(1, &vboGeneric)
+    glGenBuffers(1, &vboBridges)
     glGenBuffers(1, &vboEdges)
     
     while glGetError() != GLenum(GL_NO_ERROR) {
@@ -414,6 +418,16 @@ class OpenGLView: NSOpenGLView {
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering generic objects: some error occurred!")
+    }
+    
+    glUniform3f(uniformColour, bridgeColour[0], bridgeColour[1], bridgeColour[2])
+    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBridges)
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
+    //    Swift.print("Drawing \(size/3) bridge triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    if glGetError() != GLenum(GL_NO_ERROR) {
+      Swift.print("Rendering bridges: some error occurred!")
     }
     
     glUniform3f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2])

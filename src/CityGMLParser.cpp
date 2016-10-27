@@ -76,6 +76,8 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
     object.type = CityGMLObject::Type::PlantCover;
   } else if (strcmp(nodeType, "GenericCityObject") == 0) {
     object.type = CityGMLObject::Type::GenericCityObject;
+  } else if (strcmp(nodeType, "Bridge") == 0) {
+    object.type = CityGMLObject::Type::Bridge;
   }
   
   PolygonsWalker polygonsWalker;
