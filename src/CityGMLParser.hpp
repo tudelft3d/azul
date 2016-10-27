@@ -12,8 +12,10 @@
 #include <sstream>
 #include <list>
 #include <vector>
+#include <map>
 #include <OpenGL/OpenGL.h>
 #include <pugixml.hpp>
+#include "poly2tri/poly2tri.h"
 
 struct CityGMLPoint {
   float coordinates[3];
