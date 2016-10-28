@@ -13,6 +13,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <limits>
 #include <OpenGL/OpenGL.h>
 #include <pugixml.hpp>
 #include "poly2tri/poly2tri.h"
@@ -120,6 +121,8 @@ public:
   bool firstRing;
   float minCoordinates[3];
   float maxCoordinates[3];
+  float midCoordinates[3];
+  float maxRange;
   
   std::list<CityGMLObject>::const_iterator currentObject;
   
@@ -132,6 +135,8 @@ public:
   void parseRing(pugi::xml_node &node, CityGMLRing &ring);
   
   void centroidOf(CityGMLRing &ring, CityGMLPoint &centroid);
+  void addTrianglesFromTheBarycentricTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles);
+  void addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles);
   void regenerateTrianglesFor(CityGMLObject &object);
   void regenerateEdgesFor(CityGMLObject &object);
   void regenerateGeometries();

@@ -59,7 +59,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BE4AF9BD1DB7D8A0004FCF22 = {
+		BE0BF5381DC341BB00CAE443 /* To compile */ = {
 			isa = PBXGroup;
 			children = (
 				BEB0A9C51DC24784007086AD /* shapes.cc */,
@@ -67,6 +67,14 @@
 				BEB0A9C11DC2477C007086AD /* cdt.cc */,
 				BEB0A9BF1DC24779007086AD /* sweep_context.cc */,
 				BEB0A9BD1DC24776007086AD /* sweep.cc */,
+			);
+			name = "To compile";
+			sourceTree = "<group>";
+		};
+		BE4AF9BD1DB7D8A0004FCF22 = {
+			isa = PBXGroup;
+			children = (
+				BE0BF5381DC341BB00CAE443 /* To compile */,
 				BE4AF9C81DB7D8A0004FCF22 /* Source */,
 				BE4AF9C71DB7D8A0004FCF22 /* Products */,
 				BE61964E1DBFDC320081B3E8 /* Frameworks */,
@@ -137,7 +145,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Ken Arroyo Ohori";
 				TargetAttributes = {
 					BE4AF9C51DB7D8A0004FCF22 = {
@@ -230,6 +238,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -279,6 +288,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -307,6 +317,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 2ZLVW4NF9X;
@@ -320,7 +331,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.12;
+				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "src/Azul-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -332,6 +343,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 2ZLVW4NF9X;
@@ -345,7 +357,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.12;
+				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "src/Azul-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
