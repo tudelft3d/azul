@@ -270,9 +270,11 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
           orderedPolygonRanges[1] != currentCoordinate) {
         orderedPolygonRanges[2] = currentCoordinate;
       }
-    } if (polygonRange[orderedPolygonRanges[0]] > polygonRange[orderedPolygonRanges[1]] ||
-        polygonRange[orderedPolygonRanges[1]] > polygonRange[orderedPolygonRanges[2]] ||
-        polygonRange[orderedPolygonRanges[1]] <= 0) {
+    } if (orderedPolygonRanges[0] == orderedPolygonRanges[1] ||
+          orderedPolygonRanges[1] == orderedPolygonRanges[2] ||
+          polygonRange[orderedPolygonRanges[0]] > polygonRange[orderedPolygonRanges[1]] ||
+          polygonRange[orderedPolygonRanges[1]] > polygonRange[orderedPolygonRanges[2]] ||
+          polygonRange[orderedPolygonRanges[1]] <= 0) {
       std::cout << "Degenerate polygon. Can't triangulate it. Skipping..." << std::endl;
       std::cout << "\tAxis[" << orderedPolygonRanges[0] << "]: " << polygonRange[orderedPolygonRanges[0]] << ", axis[" << orderedPolygonRanges[1] << "]: " << polygonRange[orderedPolygonRanges[1]] << ", axis[" << orderedPolygonRanges[2] << "]: " << polygonRange[orderedPolygonRanges[2]] << std::endl;
       for (currentPoint = polygon.exteriorRing.points.begin(); currentPoint != polygon.exteriorRing.points.end(); ++currentPoint) {
