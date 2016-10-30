@@ -20,6 +20,8 @@
 		BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
+		BEDE76E31DC615EE000D33EC /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76E11DC615EE000D33EC /* libgmp.10.dylib */; };
+		BEDE76E41DC615EE000D33EC /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76E21DC615EE000D33EC /* libmpfr.4.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
+		BEDE76E11DC615EE000D33EC /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../usr/local/Cellar/gmp/6.1.1/lib/libgmp.10.dylib; sourceTree = "<group>"; };
+		BEDE76E21DC615EE000D33EC /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpfr.4.dylib; path = ../../../../usr/local/Cellar/mpfr/3.1.5/lib/libmpfr.4.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +52,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEDE76E31DC615EE000D33EC /* libgmp.10.dylib in Frameworks */,
+				BEDE76E41DC615EE000D33EC /* libmpfr.4.dylib in Frameworks */,
 				BE02AD4C1DC393D9007F2ACD /* libboost_system.dylib in Frameworks */,
 				BE02AD4D1DC393D9007F2ACD /* libboost_thread-mt.dylib in Frameworks */,
 				BE02AD4E1DC393D9007F2ACD /* libCGAL_Core.12.0.0.dylib in Frameworks */,
@@ -99,6 +105,8 @@
 		BE61964E1DBFDC320081B3E8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BEDE76E11DC615EE000D33EC /* libgmp.10.dylib */,
+				BEDE76E21DC615EE000D33EC /* libmpfr.4.dylib */,
 				BE02AD481DC393D9007F2ACD /* libboost_system.dylib */,
 				BE02AD491DC393D9007F2ACD /* libboost_thread-mt.dylib */,
 				BE02AD4A1DC393D9007F2ACD /* libCGAL_Core.12.0.0.dylib */,
@@ -313,6 +321,8 @@
 					/usr/local/Cellar/pugixml/1.7/lib,
 					/usr/local/Cellar/boost/1.62.0/lib,
 					/usr/local/Cellar/cgal/4.9/lib,
+					/usr/local/Cellar/gmp/6.1.1/lib,
+					/usr/local/Cellar/mpfr/3.1.5/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
@@ -341,6 +351,8 @@
 					/usr/local/Cellar/pugixml/1.7/lib,
 					/usr/local/Cellar/boost/1.62.0/lib,
 					/usr/local/Cellar/cgal/4.9/lib,
+					/usr/local/Cellar/gmp/6.1.1/lib,
+					/usr/local/Cellar/mpfr/3.1.5/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;

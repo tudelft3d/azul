@@ -21,12 +21,13 @@
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/Triangulation_face_base_with_info_2.h>
+#include <CGAL/linear_least_squares_fitting_3.h>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Exact_predicates_tag Tag;
 typedef CGAL::Triangulation_vertex_base_2<Kernel> VertexBase;
 typedef CGAL::Constrained_triangulation_face_base_2<Kernel> FaceBase;
-typedef CGAL::Triangulation_face_base_with_info_2<bool, Kernel, FaceBase> FaceBaseWithInfo;
+typedef CGAL::Triangulation_face_base_with_info_2<std::pair<bool, bool>, Kernel, FaceBase> FaceBaseWithInfo;
 typedef CGAL::Triangulation_data_structure_2<VertexBase, FaceBaseWithInfo> TriangulationDataStructure;
 typedef CGAL::Constrained_Delaunay_triangulation_2<Kernel, TriangulationDataStructure, Tag> Triangulation;
 
