@@ -293,8 +293,8 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
       CGAL_assertion(toCheck.front()->info().first);
       for (int neighbour = 0; neighbour < 3; ++neighbour) {
         if (toCheck.front()->neighbor(neighbour)->info().first) {
-          if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second != toCheck.front()->info().second);
-          else CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second == toCheck.front()->info().second);
+//          if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second != toCheck.front()->info().second);
+//          else CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second == toCheck.front()->info().second);
         } else {
           toCheck.front()->neighbor(neighbour)->info().first = true;
           CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().first == true);
