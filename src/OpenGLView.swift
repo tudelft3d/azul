@@ -228,7 +228,11 @@ class OpenGLView: NSOpenGLView {
       Swift.print("An error occurred in the initialisation of OpenGL")
     }
     
-//    glEnable(GLenum(GL_LINE_SMOOTH))
+    glEnable(GLenum(GL_LINE_SMOOTH))
+    glEnable(GLenum(GL_BLEND))
+    glBlendFunc(GLenum(GL_SRC_ALPHA), GLenum(GL_ONE_MINUS_SRC_ALPHA))
+    glHint(GLenum(GL_LINE_SMOOTH_HINT), GLenum(GL_NICEST))
+    glLineWidth(1.5)
     
     eye = GLKVector3Make(0.0, 0.0, 0.0)
     centre = GLKVector3Make(0.0, 0.0, -1.0)
