@@ -234,8 +234,6 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
   // Polygon
   else {
     
-//    std::cout << "Triangulating polygon with " << polygon.exteriorRing.points.size() << " vertices and " << polygon.interiorRings.size() << " inner rings..." << std::endl;
-    
     // Find the best fitting plane
     std::list<Kernel::Point_3> pointsInPolygon;
     for (auto const &point: polygon.exteriorRing.points) {
@@ -251,26 +249,22 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
     // Triangulate the projection of the edges to the plane
     Triangulation triangulation;
     std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
-//    std::cout << "\tAdding Point_3(" << Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]) << ") as Point_2(" << bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])) << ")" << std::endl;
     Triangulation::Vertex_handle currentVertex = triangulation.insert(bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])));
     ++currentPoint;
     Triangulation::Vertex_handle previousVertex;
     while (currentPoint != polygon.exteriorRing.points.end()) {
       previousVertex = currentVertex;
-//      std::cout << "\tAdding Point_3(" << Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]) << ") as Point_2(" << bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])) << ")" << std::endl;
       currentVertex = triangulation.insert(bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])));
       if (previousVertex != currentVertex) triangulation.insert_constraint(previousVertex, currentVertex);
       ++currentPoint;
     } for (auto const &ring: polygon.interiorRings) {
       if (ring.points.size() < 4) {
-//        std::cout << "\tRing with < 4 points! Skipping..." << std::endl;
+        std::cout << "\tRing with < 4 points! Skipping..." << std::endl;
         continue;
       } currentPoint = ring.points.begin();
-//      std::cout << "\tAdding Point_3(" << Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]) << ") as Point_2(" << bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])) << ")" << std::endl;
       currentVertex = triangulation.insert(bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])));
       while (currentPoint != ring.points.end()) {
         previousVertex = currentVertex;
-//        std::cout << "\tAdding Point_3(" << Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]) << ") as Point_2(" << bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])) << ")" << std::endl;
         currentVertex = triangulation.insert(bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])));
         if (previousVertex != currentVertex) triangulation.insert_constraint(previousVertex, currentVertex);
         ++currentPoint;
@@ -278,9 +272,8 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
     }
     
     // Label the triangles to find out interior/exterior
-//    std::cout << "\tTriangulation has " << triangulation.number_of_faces() << " faces." << std::endl;
     if (triangulation.number_of_faces() == 0) {
-//      std::cout << "Degenerate face. Skipping..." << std::endl;
+      std::cout << "Degenerate face. Skipping..." << std::endl;
       return;
     } for (Triangulation::All_faces_iterator currentFace = triangulation.all_faces_begin(); currentFace != triangulation.all_faces_end(); ++currentFace) {
       currentFace->info() = std::pair<bool, bool>(false, false);
@@ -293,6 +286,7 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
       CGAL_assertion(toCheck.front()->info().first);
       for (int neighbour = 0; neighbour < 3; ++neighbour) {
         if (toCheck.front()->neighbor(neighbour)->info().first) {
+          // Note: validation code. But here we assume that some triangulations will be invalid anyway.
 //          if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second != toCheck.front()->info().second);
 //          else CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second == toCheck.front()->info().second);
         } else {

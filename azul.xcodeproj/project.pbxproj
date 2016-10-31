@@ -25,10 +25,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BE02AD481DC393D9007F2ACD /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../../../usr/local/Cellar/boost/1.62.0/lib/libboost_system.dylib; sourceTree = "<group>"; };
-		BE02AD491DC393D9007F2ACD /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt.dylib"; path = "../../../../usr/local/Cellar/boost/1.62.0/lib/libboost_thread-mt.dylib"; sourceTree = "<group>"; };
-		BE02AD4A1DC393D9007F2ACD /* libCGAL_Core.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.12.0.0.dylib; path = ../../../../usr/local/Cellar/cgal/4.9/lib/libCGAL_Core.12.0.0.dylib; sourceTree = "<group>"; };
-		BE02AD4B1DC393D9007F2ACD /* libCGAL.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.12.0.0.dylib; path = ../../../../usr/local/Cellar/cgal/4.9/lib/libCGAL.12.0.0.dylib; sourceTree = "<group>"; };
 		BE4AF9C61DB7D8A0004FCF22 /* azul.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = azul.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -43,8 +39,6 @@
 		BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
-		BEDE76E11DC615EE000D33EC /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../usr/local/Cellar/gmp/6.1.1/lib/libgmp.10.dylib; sourceTree = "<group>"; };
-		BEDE76E21DC615EE000D33EC /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpfr.4.dylib; path = ../../../../usr/local/Cellar/mpfr/3.1.5/lib/libmpfr.4.dylib; sourceTree = "<group>"; };
 		BEDE76E51DC62C2C000D33EC /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "../../../../usr/local/Cellar/boost/1.62.0/lib/libboost_system-mt.a"; sourceTree = "<group>"; };
 		BEDE76E61DC62C2C000D33EC /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../../../usr/local/Cellar/boost/1.62.0/lib/libboost_thread-mt.a"; sourceTree = "<group>"; };
 		BEDE76E91DC62C4A000D33EC /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = ../../../../usr/local/Cellar/gmp/6.1.1/lib/libgmp.a; sourceTree = "<group>"; };
@@ -117,12 +111,6 @@
 				BEDE76EA1DC62C4A000D33EC /* libmpfr.a */,
 				BEDE76E51DC62C2C000D33EC /* libboost_system-mt.a */,
 				BEDE76E61DC62C2C000D33EC /* libboost_thread-mt.a */,
-				BEDE76E11DC615EE000D33EC /* libgmp.10.dylib */,
-				BEDE76E21DC615EE000D33EC /* libmpfr.4.dylib */,
-				BE02AD481DC393D9007F2ACD /* libboost_system.dylib */,
-				BE02AD491DC393D9007F2ACD /* libboost_thread-mt.dylib */,
-				BE02AD4A1DC393D9007F2ACD /* libCGAL_Core.12.0.0.dylib */,
-				BE02AD4B1DC393D9007F2ACD /* libCGAL.12.0.0.dylib */,
 				BE61964F1DBFDC320081B3E8 /* libpugixml.a */,
 			);
 			name = Frameworks;

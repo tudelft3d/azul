@@ -465,7 +465,7 @@ class OpenGLView: NSOpenGLView {
   }
   
   override func draw(_ dirtyRect: NSRect) {
-    Swift.print("OpenGLView.draw(NSRect)")
+//    Swift.print("OpenGLView.draw(NSRect)")
     super.draw(dirtyRect)
     renderFrame()
   }
