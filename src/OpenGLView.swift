@@ -36,6 +36,10 @@ class OpenGLView: NSOpenGLView {
   var eye: GLKVector3 = GLKVector3Make(0.0, 0.0, 0.0)
   var centre: GLKVector3 = GLKVector3Make(0.0, 0.0, 0.0)
   
+  var modelTranslation = GLKMatrix4Identity
+  var modelRotation = GLKMatrix4Identity
+  var modelShiftBack = GLKMatrix4Identity
+  
   var model: GLKMatrix4 = GLKMatrix4Identity
   var view: GLKMatrix4 = GLKMatrix4Identity
   var projection: GLKMatrix4 = GLKMatrix4Identity
@@ -237,7 +241,10 @@ class OpenGLView: NSOpenGLView {
     eye = GLKVector3Make(0.0, 0.0, 0.0)
     centre = GLKVector3Make(0.0, 0.0, -1.0)
     
-    model = GLKMatrix4MakeTranslation(centre.x, centre.y, centre.z)
+    modelTranslation = GLKMatrix4Identity
+    modelRotation = GLKMatrix4Identity
+    modelShiftBack = GLKMatrix4MakeTranslation(centre.x, centre.y, centre.z)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
     view = GLKMatrix4MakeLookAt(eye.x, eye.y, eye.z, centre.x, centre.y, centre.z, 0.0, 1.0, 0.0)
     projection = GLKMatrix4MakePerspective(45.0, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
@@ -273,11 +280,12 @@ class OpenGLView: NSOpenGLView {
     let angle = acos(GLKVector3DotProduct(lastPosition, currentPosition))
     if !angle.isNaN && angle > 0.0 {
 //      Swift.print("Angle: \(angle)")
-      let axisInCameraCoordinates = GLKVector3CrossProduct(lastPosition, currentPosition)
+      let axisInCameraCoordinates: GLKVector3 = GLKVector3CrossProduct(lastPosition, currentPosition)
       var isInvertible: Bool = true
       let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
       let axisInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, axisInCameraCoordinates)
-      model = GLKMatrix4RotateWithVector3(model, angle, axisInObjectCoordinates)
+      modelRotation = GLKMatrix4RotateWithVector3(modelRotation, angle, axisInObjectCoordinates)
+      model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
       mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
       transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                         mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -293,9 +301,12 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("OpenGLView.scrollWheel()")
 //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
     let scrollingSensitivity: Float = 0.003
-    eye = GLKVector3Make(eye.x-scrollingSensitivity*Float(event.scrollingDeltaX), eye.y+scrollingSensitivity*Float(event.scrollingDeltaY), eye.z)
-    centre = GLKVector3Make(centre.x-scrollingSensitivity*Float(event.scrollingDeltaX), centre.y+scrollingSensitivity*Float(event.scrollingDeltaY), centre.z)
-    view = GLKMatrix4MakeLookAt(eye.x, eye.y, eye.z, centre.x, centre.y, centre.z, 0.0, 1.0, 0.0)
+    var isInvertible: Bool = true
+    let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
+    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+    let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
+    modelTranslation = GLKMatrix4TranslateWithVector3(modelTranslation, motionInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -308,9 +319,12 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("OpenGLView.magnify()")
 //    Swift.print("Pinched: \(event.magnification)")
     let pinchSensitivity: Float = 2.0
-    eye = GLKVector3Make(eye.x, eye.y, eye.z-pinchSensitivity*Float(event.magnification))
-    centre = GLKVector3Make(centre.x, centre.y, centre.z-pinchSensitivity*Float(event.magnification))
-    view = GLKMatrix4MakeLookAt(eye.x, eye.y, eye.z, centre.x, centre.y, centre.z, 0.0, 1.0, 0.0)
+    var isInvertible: Bool = true
+    let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, pinchSensitivity*Float(event.magnification))
+    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+    let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
+    modelTranslation = GLKMatrix4TranslateWithVector3(modelTranslation, motionInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
