@@ -138,6 +138,30 @@ class Controller: NSObject, NSApplicationDelegate {
     }
   }
   
+  @IBAction func toggleViewEdges(_ sender: NSMenuItem) {
+    if openGLView.viewEdges {
+      openGLView.viewEdges = false
+      sender.state = 0
+      openGLView.renderFrame()
+    } else {
+      openGLView.viewEdges = true
+      sender.state = 1
+      openGLView.renderFrame()
+    }
+  }
+  
+  @IBAction func toggleViewBoundingBox(_ sender: NSMenuItem) {
+    if openGLView.viewBoundingBox {
+      openGLView.viewBoundingBox = false
+      sender.state = 0
+      openGLView.renderFrame()
+    } else {
+      openGLView.viewBoundingBox = true
+      sender.state = 1
+      openGLView.renderFrame()
+    }
+  }
+  
   func regenerateOpenGLRepresentation() {
     openGLView.buildingsTriangles.removeAll()
     openGLView.buildingRoofsTriangles.removeAll()

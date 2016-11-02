@@ -17,6 +17,9 @@ class OpenGLView: NSOpenGLView {
   
   var program: GLuint = 0
   
+  var viewEdges: Bool = true
+  var viewBoundingBox: Bool = false
+  
   var vboBuildings: GLuint = 0
   var vboBuildingRoofs: GLuint = 0
   var vboRoads: GLuint = 0
@@ -35,8 +38,9 @@ class OpenGLView: NSOpenGLView {
   
   var eye: GLKVector3 = GLKVector3Make(0.0, 0.0, 0.0)
   var centre: GLKVector3 = GLKVector3Make(0.0, 0.0, 0.0)
+  var fieldOfView: Float = 0.0
   
-  var modelTranslation = GLKMatrix4Identity
+  var modelTranslationToCentreOfRotation = GLKMatrix4Identity
   var modelRotation = GLKMatrix4Identity
   var modelShiftBack = GLKMatrix4Identity
   
@@ -240,13 +244,14 @@ class OpenGLView: NSOpenGLView {
     
     eye = GLKVector3Make(0.0, 0.0, 0.0)
     centre = GLKVector3Make(0.0, 0.0, -1.0)
+    fieldOfView = 45.0
     
-    modelTranslation = GLKMatrix4Identity
+    modelTranslationToCentreOfRotation = GLKMatrix4Identity
     modelRotation = GLKMatrix4Identity
     modelShiftBack = GLKMatrix4MakeTranslation(centre.x, centre.y, centre.z)
-    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
     view = GLKMatrix4MakeLookAt(eye.x, eye.y, eye.z, centre.x, centre.y, centre.z, 0.0, 1.0, 0.0)
-    projection = GLKMatrix4MakePerspective(45.0, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
+    projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -285,7 +290,7 @@ class OpenGLView: NSOpenGLView {
       let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
       let axisInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, axisInCameraCoordinates)
       modelRotation = GLKMatrix4RotateWithVector3(modelRotation, angle, axisInObjectCoordinates)
-      model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
+      model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
       mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
       transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                         mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -305,8 +310,8 @@ class OpenGLView: NSOpenGLView {
     let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
     let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
     let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
-    modelTranslation = GLKMatrix4TranslateWithVector3(modelTranslation, motionInObjectCoordinates)
-    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
+    modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, motionInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -318,13 +323,16 @@ class OpenGLView: NSOpenGLView {
   override func magnify(with event: NSEvent) {
 //    Swift.print("OpenGLView.magnify()")
 //    Swift.print("Pinched: \(event.magnification)")
-    let pinchSensitivity: Float = 2.0
-    var isInvertible: Bool = true
-    let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, pinchSensitivity*Float(event.magnification))
-    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
-    let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
-    modelTranslation = GLKMatrix4TranslateWithVector3(modelTranslation, motionInObjectCoordinates)
-    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
+    let pinchSensitivity: Float = 0.01
+//    var isInvertible: Bool = true
+//    let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, pinchSensitivity*Float(event.magnification))
+//    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+//    let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
+//    modelTranslation = GLKMatrix4TranslateWithVector3(modelTranslation, motionInObjectCoordinates)
+//    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
+//    Swift.print("Field of view: \(fieldOfView)")
+//    fieldOfView = fieldOfView - Float(event.magnification)
+//    projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -341,7 +349,7 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("OpenGLView.reshape()")
     super.reshape()
     glViewport(0, 0, GLsizei(bounds.size.width), GLsizei(bounds.size.height))
-    projection = GLKMatrix4MakePerspective(45.0, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
+    projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -462,14 +470,16 @@ class OpenGLView: NSOpenGLView {
       Swift.print("Rendering land use: some error occurred!")
     }
     
-    glUniform3f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboEdges)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/2) edges")
-    glDrawArrays(GLenum(GL_LINES), 0, size)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering edges: some error occurred!")
+    if (viewEdges) {
+      glUniform3f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2])
+      glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboEdges)
+      glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
+  //    Swift.print("Drawing \(size/2) edges")
+      glDrawArrays(GLenum(GL_LINES), 0, size)
+      if glGetError() != GLenum(GL_NO_ERROR) {
+        Swift.print("Rendering edges: some error occurred!")
+      }
     }
     
     glDisableVertexAttribArray(GLuint(attributeCoordinates))
