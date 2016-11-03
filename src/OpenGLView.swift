@@ -312,7 +312,7 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
     
     // Motion according to trackpad
-    let scrollingSensitivity: Float = 0.003
+    let scrollingSensitivity: Float = 0.003*(fieldOfView/GLKMathDegreesToRadians(45.0))
     var isInvertible: Bool = true
     let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
     var cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
@@ -323,7 +323,7 @@ class OpenGLView: NSOpenGLView {
     // Correct motion so that the point of rotation remains at the same depth as the data
     cameraToObject = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
     let depthOffset = 1.0+depthAtCentre()
-    Swift.print("Depth offset: \(depthOffset)")
+//    Swift.print("Depth offset: \(depthOffset)")
     let depthOffsetInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, depthOffsetInCameraCoordinates)
     modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, depthOffsetInObjectCoordinates)
@@ -402,7 +402,7 @@ class OpenGLView: NSOpenGLView {
     let d = -GLKVector4DotProduct(crossProduct, centreDownPoint)
     
     // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
-    Swift.print("Depth at centre: \(-d/crossProduct.z)")
+//    Swift.print("Depth at centre: \(-d/crossProduct.z)")
     return -d/crossProduct.z
   }
   
