@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C32f" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
@@ -17,6 +17,8 @@
             <connections>
                 <outlet property="openGLView" destination="P1V-6K-Lq6" id="V55-Uf-x41"/>
                 <outlet property="progressIndicator" destination="dem-kJ-wZD" id="PFM-7w-OL8"/>
+                <outlet property="toggleViewBoundingBoxMenuItem" destination="S18-6j-Hu0" id="bBU-UF-WXj"/>
+                <outlet property="toggleViewEdgesMenuItem" destination="qpu-IH-tZe" id="5tl-Vw-VKX"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="5xi-Nc-H8H"/>
             </connections>
         </customObject>

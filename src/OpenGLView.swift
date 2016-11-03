@@ -327,7 +327,7 @@ class OpenGLView: NSOpenGLView {
   override func magnify(with event: NSEvent) {
 //    Swift.print("OpenGLView.magnify()")
 //    Swift.print("Pinched: \(event.magnification)")
-    let pinchSensitivity: Float = 0.01
+//    let pinchSensitivity: Float = 0.01
 //    var isInvertible: Bool = true
 //    let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, pinchSensitivity*Float(event.magnification))
 //    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
@@ -347,6 +347,72 @@ class OpenGLView: NSOpenGLView {
   
   override func keyDown(with event: NSEvent) {
     Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
+    
+    switch event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!] {
+    case "b":
+      controller!.toggleViewBoundingBox(controller!.toggleViewBoundingBoxMenuItem)
+    case "e":
+      controller!.toggleViewEdges(controller!.toggleViewEdgesMenuItem)
+    case "t":
+      testDepthAtCentre()
+    default:
+      break
+    }
+  }
+  
+  func testDepthAtCentre() {
+    let firstMinCoordinate = controller!.cityGMLParser!.minCoordinates()
+    let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
+    var minCoordinates = ContiguousArray(minCoordinatesBuffer)
+    let firstMidCoordinate = controller!.cityGMLParser!.midCoordinates()
+    let midCoordinatesBuffer = UnsafeBufferPointer(start: firstMidCoordinate, count: 3)
+    let midCoordinates = ContiguousArray(midCoordinatesBuffer)
+    let firstMaxCoordinate = controller!.cityGMLParser!.maxCoordinates()
+    let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
+    var maxCoordinates = ContiguousArray(maxCoordinatesBuffer)
+    let maxRange = controller!.cityGMLParser!.maxRange()
+    
+    for coordinate in 0..<3 {
+      minCoordinates[coordinate] = (minCoordinates[coordinate]-midCoordinates[coordinate])/maxRange
+      maxCoordinates[coordinate] = (maxCoordinates[coordinate]-midCoordinates[coordinate])/maxRange
+    }
+    
+    let leftUpPointInObjectCoordinates = GLKVector4Make(minCoordinates[0], maxCoordinates[1], 0.0, 1.0)
+    let rightUpPointInObjectCoordinates = GLKVector4Make(maxCoordinates[0], maxCoordinates[1], 0.0, 1.0)
+    let centreDownPointInObjectCoordinates = GLKVector4Make(0.0, minCoordinates[1], 0.0, 1.0)
+    
+//    Swift.print("Left up: (\(leftUpPointInObjectCoordinates.x), \(leftUpPointInObjectCoordinates.y), \(leftUpPointInObjectCoordinates.z))")
+//    Swift.print("Right up: (\(rightUpPointInObjectCoordinates.x), \(rightUpPointInObjectCoordinates.y), \(rightUpPointInObjectCoordinates.z))")
+//    Swift.print("Centre down: (\(centreDownPointInObjectCoordinates.x), \(centreDownPointInObjectCoordinates.y), \(centreDownPointInObjectCoordinates.z))")
+    
+    let modelView = GLKMatrix4Multiply(view, model)
+    
+//    Swift.print("Model view matrix")
+//    Swift.print("\(modelView.m00)\t\(modelView.m01)\t\(modelView.m02)\t\(modelView.m03)")
+//    Swift.print("\(modelView.m10)\t\(modelView.m11)\t\(modelView.m12)\t\(modelView.m13)")
+//    Swift.print("\(modelView.m20)\t\(modelView.m21)\t\(modelView.m22)\t\(modelView.m23)")
+//    Swift.print("\(modelView.m30)\t\(modelView.m31)\t\(modelView.m32)\t\(modelView.m33)")
+    
+    let leftUpPoint = GLKMatrix4MultiplyVector4(modelView, leftUpPointInObjectCoordinates)
+    let rightUpPoint = GLKMatrix4MultiplyVector4(modelView, rightUpPointInObjectCoordinates)
+    let centreDownPoint = GLKMatrix4MultiplyVector4(modelView, centreDownPointInObjectCoordinates)
+    
+//    Swift.print("Left up: (\(leftUpPoint.x), \(leftUpPoint.y), \(leftUpPoint.z))")
+//    Swift.print("Right up: (\(rightUpPoint.x), \(rightUpPoint.y), \(rightUpPoint.z))")
+//    Swift.print("Centre down: (\(centreDownPoint.x), \(centreDownPoint.y), \(centreDownPoint.z))")
+    
+    let vector1 = GLKVector4Make(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z, 1.0)
+    let vector2 = GLKVector4Make(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z, 1.0)
+    let crossProduct = GLKVector4CrossProduct(vector1, vector2)
+    
+    // Plane equation passing through points: ax + bx + cy + d = 0
+//    let a = crossProduct.x
+//    let b = crossProduct.y
+//    let c = crossProduct.z
+    let d = -GLKVector4DotProduct(crossProduct, centreDownPoint)
+    
+    // -d/c = y
+    Swift.print("Depth at centre: \(-d/crossProduct.z)")
   }
   
   override func reshape() {

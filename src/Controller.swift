@@ -16,6 +16,9 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var openGLView: OpenGLView!
   @IBOutlet weak var progressIndicator: NSProgressIndicator!
   
+  @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
+  @IBOutlet weak var toggleViewBoundingBoxMenuItem: NSMenuItem!
+  
   let cityGMLParser = CityGMLParserWrapperWrapper()
   
   var openFiles = Set<URL>()
@@ -259,7 +262,8 @@ class Controller: NSObject, NSApplicationDelegate {
                                           maxCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 101 -> 111
                                           maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
                                           maxCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 110 -> 111
-                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2]]
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2]
+    ]
     openGLView.boundingBox.append(contentsOf: boundingBoxVertices)
     
     openGLView.openGLContext!.makeCurrentContext()
