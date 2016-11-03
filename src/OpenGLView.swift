@@ -381,6 +381,24 @@ class OpenGLView: NSOpenGLView {
     }
   }
   
+  override func rightMouseDragged(with event: NSEvent) {
+//    Swift.print("OpenGLView.rightMouseDragged()")
+    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
+    
+    let zoomSensitivity: Float = 0.01
+    let magnification: Float = 1.0+zoomSensitivity*Float(event.deltaY)
+    Swift.print("Magnification: \(magnification)")
+    fieldOfView = fieldOfView/magnification
+    Swift.print("Field of view: \(fieldOfView)")
+    projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
+    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
+    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    renderFrame()
+  }
+  
   override func scrollWheel(with event: NSEvent) {
 //    Swift.print("OpenGLView.scrollWheel()")
 //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
