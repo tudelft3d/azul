@@ -30,6 +30,7 @@ class OpenGLView: NSOpenGLView {
   var vboBridges: GLuint = 0
   var vboLandUse: GLuint = 0
   var vboEdges: GLuint = 0
+  var vboBoundingBox: GLuint = 0
   
   var uniformColour: GLint = 0
   var uniformMVP: GLint = 0
@@ -61,6 +62,7 @@ class OpenGLView: NSOpenGLView {
   let bridgeColour: Array<GLfloat> = [0.247058823529412, 0.247058823529412, 0.247058823529412]
   let landUseColour: Array<GLfloat> = [1.0, 0.0, 0.0]
   let edgesColour: Array<GLfloat> = [0.0, 0.0, 0.0]
+  let boundingBoxColour: Array<GLfloat> = [0.0, 0.0, 0.0]
   
   var buildingsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var buildingRoofsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
@@ -72,6 +74,7 @@ class OpenGLView: NSOpenGLView {
   var bridgeTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var landUseTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var edges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var boundingBox: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
   required init?(coder: NSCoder) {
     Swift.print("OpenGLView.init?(NSCoder)")
@@ -231,6 +234,7 @@ class OpenGLView: NSOpenGLView {
     glGenBuffers(1, &vboBridges)
     glGenBuffers(1, &vboLandUse)
     glGenBuffers(1, &vboEdges)
+    glGenBuffers(1, &vboBoundingBox)
     
     while glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("An error occurred in the initialisation of OpenGL")
@@ -482,6 +486,18 @@ class OpenGLView: NSOpenGLView {
       }
     }
     
+    if (viewBoundingBox) {
+      glUniform3f(uniformColour, boundingBoxColour[0], boundingBoxColour[1], boundingBoxColour[2])
+      glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBoundingBox)
+      glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
+//    Swift.print("Drawing \(size/2) bounding box edges")
+      glDrawArrays(GLenum(GL_LINES), 0, size)
+      if glGetError() != GLenum(GL_NO_ERROR) {
+        Swift.print("Rendering bounding box: some error occurred!")
+      }
+    }
+    
     glDisableVertexAttribArray(GLuint(attributeCoordinates))
     
     CGLFlushDrawable(openGLContext!.cglContextObj!)
@@ -509,5 +525,6 @@ class OpenGLView: NSOpenGLView {
     glDeleteBuffers(1, &vboGeneric)
     glDeleteBuffers(1, &vboLandUse)
     glDeleteBuffers(1, &vboEdges)
+    glDeleteBuffers(1, &vboBoundingBox)
   }
 }

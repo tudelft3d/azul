@@ -72,6 +72,7 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.bridgeTriangles.removeAll()
     openGLView.landUseTriangles.removeAll()
     openGLView.edges.removeAll()
+    openGLView.boundingBox.removeAll()
     
     regenerateOpenGLRepresentation()
     openGLView.renderFrame()
@@ -173,27 +174,28 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.bridgeTriangles.removeAll()
     openGLView.landUseTriangles.removeAll()
     openGLView.edges.removeAll()
+    openGLView.boundingBox.removeAll()
     
     cityGMLParser!.initialiseIterator()
-    while !cityGMLParser!.hasIteratorEnded() {
+    while !cityGMLParser!.iteratorEnded() {
 //      Swift.print("Iterating...")
       
       var numberOfEdgeVertices: UInt = 0
-      let firstElementOfEdgesBuffer = cityGMLParser!.getEdgesBuffer(&numberOfEdgeVertices)
+      let firstElementOfEdgesBuffer = cityGMLParser!.edgesBuffer(&numberOfEdgeVertices)
       let edgesBuffer = UnsafeBufferPointer(start: firstElementOfEdgesBuffer, count: Int(numberOfEdgeVertices))
       let edges = ContiguousArray(edgesBuffer)
       var numberOfTriangleVertices: UInt = 0
-      let firstElementOfTrianglesBuffer = cityGMLParser!.getTrianglesBuffer(&numberOfTriangleVertices)
+      let firstElementOfTrianglesBuffer = cityGMLParser!.trianglesBuffer(&numberOfTriangleVertices)
       let trianglesBuffer = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer, count: Int(numberOfTriangleVertices))
       let triangles = ContiguousArray(trianglesBuffer)
       var numberOfTriangleVertices2: UInt = 0
-      let firstElementOfTrianglesBuffer2 = cityGMLParser!.getTriangles2Buffer(&numberOfTriangleVertices2)
+      let firstElementOfTrianglesBuffer2 = cityGMLParser!.triangles2Buffer(&numberOfTriangleVertices2)
       let trianglesBuffer2 = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer2, count: Int(numberOfTriangleVertices2))
       let triangles2 = ContiguousArray(trianglesBuffer2)
       
       openGLView.edges.append(contentsOf: edges)
       
-      switch cityGMLParser!.getType() {
+      switch cityGMLParser!.type() {
       case 1:
         openGLView.buildingsTriangles.append(contentsOf: triangles)
         openGLView.buildingRoofsTriangles.append(contentsOf: triangles2)
@@ -217,6 +219,48 @@ class Controller: NSObject, NSApplicationDelegate {
       
       cityGMLParser!.advanceIterator()
     }
+    
+    let firstMinCoordinate = cityGMLParser!.minCoordinates()
+    let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
+    var minCoordinates = ContiguousArray(minCoordinatesBuffer)
+    let firstMidCoordinate = cityGMLParser!.midCoordinates()
+    let midCoordinatesBuffer = UnsafeBufferPointer(start: firstMidCoordinate, count: 3)
+    let midCoordinates = ContiguousArray(midCoordinatesBuffer)
+    let firstMaxCoordinate = cityGMLParser!.maxCoordinates()
+    let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
+    var maxCoordinates = ContiguousArray(maxCoordinatesBuffer)
+    let maxRange = cityGMLParser!.maxRange()
+    
+    for coordinate in 0..<3 {
+      minCoordinates[coordinate] = (minCoordinates[coordinate]-midCoordinates[coordinate])/maxRange
+      maxCoordinates[coordinate] = (maxCoordinates[coordinate]-midCoordinates[coordinate])/maxRange
+    }
+    
+    let boundingBoxVertices: [GLfloat] = [minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 001
+                                          minCoordinates[0], minCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 010
+                                          minCoordinates[0], maxCoordinates[1], minCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 100
+                                          maxCoordinates[0], minCoordinates[1], minCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 001 -> 011
+                                          minCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 001 -> 101
+                                          maxCoordinates[0], minCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 010 -> 011
+                                          minCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 010 -> 110
+                                          maxCoordinates[0], maxCoordinates[1], minCoordinates[2],
+                                          minCoordinates[0], maxCoordinates[1], maxCoordinates[2],  // 011 -> 111
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          maxCoordinates[0], minCoordinates[1], minCoordinates[2],  // 100 -> 101
+                                          maxCoordinates[0], minCoordinates[1], maxCoordinates[2],
+                                          maxCoordinates[0], minCoordinates[1], minCoordinates[2],  // 100 -> 110
+                                          maxCoordinates[0], maxCoordinates[1], minCoordinates[2],
+                                          maxCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 101 -> 111
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          maxCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 110 -> 111
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2]]
+    openGLView.boundingBox.append(contentsOf: boundingBoxVertices)
     
     openGLView.openGLContext!.makeCurrentContext()
     if glGetError() != GLenum(GL_NO_ERROR) {
@@ -303,8 +347,16 @@ class Controller: NSObject, NSApplicationDelegate {
       Swift.print("Loading edges into memory: some error occurred!")
     }
     
-    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count) from roads, \(openGLView.waterTriangles.count) from water bodies, \(openGLView.plantCoverTriangles.count) from plant cover, \(openGLView.genericTriangles.count) from generic objects, \(openGLView.bridgeTriangles.count) from bridges, \(openGLView.landUseTriangles.count) from land use.")
-    Swift.print("Loaded \(openGLView.edges.count) edges.")
+    glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboBoundingBox)
+    openGLView.boundingBox.withUnsafeBufferPointer { pointer in
+      glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.boundingBox.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+    }
+    if glGetError() != GLenum(GL_NO_ERROR) {
+      Swift.print("Loading edges into memory: some error occurred!")
+    }
+    
+    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count/9) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count/9) from roads, \(openGLView.waterTriangles.count/9) from water bodies, \(openGLView.plantCoverTriangles.count/9) from plant cover, \(openGLView.genericTriangles.count/9) from generic objects, \(openGLView.bridgeTriangles.count/9) from bridges, \(openGLView.landUseTriangles.count/9) from land use.")
+    Swift.print("Loaded \(openGLView.edges.count/6) edges and \(openGLView.boundingBox.count/6) edges from the bounding box.")
   }
 }
 

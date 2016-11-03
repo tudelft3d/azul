@@ -10,6 +10,7 @@
 
 struct CityGMLParserWrapper {
   CityGMLParser *parser;
+  std::vector<GLfloat> boundingBox;
 };
 
 @implementation CityGMLParserWrapperWrapper
@@ -37,17 +38,17 @@ struct CityGMLParserWrapper {
   ++parserWrapper->parser->currentObject;
 }
 
-- (BOOL) hasIteratorEnded {
+- (BOOL) iteratorEnded {
   if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
     return true;
   } return false;
 }
 
-- (unsigned int) getType {
+- (unsigned int) type {
   return parserWrapper->parser->currentObject->type;
 }
 
-- (const GLfloat *) getTrianglesBuffer: (unsigned long *)elements {
+- (const GLfloat *) trianglesBuffer: (unsigned long *)elements {
   if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
     *elements = 0;
     return nil;
@@ -55,7 +56,7 @@ struct CityGMLParserWrapper {
   return parserWrapper->parser->currentObject->triangles.data();
 }
 
-- (const GLfloat *) getTriangles2Buffer: (unsigned long *)elements {
+- (const GLfloat *) triangles2Buffer: (unsigned long *)elements {
   if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
     *elements = 0;
     return nil;
@@ -63,12 +64,28 @@ struct CityGMLParserWrapper {
   return parserWrapper->parser->currentObject->triangles2.data();
 }
 
-- (const GLfloat *) getEdgesBuffer: (unsigned long *)elements {
+- (const GLfloat *) edgesBuffer: (unsigned long *)elements {
   if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
     *elements = 0;
     return nil;
   } *elements = parserWrapper->parser->currentObject->edges.size();
   return parserWrapper->parser->currentObject->edges.data();
+}
+
+- (float *) minCoordinates {
+  return parserWrapper->parser->minCoordinates;
+}
+
+- (float *) midCoordinates {
+  return parserWrapper->parser->midCoordinates;
+}
+
+- (float *) maxCoordinates {
+  return parserWrapper->parser->maxCoordinates;
+}
+
+- (float) maxRange {
+  return parserWrapper->parser->maxRange;
 }
 
 - (void) dealloc {

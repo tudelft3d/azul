@@ -22,11 +22,15 @@ struct CityGMLParserWrapper;
 - (void) clear;
 - (void) initialiseIterator;
 - (void) advanceIterator;
-- (BOOL) hasIteratorEnded;
-- (unsigned int) getType;
-- (const GLfloat *) getTrianglesBuffer: (unsigned long *)elements;
-- (const GLfloat *) getTriangles2Buffer: (unsigned long *)elements;
-- (const GLfloat *) getEdgesBuffer: (unsigned long *)elements;
+- (BOOL) iteratorEnded;
+- (unsigned int) type;
+- (const GLfloat *) trianglesBuffer: (unsigned long *)elements;
+- (const GLfloat *) triangles2Buffer: (unsigned long *)elements;
+- (const GLfloat *) edgesBuffer: (unsigned long *)elements;
+- (float *) minCoordinates;
+- (float *) midCoordinates;
+- (float *) maxCoordinates;
+- (float) maxRange;
 - (void) dealloc;
 
 @end
