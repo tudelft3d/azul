@@ -248,7 +248,7 @@ class OpenGLView: NSOpenGLView {
     
     eye = GLKVector3Make(0.0, 0.0, 0.0)
     centre = GLKVector3Make(0.0, 0.0, -1.0)
-    fieldOfView = 45.0
+    fieldOfView = GLKMathDegreesToRadians(45.0)
     
     modelTranslationToCentreOfRotation = GLKMatrix4Identity
     modelRotation = GLKMatrix4Identity
@@ -340,17 +340,11 @@ class OpenGLView: NSOpenGLView {
   
   override func magnify(with event: NSEvent) {
 //    Swift.print("OpenGLView.magnify()")
-//    Swift.print("Pinched: \(event.magnification)")
-//    let pinchSensitivity: Float = 0.01
-//    var isInvertible: Bool = true
-//    let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, pinchSensitivity*Float(event.magnification))
-//    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
-//    let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
-//    modelTranslation = GLKMatrix4TranslateWithVector3(modelTranslation, motionInObjectCoordinates)
-//    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslation)
-//    Swift.print("Field of view: \(fieldOfView)")
-//    fieldOfView = fieldOfView - Float(event.magnification)
-//    projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
+    Swift.print("Pinched: \(event.magnification)")
+    let magnification: Float = 1.0+Float(event.magnification)
+    fieldOfView = fieldOfView/magnification
+    Swift.print("Field of view: \(fieldOfView)")
+    projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
