@@ -276,6 +276,7 @@ class OpenGLView: NSOpenGLView {
   
   override func mouseDragged(with event: NSEvent) {
 //    Swift.print("OpenGLView.mouseDragged()")
+    
     let currentX = -1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width
     let currentY = -1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height
     let currentZ = sqrt(1 - (currentX*currentX+currentY*currentY))
@@ -309,13 +310,26 @@ class OpenGLView: NSOpenGLView {
   override func scrollWheel(with event: NSEvent) {
 //    Swift.print("OpenGLView.scrollWheel()")
 //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
+    
+    // Motion according to trackpad
     let scrollingSensitivity: Float = 0.003
     var isInvertible: Bool = true
     let motionInCameraCoordinates: GLKVector3 = GLKVector3Make(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
-    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+    var cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
     let motionInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, motionInCameraCoordinates)
     modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, motionInObjectCoordinates)
     model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
+    
+    // Correct motion so that the point of rotation remains at the same depth as the data
+    cameraToObject = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+    let depthOffset = 1.0+depthAtCentre()
+    Swift.print("Depth offset: \(depthOffset)")
+    let depthOffsetInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, -depthOffset)
+    let depthOffsetInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, depthOffsetInCameraCoordinates)
+    modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, depthOffsetInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
+    
+    // Recompute MVP
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
                       mvp.m10, mvp.m11, mvp.m12, mvp.m13,
@@ -353,14 +367,12 @@ class OpenGLView: NSOpenGLView {
       controller!.toggleViewBoundingBox(controller!.toggleViewBoundingBoxMenuItem)
     case "e":
       controller!.toggleViewEdges(controller!.toggleViewEdgesMenuItem)
-    case "t":
-      testDepthAtCentre()
     default:
       break
     }
   }
   
-  func testDepthAtCentre() {
+  func depthAtCentre() -> GLfloat {
     let firstMinCoordinate = controller!.cityGMLParser!.minCoordinates()
     let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
     var minCoordinates = ContiguousArray(minCoordinatesBuffer)
@@ -377,42 +389,27 @@ class OpenGLView: NSOpenGLView {
       maxCoordinates[coordinate] = (maxCoordinates[coordinate]-midCoordinates[coordinate])/maxRange
     }
     
+    // Create three points along the data plane
     let leftUpPointInObjectCoordinates = GLKVector4Make(minCoordinates[0], maxCoordinates[1], 0.0, 1.0)
     let rightUpPointInObjectCoordinates = GLKVector4Make(maxCoordinates[0], maxCoordinates[1], 0.0, 1.0)
     let centreDownPointInObjectCoordinates = GLKVector4Make(0.0, minCoordinates[1], 0.0, 1.0)
     
-//    Swift.print("Left up: (\(leftUpPointInObjectCoordinates.x), \(leftUpPointInObjectCoordinates.y), \(leftUpPointInObjectCoordinates.z))")
-//    Swift.print("Right up: (\(rightUpPointInObjectCoordinates.x), \(rightUpPointInObjectCoordinates.y), \(rightUpPointInObjectCoordinates.z))")
-//    Swift.print("Centre down: (\(centreDownPointInObjectCoordinates.x), \(centreDownPointInObjectCoordinates.y), \(centreDownPointInObjectCoordinates.z))")
-    
+    // Obtain their coordinates in camera space
     let modelView = GLKMatrix4Multiply(view, model)
-    
-//    Swift.print("Model view matrix")
-//    Swift.print("\(modelView.m00)\t\(modelView.m01)\t\(modelView.m02)\t\(modelView.m03)")
-//    Swift.print("\(modelView.m10)\t\(modelView.m11)\t\(modelView.m12)\t\(modelView.m13)")
-//    Swift.print("\(modelView.m20)\t\(modelView.m21)\t\(modelView.m22)\t\(modelView.m23)")
-//    Swift.print("\(modelView.m30)\t\(modelView.m31)\t\(modelView.m32)\t\(modelView.m33)")
-    
     let leftUpPoint = GLKMatrix4MultiplyVector4(modelView, leftUpPointInObjectCoordinates)
     let rightUpPoint = GLKMatrix4MultiplyVector4(modelView, rightUpPointInObjectCoordinates)
     let centreDownPoint = GLKMatrix4MultiplyVector4(modelView, centreDownPointInObjectCoordinates)
     
-//    Swift.print("Left up: (\(leftUpPoint.x), \(leftUpPoint.y), \(leftUpPoint.z))")
-//    Swift.print("Right up: (\(rightUpPoint.x), \(rightUpPoint.y), \(rightUpPoint.z))")
-//    Swift.print("Centre down: (\(centreDownPoint.x), \(centreDownPoint.y), \(centreDownPoint.z))")
-    
+    // Compute the plane passing through the points.
+    // In ax + by + cz + d = 0, abc are given by the cross product, d by evaluating a point in the equation.
     let vector1 = GLKVector4Make(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z, 1.0)
     let vector2 = GLKVector4Make(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z, 1.0)
     let crossProduct = GLKVector4CrossProduct(vector1, vector2)
-    
-    // Plane equation passing through points: ax + bx + cy + d = 0
-//    let a = crossProduct.x
-//    let b = crossProduct.y
-//    let c = crossProduct.z
     let d = -GLKVector4DotProduct(crossProduct, centreDownPoint)
     
-    // -d/c = y
+    // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
     Swift.print("Depth at centre: \(-d/crossProduct.z)")
+    return -d/crossProduct.z
   }
   
   override func reshape() {
