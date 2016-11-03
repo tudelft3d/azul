@@ -273,7 +273,7 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
     
     // Label the triangles to find out interior/exterior
     if (triangulation.number_of_faces() == 0) {
-      std::cout << "Degenerate face produced no triangles. Skipping..." << std::endl;
+//      std::cout << "Degenerate face produced no triangles. Skipping..." << std::endl;
       return;
     } for (Triangulation::All_faces_iterator currentFace = triangulation.all_faces_begin(); currentFace != triangulation.all_faces_end(); ++currentFace) {
       currentFace->info() = std::pair<bool, bool>(false, false);
