@@ -383,13 +383,12 @@ class OpenGLView: NSOpenGLView {
   
   override func rightMouseDragged(with event: NSEvent) {
 //    Swift.print("OpenGLView.rightMouseDragged()")
-    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
+//    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
     
-    let zoomSensitivity: Float = 0.01
+    let zoomSensitivity: Float = 0.005
     let magnification: Float = 1.0+zoomSensitivity*Float(event.deltaY)
-    Swift.print("Magnification: \(magnification)")
-    fieldOfView = fieldOfView/magnification
-    Swift.print("Field of view: \(fieldOfView)")
+    fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
+//    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
@@ -434,7 +433,7 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("OpenGLView.magnify()")
 //    Swift.print("Pinched: \(event.magnification)")
     let magnification: Float = 1.0+Float(event.magnification)
-    fieldOfView = fieldOfView/magnification
+    fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
 //    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
