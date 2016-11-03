@@ -274,9 +274,81 @@ class OpenGLView: NSOpenGLView {
     return true
   }
   
+  func click(with event: NSEvent) {
+    
+  }
+  
+  func doubleClick(with event: NSEvent) {
+    Swift.print("OpenGLView.doubleClick()")
+    
+    // Compute the current mouse position
+    let currentX: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height)
+//    Swift.print("currentX: \(currentX), currentY: \(currentY)")
+    
+    // Compute two points on the ray represented by the mouse position at the near and far planes
+    var isInvertible: Bool = true
+    let mvpInverse = GLKMatrix4Invert(mvp, &isInvertible)
+    let pointOnNearPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, -1.0, 1.0)
+    let pointOnNearPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
+    let pointOnFarPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, 1.0, 1.0)
+    let pointOnFarPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
+//    Swift.print("Near: (\(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w), \(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w), \(pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w))")
+//    Swift.print("Far: (\(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), \(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), \(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))")
+    
+    // Interpolate the points to obtain the intersection with the data plane z = 0
+    let alpha: Float = -(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)/((pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)-(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))
+    let clickedPointInObjectCoordinates = GLKVector4Make(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
+//    Swift.print("Clicked point in object coordinates: (\(clickedPointInObjectCoordinates.x), \(clickedPointInObjectCoordinates.y), 0.0)")
+    
+    // Use the intersection to compute the shift in the view space
+    let objectToCamera = GLKMatrix4Multiply(model, view)
+    let clickedPointInCameraCoordinates = GLKMatrix4MultiplyVector4(objectToCamera, clickedPointInObjectCoordinates)
+//    Swift.print("Clicked point in camera coordinates: (\(clickedPointInCameraCoordinates.x), \(clickedPointInCameraCoordinates.y), \(clickedPointInCameraCoordinates.z))")
+    
+    // Compute shift in object space
+    let shiftInCameraCoordinates: GLKVector3 = GLKVector3Make(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
+    var cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(objectToCamera), &isInvertible)
+    let shiftInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, shiftInCameraCoordinates)
+    modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, shiftInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
+
+    // Correct shift so that the point of rotation remains at the same depth as the data
+    cameraToObject = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+    let depthOffset = 1.0+depthAtCentre()
+    Swift.print("Depth offset: \(depthOffset)")
+    let depthOffsetInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, -depthOffset)
+    let depthOffsetInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, depthOffsetInCameraCoordinates)
+    modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, depthOffsetInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
+    
+    // Recompute MVP
+    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
+    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    renderFrame()
+  }
+  
+  override func mouseUp(with event: NSEvent) {
+//    Swift.print("OpenGLView.mouseUp()")
+    
+    switch event.clickCount {
+    case 1:
+//      perform(#selector(click), with: event, afterDelay: <#T##TimeInterval#>)
+      break
+    case 2:
+      doubleClick(with: event)
+    default:
+      break
+    }
+  }
+  
   override func mouseDragged(with event: NSEvent) {
 //    Swift.print("OpenGLView.mouseDragged()")
     
+    // Compute the current and last mouse positions and their depth on a sphere
     let currentX = -1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width
     let currentY = -1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height
     let currentZ = sqrt(1 - (currentX*currentX+currentY*currentY))
@@ -287,6 +359,8 @@ class OpenGLView: NSOpenGLView {
     let lastZ = sqrt(1 - (lastX*lastX+lastY*lastY))
     let lastPosition = GLKVector3Normalize(GLKVector3(v: (Float(lastX), Float(lastY), Float(lastZ))))
 //    Swift.print("Last position X: \(lastPosition.x) Y: \(lastPosition.y) Z: \(lastPosition.z)")
+    
+    // Compute the angle between the two and use it to move in camera space
     let angle = acos(GLKVector3DotProduct(lastPosition, currentPosition))
     if !angle.isNaN && angle > 0.0 {
 //      Swift.print("Angle: \(angle)")
@@ -340,10 +414,10 @@ class OpenGLView: NSOpenGLView {
   
   override func magnify(with event: NSEvent) {
 //    Swift.print("OpenGLView.magnify()")
-    Swift.print("Pinched: \(event.magnification)")
+//    Swift.print("Pinched: \(event.magnification)")
     let magnification: Float = 1.0+Float(event.magnification)
     fieldOfView = fieldOfView/magnification
-    Swift.print("Field of view: \(fieldOfView)")
+//    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
     transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
@@ -388,7 +462,7 @@ class OpenGLView: NSOpenGLView {
     let rightUpPointInObjectCoordinates = GLKVector4Make(maxCoordinates[0], maxCoordinates[1], 0.0, 1.0)
     let centreDownPointInObjectCoordinates = GLKVector4Make(0.0, minCoordinates[1], 0.0, 1.0)
     
-    // Obtain their coordinates in camera space
+    // Obtain their coordinates in eye space
     let modelView = GLKMatrix4Multiply(view, model)
     let leftUpPoint = GLKMatrix4MultiplyVector4(modelView, leftUpPointInObjectCoordinates)
     let rightUpPoint = GLKMatrix4MultiplyVector4(modelView, rightUpPointInObjectCoordinates)
