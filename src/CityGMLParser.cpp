@@ -135,63 +135,63 @@ void CityGMLParser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
   }
 }
 
-void CityGMLParser::addTrianglesFromTheBarycentricTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles) {
-  // Check if last == first
-  if (polygon.exteriorRing.points.back().coordinates[0] != polygon.exteriorRing.points.front().coordinates[0] ||
-      polygon.exteriorRing.points.back().coordinates[1] != polygon.exteriorRing.points.front().coordinates[1] ||
-      polygon.exteriorRing.points.back().coordinates[2] != polygon.exteriorRing.points.front().coordinates[2]) {
-    std::cout << "Warning: Last point != first. Adding it again at the end..." << std::endl;
-    polygon.exteriorRing.points.push_back(polygon.exteriorRing.points.front());
-  } for (auto &ring: polygon.interiorRings) {
-    if (ring.points.back().coordinates[0] != ring.points.front().coordinates[0] ||
-        ring.points.back().coordinates[1] != ring.points.front().coordinates[1] ||
-        ring.points.back().coordinates[2] != ring.points.front().coordinates[2]) {
-      std::cout << "Warning: Last point != first. Adding it again at the end..." << std::endl;
-      ring.points.push_back(ring.points.front());
-    }
-  }
-  
-  // Degenerate
-  if (polygon.exteriorRing.points.size() < 4) {
-    std::cout << "Polygon with < 4 points! Skipping..." << std::endl;
-    return;
-  }
-  
-  // Triangle
-  else if (polygon.exteriorRing.points.size() == 4 && polygon.interiorRings.size() == 0) {
-    std::list<CityGMLPoint>::const_iterator point1 = polygon.exteriorRing.points.begin();
-    std::list<CityGMLPoint>::const_iterator point2 = point1;
-    ++point2;
-    std::list<CityGMLPoint>::const_iterator point3 = point2;
-    ++point3;
-    for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-      triangles.push_back((point1->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-    } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-      triangles.push_back((point2->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-    } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-      triangles.push_back((point3->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-    }
-  }
-  
-  // Polygon
-  else {
-    CityGMLPoint centroid;
-    centroidOf(polygon.exteriorRing, centroid);
-    std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
-    std::list<CityGMLPoint>::const_iterator nextPoint = currentPoint;
-    ++nextPoint;
-    while (nextPoint != polygon.exteriorRing.points.end()) {
-      for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-        triangles.push_back((centroid.coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-      } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-        triangles.push_back((currentPoint->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-      } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-        triangles.push_back((nextPoint->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-      } ++currentPoint;
-      ++nextPoint;
-    }
-  }
-}
+//void CityGMLParser::addTrianglesFromTheBarycentricTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles) {
+//  // Check if last == first
+//  if (polygon.exteriorRing.points.back().coordinates[0] != polygon.exteriorRing.points.front().coordinates[0] ||
+//      polygon.exteriorRing.points.back().coordinates[1] != polygon.exteriorRing.points.front().coordinates[1] ||
+//      polygon.exteriorRing.points.back().coordinates[2] != polygon.exteriorRing.points.front().coordinates[2]) {
+//    std::cout << "Warning: Last point != first. Adding it again at the end..." << std::endl;
+//    polygon.exteriorRing.points.push_back(polygon.exteriorRing.points.front());
+//  } for (auto &ring: polygon.interiorRings) {
+//    if (ring.points.back().coordinates[0] != ring.points.front().coordinates[0] ||
+//        ring.points.back().coordinates[1] != ring.points.front().coordinates[1] ||
+//        ring.points.back().coordinates[2] != ring.points.front().coordinates[2]) {
+//      std::cout << "Warning: Last point != first. Adding it again at the end..." << std::endl;
+//      ring.points.push_back(ring.points.front());
+//    }
+//  }
+//  
+//  // Degenerate
+//  if (polygon.exteriorRing.points.size() < 4) {
+//    std::cout << "Polygon with < 4 points! Skipping..." << std::endl;
+//    return;
+//  }
+//  
+//  // Triangle
+//  else if (polygon.exteriorRing.points.size() == 4 && polygon.interiorRings.size() == 0) {
+//    std::list<CityGMLPoint>::const_iterator point1 = polygon.exteriorRing.points.begin();
+//    std::list<CityGMLPoint>::const_iterator point2 = point1;
+//    ++point2;
+//    std::list<CityGMLPoint>::const_iterator point3 = point2;
+//    ++point3;
+//    for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+//      triangles.push_back((point1->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
+//    } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+//      triangles.push_back((point2->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
+//    } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+//      triangles.push_back((point3->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
+//    }
+//  }
+//  
+//  // Polygon
+//  else {
+//    CityGMLPoint centroid;
+//    centroidOf(polygon.exteriorRing, centroid);
+//    std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
+//    std::list<CityGMLPoint>::const_iterator nextPoint = currentPoint;
+//    ++nextPoint;
+//    while (nextPoint != polygon.exteriorRing.points.end()) {
+//      for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+//        triangles.push_back((centroid.coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
+//      } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+//        triangles.push_back((currentPoint->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
+//      } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+//        triangles.push_back((nextPoint->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
+//      } ++currentPoint;
+//      ++nextPoint;
+//    }
+//  }
+//}
 
 void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles) {
   // Check if last == first
@@ -222,13 +222,24 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
     ++point2;
     std::list<CityGMLPoint>::const_iterator point3 = point2;
     ++point3;
+    Kernel::Plane_3 plane(Kernel::Point_3(point1->coordinates[0], point1->coordinates[1], point1->coordinates[2]),
+                          Kernel::Point_3(point2->coordinates[0], point2->coordinates[1], point2->coordinates[2]),
+                          Kernel::Point_3(point3->coordinates[0], point3->coordinates[1], point3->coordinates[2]));
     for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
       triangles.push_back((point1->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-    } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+    } triangles.push_back(plane.orthogonal_vector().x());
+    triangles.push_back(plane.orthogonal_vector().y());
+    triangles.push_back(plane.orthogonal_vector().z());
+    for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
       triangles.push_back((point2->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-    } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
+    } triangles.push_back(plane.orthogonal_vector().x());
+    triangles.push_back(plane.orthogonal_vector().y());
+    triangles.push_back(plane.orthogonal_vector().z());
+    for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
       triangles.push_back((point3->coordinates[currentCoordinate]-midCoordinates[currentCoordinate])/maxRange);
-    }
+    } triangles.push_back(plane.orthogonal_vector().x());
+    triangles.push_back(plane.orthogonal_vector().y());
+    triangles.push_back(plane.orthogonal_vector().z());
   }
   
   // Polygon
@@ -313,6 +324,9 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
           triangles.push_back((point3.x()-midCoordinates[0])/maxRange);
           triangles.push_back((point3.y()-midCoordinates[1])/maxRange);
           triangles.push_back((point3.z()-midCoordinates[2])/maxRange);
+          triangles.push_back(bestPlane.orthogonal_vector().x());
+          triangles.push_back(bestPlane.orthogonal_vector().y());
+          triangles.push_back(bestPlane.orthogonal_vector().z());
         }
       }
     }

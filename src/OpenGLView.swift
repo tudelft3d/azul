@@ -34,8 +34,10 @@ class OpenGLView: NSOpenGLView {
   
   var uniformColour: GLint = 0
   var uniformMVP: GLint = 0
+  var uniformM: GLint = 0
   
   var attributeCoordinates: GLint = -1
+  var attributeNormals: GLint = -1
   
   var eye: GLKVector3 = GLKVector3Make(0.0, 0.0, 0.0)
   var centre: GLKVector3 = GLKVector3Make(0.0, 0.0, 0.0)
@@ -50,7 +52,8 @@ class OpenGLView: NSOpenGLView {
   var projection: GLKMatrix4 = GLKMatrix4Identity
   var mvp = GLKMatrix4Identity
   
-  var transformArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var mvpArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var mArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
   let buildingsColour: Array<GLfloat> = [1.0, 0.956862745098039, 0.690196078431373]
   let buildingRoofsColour: Array<GLfloat> = [0.882352941176471, 0.254901960784314, 0.219607843137255]
@@ -204,7 +207,15 @@ class OpenGLView: NSOpenGLView {
     uniformName.utf8CString.withUnsafeBufferPointer { pointer in
       uniformMVP = glGetUniformLocation(program, pointer.baseAddress)
       if uniformMVP == -1 {
-        Swift.print("prepareOpenGL: Couldn't bind uniformTransformation")
+        Swift.print("prepareOpenGL: Couldn't bind uniformMVP")
+      }
+    }
+    
+    uniformName = "m"
+    uniformName.utf8CString.withUnsafeBufferPointer { pointer in
+      uniformM = glGetUniformLocation(program, pointer.baseAddress)
+      if uniformM == -1 {
+        Swift.print("prepareOpenGL: Couldn't bind uniformM")
       }
     }
     
@@ -216,11 +227,19 @@ class OpenGLView: NSOpenGLView {
       }
     }
     
-    let attributeName: String = "coord3d"
+    var attributeName: String = "v_coord"
     attributeName.utf8CString.withUnsafeBufferPointer { pointer in
       attributeCoordinates = glGetAttribLocation(program, pointer.baseAddress)
       if attributeCoordinates == -1 {
         Swift.print("prepareOpenGL: Couldn't bind attributeCoordinates")
+      }
+    }
+    
+    attributeName = "v_normal"
+    attributeName.utf8CString.withUnsafeBufferPointer { pointer in
+      attributeNormals = glGetAttribLocation(program, pointer.baseAddress)
+      if attributeNormals == -1 {
+        Swift.print("prepareOpenGL: Couldn't bind attributeNormals")
       }
     }
     
@@ -257,12 +276,18 @@ class OpenGLView: NSOpenGLView {
     view = GLKMatrix4MakeLookAt(eye.x, eye.y, eye.z, centre.x, centre.y, centre.z, 0.0, 1.0, 0.0)
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    transformArray.withUnsafeBufferPointer { pointer in
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray.withUnsafeBufferPointer { pointer in
       glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    mArray = [model.m00, model.m01, model.m02,
+              model.m10, model.m11, model.m12,
+              model.m20, model.m21, model.m22]
+    mArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
     }
     
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
@@ -324,10 +349,19 @@ class OpenGLView: NSOpenGLView {
     
     // Recompute MVP
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    mArray = [model.m00, model.m01, model.m02,
+              model.m10, model.m11, model.m12,
+              model.m20, model.m21, model.m22]
+    mArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
     renderFrame()
   }
   
@@ -371,10 +405,19 @@ class OpenGLView: NSOpenGLView {
       modelRotation = GLKMatrix4RotateWithVector3(modelRotation, angle, axisInObjectCoordinates)
       model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
       mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-      transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                        mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                        mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                        mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+      mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                  mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                  mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                  mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+      mvpArray.withUnsafeBufferPointer { pointer in
+        glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+      }
+      mArray = [model.m00, model.m01, model.m02,
+                model.m10, model.m11, model.m12,
+                model.m20, model.m21, model.m22]
+      mArray.withUnsafeBufferPointer { pointer in
+        glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+      }
       renderFrame()
     } else {
 //      Swift.print("NaN!")
@@ -391,10 +434,13 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
     renderFrame()
   }
   
@@ -422,10 +468,19 @@ class OpenGLView: NSOpenGLView {
     
     // Recompute MVP
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    mArray = [model.m00, model.m01, model.m02,
+              model.m10, model.m11, model.m12,
+              model.m20, model.m21, model.m22]
+    mArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
     renderFrame()
   }
   
@@ -437,10 +492,13 @@ class OpenGLView: NSOpenGLView {
 //    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
     renderFrame()
   }
   
@@ -503,11 +561,11 @@ class OpenGLView: NSOpenGLView {
     glViewport(0, 0, GLsizei(bounds.size.width), GLsizei(bounds.size.height))
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
     mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    transformArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                      mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                      mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                      mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    transformArray.withUnsafeBufferPointer { pointer in
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mvpArray.withUnsafeBufferPointer { pointer in
       glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
     }
     update()
@@ -525,15 +583,20 @@ class OpenGLView: NSOpenGLView {
     
     glUseProgram(program)
     
-    transformArray.withUnsafeBufferPointer { pointer in
+    mvpArray.withUnsafeBufferPointer { pointer in
       glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    mArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
     }
     
     glEnableVertexAttribArray(GLuint(attributeCoordinates))
+    glEnableVertexAttribArray(GLuint(attributeNormals))
     
     glUniform3f(uniformColour, buildingsColour[0], buildingsColour[1], buildingsColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildings)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     var size: GLsizei = 0
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) building triangles")
@@ -544,7 +607,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, buildingRoofsColour[0], buildingRoofsColour[1], buildingRoofsColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildingRoofs)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) building roof triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -554,7 +618,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, roadsColour[0], roadsColour[1], roadsColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboRoads)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) road triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -564,7 +629,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, waterColour[0], waterColour[1], waterColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboWater)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) water triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -574,7 +640,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, plantCoverColour[0], plantCoverColour[1], plantCoverColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboPlantCover)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) plant cover triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -584,7 +651,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, terrainColour[0], terrainColour[1], terrainColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboTerrain)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) terrain triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -594,7 +662,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, genericColour[0], genericColour[1], genericColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboGeneric)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) generic triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -604,7 +673,8 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, bridgeColour[0], bridgeColour[1], bridgeColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBridges)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) bridge triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
@@ -614,13 +684,16 @@ class OpenGLView: NSOpenGLView {
     
     glUniform3f(uniformColour, landUseColour[0], landUseColour[1], landUseColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboLandUse)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
 //    Swift.print("Drawing \(size/3) land use triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering land use: some error occurred!")
     }
+    
+    glDisableVertexAttribArray(GLuint(attributeNormals))
     
     if (viewEdges) {
       glUniform3f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2])
@@ -647,6 +720,7 @@ class OpenGLView: NSOpenGLView {
     }
     
     glDisableVertexAttribArray(GLuint(attributeCoordinates))
+    glDisableVertexAttribArray(GLuint(attributeNormals))
     
     CGLFlushDrawable(openGLContext!.cglContextObj!)
     CGLUnlockContext(openGLContext!.cglContextObj!)

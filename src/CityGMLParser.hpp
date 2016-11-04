@@ -148,7 +148,7 @@ public:
   void parseRing(pugi::xml_node &node, CityGMLRing &ring);
   
   void centroidOf(CityGMLRing &ring, CityGMLPoint &centroid);
-  void addTrianglesFromTheBarycentricTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles);
+//  void addTrianglesFromTheBarycentricTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles);
   void addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<GLfloat> &triangles);
   void regenerateTrianglesFor(CityGMLObject &object);
   void regenerateEdgesFor(CityGMLObject &object);

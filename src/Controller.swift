@@ -359,7 +359,7 @@ class Controller: NSObject, NSApplicationDelegate {
       Swift.print("Loading edges into memory: some error occurred!")
     }
     
-    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count/9) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count/9) from roads, \(openGLView.waterTriangles.count/9) from water bodies, \(openGLView.plantCoverTriangles.count/9) from plant cover, \(openGLView.genericTriangles.count/9) from generic objects, \(openGLView.bridgeTriangles.count/9) from bridges, \(openGLView.landUseTriangles.count/9) from land use.")
+    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count/18) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count/18) from roads, \(openGLView.waterTriangles.count/18) from water bodies, \(openGLView.plantCoverTriangles.count/18) from plant cover, \(openGLView.genericTriangles.count/18) from generic objects, \(openGLView.bridgeTriangles.count/18) from bridges, \(openGLView.landUseTriangles.count/18) from land use.")
     Swift.print("Loaded \(openGLView.edges.count/6) edges and \(openGLView.boundingBox.count/6) edges from the bounding box.")
   }
 }
