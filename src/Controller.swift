@@ -10,9 +10,11 @@ import OpenGL.GL3
 import GLKit
 
 @NSApplicationMain
-class Controller: NSObject, NSApplicationDelegate {
+class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource {
 
   @IBOutlet weak var window: NSWindow!
+  @IBOutlet weak var splitView: NSSplitView!
+  @IBOutlet weak var outlineView: NSOutlineView!
   @IBOutlet weak var openGLView: OpenGLView!
   @IBOutlet weak var progressIndicator: NSProgressIndicator!
   
@@ -23,11 +25,13 @@ class Controller: NSObject, NSApplicationDelegate {
   let cityGMLParser = CityGMLParserWrapperWrapper()
   
   var openFiles = Set<URL>()
+  var objectIDs = [String]()
   var loadingData: Bool = false
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     Swift.print("Controller.applicationDidFinishLaunching()")
     openGLView.controller = self
+    outlineView.dataSource = self
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {
@@ -147,6 +151,7 @@ class Controller: NSObject, NSApplicationDelegate {
   
         self.openFiles.insert(url)
         NSDocumentController.shared().noteNewRecentDocumentURL(url)
+        
       }
       
       self.regenerateOpenGLRepresentation()
@@ -156,6 +161,7 @@ class Controller: NSObject, NSApplicationDelegate {
       DispatchQueue.main.async {
         self.progressIndicator.stopAnimation(self)
         self.openGLView.renderFrame()
+        self.outlineView.reloadData()
         switch self.openFiles.count {
         case 0:
           self.window.representedURL = nil
@@ -237,6 +243,8 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.edges.removeAll()
     openGLView.boundingBox.removeAll()
     
+    objectIDs.removeAll(keepingCapacity: true)
+    
     cityGMLParser!.initialiseIterator()
     while !cityGMLParser!.iteratorEnded() {
 //      Swift.print("Iterating...")
@@ -253,6 +261,13 @@ class Controller: NSObject, NSApplicationDelegate {
       let firstElementOfTrianglesBuffer2 = cityGMLParser!.triangles2Buffer(&numberOfTriangleVertices2)
       let trianglesBuffer2 = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer2, count: Int(numberOfTriangleVertices2))
       let triangles2 = ContiguousArray(trianglesBuffer2)
+      
+      var idLength: UInt = 0
+      let firstElementOfIdBuffer = UnsafeRawPointer(cityGMLParser!.identifier(&idLength))
+      let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
+      let id = String(data: idData, encoding: String.Encoding.utf8)
+//      Swift.print("Added object \(id!)")
+      objectIDs.append(id!)
       
       openGLView.edges.append(contentsOf: edges)
       
@@ -419,6 +434,26 @@ class Controller: NSObject, NSApplicationDelegate {
     
     Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count/18) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count/18) from roads, \(openGLView.waterTriangles.count/18) from water bodies, \(openGLView.plantCoverTriangles.count/18) from plant cover, \(openGLView.genericTriangles.count/18) from generic objects, \(openGLView.bridgeTriangles.count/18) from bridges, \(openGLView.landUseTriangles.count/18) from land use.")
     Swift.print("Loaded \(openGLView.edges.count/6) edges and \(openGLView.boundingBox.count/6) edges from the bounding box.")
+  }
+  
+  func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
+    if item == nil {
+      return objectIDs.count
+    } else {
+      return 0
+    }
+  }
+  
+  func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
+    return false
+  }
+  
+  func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
+    return objectIDs[index]
+  }
+  
+  func outlineView(_ outlineView: NSOutlineView, objectValueFor tableColumn: NSTableColumn?, byItem item: Any?) -> Any? {
+    return item!
   }
 }
 

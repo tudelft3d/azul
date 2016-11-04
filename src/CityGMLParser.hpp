@@ -47,6 +47,7 @@ struct CityGMLPolygon {
 struct CityGMLObject {
   enum Type: unsigned int {Building = 1, Road = 2, ReliefFeature = 3, WaterBody = 4, PlantCover = 5, GenericCityObject = 6, Bridge = 7, LandUse = 8};
   Type type;
+  std::string id;
   std::list<CityGMLPolygon> polygons, polygons2;
   std::vector<GLfloat> triangles, triangles2;
   std::vector<GLfloat> edges;

@@ -48,6 +48,11 @@ struct CityGMLParserWrapper {
   return parserWrapper->parser->currentObject->type;
 }
 
+- (const char *) identifier: (unsigned long *)length {
+  *length = parserWrapper->parser->currentObject->id.size();
+  return parserWrapper->parser->currentObject->id.c_str();
+}
+
 - (const GLfloat *) trianglesBuffer: (unsigned long *)elements {
   if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
     *elements = 0;

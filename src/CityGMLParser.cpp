@@ -58,7 +58,7 @@ void CityGMLParser::clear() {
 }
 
 void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
-  //  std::cout << "Parsing object " << node.name() << std::endl;
+//  std::cout << "Parsing object " << node.name() << " with id " << node.attribute("gml:id").value() << std::endl;
   const char *nodeType = node.name();
   const char *namespaceSeparator = strchr(nodeType, ':');
   if (namespaceSeparator != NULL) {
@@ -81,7 +81,7 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
     object.type = CityGMLObject::Type::Bridge;
   } else if (strcmp(nodeType, "LandUse") == 0) {
     object.type = CityGMLObject::Type::LandUse;
-  }
+  } object.id = node.attribute("gml:id").value();
   
   PolygonsWalker polygonsWalker;
   node.traverse(polygonsWalker);

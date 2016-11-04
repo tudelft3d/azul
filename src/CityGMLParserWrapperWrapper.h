@@ -24,6 +24,7 @@ struct CityGMLParserWrapper;
 - (void) advanceIterator;
 - (BOOL) iteratorEnded;
 - (unsigned int) type;
+- (const char *) identifier: (unsigned long *)length;
 - (const GLfloat *) trianglesBuffer: (unsigned long *)elements;
 - (const GLfloat *) triangles2Buffer: (unsigned long *)elements;
 - (const GLfloat *) edgesBuffer: (unsigned long *)elements;
