@@ -15,6 +15,7 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="Controller" customModule="azul" customModuleProvider="target">
             <connections>
+                <outlet property="goHomeMenuItem" destination="aa1-9g-hgv" id="xEp-ze-7U1"/>
                 <outlet property="openGLView" destination="P1V-6K-Lq6" id="V55-Uf-x41"/>
                 <outlet property="progressIndicator" destination="dem-kJ-wZD" id="PFM-7w-OL8"/>
                 <outlet property="toggleViewBoundingBoxMenuItem" destination="S18-6j-Hu0" id="bBU-UF-WXj"/>
@@ -630,16 +631,20 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="bNx-rd-iPU"/>
-                            <menuItem title="Bounding box" id="S18-6j-Hu0">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Bounding box" keyEquivalent="b" id="S18-6j-Hu0">
                                 <connections>
                                     <action selector="toggleViewBoundingBox:" target="Voe-Tx-rLC" id="ETN-Jd-TZM"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Edges" state="on" id="qpu-IH-tZe">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Edges" state="on" keyEquivalent="e" id="qpu-IH-tZe">
                                 <connections>
                                     <action selector="toggleViewEdges:" target="Voe-Tx-rLC" id="hSW-uM-kNq"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="waf-17-Te0"/>
+                            <menuItem title="Reset to data centre" keyEquivalent="r" id="aa1-9g-hgv">
+                                <connections>
+                                    <action selector="goHome:" target="Voe-Tx-rLC" id="pE2-w3-xtA"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
@@ -718,5 +723,19 @@
                 </subviews>
             </view>
         </window>
+        <menu id="oKe-7F-wtK">
+            <items>
+                <menuItem title="Item 1" id="vxu-sd-rfe">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Item 2" id="JPB-hf-o2U">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Item 3" id="uLT-1k-OlE">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+            </items>
+            <point key="canvasLocation" x="396" y="565"/>
+        </menu>
     </objects>
 </document>

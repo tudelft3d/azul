@@ -18,6 +18,7 @@ class Controller: NSObject, NSApplicationDelegate {
   
   @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
   @IBOutlet weak var toggleViewBoundingBoxMenuItem: NSMenuItem!
+  @IBOutlet weak var goHomeMenuItem: NSMenuItem!
   
   let cityGMLParser = CityGMLParserWrapperWrapper()
   
@@ -192,6 +193,35 @@ class Controller: NSObject, NSApplicationDelegate {
       sender.state = 1
       openGLView.renderFrame()
     }
+  }
+  
+  @IBAction func goHome(_ sender: NSMenuItem) {
+    openGLView.fieldOfView = GLKMathDegreesToRadians(45.0)
+    
+    openGLView.modelTranslationToCentreOfRotation = GLKMatrix4Identity
+    openGLView.modelRotation = GLKMatrix4Identity
+    openGLView.modelShiftBack = GLKMatrix4MakeTranslation(openGLView.centre.x, openGLView.centre.y, openGLView.centre.z)
+    openGLView.model = GLKMatrix4Multiply(GLKMatrix4Multiply(openGLView.modelShiftBack, openGLView.modelRotation), openGLView.modelTranslationToCentreOfRotation)
+    openGLView.mArray = [openGLView.model.m00, openGLView.model.m01, openGLView.model.m02, openGLView.model.m03,
+                         openGLView.model.m10, openGLView.model.m11, openGLView.model.m12, openGLView.model.m13,
+                         openGLView.model.m20, openGLView.model.m21, openGLView.model.m22, openGLView.model.m23,
+                         openGLView.model.m30, openGLView.model.m31, openGLView.model.m32, openGLView.model.m33]
+    var isInvertible: Bool = true
+    let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(openGLView.model), &isInvertible))
+    openGLView.mitArray = [mit.m00, mit.m01, mit.m02,
+                           mit.m10, mit.m11, mit.m12,
+                           mit.m20, mit.m21, mit.m22]
+    openGLView.view = GLKMatrix4MakeLookAt(openGLView.eye.x, openGLView.eye.y, openGLView.eye.z, openGLView.centre.x, openGLView.centre.y, openGLView.centre.z, 0.0, 1.0, 0.0)
+    openGLView.vArray = [openGLView.view.m00, openGLView.view.m01, openGLView.view.m02, openGLView.view.m03,
+                         openGLView.view.m10, openGLView.view.m11, openGLView.view.m12, openGLView.view.m13,
+                         openGLView.view.m20, openGLView.view.m21, openGLView.view.m22, openGLView.view.m23,
+                         openGLView.view.m30, openGLView.view.m31, openGLView.view.m32, openGLView.view.m33]
+    openGLView.projection = GLKMatrix4MakePerspective(openGLView.fieldOfView, 1.0/Float(openGLView.bounds.size.height/openGLView.bounds.size.width), 0.001, 100.0)
+    openGLView.pArray = [openGLView.projection.m00, openGLView.projection.m01, openGLView.projection.m02, openGLView.projection.m03,
+                         openGLView.projection.m10, openGLView.projection.m11, openGLView.projection.m12, openGLView.projection.m13,
+                         openGLView.projection.m20, openGLView.projection.m21, openGLView.projection.m22, openGLView.projection.m23,
+                         openGLView.projection.m30, openGLView.projection.m31, openGLView.projection.m32, openGLView.projection.m33]
+    openGLView.renderFrame()
   }
   
   func regenerateOpenGLRepresentation() {

@@ -538,6 +538,8 @@ class OpenGLView: NSOpenGLView {
       controller!.toggleViewBoundingBox(controller!.toggleViewBoundingBoxMenuItem)
     case "e":
       controller!.toggleViewEdges(controller!.toggleViewEdgesMenuItem)
+    case "r":
+      controller!.goHome(controller!.goHomeMenuItem)
     default:
       break
     }
