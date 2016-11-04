@@ -25,6 +25,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
   @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
   @IBOutlet weak var toggleViewBoundingBoxMenuItem: NSMenuItem!
   @IBOutlet weak var goHomeMenuItem: NSMenuItem!
+  @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
   
   let cityGMLParser = CityGMLParserWrapperWrapper()
   
@@ -38,6 +39,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     openGLView.controller = self
     outlineView.dataSource = self
     outlineView.delegate = self
+    toggleSideBar(toggleSideBarMenuItem)
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {
@@ -236,6 +238,18 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
                          openGLView.projection.m20, openGLView.projection.m21, openGLView.projection.m22, openGLView.projection.m23,
                          openGLView.projection.m30, openGLView.projection.m31, openGLView.projection.m32, openGLView.projection.m33]
     openGLView.renderFrame()
+  }
+  
+  @IBAction func toggleSideBar(_ sender: NSMenuItem) {
+    if splitView.subviews[0].bounds.size.width == 0 {
+//      Swift.print("Open sidebar")
+      splitView.setPosition(200, ofDividerAt: 0)
+      sender.title = "Hide Sidebar"
+    } else {
+//      Swift.print("Close sidebar")
+      splitView.setPosition(0, ofDividerAt: 0)
+      sender.title = "Show Sidebar"
+    }
   }
   
   func regenerateOpenGLRepresentation() {

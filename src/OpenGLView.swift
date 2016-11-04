@@ -348,6 +348,20 @@ class OpenGLView: NSOpenGLView {
   }
   
   func click(with event: NSEvent) {
+    Swift.print("OpenGLView.click()")
+    
+    // Compute the current mouse position
+    let currentX: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height)
+    
+    // Compute two points on the ray represented by the mouse position at the near and far planes
+    var isInvertible: Bool = true
+    let mvpInverse = GLKMatrix4Invert(GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model)), &isInvertible)
+    let pointOnNearPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, -1.0, 1.0)
+    let pointOnNearPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
+    let pointOnFarPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, 1.0, 1.0)
+    let pointOnFarPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
+    
     
   }
   
@@ -407,7 +421,7 @@ class OpenGLView: NSOpenGLView {
     
     switch event.clickCount {
     case 1:
-//      perform(#selector(click), with: event, afterDelay: <#T##TimeInterval#>)
+      click(with: event)
       break
     case 2:
       doubleClick(with: event)

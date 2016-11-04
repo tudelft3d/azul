@@ -20,6 +20,7 @@
                 <outlet property="outlineView" destination="v1V-dZ-gVJ" id="c0C-UN-vX8"/>
                 <outlet property="progressIndicator" destination="C0P-VV-K8N" id="IF6-yc-YkY"/>
                 <outlet property="splitView" destination="LpA-gm-Y05" id="aJn-fS-OMx"/>
+                <outlet property="toggleSideBarMenuItem" destination="kIP-vf-haE" id="bSW-9v-XfF"/>
                 <outlet property="toggleViewBoundingBoxMenuItem" destination="S18-6j-Hu0" id="bBU-UF-WXj"/>
                 <outlet property="toggleViewEdgesMenuItem" destination="qpu-IH-tZe" id="5tl-Vw-VKX"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="5xi-Nc-H8H"/>
@@ -636,13 +637,13 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="bNx-rd-iPU"/>
-                            <menuItem title="Bounding Box" keyEquivalent="b" id="S18-6j-Hu0">
+                            <menuItem title="Bounding Box" keyEquivalent="B" id="S18-6j-Hu0">
                                 <attributedString key="attributedTitle"/>
                                 <connections>
                                     <action selector="toggleViewBoundingBox:" target="Voe-Tx-rLC" id="ETN-Jd-TZM"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Edges" state="on" keyEquivalent="e" id="qpu-IH-tZe">
+                            <menuItem title="Edges" state="on" keyEquivalent="E" id="qpu-IH-tZe">
                                 <connections>
                                     <action selector="toggleViewEdges:" target="Voe-Tx-rLC" id="hSW-uM-kNq"/>
                                 </connections>
@@ -657,7 +658,7 @@
                             <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                 <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                 <connections>
-                                    <action selector="toggleSourceList:" target="-1" id="iwa-gc-5KM"/>
+                                    <action selector="toggleSideBar:" target="Voe-Tx-rLC" id="BRu-FR-pRJ"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
@@ -723,18 +724,18 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <customView fixedFrame="YES" id="hlw-M4-Tef">
-                                <rect key="frame" x="0.0" y="0.0" width="176.5" height="600"/>
+                                <rect key="frame" x="0.0" y="0.0" width="177" height="600"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eBA-ud-B8H">
-                                        <rect key="frame" x="0.0" y="0.0" width="177" height="600"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="177.5" height="600"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <clipView key="contentView" ambiguous="YES" drawsBackground="NO" id="6EI-CL-fuQ">
-                                            <rect key="frame" x="1" y="1" width="175" height="598"/>
+                                            <rect key="frame" x="1" y="1" width="175.5" height="598"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="sourceList" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="0gk-hR-yyE" id="v1V-dZ-gVJ">
-                                                    <rect key="frame" x="0.0" y="0.0" width="175" height="598"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="175.5" height="598"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <size key="intercellSpacing" width="3" height="0.0"/>
                                                     <color key="backgroundColor" name="_sourceListBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -785,26 +786,26 @@
                                             <nil key="backgroundColor"/>
                                         </clipView>
                                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="QAf-ns-K6g">
-                                            <rect key="frame" x="1" y="119" width="238" height="15"/>
+                                            <rect key="frame" x="1" y="-15" width="0.0" height="16"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="5wY-d2-eHy">
-                                            <rect key="frame" x="224" y="17" width="15" height="102"/>
+                                            <rect key="frame" x="-15" y="1" width="16" height="0.0"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
                                 </subviews>
                             </customView>
                             <customView fixedFrame="YES" id="ENB-ZS-4wQ">
-                                <rect key="frame" x="177.5" y="0.0" width="622.5" height="600"/>
+                                <rect key="frame" x="178" y="0.0" width="622" height="600"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <openGLView fixedFrame="YES" useAuxiliaryDepthBufferStencil="NO" allowOffline="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mfX-1A-hzO" customClass="OpenGLView" customModule="azul" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="623" height="600"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="622.5" height="600"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </openGLView>
                                     <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="C0P-VV-K8N">
-                                        <rect key="frame" x="296" y="284" width="32" height="32"/>
+                                        <rect key="frame" x="295.5" y="284" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                     </progressIndicator>
                                 </subviews>
