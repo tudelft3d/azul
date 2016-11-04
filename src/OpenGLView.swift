@@ -353,15 +353,9 @@ class OpenGLView: NSOpenGLView {
                 mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                 mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                 mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     mArray = [model.m00, model.m01, model.m02,
               model.m10, model.m11, model.m12,
               model.m20, model.m21, model.m22]
-    mArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     renderFrame()
   }
   
@@ -409,15 +403,9 @@ class OpenGLView: NSOpenGLView {
                   mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                   mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                   mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-      mvpArray.withUnsafeBufferPointer { pointer in
-        glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-      }
       mArray = [model.m00, model.m01, model.m02,
                 model.m10, model.m11, model.m12,
                 model.m20, model.m21, model.m22]
-      mArray.withUnsafeBufferPointer { pointer in
-        glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-      }
       renderFrame()
     } else {
 //      Swift.print("NaN!")
@@ -438,9 +426,6 @@ class OpenGLView: NSOpenGLView {
                 mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                 mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                 mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     renderFrame()
   }
   
@@ -472,15 +457,9 @@ class OpenGLView: NSOpenGLView {
                 mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                 mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                 mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     mArray = [model.m00, model.m01, model.m02,
               model.m10, model.m11, model.m12,
               model.m20, model.m21, model.m22]
-    mArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     renderFrame()
   }
   
@@ -496,9 +475,6 @@ class OpenGLView: NSOpenGLView {
                 mvp.m10, mvp.m11, mvp.m12, mvp.m13,
                 mvp.m20, mvp.m21, mvp.m22, mvp.m23,
                 mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     renderFrame()
   }
   

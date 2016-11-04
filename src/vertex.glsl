@@ -18,5 +18,5 @@ void main(void) {
   vec3 lightDirection = normalize(vec3(light0.position));
 
   gl_Position = mvp * vec4(v_coord, 1.0);
-  f_color = 0.5 * v_color + vec3(light0.diffuse) * v_color * max(0.0, dot(normalDirection, lightDirection));
+  f_color = 0.75 * v_color + vec3(light0.diffuse) * v_color * max(0.0, dot(normalDirection, lightDirection));
 }
