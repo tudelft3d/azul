@@ -85,17 +85,6 @@ class Controller: NSObject, NSApplicationDelegate {
     openGLView.model = GLKMatrix4Multiply(GLKMatrix4Multiply(openGLView.modelShiftBack, openGLView.modelRotation), openGLView.modelTranslationToCentreOfRotation)
     openGLView.view = GLKMatrix4MakeLookAt(openGLView.eye.x, openGLView.eye.y, openGLView.eye.z, openGLView.centre.x, openGLView.centre.y, openGLView.centre.z, 0.0, 1.0, 0.0)
     openGLView.projection = GLKMatrix4MakePerspective(openGLView.fieldOfView, 1.0/Float(openGLView.bounds.size.height/openGLView.bounds.size.width), 0.001, 100.0)
-    openGLView.mvp = GLKMatrix4Multiply(openGLView.projection, GLKMatrix4Multiply(openGLView.view, openGLView.model))
-    openGLView.mvpArray = [openGLView.mvp.m00, openGLView.mvp.m01, openGLView.mvp.m02, openGLView.mvp.m03,
-                           openGLView.mvp.m10, openGLView.mvp.m11, openGLView.mvp.m12, openGLView.mvp.m13,
-                           openGLView.mvp.m20, openGLView.mvp.m21, openGLView.mvp.m22, openGLView.mvp.m23,
-                           openGLView.mvp.m30, openGLView.mvp.m31, openGLView.mvp.m32, openGLView.mvp.m33]
-    openGLView.mArray = [openGLView.model.m00, openGLView.model.m01, openGLView.model.m02,
-                         openGLView.model.m10, openGLView.model.m11, openGLView.model.m12,
-                         openGLView.model.m20, openGLView.model.m21, openGLView.model.m22]
-    openGLView.mArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix3fv(openGLView.uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     
     regenerateOpenGLRepresentation()
     

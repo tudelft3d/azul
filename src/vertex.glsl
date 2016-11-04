@@ -1,22 +1,24 @@
 #version 120
-uniform mat4 mvp;
-uniform mat3 m;
+uniform mat4 m, v, p;
+uniform mat3 mit;
+uniform mat4 vi;
+uniform vec3 v_color;
 attribute vec3 v_coord;
 attribute vec3 v_normal;
-uniform vec3 v_color;
 varying vec3 f_color;
 
-struct lightSource {
-  vec4 position;
-  vec4 diffuse;
-};
-lightSource light0 = lightSource(vec4(-1.0, 1.0, 0.0, 0.0),
-                                 vec4(1.0, 1.0, 1.0, 1.0));
+vec3 lightPosition = vec3(0.0, -1.0, 1.0);
 
 void main(void) {
-  vec3 normalDirection = normalize(m * v_normal);
-  vec3 lightDirection = normalize(vec3(light0.position));
-
+  mat4 mvp = p*v*m;
+  vec3 normalDirection = normalize(mit * v_normal);
+  vec3 viewDirection = normalize(vec3(vi * vec4(0.0, 0.0, 0.0, 1.0) - m * vec4(v_coord, 1.0)));
+  vec3 lightDirection = normalize(lightPosition);
+  
+  vec3 ambient = 1.0 * v_color;
+  vec3 diffuse = 0.2 * v_color * max(0.0, dot(normalDirection, lightDirection));
+  vec3 specular = 0.2 * v_color * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
+  
   gl_Position = mvp * vec4(v_coord, 1.0);
-  f_color = 0.75 * v_color + vec3(light0.diffuse) * v_color * max(0.0, dot(normalDirection, lightDirection));
+  f_color = ambient + diffuse + specular;
 }

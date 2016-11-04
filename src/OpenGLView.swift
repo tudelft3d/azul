@@ -32,10 +32,13 @@ class OpenGLView: NSOpenGLView {
   var vboEdges: GLuint = 0
   var vboBoundingBox: GLuint = 0
   
-  var uniformColour: GLint = 0
-  var uniformMVP: GLint = 0
   var uniformM: GLint = 0
-  
+  var uniformV: GLint = 0
+  var uniformP: GLint = 0
+  var uniformMIT: GLint = 0
+  var uniformVI: GLint = 0
+  var uniformColour: GLint = 0
+
   var attributeCoordinates: GLint = -1
   var attributeNormals: GLint = -1
   
@@ -50,10 +53,13 @@ class OpenGLView: NSOpenGLView {
   var model: GLKMatrix4 = GLKMatrix4Identity
   var view: GLKMatrix4 = GLKMatrix4Identity
   var projection: GLKMatrix4 = GLKMatrix4Identity
-  var mvp = GLKMatrix4Identity
+//  var mvp = GLKMatrix4Identity
   
-  var mvpArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var mArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var vArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var pArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var mitArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var viArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
   let buildingsColour: Array<GLfloat> = [1.0, 0.956862745098039, 0.690196078431373]
   let buildingRoofsColour: Array<GLfloat> = [0.882352941176471, 0.254901960784314, 0.219607843137255]
@@ -203,19 +209,43 @@ class OpenGLView: NSOpenGLView {
       printLog(object: program)
     }
     
-    var uniformName: String = "mvp"
-    uniformName.utf8CString.withUnsafeBufferPointer { pointer in
-      uniformMVP = glGetUniformLocation(program, pointer.baseAddress)
-      if uniformMVP == -1 {
-        Swift.print("prepareOpenGL: Couldn't bind uniformMVP")
-      }
-    }
-    
-    uniformName = "m"
+    var uniformName: String = "m"
     uniformName.utf8CString.withUnsafeBufferPointer { pointer in
       uniformM = glGetUniformLocation(program, pointer.baseAddress)
       if uniformM == -1 {
         Swift.print("prepareOpenGL: Couldn't bind uniformM")
+      }
+    }
+    
+    uniformName = "v"
+    uniformName.utf8CString.withUnsafeBufferPointer { pointer in
+      uniformV = glGetUniformLocation(program, pointer.baseAddress)
+      if uniformV == -1 {
+        Swift.print("prepareOpenGL: Couldn't bind uniformV")
+      }
+    }
+    
+    uniformName = "p"
+    uniformName.utf8CString.withUnsafeBufferPointer { pointer in
+      uniformP = glGetUniformLocation(program, pointer.baseAddress)
+      if uniformP == -1 {
+        Swift.print("prepareOpenGL: Couldn't bind uniformP")
+      }
+    }
+    
+    uniformName = "mit"
+    uniformName.utf8CString.withUnsafeBufferPointer { pointer in
+      uniformMIT = glGetUniformLocation(program, pointer.baseAddress)
+      if uniformMIT == -1 {
+        Swift.print("prepareOpenGL: Couldn't bind uniformMIT")
+      }
+    }
+    
+    uniformName = "vi"
+    uniformName.utf8CString.withUnsafeBufferPointer { pointer in
+      uniformVI = glGetUniformLocation(program, pointer.baseAddress)
+      if uniformVI == -1 {
+        Swift.print("prepareOpenGL: Couldn't bind uniformVI")
       }
     }
     
@@ -273,22 +303,30 @@ class OpenGLView: NSOpenGLView {
     modelRotation = GLKMatrix4Identity
     modelShiftBack = GLKMatrix4MakeTranslation(centre.x, centre.y, centre.z)
     model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
+    mArray = [model.m00, model.m01, model.m02, model.m03,
+              model.m10, model.m11, model.m12, model.m13,
+              model.m20, model.m21, model.m22, model.m23,
+              model.m30, model.m31, model.m32, model.m33]
+    var isInvertible: Bool = true
+    let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(model), &isInvertible))
+    mitArray = [mit.m00, mit.m01, mit.m02,
+                mit.m10, mit.m11, mit.m12,
+                mit.m20, mit.m21, mit.m22]
     view = GLKMatrix4MakeLookAt(eye.x, eye.y, eye.z, centre.x, centre.y, centre.z, 0.0, 1.0, 0.0)
+    vArray = [view.m00, view.m01, view.m02, view.m03,
+              view.m10, view.m11, view.m12, view.m13,
+              view.m20, view.m21, view.m22, view.m23,
+              view.m30, view.m31, view.m32, view.m33]
+    let vi = GLKMatrix4Invert(view, &isInvertible)
+    viArray = [vi.m00, vi.m01, vi.m02, vi.m03,
+               vi.m10, vi.m11, vi.m12, vi.m13,
+               vi.m20, vi.m21, vi.m22, vi.m23,
+               vi.m30, vi.m31, vi.m32, vi.m33]
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
-    mArray = [model.m00, model.m01, model.m02,
-              model.m10, model.m11, model.m12,
-              model.m20, model.m21, model.m22]
-    mArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
+    pArray = [projection.m00, projection.m01, projection.m02, projection.m03,
+              projection.m10, projection.m11, projection.m12, projection.m13,
+              projection.m20, projection.m21, projection.m22, projection.m23,
+              projection.m30, projection.m31, projection.m32, projection.m33]
     
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
     CVDisplayLinkSetOutputCallback(displayLink!, displayLinkOutputCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
@@ -313,23 +351,19 @@ class OpenGLView: NSOpenGLView {
     
     // Compute two points on the ray represented by the mouse position at the near and far planes
     var isInvertible: Bool = true
-    let mvpInverse = GLKMatrix4Invert(mvp, &isInvertible)
+    let mvpInverse = GLKMatrix4Invert(GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model)), &isInvertible)
     let pointOnNearPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, -1.0, 1.0)
     let pointOnNearPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
     let pointOnFarPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, 1.0, 1.0)
     let pointOnFarPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
-//    Swift.print("Near: (\(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w), \(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w), \(pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w))")
-//    Swift.print("Far: (\(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), \(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), \(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))")
     
     // Interpolate the points to obtain the intersection with the data plane z = 0
     let alpha: Float = -(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)/((pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)-(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))
     let clickedPointInObjectCoordinates = GLKVector4Make(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
-//    Swift.print("Clicked point in object coordinates: (\(clickedPointInObjectCoordinates.x), \(clickedPointInObjectCoordinates.y), 0.0)")
     
     // Use the intersection to compute the shift in the view space
     let objectToCamera = GLKMatrix4Multiply(model, view)
     let clickedPointInCameraCoordinates = GLKMatrix4MultiplyVector4(objectToCamera, clickedPointInObjectCoordinates)
-//    Swift.print("Clicked point in camera coordinates: (\(clickedPointInCameraCoordinates.x), \(clickedPointInCameraCoordinates.y), \(clickedPointInCameraCoordinates.z))")
     
     // Compute shift in object space
     let shiftInCameraCoordinates: GLKVector3 = GLKVector3Make(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
@@ -341,21 +375,20 @@ class OpenGLView: NSOpenGLView {
     // Correct shift so that the point of rotation remains at the same depth as the data
     cameraToObject = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
     let depthOffset = 1.0+depthAtCentre()
-//    Swift.print("Depth offset: \(depthOffset)")
     let depthOffsetInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, depthOffsetInCameraCoordinates)
     modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, depthOffsetInObjectCoordinates)
     model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
     
-    // Recompute MVP
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mArray = [model.m00, model.m01, model.m02,
-              model.m10, model.m11, model.m12,
-              model.m20, model.m21, model.m22]
+    // Put model matrix in arrays and render
+    mArray = [model.m00, model.m01, model.m02, model.m03,
+              model.m10, model.m11, model.m12, model.m13,
+              model.m20, model.m21, model.m22, model.m23,
+              model.m30, model.m31, model.m32, model.m33]
+    let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(model), &isInvertible))
+    mitArray = [mit.m00, mit.m01, mit.m02,
+                mit.m10, mit.m11, mit.m12,
+                mit.m20, mit.m21, mit.m22]
     renderFrame()
   }
   
@@ -398,14 +431,14 @@ class OpenGLView: NSOpenGLView {
       let axisInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, axisInCameraCoordinates)
       modelRotation = GLKMatrix4RotateWithVector3(modelRotation, angle, axisInObjectCoordinates)
       model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
-      mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-      mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                  mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                  mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                  mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-      mArray = [model.m00, model.m01, model.m02,
-                model.m10, model.m11, model.m12,
-                model.m20, model.m21, model.m22]
+      mArray = [model.m00, model.m01, model.m02, model.m03,
+                model.m10, model.m11, model.m12, model.m13,
+                model.m20, model.m21, model.m22, model.m23,
+                model.m30, model.m31, model.m32, model.m33]
+      let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(model), &isInvertible))
+      mitArray = [mit.m00, mit.m01, mit.m02,
+                  mit.m10, mit.m11, mit.m12,
+                  mit.m20, mit.m21, mit.m22]
       renderFrame()
     } else {
 //      Swift.print("NaN!")
@@ -422,14 +455,14 @@ class OpenGLView: NSOpenGLView {
     let axisInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, axisInCameraCoordinates)
     modelRotation = GLKMatrix4RotateWithVector3(modelRotation, GLKMathDegreesToRadians(event.rotation), axisInObjectCoordinates)
     model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mArray = [model.m00, model.m01, model.m02,
-              model.m10, model.m11, model.m12,
-              model.m20, model.m21, model.m22]
+    mArray = [model.m00, model.m01, model.m02, model.m03,
+              model.m10, model.m11, model.m12, model.m13,
+              model.m20, model.m21, model.m22, model.m23,
+              model.m30, model.m31, model.m32, model.m33]
+    let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(model), &isInvertible))
+    mitArray = [mit.m00, mit.m01, mit.m02,
+                mit.m10, mit.m11, mit.m12,
+                mit.m20, mit.m21, mit.m22]
     renderFrame()
   }
   
@@ -442,11 +475,10 @@ class OpenGLView: NSOpenGLView {
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
 //    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    pArray = [projection.m00, projection.m01, projection.m02, projection.m03,
+              projection.m10, projection.m11, projection.m12, projection.m13,
+              projection.m20, projection.m21, projection.m22, projection.m23,
+              projection.m30, projection.m31, projection.m32, projection.m33]
     renderFrame()
   }
   
@@ -472,15 +504,15 @@ class OpenGLView: NSOpenGLView {
     modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(modelTranslationToCentreOfRotation, depthOffsetInObjectCoordinates)
     model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
     
-    // Recompute MVP
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mArray = [model.m00, model.m01, model.m02,
-              model.m10, model.m11, model.m12,
-              model.m20, model.m21, model.m22]
+    // Put model matrix in arrays and render
+    mArray = [model.m00, model.m01, model.m02, model.m03,
+              model.m10, model.m11, model.m12, model.m13,
+              model.m20, model.m21, model.m22, model.m23,
+              model.m30, model.m31, model.m32, model.m33]
+    let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(model), &isInvertible))
+    mitArray = [mit.m00, mit.m01, mit.m02,
+                mit.m10, mit.m11, mit.m12,
+                mit.m20, mit.m21, mit.m22]
     renderFrame()
   }
   
@@ -491,11 +523,10 @@ class OpenGLView: NSOpenGLView {
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
 //    Swift.print("Field of view: \(fieldOfView)")
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    pArray = [projection.m00, projection.m01, projection.m02, projection.m03,
+              projection.m10, projection.m11, projection.m12, projection.m13,
+              projection.m20, projection.m21, projection.m22, projection.m23,
+              projection.m30, projection.m31, projection.m32, projection.m33]
     renderFrame()
   }
   
@@ -557,13 +588,12 @@ class OpenGLView: NSOpenGLView {
     super.reshape()
     glViewport(0, 0, GLsizei(bounds.size.width), GLsizei(bounds.size.height))
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
-    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
-    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
-                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
-                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
-                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    pArray = [projection.m00, projection.m01, projection.m02, projection.m03,
+              projection.m10, projection.m11, projection.m12, projection.m13,
+              projection.m20, projection.m21, projection.m22, projection.m23,
+              projection.m30, projection.m31, projection.m32, projection.m33]
+    pArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
     }
     update()
   }
@@ -580,11 +610,20 @@ class OpenGLView: NSOpenGLView {
     
     glUseProgram(program)
     
-    mvpArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix4fv(uniformMVP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
-    }
     mArray.withUnsafeBufferPointer { pointer in
-      glUniformMatrix3fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+      glUniformMatrix4fv(uniformM, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    vArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformV, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    pArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    mitArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix3fv(uniformMIT, 1, GLboolean(GL_FALSE), pointer.baseAddress)
+    }
+    viArray.withUnsafeBufferPointer { pointer in
+      glUniformMatrix4fv(uniformVI, 1, GLboolean(GL_FALSE), pointer.baseAddress)
     }
     
     glEnableVertexAttribArray(GLuint(attributeCoordinates))
