@@ -31,6 +31,8 @@ class OpenGLView: NSOpenGLView {
   var vboLandUse: GLuint = 0
   var vboEdges: GLuint = 0
   var vboBoundingBox: GLuint = 0
+  var vboSelectionFaces: GLuint = 0
+  var vboSelectionEdges: GLuint = 0
   
   var uniformM: GLint = 0
   var uniformV: GLint = 0
@@ -72,6 +74,8 @@ class OpenGLView: NSOpenGLView {
   let landUseColour: Array<GLfloat> = [1.0, 0.0, 0.0]
   let edgesColour: Array<GLfloat> = [0.0, 0.0, 0.0]
   let boundingBoxColour: Array<GLfloat> = [0.0, 0.0, 0.0]
+  let selectionFacesColour: Array<GLfloat> = [0.8, 0.8, 0.0]
+  let selectionEdgesColour: Array<GLfloat> = [1.0, 1.0, 0.0]
   
   var buildingsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var buildingRoofsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
@@ -84,6 +88,8 @@ class OpenGLView: NSOpenGLView {
   var landUseTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var edges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var boundingBox: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var selectionFaces: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var selectionEdges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
   required init?(coder: NSCoder) {
     Swift.print("OpenGLView.init?(NSCoder)")
@@ -284,6 +290,8 @@ class OpenGLView: NSOpenGLView {
     glGenBuffers(1, &vboLandUse)
     glGenBuffers(1, &vboEdges)
     glGenBuffers(1, &vboBoundingBox)
+    glGenBuffers(1, &vboSelectionFaces)
+    glGenBuffers(1, &vboSelectionEdges)
     
     while glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("An error occurred in the initialisation of OpenGL")
@@ -733,6 +741,17 @@ class OpenGLView: NSOpenGLView {
       Swift.print("Rendering land use: some error occurred!")
     }
     
+    glUniform3f(uniformColour, selectionFacesColour[0], selectionFacesColour[1], selectionFacesColour[2])
+    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionFaces)
+    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
+    //    Swift.print("Drawing \(size/3) selection triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    if glGetError() != GLenum(GL_NO_ERROR) {
+      Swift.print("Rendering selection faces: some error occurred!")
+    }
+    
     glDisableVertexAttribArray(GLuint(attributeNormals))
     
     if (viewEdges) {
@@ -756,6 +775,18 @@ class OpenGLView: NSOpenGLView {
       glDrawArrays(GLenum(GL_LINES), 0, size)
       if glGetError() != GLenum(GL_NO_ERROR) {
         Swift.print("Rendering bounding box: some error occurred!")
+      }
+    }
+    
+    if viewEdges {
+      glUniform3f(uniformColour, selectionEdgesColour[0], selectionEdgesColour[1], selectionEdgesColour[2])
+      glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionEdges)
+      glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
+//      Swift.print("Drawing \(size/2) selection edges")
+      glDrawArrays(GLenum(GL_LINES), 0, size)
+      if glGetError() != GLenum(GL_NO_ERROR) {
+        Swift.print("Rendering selection edges: some error occurred!")
       }
     }
     
@@ -788,5 +819,7 @@ class OpenGLView: NSOpenGLView {
     glDeleteBuffers(1, &vboLandUse)
     glDeleteBuffers(1, &vboEdges)
     glDeleteBuffers(1, &vboBoundingBox)
+    glDeleteBuffers(1, &vboSelectionFaces)
+    glDeleteBuffers(1, &vboSelectionEdges)
   }
 }

@@ -30,6 +30,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
   
   var openFiles = Set<URL>()
   var objects = [OutlineViewObject]()
+  var selection = Set<String>()
   var loadingData: Bool = false
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -74,6 +75,8 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     self.window.title = "Azul"
     
     cityGMLParser!.clear()
+    objects.removeAll()
+    self.outlineView.reloadData()
     
     openGLView.buildingsTriangles.removeAll()
     openGLView.buildingRoofsTriangles.removeAll()
@@ -247,6 +250,8 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     openGLView.landUseTriangles.removeAll()
     openGLView.edges.removeAll()
     openGLView.boundingBox.removeAll()
+    openGLView.selectionFaces.removeAll()
+    openGLView.selectionEdges.removeAll()
     
     objects.removeAll(keepingCapacity: true)
     
@@ -276,28 +281,33 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       objects.append(OutlineViewObject())
       objects.last!.id = id!
       
-      openGLView.edges.append(contentsOf: edges)
-      
-      switch cityGMLParser!.type() {
-      case 1:
-        openGLView.buildingsTriangles.append(contentsOf: triangles)
-        openGLView.buildingRoofsTriangles.append(contentsOf: triangles2)
-      case 2:
-        openGLView.roadsTriangles.append(contentsOf: triangles)
-      case 3:
-        openGLView.terrainTriangles.append(contentsOf: triangles)
-      case 4:
-        openGLView.waterTriangles.append(contentsOf: triangles)
-      case 5:
-        openGLView.plantCoverTriangles.append(contentsOf: triangles)
-      case 6:
-        openGLView.genericTriangles.append(contentsOf: triangles)
-      case 7:
-        openGLView.bridgeTriangles.append(contentsOf: triangles)
-      case 8:
-        openGLView.landUseTriangles.append(contentsOf: triangles)
-      default:
-        break
+      if selection.contains(id!) {
+        openGLView.selectionEdges.append(contentsOf: edges)
+        openGLView.selectionFaces.append(contentsOf: triangles)
+        openGLView.selectionFaces.append(contentsOf: triangles2)
+      } else {
+        openGLView.edges.append(contentsOf: edges)
+        switch cityGMLParser!.type() {
+        case 1:
+          openGLView.buildingsTriangles.append(contentsOf: triangles)
+          openGLView.buildingRoofsTriangles.append(contentsOf: triangles2)
+        case 2:
+          openGLView.roadsTriangles.append(contentsOf: triangles)
+        case 3:
+          openGLView.terrainTriangles.append(contentsOf: triangles)
+        case 4:
+          openGLView.waterTriangles.append(contentsOf: triangles)
+        case 5:
+          openGLView.plantCoverTriangles.append(contentsOf: triangles)
+        case 6:
+          openGLView.genericTriangles.append(contentsOf: triangles)
+        case 7:
+          openGLView.bridgeTriangles.append(contentsOf: triangles)
+        case 8:
+          openGLView.landUseTriangles.append(contentsOf: triangles)
+        default:
+          break
+        }
       }
       
       cityGMLParser!.advanceIterator()
@@ -439,8 +449,24 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       Swift.print("Loading edges into memory: some error occurred!")
     }
     
-    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count/18) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count/18) from roads, \(openGLView.waterTriangles.count/18) from water bodies, \(openGLView.plantCoverTriangles.count/18) from plant cover, \(openGLView.genericTriangles.count/18) from generic objects, \(openGLView.bridgeTriangles.count/18) from bridges, \(openGLView.landUseTriangles.count/18) from land use.")
-    Swift.print("Loaded \(openGLView.edges.count/6) edges and \(openGLView.boundingBox.count/6) edges from the bounding box.")
+    glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboSelectionFaces)
+    openGLView.selectionFaces.withUnsafeBufferPointer { pointer in
+      glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.selectionFaces.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+    }
+    if glGetError() != GLenum(GL_NO_ERROR) {
+      Swift.print("Loading selection triangles into memory: some error occurred!")
+    }
+    
+    glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboSelectionEdges)
+    openGLView.selectionEdges.withUnsafeBufferPointer { pointer in
+      glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.selectionEdges.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+    }
+    if glGetError() != GLenum(GL_NO_ERROR) {
+      Swift.print("Loading selection edges into memory: some error occurred!")
+    }
+    
+    Swift.print("Loaded triangles: \(openGLView.buildingsTriangles.count/18) from buildings, \(openGLView.buildingRoofsTriangles.count) from building roofs, \(openGLView.roadsTriangles.count/18) from roads, \(openGLView.waterTriangles.count/18) from water bodies, \(openGLView.plantCoverTriangles.count/18) from plant cover, \(openGLView.genericTriangles.count/18) from generic objects, \(openGLView.bridgeTriangles.count/18) from bridges, \(openGLView.landUseTriangles.count/18) from land use and \(openGLView.selectionFaces.count/18) from selected objects.")
+    Swift.print("Loaded \(openGLView.edges.count/6) edges, \(openGLView.boundingBox.count/6) edges from the bounding box and \(openGLView.selectionEdges.count/6) edges from the selection.")
   }
   
   func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
@@ -474,6 +500,18 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
     view.textField?.stringValue = object.id
     return view
+  }
+  
+  func outlineViewSelectionDidChange(_ notification: Notification) {
+    Swift.print("outlineViewSelectionDidChange")
+    selection.removeAll()
+    for row in outlineView.selectedRowIndexes {
+      let item = outlineView.item(atRow: row) as! OutlineViewObject
+      Swift.print("\tSelected row: \(item.id)")
+      selection.insert(item.id)
+    }
+    regenerateOpenGLRepresentation()
+    openGLView.renderFrame()
   }
 }
 
