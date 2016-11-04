@@ -499,6 +499,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
 //    Swift.print("view for column \(tableColumn!.title) for item \(item) = \(object.id)")
     let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
     view.textField?.stringValue = object.id
+    view.imageView?.image = NSImage(named: "building")
     return view
   }
   
