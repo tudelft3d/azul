@@ -328,6 +328,8 @@ class OpenGLView: NSOpenGLView {
               projection.m20, projection.m21, projection.m22, projection.m23,
               projection.m30, projection.m31, projection.m32, projection.m33]
     
+//    Swift.print("View bounds: height = \(bounds.size.height), width = \(bounds.size.width)")
+    
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
     CVDisplayLinkSetOutputCallback(displayLink!, displayLinkOutputCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
 //    CVDisplayLinkStart(displayLink!)
@@ -586,7 +588,8 @@ class OpenGLView: NSOpenGLView {
   }
   
   override func reshape() {
-//    Swift.print("OpenGLView.reshape()")
+    Swift.print("OpenGLView.reshape()")
+    Swift.print("View bounds: height = \(bounds.size.height), width = \(bounds.size.width)")
     super.reshape()
     glViewport(0, 0, GLsizei(bounds.size.width), GLsizei(bounds.size.height))
     projection = GLKMatrix4MakePerspective(fieldOfView, 1.0/Float(bounds.size.height/bounds.size.width), 0.001, 100.0)
