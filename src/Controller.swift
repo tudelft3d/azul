@@ -9,8 +9,12 @@ import Cocoa
 import OpenGL.GL3
 import GLKit
 
+class OutlineViewObject {
+  var id: String = ""
+}
+
 @NSApplicationMain
-class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource {
+class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOutlineViewDelegate {
 
   @IBOutlet weak var window: NSWindow!
   @IBOutlet weak var splitView: NSSplitView!
@@ -25,13 +29,14 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource {
   let cityGMLParser = CityGMLParserWrapperWrapper()
   
   var openFiles = Set<URL>()
-  var objectIDs = [String]()
+  var objects = [OutlineViewObject]()
   var loadingData: Bool = false
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     Swift.print("Controller.applicationDidFinishLaunching()")
     openGLView.controller = self
     outlineView.dataSource = self
+    outlineView.delegate = self
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {
@@ -243,7 +248,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource {
     openGLView.edges.removeAll()
     openGLView.boundingBox.removeAll()
     
-    objectIDs.removeAll(keepingCapacity: true)
+    objects.removeAll(keepingCapacity: true)
     
     cityGMLParser!.initialiseIterator()
     while !cityGMLParser!.iteratorEnded() {
@@ -267,7 +272,9 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource {
       let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
       let id = String(data: idData, encoding: String.Encoding.utf8)
 //      Swift.print("Added object \(id!)")
-      objectIDs.append(id!)
+      
+      objects.append(OutlineViewObject())
+      objects.last!.id = id!
       
       openGLView.edges.append(contentsOf: edges)
       
@@ -437,23 +444,36 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource {
   }
   
   func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
+//    Swift.print("numberOfChildrenOfItem of \(item)")
     if item == nil {
-      return objectIDs.count
+      return objects.count
     } else {
       return 0
     }
   }
   
   func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
+//    Swift.print("isItemExpandable of \(item)")
     return false
   }
   
   func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-    return objectIDs[index]
+//    Swift.print("child \(index) of \(item)")
+    return objects[index]
   }
   
   func outlineView(_ outlineView: NSOutlineView, objectValueFor tableColumn: NSTableColumn?, byItem item: Any?) -> Any? {
-    return item!
+    let object = item as! OutlineViewObject
+//    Swift.print("object value for column \(tableColumn!.title) for item \(item) = \(object.id)")
+    return object.id
+  }
+  
+  func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
+    let object = item as! OutlineViewObject
+//    Swift.print("view for column \(tableColumn!.title) for item \(item) = \(object.id)")
+    let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
+    view.textField?.stringValue = object.id
+    return view
   }
 }
 

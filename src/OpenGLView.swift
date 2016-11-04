@@ -600,7 +600,6 @@ class OpenGLView: NSOpenGLView {
     pArray.withUnsafeBufferPointer { pointer in
       glUniformMatrix4fv(uniformP, 1, GLboolean(GL_FALSE), pointer.baseAddress)
     }
-    update()
   }
   
   func renderFrame() {
