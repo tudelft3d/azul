@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BE19D1431DCCE01B00664B07 /* libboost_system-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BE19D1311DCCDFE700664B07 /* libboost_system-mt.dylib */; };
+		BE19D1441DCCE01D00664B07 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BE19D1321DCCDFE700664B07 /* libboost_thread-mt.dylib */; };
+		BE19D1451DCCE01F00664B07 /* libCGAL.12.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BE19D1331DCCDFE700664B07 /* libCGAL.12.0.0.dylib */; };
+		BE19D1461DCCE02600664B07 /* libCGAL_Core.12.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */; };
+		BE19D1471DCCE02E00664B07 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */; };
+		BE19D1481DCCE03000664B07 /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */; };
+		BE19D14A1DCCE05000664B07 /* libboost_atomic-mt.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D12E1DCCDFE700664B07 /* libboost_atomic-mt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D14B1DCCE05000664B07 /* libboost_chrono-mt.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D12F1DCCDFE700664B07 /* libboost_chrono-mt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D14C1DCCE05000664B07 /* libboost_date_time-mt.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1301DCCDFE700664B07 /* libboost_date_time-mt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D14D1DCCE05000664B07 /* libboost_system-mt.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1311DCCDFE700664B07 /* libboost_system-mt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D14E1DCCE05000664B07 /* libboost_thread-mt.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1321DCCDFE700664B07 /* libboost_thread-mt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D14F1DCCE05000664B07 /* libCGAL.12.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1331DCCDFE700664B07 /* libCGAL.12.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D1501DCCE05000664B07 /* libCGAL_Core.12.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D1511DCCE05000664B07 /* libgmp.10.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE19D1521DCCE05000664B07 /* libmpfr.4.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */; };
 		BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */; };
 		BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */; };
@@ -16,15 +31,39 @@
 		BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
-		BEDE76E71DC62C2C000D33EC /* libboost_system-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76E51DC62C2C000D33EC /* libboost_system-mt.a */; };
-		BEDE76E81DC62C2C000D33EC /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76E61DC62C2C000D33EC /* libboost_thread-mt.a */; };
-		BEDE76EB1DC62C4A000D33EC /* libgmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76E91DC62C4A000D33EC /* libgmp.a */; };
-		BEDE76EC1DC62C4A000D33EC /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76EA1DC62C4A000D33EC /* libmpfr.a */; };
-		BEDE76EF1DC62EAF000D33EC /* libCGAL_Core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76ED1DC62EAF000D33EC /* libCGAL_Core.a */; };
-		BEDE76F01DC62EAF000D33EC /* libCGAL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDE76EE1DC62EAF000D33EC /* libCGAL.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		BE19D1491DCCE04500664B07 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				BE19D14A1DCCE05000664B07 /* libboost_atomic-mt.dylib in CopyFiles */,
+				BE19D14B1DCCE05000664B07 /* libboost_chrono-mt.dylib in CopyFiles */,
+				BE19D14C1DCCE05000664B07 /* libboost_date_time-mt.dylib in CopyFiles */,
+				BE19D14D1DCCE05000664B07 /* libboost_system-mt.dylib in CopyFiles */,
+				BE19D14E1DCCE05000664B07 /* libboost_thread-mt.dylib in CopyFiles */,
+				BE19D14F1DCCE05000664B07 /* libCGAL.12.0.0.dylib in CopyFiles */,
+				BE19D1501DCCE05000664B07 /* libCGAL_Core.12.0.0.dylib in CopyFiles */,
+				BE19D1511DCCE05000664B07 /* libgmp.10.dylib in CopyFiles */,
+				BE19D1521DCCE05000664B07 /* libmpfr.4.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		BE19D12E1DCCDFE700664B07 /* libboost_atomic-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libboost_atomic-mt.dylib"; sourceTree = "<group>"; };
+		BE19D12F1DCCDFE700664B07 /* libboost_chrono-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libboost_chrono-mt.dylib"; sourceTree = "<group>"; };
+		BE19D1301DCCDFE700664B07 /* libboost_date_time-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libboost_date_time-mt.dylib"; sourceTree = "<group>"; };
+		BE19D1311DCCDFE700664B07 /* libboost_system-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libboost_system-mt.dylib"; sourceTree = "<group>"; };
+		BE19D1321DCCDFE700664B07 /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libboost_thread-mt.dylib"; sourceTree = "<group>"; };
+		BE19D1331DCCDFE700664B07 /* libCGAL.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libCGAL.12.0.0.dylib; sourceTree = "<group>"; };
+		BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libCGAL_Core.12.0.0.dylib; sourceTree = "<group>"; };
+		BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libgmp.10.dylib; sourceTree = "<group>"; };
+		BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmpfr.4.dylib; sourceTree = "<group>"; };
 		BE4AF9C61DB7D8A0004FCF22 /* azul.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = azul.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -39,12 +78,6 @@
 		BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
-		BEDE76E51DC62C2C000D33EC /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "../../../../usr/local/Cellar/boost/1.62.0/lib/libboost_system-mt.a"; sourceTree = "<group>"; };
-		BEDE76E61DC62C2C000D33EC /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../../../usr/local/Cellar/boost/1.62.0/lib/libboost_thread-mt.a"; sourceTree = "<group>"; };
-		BEDE76E91DC62C4A000D33EC /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = ../../../../usr/local/Cellar/gmp/6.1.1/lib/libgmp.a; sourceTree = "<group>"; };
-		BEDE76EA1DC62C4A000D33EC /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = ../../../../usr/local/Cellar/mpfr/3.1.5/lib/libmpfr.a; sourceTree = "<group>"; };
-		BEDE76ED1DC62EAF000D33EC /* libCGAL_Core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCGAL_Core.a; path = ../cgal/lib/libCGAL_Core.a; sourceTree = "<group>"; };
-		BEDE76EE1DC62EAF000D33EC /* libCGAL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCGAL.a; path = ../cgal/lib/libCGAL.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,25 +85,43 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEDE76EF1DC62EAF000D33EC /* libCGAL_Core.a in Frameworks */,
-				BEDE76F01DC62EAF000D33EC /* libCGAL.a in Frameworks */,
-				BEDE76EB1DC62C4A000D33EC /* libgmp.a in Frameworks */,
-				BEDE76EC1DC62C4A000D33EC /* libmpfr.a in Frameworks */,
-				BEDE76E71DC62C2C000D33EC /* libboost_system-mt.a in Frameworks */,
-				BEDE76E81DC62C2C000D33EC /* libboost_thread-mt.a in Frameworks */,
 				BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */,
+				BE19D1431DCCE01B00664B07 /* libboost_system-mt.dylib in Frameworks */,
+				BE19D1441DCCE01D00664B07 /* libboost_thread-mt.dylib in Frameworks */,
+				BE19D1451DCCE01F00664B07 /* libCGAL.12.0.0.dylib in Frameworks */,
+				BE19D1461DCCE02600664B07 /* libCGAL_Core.12.0.0.dylib in Frameworks */,
+				BE19D1471DCCE02E00664B07 /* libgmp.10.dylib in Frameworks */,
+				BE19D1481DCCE03000664B07 /* libmpfr.4.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE19D12D1DCCDFE700664B07 /* Dynamic libs */ = {
+			isa = PBXGroup;
+			children = (
+				BE19D12E1DCCDFE700664B07 /* libboost_atomic-mt.dylib */,
+				BE19D12F1DCCDFE700664B07 /* libboost_chrono-mt.dylib */,
+				BE19D1301DCCDFE700664B07 /* libboost_date_time-mt.dylib */,
+				BE19D1311DCCDFE700664B07 /* libboost_system-mt.dylib */,
+				BE19D1321DCCDFE700664B07 /* libboost_thread-mt.dylib */,
+				BE19D1331DCCDFE700664B07 /* libCGAL.12.0.0.dylib */,
+				BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */,
+				BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */,
+				BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */,
+			);
+			name = "Dynamic libs";
+			path = libs;
+			sourceTree = "<group>";
+		};
 		BE4AF9BD1DB7D8A0004FCF22 = {
 			isa = PBXGroup;
 			children = (
 				BE4AF9C81DB7D8A0004FCF22 /* Source */,
 				BE4AF9C71DB7D8A0004FCF22 /* Products */,
-				BE61964E1DBFDC320081B3E8 /* Frameworks */,
+				BE19D12D1DCCDFE700664B07 /* Dynamic libs */,
+				BE61964E1DBFDC320081B3E8 /* Static libs */,
 			);
 			sourceTree = "<group>";
 		};
@@ -102,18 +153,12 @@
 			path = src;
 			sourceTree = "<group>";
 		};
-		BE61964E1DBFDC320081B3E8 /* Frameworks */ = {
+		BE61964E1DBFDC320081B3E8 /* Static libs */ = {
 			isa = PBXGroup;
 			children = (
-				BEDE76ED1DC62EAF000D33EC /* libCGAL_Core.a */,
-				BEDE76EE1DC62EAF000D33EC /* libCGAL.a */,
-				BEDE76E91DC62C4A000D33EC /* libgmp.a */,
-				BEDE76EA1DC62C4A000D33EC /* libmpfr.a */,
-				BEDE76E51DC62C2C000D33EC /* libboost_system-mt.a */,
-				BEDE76E61DC62C2C000D33EC /* libboost_thread-mt.a */,
 				BE61964F1DBFDC320081B3E8 /* libpugixml.a */,
 			);
-			name = Frameworks;
+			name = "Static libs";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -126,6 +171,7 @@
 				BE4AF9C21DB7D8A0004FCF22 /* Sources */,
 				BE4AF9C31DB7D8A0004FCF22 /* Frameworks */,
 				BE4AF9C41DB7D8A0004FCF22 /* Resources */,
+				BE19D1491DCCE04500664B07 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -317,12 +363,8 @@
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
 					/usr/local/Cellar/pugixml/1.7/lib,
-					/usr/local/Cellar/boost/1.62.0/lib,
-					/usr/local/Cellar/cgal/4.9/lib,
-					/usr/local/Cellar/gmp/6.1.1/lib,
-					/usr/local/Cellar/mpfr/3.1.5/lib,
+					"$(PROJECT_DIR)/libs",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
@@ -347,12 +389,8 @@
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
 					/usr/local/Cellar/pugixml/1.7/lib,
-					/usr/local/Cellar/boost/1.62.0/lib,
-					/usr/local/Cellar/cgal/4.9/lib,
-					/usr/local/Cellar/gmp/6.1.1/lib,
-					/usr/local/Cellar/mpfr/3.1.5/lib,
+					"$(PROJECT_DIR)/libs",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;

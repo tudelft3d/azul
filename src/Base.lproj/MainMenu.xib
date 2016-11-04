@@ -356,6 +356,9 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Format" id="GEO-Iw-cKr">
                         <items>
+                            <menuItem title="Test" keyEquivalent="h" id="W0n-ld-dYe">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" option="YES" command="YES"/>
+                            </menuItem>
                             <menuItem title="Font" id="Gi5-1S-RQB">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Font" systemMenu="font" id="aXa-aM-Jaq">
@@ -631,7 +634,8 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="bNx-rd-iPU"/>
-                            <menuItem title="Bounding box" keyEquivalent="b" id="S18-6j-Hu0">
+                            <menuItem title="Bounding Box" keyEquivalent="b" id="S18-6j-Hu0">
+                                <attributedString key="attributedTitle"/>
                                 <connections>
                                     <action selector="toggleViewBoundingBox:" target="Voe-Tx-rLC" id="ETN-Jd-TZM"/>
                                 </connections>
@@ -642,7 +646,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="waf-17-Te0"/>
-                            <menuItem title="Reset to data centre" keyEquivalent="r" id="aa1-9g-hgv">
+                            <menuItem title="Reset to data centre" keyEquivalent="H" id="aa1-9g-hgv">
                                 <connections>
                                     <action selector="goHome:" target="Voe-Tx-rLC" id="pE2-w3-xtA"/>
                                 </connections>
