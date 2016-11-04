@@ -412,6 +412,27 @@ class OpenGLView: NSOpenGLView {
     }
   }
   
+  override func rotate(with event: NSEvent) {
+//    Swift.print("OpenGLView.rotate()")
+//    Swift.print("Rotation angle: \(event.rotation)")
+    
+    let axisInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, 1.0)
+    var isInvertible: Bool = true
+    let cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(model, view)), &isInvertible)
+    let axisInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, axisInCameraCoordinates)
+    modelRotation = GLKMatrix4RotateWithVector3(modelRotation, GLKMathDegreesToRadians(event.rotation), axisInObjectCoordinates)
+    model = GLKMatrix4Multiply(GLKMatrix4Multiply(modelShiftBack, modelRotation), modelTranslationToCentreOfRotation)
+    mvp = GLKMatrix4Multiply(projection, GLKMatrix4Multiply(view, model))
+    mvpArray = [mvp.m00, mvp.m01, mvp.m02, mvp.m03,
+                mvp.m10, mvp.m11, mvp.m12, mvp.m13,
+                mvp.m20, mvp.m21, mvp.m22, mvp.m23,
+                mvp.m30, mvp.m31, mvp.m32, mvp.m33]
+    mArray = [model.m00, model.m01, model.m02,
+              model.m10, model.m11, model.m12,
+              model.m20, model.m21, model.m22]
+    renderFrame()
+  }
+  
   override func rightMouseDragged(with event: NSEvent) {
 //    Swift.print("OpenGLView.rightMouseDragged()")
 //    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
