@@ -370,7 +370,7 @@ class OpenGLView: NSOpenGLView {
     
     // Test intersections with triangles
     var closestHit: String = ""
-    var hitDistance: Float = 0.0
+    var hitDistance: Float = -1.0
     controller!.cityGMLParser!.initialiseIterator()
     while !controller!.cityGMLParser!.iteratorEnded() {
       
@@ -469,7 +469,7 @@ class OpenGLView: NSOpenGLView {
     }
     
     // Select closest hit
-    if hitDistance > 0.0 {
+    if hitDistance > -1.0 {
       let selectedRow = controller!.findObjectRow(with: closestHit)
       let rowIndexes = IndexSet(integer: selectedRow)
       controller!.outlineView.selectRowIndexes(rowIndexes, byExtendingSelection: false)
