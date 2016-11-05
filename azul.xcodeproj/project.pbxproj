@@ -76,6 +76,7 @@
 		BE9EB5B71DBEA62400C78EC0 /* CityGMLParserWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CityGMLParserWrapperWrapper.h; sourceTree = "<group>"; };
 		BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityGMLParser.cpp; sourceTree = "<group>"; };
 		BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
+		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,6 +119,7 @@
 		BE4AF9BD1DB7D8A0004FCF22 = {
 			isa = PBXGroup;
 			children = (
+				BEA6D17E1DCE6714005D066F /* azul.entitlements */,
 				BE4AF9C81DB7D8A0004FCF22 /* Source */,
 				BE4AF9C71DB7D8A0004FCF22 /* Products */,
 				BE19D12D1DCCDFE700664B07 /* Dynamic libs */,
@@ -194,9 +196,13 @@
 				TargetAttributes = {
 					BE4AF9C51DB7D8A0004FCF22 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = 2ZLVW4NF9X;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -356,9 +362,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_ENTITLEMENTS = azul.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 2ZLVW4NF9X;
+				DEVELOPMENT_TEAM = UD3V83TPY7;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -382,9 +389,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_ENTITLEMENTS = azul.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 2ZLVW4NF9X;
+				DEVELOPMENT_TEAM = UD3V83TPY7;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
