@@ -369,7 +369,8 @@ class OpenGLView: NSOpenGLView {
     let rayDirection = GLKVector3Subtract(rayDestination, rayOrigin)
     
     // Test intersections with triangles
-    var hitObjects = [String]()
+    var closestHit: String = ""
+    var hitDistance: Float = 100.0
     controller!.cityGMLParser!.initialiseIterator()
     while !controller!.cityGMLParser!.iteratorEnded() {
       
@@ -388,39 +389,67 @@ class OpenGLView: NSOpenGLView {
       let id = String(data: idData, encoding: String.Encoding.utf8)
       
       let epsilon: Float = 0.000001
+      let objectToCamera = GLKMatrix4Multiply(model, view)
       
+      // Moller-Trumbore algorithm for triangle-ray intersection (non-culling)
+      // u,v are the barycentric coordinates of the intersection point
+      // t is the distance from rayOrigin to the intersection point
       let numberOfTriangles = numberOfTriangleVertices/18
       for triangleIndex in 0..<numberOfTriangles {
-        let vertex1 = GLKVector3Make(triangles[Int(18*triangleIndex)], triangles[Int(18*triangleIndex+1)], triangles[Int(18*triangleIndex+2)])
-        let vertex2 = GLKVector3Make(triangles[Int(18*triangleIndex+6)], triangles[Int(18*triangleIndex+7)], triangles[Int(18*triangleIndex+8)])
-        let vertex3 = GLKVector3Make(triangles[Int(18*triangleIndex+12)], triangles[Int(18*triangleIndex+13)], triangles[Int(18*triangleIndex+14)])
-        let edge1 = GLKVector3Subtract(vertex2, vertex1)
-        let edge2 = GLKVector3Subtract(vertex3, vertex1)
-        let P = GLKVector3CrossProduct(rayDirection, edge2)
-        let determinant = GLKVector3DotProduct(edge1, P)
+        let vertex0 = GLKVector3Make(triangles[Int(18*triangleIndex)], triangles[Int(18*triangleIndex+1)], triangles[Int(18*triangleIndex+2)])
+        let vertex1 = GLKVector3Make(triangles[Int(18*triangleIndex+6)], triangles[Int(18*triangleIndex+7)], triangles[Int(18*triangleIndex+8)])
+        let vertex2 = GLKVector3Make(triangles[Int(18*triangleIndex+12)], triangles[Int(18*triangleIndex+13)], triangles[Int(18*triangleIndex+14)])
+        let edge1 = GLKVector3Subtract(vertex1, vertex0)
+        let edge2 = GLKVector3Subtract(vertex2, vertex0)
+        let pvec = GLKVector3CrossProduct(rayDirection, edge2)
+        let determinant = GLKVector3DotProduct(edge1, pvec)
         if determinant > -epsilon && determinant < epsilon {
-          continue
+          continue // if determinant is near zero  ray lies in plane of triangle
         }
         let inverseDeterminant = 1.0 / determinant
-        let T = GLKVector3Subtract(rayOrigin, vertex1)
-        let u = GLKVector3DotProduct(T, P) * inverseDeterminant
+        let tvec = GLKVector3Subtract(rayOrigin, vertex0) // distance from vertex0 to rayOrigin
+        let u = GLKVector3DotProduct(tvec, pvec) * inverseDeterminant
         if u < 0.0 || u > 1.0 {
           continue
         }
-        let Q = GLKVector3CrossProduct(T, edge1)
-        let v = GLKVector3DotProduct(rayDirection, Q) * inverseDeterminant
+        let qvec = GLKVector3CrossProduct(tvec, edge1)
+        let v = GLKVector3DotProduct(rayDirection, qvec) * inverseDeterminant
         if v < 0.0 || u + v > 1.0 {
           continue
         }
-        let t = GLKVector3DotProduct(edge2, Q) * inverseDeterminant
+        let t = GLKVector3DotProduct(edge2, qvec) * inverseDeterminant
         if t > epsilon {
-          Swift.print("Hit \(id!)")
-          hitObjects.append(id!)
+          let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
+          let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
+          let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
+          Swift.print("Hit \(id!) at distance \(distance)")
+          if distance < hitDistance {
+            closestHit = id!
+            hitDistance = distance
+          }
         }
       }
       
       controller!.cityGMLParser!.advanceIterator()
     }
+    
+    // Select closest hit
+//    controller!.outlineView.deselectAll(self)
+//    controller!.selection.removeAll()
+    if hitDistance < 100.0 {
+      if controller!.splitView.subviews[0].bounds.size.width == 0 {
+        controller!.toggleSideBar(controller!.toggleSideBarMenuItem)
+      }
+      let selectedRow = controller!.findObjectRow(with: closestHit)
+      let rowIndexes = IndexSet(integer: selectedRow)
+//      Swift.print("Object index set \(objectIndexSet.first)")
+      controller!.outlineView.selectRowIndexes(rowIndexes, byExtendingSelection: false)
+//      controller!.selection.insert(closestHit)
+    } else {
+      controller!.outlineView.deselectAll(self)
+    }
+//    controller!.regenerateOpenGLRepresentation()
+//    renderFrame()
   }
   
   func doubleClick(with event: NSEvent) {

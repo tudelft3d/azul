@@ -528,5 +528,15 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     regenerateOpenGLRepresentation()
     openGLView.renderFrame()
   }
+  
+  func findObjectRow(with id: String) -> Int {
+    for row in 0..<outlineView.numberOfRows {
+      let object = outlineView.item(atRow: row) as! OutlineViewObject
+      if object.id == id {
+        return row
+      }
+    }
+    return -1
+  }
 }
 
