@@ -394,7 +394,7 @@ class OpenGLView: NSOpenGLView {
       // Moller-Trumbore algorithm for triangle-ray intersection (non-culling)
       // u,v are the barycentric coordinates of the intersection point
       // t is the distance from rayOrigin to the intersection point
-      let numberOfTriangles = numberOfTriangleVertices/18
+      var numberOfTriangles = numberOfTriangleVertices/18
       for triangleIndex in 0..<numberOfTriangles {
         let vertex0 = GLKVector3Make(triangles[Int(18*triangleIndex)], triangles[Int(18*triangleIndex+1)], triangles[Int(18*triangleIndex+2)])
         let vertex1 = GLKVector3Make(triangles[Int(18*triangleIndex+6)], triangles[Int(18*triangleIndex+7)], triangles[Int(18*triangleIndex+8)])
@@ -422,7 +422,42 @@ class OpenGLView: NSOpenGLView {
           let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
           let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
           let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
-          Swift.print("Hit \(id!) at distance \(distance)")
+//          Swift.print("Hit \(id!) at distance \(distance)")
+          if distance < hitDistance {
+            closestHit = id!
+            hitDistance = distance
+          }
+        }
+      }
+      numberOfTriangles = numberOfTriangleVertices2/18
+      for triangleIndex in 0..<numberOfTriangles {
+        let vertex0 = GLKVector3Make(triangles2[Int(18*triangleIndex)], triangles2[Int(18*triangleIndex+1)], triangles2[Int(18*triangleIndex+2)])
+        let vertex1 = GLKVector3Make(triangles2[Int(18*triangleIndex+6)], triangles2[Int(18*triangleIndex+7)], triangles2[Int(18*triangleIndex+8)])
+        let vertex2 = GLKVector3Make(triangles2[Int(18*triangleIndex+12)], triangles2[Int(18*triangleIndex+13)], triangles2[Int(18*triangleIndex+14)])
+        let edge1 = GLKVector3Subtract(vertex1, vertex0)
+        let edge2 = GLKVector3Subtract(vertex2, vertex0)
+        let pvec = GLKVector3CrossProduct(rayDirection, edge2)
+        let determinant = GLKVector3DotProduct(edge1, pvec)
+        if determinant > -epsilon && determinant < epsilon {
+          continue // if determinant is near zero  ray lies in plane of triangle
+        }
+        let inverseDeterminant = 1.0 / determinant
+        let tvec = GLKVector3Subtract(rayOrigin, vertex0) // distance from vertex0 to rayOrigin
+        let u = GLKVector3DotProduct(tvec, pvec) * inverseDeterminant
+        if u < 0.0 || u > 1.0 {
+          continue
+        }
+        let qvec = GLKVector3CrossProduct(tvec, edge1)
+        let v = GLKVector3DotProduct(rayDirection, qvec) * inverseDeterminant
+        if v < 0.0 || u + v > 1.0 {
+          continue
+        }
+        let t = GLKVector3DotProduct(edge2, qvec) * inverseDeterminant
+        if t > epsilon {
+          let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
+          let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
+          let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
+//          Swift.print("Hit \(id!) at distance \(distance)")
           if distance < hitDistance {
             closestHit = id!
             hitDistance = distance
@@ -437,9 +472,6 @@ class OpenGLView: NSOpenGLView {
 //    controller!.outlineView.deselectAll(self)
 //    controller!.selection.removeAll()
     if hitDistance < 100.0 {
-      if controller!.splitView.subviews[0].bounds.size.width == 0 {
-        controller!.toggleSideBar(controller!.toggleSideBarMenuItem)
-      }
       let selectedRow = controller!.findObjectRow(with: closestHit)
       let rowIndexes = IndexSet(integer: selectedRow)
 //      Swift.print("Object index set \(objectIndexSet.first)")
