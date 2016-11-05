@@ -779,10 +779,11 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildings)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    var size: GLsizei = 0
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) building triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    var sizeInBytes: GLint = 0
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    var vertices: GLsizei = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) building triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering buildings: some error occurred!")
     }
@@ -791,9 +792,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildingRoofs)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) building roof triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) building roof triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering building roofs: some error occurred!")
     }
@@ -802,9 +804,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboRoads)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) road triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) road triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering roads: some error occurred!")
     }
@@ -813,9 +816,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboWater)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) water triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) water triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering water bodies: some error occurred!")
     }
@@ -824,9 +828,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboPlantCover)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) plant cover triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) plant cover triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering plant cover: some error occurred!")
     }
@@ -835,9 +840,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboTerrain)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) terrain triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) terrain triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering terrain: some error occurred!")
     }
@@ -846,9 +852,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboGeneric)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) generic triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) generic triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering generic objects: some error occurred!")
     }
@@ -857,9 +864,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBridges)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) bridge triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) bridge triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering bridges: some error occurred!")
     }
@@ -868,9 +876,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboLandUse)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/3) land use triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/6) land use triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering land use: some error occurred!")
     }
@@ -879,9 +888,10 @@ class OpenGLView: NSOpenGLView {
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionFaces)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-    //    Swift.print("Drawing \(size/3) selection triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, size)
+    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//        Swift.print("Drawing \(vertices/6) selection triangles")
+    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Rendering selection faces: some error occurred!")
     }
@@ -889,12 +899,24 @@ class OpenGLView: NSOpenGLView {
     glDisableVertexAttribArray(GLuint(attributeNormals))
     
     if (viewEdges) {
+      glUniform3f(uniformColour, selectionEdgesColour[0], selectionEdgesColour[1], selectionEdgesColour[2])
+      glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionEdges)
+      glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
+      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+      vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//      Swift.print("Drawing \(vertices/2) selection edges")
+      glDrawArrays(GLenum(GL_LINES), 0, vertices)
+      if glGetError() != GLenum(GL_NO_ERROR) {
+        Swift.print("Rendering selection edges: some error occurred!")
+      }
+      
       glUniform3f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2])
       glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboEdges)
       glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
-      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-  //    Swift.print("Drawing \(size/2) edges")
-      glDrawArrays(GLenum(GL_LINES), 0, size)
+      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+      vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//      Swift.print("Drawing \(vertices/2) edges")
+      glDrawArrays(GLenum(GL_LINES), 0, vertices)
       if glGetError() != GLenum(GL_NO_ERROR) {
         Swift.print("Rendering edges: some error occurred!")
       }
@@ -904,28 +926,16 @@ class OpenGLView: NSOpenGLView {
       glUniform3f(uniformColour, boundingBoxColour[0], boundingBoxColour[1], boundingBoxColour[2])
       glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBoundingBox)
       glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
-      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//    Swift.print("Drawing \(size/2) bounding box edges")
-      glDrawArrays(GLenum(GL_LINES), 0, size)
+      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+      vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//    Swift.print("Drawing \(vertices/2) bounding box edges")
+      glDrawArrays(GLenum(GL_LINES), 0, vertices)
       if glGetError() != GLenum(GL_NO_ERROR) {
         Swift.print("Rendering bounding box: some error occurred!")
       }
     }
     
-    if viewEdges {
-      glUniform3f(uniformColour, selectionEdgesColour[0], selectionEdgesColour[1], selectionEdgesColour[2])
-      glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionEdges)
-      glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
-      glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &size)
-//      Swift.print("Drawing \(size/2) selection edges")
-      glDrawArrays(GLenum(GL_LINES), 0, size)
-      if glGetError() != GLenum(GL_NO_ERROR) {
-        Swift.print("Rendering selection edges: some error occurred!")
-      }
-    }
-    
     glDisableVertexAttribArray(GLuint(attributeCoordinates))
-    glDisableVertexAttribArray(GLuint(attributeNormals))
     
     CGLFlushDrawable(openGLContext!.cglContextObj!)
     CGLUnlockContext(openGLContext!.cglContextObj!)

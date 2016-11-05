@@ -91,6 +91,8 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     openGLView.landUseTriangles.removeAll()
     openGLView.edges.removeAll()
     openGLView.boundingBox.removeAll()
+    openGLView.selectionFaces.removeAll()
+    openGLView.selectionEdges.removeAll()
     
     openGLView.fieldOfView = GLKMathDegreesToRadians(45.0)
     
@@ -253,19 +255,19 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
   }
   
   func regenerateOpenGLRepresentation() {
-    openGLView.buildingsTriangles.removeAll()
-    openGLView.buildingRoofsTriangles.removeAll()
-    openGLView.roadsTriangles.removeAll()
-    openGLView.terrainTriangles.removeAll()
-    openGLView.waterTriangles.removeAll()
-    openGLView.plantCoverTriangles.removeAll()
-    openGLView.genericTriangles.removeAll()
-    openGLView.bridgeTriangles.removeAll()
-    openGLView.landUseTriangles.removeAll()
-    openGLView.edges.removeAll()
-    openGLView.boundingBox.removeAll()
-    openGLView.selectionFaces.removeAll()
-    openGLView.selectionEdges.removeAll()
+    openGLView.buildingsTriangles.removeAll(keepingCapacity: true)
+    openGLView.buildingRoofsTriangles.removeAll(keepingCapacity: true)
+    openGLView.roadsTriangles.removeAll(keepingCapacity: true)
+    openGLView.terrainTriangles.removeAll(keepingCapacity: true)
+    openGLView.waterTriangles.removeAll(keepingCapacity: true)
+    openGLView.plantCoverTriangles.removeAll(keepingCapacity: true)
+    openGLView.genericTriangles.removeAll(keepingCapacity: true)
+    openGLView.bridgeTriangles.removeAll(keepingCapacity: true)
+    openGLView.landUseTriangles.removeAll(keepingCapacity: true)
+    openGLView.edges.removeAll(keepingCapacity: true)
+    openGLView.boundingBox.removeAll(keepingCapacity: true)
+    openGLView.selectionFaces.removeAll(keepingCapacity: true)
+    openGLView.selectionEdges.removeAll(keepingCapacity: true)
     
     objects.removeAll(keepingCapacity: true)
     
@@ -296,6 +298,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       objects.last!.id = id!
       
       if selection.contains(id!) {
+        Swift.print("Adding \(edges.count) edge vertices to the selection, \(openGLView.selectionEdges.count) were there before")
         openGLView.selectionEdges.append(contentsOf: edges)
         openGLView.selectionFaces.append(contentsOf: triangles)
         openGLView.selectionFaces.append(contentsOf: triangles2)
@@ -460,7 +463,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.boundingBox.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
     }
     if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading edges into memory: some error occurred!")
+      Swift.print("Loading bounding box edges into memory: some error occurred!")
     }
     
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboSelectionFaces)
