@@ -549,7 +549,11 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
   
   func outlineViewDoubleClick(_ sender: Any?) {
     Swift.print("outlineViewDoubleClick()")
+    
+    // Obtain object at that row
     let object = outlineView.item(atRow: outlineView!.clickedRow) as! OutlineViewObject
+    
+    // Iterate through all parsed objects
     cityGMLParser!.initialiseIterator()
     while !cityGMLParser!.iteratorEnded() {
       
@@ -558,8 +562,55 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
       let id = String(data: idData, encoding: String.Encoding.utf8)
       
+      // Found
       if id == object.id {
+        var numberOfTriangleFloats: UInt = 0
+        let firstElementOfTrianglesBuffer = cityGMLParser!.trianglesBuffer(&numberOfTriangleFloats)
+        let trianglesBuffer = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer, count: Int(numberOfTriangleFloats))
+        let triangles = ContiguousArray(trianglesBuffer)
         
+        // Compute centroid
+        let numberOfTriangles = numberOfTriangleFloats/18
+        var sumX: Float = 0.0
+        var sumY: Float = 0.0
+        var sumZ: Float = 0.0
+        for triangleIndex in 0..<numberOfTriangles {
+          sumX = sumX + triangles[Int(18*triangleIndex)] + triangles[Int(18*triangleIndex+6)] + triangles[Int(18*triangleIndex+12)]
+          sumY = sumY + triangles[Int(18*triangleIndex+1)] + triangles[Int(18*triangleIndex+7)] + triangles[Int(18*triangleIndex+13)]
+          sumZ = sumZ + triangles[Int(18*triangleIndex+2)] + triangles[Int(18*triangleIndex+8)] + triangles[Int(18*triangleIndex+14)]
+        }
+        let centroidInObjectCoordinates = GLKVector4Make(sumX/Float(numberOfTriangles*3), sumY/Float(numberOfTriangles*3), sumZ/Float(numberOfTriangles*3), 1.0)
+        
+        // Use the centroid to compute the shift in the view space
+        let objectToCamera = GLKMatrix4Multiply(openGLView.model, openGLView.view)
+        let centroidInCameraCoordinates = GLKMatrix4MultiplyVector4(objectToCamera, centroidInObjectCoordinates)
+        
+        // Compute shift in object space
+        let shiftInCameraCoordinates: GLKVector3 = GLKVector3Make(-centroidInCameraCoordinates.x, -centroidInCameraCoordinates.y, 0.0)
+        var isInvertible: Bool = true
+        var cameraToObject: GLKMatrix3 = GLKMatrix3Invert(GLKMatrix4GetMatrix3(objectToCamera), &isInvertible)
+        let shiftInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, shiftInCameraCoordinates)
+        openGLView.modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(openGLView.modelTranslationToCentreOfRotation, shiftInObjectCoordinates)
+        openGLView.model = GLKMatrix4Multiply(GLKMatrix4Multiply(openGLView.modelShiftBack, openGLView.modelRotation), openGLView.modelTranslationToCentreOfRotation)
+        
+        // Correct shift so that the point of rotation remains at the same depth as the data
+        cameraToObject = GLKMatrix3Invert(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(openGLView.model, openGLView.view)), &isInvertible)
+        let depthOffset = 1.0+openGLView.depthAtCentre()
+        let depthOffsetInCameraCoordinates: GLKVector3 = GLKVector3Make(0.0, 0.0, -depthOffset)
+        let depthOffsetInObjectCoordinates: GLKVector3 = GLKMatrix3MultiplyVector3(cameraToObject, depthOffsetInCameraCoordinates)
+        openGLView.modelTranslationToCentreOfRotation = GLKMatrix4TranslateWithVector3(openGLView.modelTranslationToCentreOfRotation, depthOffsetInObjectCoordinates)
+        openGLView.model = GLKMatrix4Multiply(GLKMatrix4Multiply(openGLView.modelShiftBack, openGLView.modelRotation), openGLView.modelTranslationToCentreOfRotation)
+        
+        // Put model matrix in arrays and render
+        openGLView.mArray = [openGLView.model.m00, openGLView.model.m01, openGLView.model.m02, openGLView.model.m03,
+                             openGLView.model.m10, openGLView.model.m11, openGLView.model.m12, openGLView.model.m13,
+                             openGLView.model.m20, openGLView.model.m21, openGLView.model.m22, openGLView.model.m23,
+                             openGLView.model.m30, openGLView.model.m31, openGLView.model.m32, openGLView.model.m33]
+        let mit = GLKMatrix3Transpose(GLKMatrix3Invert(GLKMatrix4GetMatrix3(openGLView.model), &isInvertible))
+        openGLView.mitArray = [mit.m00, mit.m01, mit.m02,
+                               mit.m10, mit.m11, mit.m12,
+                               mit.m20, mit.m21, mit.m22]
+        openGLView.renderFrame()
       }
       
       cityGMLParser!.advanceIterator()
