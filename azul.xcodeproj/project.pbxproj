@@ -22,6 +22,8 @@
 		BE19D1501DCCE05000664B07 /* libCGAL_Core.12.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BE19D1511DCCE05000664B07 /* libgmp.10.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BE19D1521DCCE05000664B07 /* libmpfr.4.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		BE3E5D251DCE72A50065B553 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = BE3E5D241DCE72A50065B553 /* LICENSE */; };
+		BE3E5D271DCE72AA0065B553 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = BE3E5D261DCE72AA0065B553 /* README.md */; };
 		BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */; };
 		BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */; };
 		BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */; };
@@ -64,6 +66,8 @@
 		BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libCGAL_Core.12.0.0.dylib; sourceTree = "<group>"; };
 		BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libgmp.10.dylib; sourceTree = "<group>"; };
 		BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmpfr.4.dylib; sourceTree = "<group>"; };
+		BE3E5D241DCE72A50065B553 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		BE3E5D261DCE72AA0065B553 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BE4AF9C61DB7D8A0004FCF22 /* azul.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = azul.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -120,6 +124,8 @@
 			isa = PBXGroup;
 			children = (
 				BEA6D17E1DCE6714005D066F /* azul.entitlements */,
+				BE3E5D241DCE72A50065B553 /* LICENSE */,
+				BE3E5D261DCE72AA0065B553 /* README.md */,
 				BE4AF9C81DB7D8A0004FCF22 /* Source */,
 				BE4AF9C71DB7D8A0004FCF22 /* Products */,
 				BE19D12D1DCCDFE700664B07 /* Dynamic libs */,
@@ -233,6 +239,7 @@
 				BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */,
 				BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */,
 				BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */,
+				BE3E5D251DCE72A50065B553 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +252,7 @@
 			files = (
 				BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */,
 				BE9EB5B61DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm in Sources */,
+				BE3E5D271DCE72AA0065B553 /* README.md in Sources */,
 				BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */,
 				BE4AF9D71DB7D93B004FCF22 /* OpenGLView.swift in Sources */,
 			);
