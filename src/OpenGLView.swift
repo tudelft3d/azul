@@ -370,7 +370,7 @@ class OpenGLView: NSOpenGLView {
     
     // Test intersections with triangles
     var closestHit: String = ""
-    var hitDistance: Float = 100.0
+    var hitDistance: Float = 0.0
     controller!.cityGMLParser!.initialiseIterator()
     while !controller!.cityGMLParser!.iteratorEnded() {
       
@@ -422,8 +422,8 @@ class OpenGLView: NSOpenGLView {
           let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
           let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
           let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
-//          Swift.print("Hit \(id!) at distance \(distance)")
-          if distance < hitDistance {
+          Swift.print("Hit \(id!) at distance \(distance)")
+          if distance > hitDistance {
             closestHit = id!
             hitDistance = distance
           }
@@ -457,8 +457,8 @@ class OpenGLView: NSOpenGLView {
           let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
           let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
           let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
-//          Swift.print("Hit \(id!) at distance \(distance)")
-          if distance < hitDistance {
+          Swift.print("Hit \(id!) at distance \(distance)")
+          if distance > hitDistance {
             closestHit = id!
             hitDistance = distance
           }
@@ -469,14 +469,11 @@ class OpenGLView: NSOpenGLView {
     }
     
     // Select closest hit
-//    controller!.outlineView.deselectAll(self)
-//    controller!.selection.removeAll()
-    if hitDistance < 100.0 {
+    if hitDistance > 0.0 {
       let selectedRow = controller!.findObjectRow(with: closestHit)
       let rowIndexes = IndexSet(integer: selectedRow)
-//      Swift.print("Object index set \(objectIndexSet.first)")
       controller!.outlineView.selectRowIndexes(rowIndexes, byExtendingSelection: false)
-//      controller!.selection.insert(closestHit)
+      controller!.outlineView.scrollRowToVisible(selectedRow)
     } else {
       controller!.outlineView.deselectAll(self)
     }
