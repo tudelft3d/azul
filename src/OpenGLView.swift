@@ -348,7 +348,7 @@ class OpenGLView: NSOpenGLView {
   }
   
   func click(with event: NSEvent) {
-    Swift.print("OpenGLView.click()")
+//    Swift.print("OpenGLView.click()")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute the current mouse position
@@ -389,7 +389,7 @@ class OpenGLView: NSOpenGLView {
       let id = String(data: idData, encoding: String.Encoding.utf8)
       
       let epsilon: Float = 0.000001
-      let objectToCamera = GLKMatrix4Multiply(model, view)
+      let objectToCamera = GLKMatrix4Multiply(view, model)
       
       // Moller-Trumbore algorithm for triangle-ray intersection (non-culling)
       // u,v are the barycentric coordinates of the intersection point
@@ -421,8 +421,8 @@ class OpenGLView: NSOpenGLView {
         if t > epsilon {
           let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
           let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
-          let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
-          Swift.print("Hit \(id!) at distance \(distance)")
+          let distance = intersectionPointInCameraCoordinates.z
+//          Swift.print("Hit \(id!) at distance \(distance)")
           if distance > hitDistance {
             closestHit = id!
             hitDistance = distance
@@ -456,8 +456,9 @@ class OpenGLView: NSOpenGLView {
         if t > epsilon {
           let intersectionPointInObjectCoordinates = GLKVector3Add(GLKVector3Add(GLKVector3MultiplyScalar(vertex0, 1.0-u-v), GLKVector3MultiplyScalar(vertex1, u)), GLKVector3MultiplyScalar(vertex2, v))
           let intersectionPointInCameraCoordinates = GLKMatrix4MultiplyVector3(objectToCamera, intersectionPointInObjectCoordinates)
-          let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
-          Swift.print("Hit \(id!) at distance \(distance)")
+//          let distance = GLKVector3Length(intersectionPointInCameraCoordinates)
+          let distance = intersectionPointInCameraCoordinates.z
+//          Swift.print("Hit \(id!) at distance \(distance)")
           if distance > hitDistance {
             closestHit = id!
             hitDistance = distance
@@ -482,7 +483,7 @@ class OpenGLView: NSOpenGLView {
   }
   
   func doubleClick(with event: NSEvent) {
-    Swift.print("OpenGLView.doubleClick()")
+//    Swift.print("OpenGLView.doubleClick()")
 //    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
 //    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
