@@ -349,10 +349,11 @@ class OpenGLView: NSOpenGLView {
   
   func click(with event: NSEvent) {
     Swift.print("OpenGLView.click()")
+    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute the current mouse position
-    let currentX: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height)
+    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
     
     // Compute two points on the ray represented by the mouse position at the near and far planes
     var isInvertible: Bool = true
@@ -362,15 +363,75 @@ class OpenGLView: NSOpenGLView {
     let pointOnFarPlaneInProjectionCoordinates = GLKVector4Make(currentX, currentY, 1.0, 1.0)
     let pointOnFarPlaneInObjectCoordinates = GLKMatrix4MultiplyVector4(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
     
+    // Compute ray
+    let rayOrigin = GLKVector3Make(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w, pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w, pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)
+    let rayDestination = GLKVector3Make(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w, pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w, pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)
+    let rayDirection = GLKVector3Subtract(rayDestination, rayOrigin)
     
+    // Test intersections with triangles
+    var hitObjects = [String]()
+    controller!.cityGMLParser!.initialiseIterator()
+    while !controller!.cityGMLParser!.iteratorEnded() {
+      
+      // Get buffers
+      var numberOfTriangleVertices: UInt = 0
+      let firstElementOfTrianglesBuffer = controller!.cityGMLParser!.trianglesBuffer(&numberOfTriangleVertices)
+      let trianglesBuffer = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer, count: Int(numberOfTriangleVertices))
+      let triangles = ContiguousArray(trianglesBuffer)
+      var numberOfTriangleVertices2: UInt = 0
+      let firstElementOfTrianglesBuffer2 = controller!.cityGMLParser!.triangles2Buffer(&numberOfTriangleVertices2)
+      let trianglesBuffer2 = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer2, count: Int(numberOfTriangleVertices2))
+      let triangles2 = ContiguousArray(trianglesBuffer2)
+      var idLength: UInt = 0
+      let firstElementOfIdBuffer = UnsafeRawPointer(controller!.cityGMLParser!.identifier(&idLength))
+      let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
+      let id = String(data: idData, encoding: String.Encoding.utf8)
+      
+      let epsilon: Float = 0.000001
+      
+      let numberOfTriangles = numberOfTriangleVertices/18
+      for triangleIndex in 0..<numberOfTriangles {
+        let vertex1 = GLKVector3Make(triangles[Int(18*triangleIndex)], triangles[Int(18*triangleIndex+1)], triangles[Int(18*triangleIndex+2)])
+        let vertex2 = GLKVector3Make(triangles[Int(18*triangleIndex+6)], triangles[Int(18*triangleIndex+7)], triangles[Int(18*triangleIndex+8)])
+        let vertex3 = GLKVector3Make(triangles[Int(18*triangleIndex+12)], triangles[Int(18*triangleIndex+13)], triangles[Int(18*triangleIndex+14)])
+        let edge1 = GLKVector3Subtract(vertex2, vertex1)
+        let edge2 = GLKVector3Subtract(vertex3, vertex1)
+        let P = GLKVector3CrossProduct(rayDirection, edge2)
+        let determinant = GLKVector3DotProduct(edge1, P)
+        if determinant > -epsilon && determinant < epsilon {
+          continue
+        }
+        let inverseDeterminant = 1.0 / determinant
+        let T = GLKVector3Subtract(rayOrigin, vertex1)
+        let u = GLKVector3DotProduct(T, P) * inverseDeterminant
+        if u < 0.0 || u > 1.0 {
+          continue
+        }
+        let Q = GLKVector3CrossProduct(T, edge1)
+        let v = GLKVector3DotProduct(rayDirection, Q) * inverseDeterminant
+        if v < 0.0 || u + v > 1.0 {
+          continue
+        }
+        let t = GLKVector3DotProduct(edge2, Q) * inverseDeterminant
+        if t > epsilon {
+          Swift.print("Hit \(id!)")
+          hitObjects.append(id!)
+        }
+      }
+      
+      controller!.cityGMLParser!.advanceIterator()
+    }
   }
   
   func doubleClick(with event: NSEvent) {
     Swift.print("OpenGLView.doubleClick()")
+//    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
+    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
+//    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
     
     // Compute the current mouse position
-    let currentX: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height)
+    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
 //    Swift.print("currentX: \(currentX), currentY: \(currentY)")
     
     // Compute two points on the ray represented by the mouse position at the near and far planes
@@ -432,15 +493,16 @@ class OpenGLView: NSOpenGLView {
   
   override func mouseDragged(with event: NSEvent) {
 //    Swift.print("OpenGLView.mouseDragged()")
+    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute the current and last mouse positions and their depth on a sphere
-    let currentX = -1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.x / bounds.size.width
-    let currentY = -1.0 + 2.0*window!.mouseLocationOutsideOfEventStream.y / bounds.size.height
+    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
     let currentZ = sqrt(1 - (currentX*currentX+currentY*currentY))
     let currentPosition = GLKVector3Normalize(GLKVector3(v: (Float(currentX), Float(currentY), Float(currentZ))))
 //    Swift.print("Current position X: \(currentPosition.x) Y: \(currentPosition.y) Z: \(currentPosition.z)")
-    let lastX = -1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-event.deltaX) / bounds.size.width
-    let lastY = -1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y+event.deltaY) / bounds.size.height
+    let lastX = -1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x)-event.deltaX) / bounds.size.width
+    let lastY = -1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y)+event.deltaY) / bounds.size.height
     let lastZ = sqrt(1 - (lastX*lastX+lastY*lastY))
     let lastPosition = GLKVector3Normalize(GLKVector3(v: (Float(lastX), Float(lastY), Float(lastZ))))
 //    Swift.print("Last position X: \(lastPosition.x) Y: \(lastPosition.y) Z: \(lastPosition.z)")
