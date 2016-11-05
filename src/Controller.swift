@@ -524,10 +524,18 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       view.imageView?.image = NSImage(named: "building")
     case 2:
       view.imageView?.image = NSImage(named: "road")
+    case 3:
+      view.imageView?.image = NSImage(named: "terrain")
     case 4:
       view.imageView?.image = NSImage(named: "water")
     case 5:
       view.imageView?.image = NSImage(named: "plant")
+    case 6:
+      view.imageView?.image = NSImage(named: "generic")
+    case 7:
+      view.imageView?.image = NSImage(named: "bridge")
+    case 8:
+      view.imageView?.image = NSImage(named: "landuse")
     default:
       view.imageView?.image = NSImage(named: "generic")
     }
