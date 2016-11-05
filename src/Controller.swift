@@ -11,6 +11,7 @@ import GLKit
 
 class OutlineViewObject {
   var id: String = ""
+  var type: UInt32 = 0
 }
 
 @NSApplicationMain
@@ -39,6 +40,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     openGLView.controller = self
     outlineView.dataSource = self
     outlineView.delegate = self
+    outlineView.doubleAction = #selector(outlineViewDoubleClick)
     toggleSideBar(toggleSideBarMenuItem)
   }
 
@@ -296,6 +298,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
       
       objects.append(OutlineViewObject())
       objects.last!.id = id!
+      objects.last!.type = cityGMLParser!.type()
       
       if selection.contains(id!) {
         Swift.print("Adding \(edges.count) edge vertices to the selection, \(openGLView.selectionEdges.count) were there before")
@@ -476,7 +479,7 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), openGLView.vboSelectionEdges)
     openGLView.selectionEdges.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.selectionEdges.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+      glBufferData(GLenum(GL_ARRAY_BUFFER), openGLView.selectionEdges.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_DYNAMIC_DRAW))
     }
     if glGetError() != GLenum(GL_NO_ERROR) {
       Swift.print("Loading selection edges into memory: some error occurred!")
@@ -516,7 +519,19 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
 //    Swift.print("view for column \(tableColumn!.title) for item \(item) = \(object.id)")
     let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
     view.textField?.stringValue = object.id
-    view.imageView?.image = NSImage(named: "building")
+    switch object.type {
+    case 1:
+      view.imageView?.image = NSImage(named: "building")
+    case 2:
+      view.imageView?.image = NSImage(named: "road")
+    case 4:
+      view.imageView?.image = NSImage(named: "water")
+    case 5:
+      view.imageView?.image = NSImage(named: "plant")
+    default:
+      view.imageView?.image = NSImage(named: "generic")
+    }
+    
     return view
   }
   
@@ -530,6 +545,25 @@ class Controller: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOu
     }
     regenerateOpenGLRepresentation()
     openGLView.renderFrame()
+  }
+  
+  func outlineViewDoubleClick(_ sender: Any?) {
+    Swift.print("outlineViewDoubleClick()")
+    let object = outlineView.item(atRow: outlineView!.clickedRow) as! OutlineViewObject
+    cityGMLParser!.initialiseIterator()
+    while !cityGMLParser!.iteratorEnded() {
+      
+      var idLength: UInt = 0
+      let firstElementOfIdBuffer = UnsafeRawPointer(cityGMLParser!.identifier(&idLength))
+      let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
+      let id = String(data: idData, encoding: String.Encoding.utf8)
+      
+      if id == object.id {
+        
+      }
+      
+      cityGMLParser!.advanceIterator()
+    }
   }
   
   func findObjectRow(with id: String) -> Int {
