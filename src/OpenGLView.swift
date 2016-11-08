@@ -860,7 +860,7 @@ class OpenGLView: NSOpenGLView {
     // Create three points along the data plane
     let leftUpPointInObjectCoordinates = GLKVector4Make((minCoordinates.x-midCoordinates.x)/maxRange, (maxCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
     let rightUpPointInObjectCoordinates = GLKVector4Make((maxCoordinates.x-midCoordinates.x)/maxRange, (maxCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
-    let centreDownPointInObjectCoordinates = GLKVector4Make(0.0, minCoordinates.y, 0.0, 1.0)
+    let centreDownPointInObjectCoordinates = GLKVector4Make(0.0, (minCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
     
     // Obtain their coordinates in eye space
     let modelView = GLKMatrix4Multiply(view, model)
@@ -1158,9 +1158,9 @@ class OpenGLView: NSOpenGLView {
             selectionFaces.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
                                                (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
                                                (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                               object.triangleBuffersByType[1]![6*vertexIndex+3],
-                                               object.triangleBuffersByType[1]![6*vertexIndex+4],
-                                               object.triangleBuffersByType[1]![6*vertexIndex+5]])
+                                               object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                               object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                               object.triangleBuffersByType[0]![6*vertexIndex+5]])
           }
         }
         if object.triangleBuffersByType.keys.contains(1) {
@@ -1197,12 +1197,12 @@ class OpenGLView: NSOpenGLView {
           if object.triangleBuffersByType.keys.contains(1) {
             let numberOfVertices = object.triangleBuffersByType[1]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              buildingRoofsTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                         (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                         (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                         object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                         object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                         object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              buildingRoofsTriangles.append(contentsOf: [(object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                         (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                         (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                         object.triangleBuffersByType[1]![6*vertexIndex+3],
+                                                         object.triangleBuffersByType[1]![6*vertexIndex+4],
+                                                         object.triangleBuffersByType[1]![6*vertexIndex+5]])
             }
           }
         case 2:

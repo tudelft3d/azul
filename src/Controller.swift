@@ -35,7 +35,8 @@ class Controller: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     Swift.print("Controller.applicationDidFinishLaunching(Notification)")
     
-    if let defaultDevice = MTLCreateSystemDefaultDevice() {
+    let useMetal: Bool = false
+    if useMetal, let defaultDevice = MTLCreateSystemDefaultDevice() {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
       dataStorage.view = metalView
       metalView.controller = self
