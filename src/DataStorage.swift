@@ -24,7 +24,7 @@ class CityGMLObject {
 class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
   
   var controller: Controller?
-  var metalView: MetalView?
+  var view: NSView?
   
   var openFiles = Set<URL>()
   var objects = [CityGMLObject]()
@@ -61,7 +61,12 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       }
       
       self.pullData(from: cityGMLParser)
-      self.metalView!.pullData()
+      if let metalView = self.view as? MetalView {
+        metalView.pullData()
+      } else {
+        let openGLView = self.view as! OpenGLView
+        openGLView.pullData()
+      }
       
       DispatchQueue.main.async {
         self.controller!.progressIndicator.stopAnimation(self)
@@ -78,7 +83,12 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
           self.controller!.window.title = "Azul (\(self.openFiles.count) open files)"
         }
         Swift.print("Read files in \(CACurrentMediaTime()-startTime) seconds.")
-        self.metalView!.needsDisplay = true
+        if let metalView = self.view as? MetalView {
+          metalView.needsDisplay = true
+        } else {
+          let openGLView = self.view as! OpenGLView
+          openGLView.renderFrame()
+        }
         self.controller!.outlineView.reloadData()
       }
     }
@@ -137,7 +147,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
   }
   
   func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-    Swift.print("numberOfChildrenOfItem of \(item)")
+//    Swift.print("numberOfChildrenOfItem of \(item)")
     if item == nil {
       return objects.count
     } else {
@@ -191,15 +201,21 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
   }
   
   func outlineViewSelectionDidChange(_ notification: Notification) {
-    Swift.print("outlineViewSelectionDidChange")
+//    Swift.print("outlineViewSelectionDidChange")
     selection.removeAll()
     for row in controller!.outlineView.selectedRowIndexes {
       let item = controller!.outlineView.item(atRow: row) as! CityGMLObject
-      Swift.print("\tSelected row: \(item.id)")
+//      Swift.print("\tSelected row: \(item.id)")
       selection.insert(item.id)
     }
-    metalView!.pullData()
-    metalView!.needsDisplay = true
+    if let metalView = view as? MetalView {
+      metalView.pullData()
+      metalView.needsDisplay = true
+    } else {
+      let openGLView = view as! OpenGLView
+      openGLView.pullData()
+      openGLView.renderFrame()
+    }
   }
   
   func findObjectRow(with id: String) -> Int {

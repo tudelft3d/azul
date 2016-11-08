@@ -25,7 +25,7 @@ struct Constants {
   float3 colour;
 };
 
-constant float3 ambientLightIntensity(0.8, 0.8, 0.8);
+constant float3 ambientLightIntensity(1.0, 1.0, 1.0);
 constant float3 diffuseLightIntensity(0.2, 0.2, 0.2);
 constant float3 specularLightIntensity(0.2, 0.2, 0.2);
 constant float3 lightPosition(0.0, 0.0, -1.0);

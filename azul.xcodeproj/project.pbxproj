@@ -36,6 +36,9 @@
 		BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE61964F1DBFDC320081B3E8 /* libpugixml.a */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
+		BEB006C61DD2405100C0909D /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEB006C51DD2405100C0909D /* vertex.glsl */; };
+		BEB006C91DD2405E00C0909D /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEB006C81DD2405E00C0909D /* fragment.glsl */; };
+		BEB006CB1DD2406400C0909D /* OpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB006CA1DD2406400C0909D /* OpenGLView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -89,6 +92,9 @@
 		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
+		BEB006C51DD2405100C0909D /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
+		BEB006C81DD2405E00C0909D /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
+		BEB006CA1DD2406400C0909D /* OpenGLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenGLView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +158,7 @@
 			children = (
 				BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */,
 				BE5DE7A01DD226BE00D86610 /* DataStorage.swift */,
+				BEB006C71DD2405500C0909D /* OpenGL */,
 				BE5DE79D1DD2268900D86610 /* Metal */,
 				BE5DE7A21DD226C700D86610 /* Parser */,
 				BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */,
@@ -192,6 +199,16 @@
 				BE61964F1DBFDC320081B3E8 /* libpugixml.a */,
 			);
 			name = "Static libs";
+			sourceTree = "<group>";
+		};
+		BEB006C71DD2405500C0909D /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				BEB006CA1DD2406400C0909D /* OpenGLView.swift */,
+				BEB006C81DD2405E00C0909D /* fragment.glsl */,
+				BEB006C51DD2405100C0909D /* vertex.glsl */,
+			);
+			name = OpenGL;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,7 +280,9 @@
 				BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */,
 				BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */,
 				BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */,
+				BEB006C61DD2405100C0909D /* vertex.glsl in Resources */,
 				BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */,
+				BEB006C91DD2405E00C0909D /* fragment.glsl in Resources */,
 				BE3E5D251DCE72A50065B553 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -279,6 +298,7 @@
 				BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */,
 				BE5DE7981DD2255900D86610 /* CityGMLParser.cpp in Sources */,
 				BE5DE7A11DD226BE00D86610 /* DataStorage.swift in Sources */,
+				BEB006CB1DD2406400C0909D /* OpenGLView.swift in Sources */,
 				BE3E5D271DCE72AA0065B553 /* README.md in Sources */,
 				BE5DE7971DD2255900D86610 /* CityGMLParserWrapperWrapper.mm in Sources */,
 				BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */,

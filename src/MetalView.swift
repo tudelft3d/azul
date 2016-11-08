@@ -70,9 +70,8 @@ class MetalView: MTKView {
   var viewMatrix = matrix_identity_float4x4
   var projectionMatrix = matrix_identity_float4x4
   
-  override init(frame frameRect: CGRect,
-       device: MTLDevice?) {
-    Swift.print("init(CGRect, MTLDevice?)")
+  override init(frame frameRect: CGRect, device: MTLDevice?) {
+//    Swift.print("MetalView.init(CGRect, MTLDevice?)")
     
     super.init(frame: frameRect, device: device)
     
@@ -284,7 +283,7 @@ class MetalView: MTKView {
   }
   
   func click(with event: NSEvent) {
-    Swift.print("MetalView.click()")
+//    Swift.print("MetalView.click()")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute midCoordinates and maxRange
@@ -363,7 +362,7 @@ class MetalView: MTKView {
             let intersectionPointInObjectCoordinates = (vertex0 * (1.0-u-v)) + (vertex1 * u) + (vertex2 * v)
             let intersectionPointInCameraCoordinates = matrix_multiply(matrix_upper_left_3x3(matrix: objectToCamera), intersectionPointInObjectCoordinates)
             let distance = intersectionPointInCameraCoordinates.z
-            Swift.print("Hit \(object.id) at distance \(distance)")
+//            Swift.print("Hit \(object.id) at distance \(distance)")
             if distance > hitDistance {
               closestHit = object.id
               hitDistance = distance
@@ -435,7 +434,7 @@ class MetalView: MTKView {
   }
   
   func outlineViewDoubleClick(_ sender: Any?) {
-    Swift.print("outlineViewDoubleClick()")
+//    Swift.print("outlineViewDoubleClick()")
     
     // Compute midCoordinates and maxRange
     let minCoordinates = float3(dataStorage!.minCoordinates)
@@ -640,9 +639,9 @@ class MetalView: MTKView {
     }
     
     // Create three points along the data plane
-    let leftUpPointInObjectCoordinates = float4((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange, (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
-    let rightUpPointInObjectCoordinates = float4((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange, (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
-    let centreDownPointInObjectCoordinates = float4(0.0, (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let leftUpPointInObjectCoordinates = float4((minCoordinates.x-midCoordinates.x)/maxRange, (maxCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
+    let rightUpPointInObjectCoordinates = float4((maxCoordinates.x-midCoordinates.x)/maxRange, (maxCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
+    let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
     
     // Obtain their coordinates in eye space
     let modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix)
@@ -664,7 +663,7 @@ class MetalView: MTKView {
   }
   
   func pullData() {
-    Swift.print("DataStorage.pushData(Renderer)")
+//    Swift.print("DataStorage.pushData(Renderer)")
     
     // Compute midCoordinates and maxRange
     let minCoordinates = float3(dataStorage!.minCoordinates)
@@ -1070,7 +1069,7 @@ class MetalView: MTKView {
   }
   
   override func setFrameSize(_ newSize: NSSize) {
-    Swift.print("setFrameSize(NSSize)")
+//    Swift.print("setFrameSize(NSSize)")
     super.setFrameSize(newSize)
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     

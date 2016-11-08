@@ -37,7 +37,7 @@ class Controller: NSObject, NSApplicationDelegate {
     
     if let defaultDevice = MTLCreateSystemDefaultDevice() {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
-      dataStorage.metalView = metalView
+      dataStorage.view = metalView
       metalView.controller = self
       metalView.dataStorage = dataStorage
       metalView.subviews = splitView.subviews[1].subviews
@@ -45,8 +45,22 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.insertArrangedSubview(metalView, at: 1)
       view = metalView
     } else {
-      
-      return
+      let attributes: [NSOpenGLPixelFormatAttribute] = [
+        UInt32(NSOpenGLPFAAccelerated),
+        UInt32(NSOpenGLPFAColorSize), UInt32(24),
+        UInt32(NSOpenGLPFADoubleBuffer),
+        UInt32(NSOpenGLPFADepthSize), UInt32(32),
+        UInt32(0)
+      ]
+      let pixelFormat = NSOpenGLPixelFormat(attributes: attributes)
+      let openGLView = OpenGLView(frame: splitView.subviews[1].frame, pixelFormat: pixelFormat)
+      dataStorage.view = openGLView
+      openGLView!.controller = self
+      openGLView!.dataStorage = dataStorage
+      openGLView!.subviews = splitView.subviews[1].subviews
+      splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
+      splitView.insertArrangedSubview(openGLView!, at: 1)
+      view = openGLView
     }
     
     dataStorage.controller = self
@@ -80,7 +94,8 @@ class Controller: NSObject, NSApplicationDelegate {
     if let metalView = view as? MetalView {
       metalView.outlineViewDoubleClick(sender)
     } else {
-      
+      let openGLView = view as! OpenGLView
+      openGLView.outlineViewDoubleClick(sender)
     }
   }
   
@@ -101,7 +116,8 @@ class Controller: NSObject, NSApplicationDelegate {
     if let metalView = view as? MetalView {
       metalView.new()
     } else {
-      
+      let openGLView = view as! OpenGLView
+      openGLView.new()
     }
   }
   
@@ -132,7 +148,16 @@ class Controller: NSObject, NSApplicationDelegate {
         metalView.needsDisplay = true
       }
     } else {
-      
+      let openGLView = view as! OpenGLView
+      if openGLView.viewEdges {
+        openGLView.viewEdges = false
+        sender.state = 0
+        openGLView.renderFrame()
+      } else {
+        openGLView.viewEdges = true
+        sender.state = 1
+        openGLView.renderFrame()
+      }
     }
   }
   
@@ -148,7 +173,16 @@ class Controller: NSObject, NSApplicationDelegate {
         metalView.needsDisplay = true
       }
     } else {
-      
+      let openGLView = view as! OpenGLView
+      if openGLView.viewBoundingBox {
+        openGLView.viewBoundingBox = false
+        sender.state = 0
+        openGLView.renderFrame()
+      } else {
+        openGLView.viewBoundingBox = true
+        sender.state = 1
+        openGLView.renderFrame()
+      }
     }
   }
   
@@ -156,7 +190,8 @@ class Controller: NSObject, NSApplicationDelegate {
     if let metalView = view as? MetalView {
       metalView.goHome()
     } else {
-      
+      let openGLView = view as! OpenGLView
+      openGLView.goHome()
     }
   }
   
