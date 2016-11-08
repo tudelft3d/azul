@@ -609,13 +609,19 @@ class MetalView: MTKView {
   }
   
   override func keyDown(with event: NSEvent) {
-    //    Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
+//    Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
     
     switch event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!] {
     case "b":
       controller!.toggleViewBoundingBox(controller!.toggleViewBoundingBoxMenuItem)
     case "e":
       controller!.toggleViewEdges(controller!.toggleViewEdgesMenuItem)
+    case "g":
+      controller!.toggleGraphics(controller!.toggleGraphicsMenuItem)
+    case "h":
+      controller!.goHome(controller!.goHomeMenuItem)
+    case "o":
+      controller!.openFile(controller!.openFileMenuItem)
     case "r":
       controller!.goHome(controller!.goHomeMenuItem)
     default:

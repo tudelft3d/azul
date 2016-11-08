@@ -16,6 +16,7 @@
         <customObject id="Voe-Tx-rLC" customClass="Controller" customModule="azul" customModuleProvider="target">
             <connections>
                 <outlet property="goHomeMenuItem" destination="aa1-9g-hgv" id="xEp-ze-7U1"/>
+                <outlet property="openFileMenuItem" destination="IAo-SY-fd9" id="PQa-65-lna"/>
                 <outlet property="outlineView" destination="v1V-dZ-gVJ" id="c0C-UN-vX8"/>
                 <outlet property="progressIndicator" destination="jhy-PH-c7Y" id="gus-rN-XcB"/>
                 <outlet property="splitView" destination="LpA-gm-Y05" id="aJn-fS-OMx"/>
@@ -649,7 +650,8 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="waf-17-Te0"/>
-                            <menuItem title="Use ?" enabled="NO" keyEquivalent="G" id="pcM-2j-HDF">
+                            <menuItem title="Use ?" enabled="NO" keyEquivalent="g" id="pcM-2j-HDF">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="toggleGraphics:" target="Voe-Tx-rLC" id="bM6-IH-kky"/>
                                 </connections>
@@ -729,18 +731,18 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <customView fixedFrame="YES" id="hlw-M4-Tef">
-                                <rect key="frame" x="0.0" y="0.0" width="138.5" height="600"/>
+                                <rect key="frame" x="0.0" y="0.0" width="139" height="600"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eBA-ud-B8H">
-                                        <rect key="frame" x="0.0" y="0.0" width="139" height="600"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="139.5" height="600"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <clipView key="contentView" ambiguous="YES" drawsBackground="NO" id="6EI-CL-fuQ">
-                                            <rect key="frame" x="1" y="1" width="137" height="598"/>
+                                            <rect key="frame" x="1" y="1" width="137.5" height="598"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="sourceList" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="0gk-hR-yyE" id="v1V-dZ-gVJ">
-                                                    <rect key="frame" x="0.0" y="0.0" width="137" height="598"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="137.5" height="598"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <size key="intercellSpacing" width="3" height="0.0"/>
                                                     <color key="backgroundColor" name="_sourceListBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -791,7 +793,7 @@
                                             <nil key="backgroundColor"/>
                                         </clipView>
                                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="QAf-ns-K6g">
-                                            <rect key="frame" x="1" y="583" width="137" height="16"/>
+                                            <rect key="frame" x="1" y="-15" width="0.0" height="16"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="5wY-d2-eHy">
@@ -802,11 +804,11 @@
                                 </subviews>
                             </customView>
                             <customView fixedFrame="YES" id="Wba-a8-Jo7">
-                                <rect key="frame" x="148.5" y="0.0" width="651.5" height="600"/>
+                                <rect key="frame" x="149" y="0.0" width="651" height="600"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <subviews>
                                     <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="jhy-PH-c7Y">
-                                        <rect key="frame" x="310" y="284" width="32" height="32"/>
+                                        <rect key="frame" x="309.5" y="284" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                     </progressIndicator>
                                 </subviews>

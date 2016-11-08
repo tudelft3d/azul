@@ -29,6 +29,7 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var goHomeMenuItem: NSMenuItem!
   @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
   @IBOutlet weak var toggleGraphicsMenuItem: NSMenuItem!
+  @IBOutlet weak var openFileMenuItem: NSMenuItem!
   
   let dataStorage = DataStorage()
   var view: NSView?
