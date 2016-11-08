@@ -72,29 +72,62 @@ class MetalView: MTKView {
   
   override init(frame frameRect: CGRect,
        device: MTLDevice?) {
-    Swift.print("MetalView.init(CGRect, MTLDevice?)")
+    Swift.print("init(CGRect, MTLDevice?)")
     
     super.init(frame: frameRect, device: device)
+    
+    // View
+    clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1)
+    colorPixelFormat = .bgra8Unorm
+    depthStencilPixelFormat = .depth32Float
+    
+    // Command queue
+    commandQueue = device!.makeCommandQueue()
+    
+    // Render pipeline
+    let library = device!.newDefaultLibrary()!
+    let vertexFunction = library.makeFunction(name: "vertexTransform")
+    let fragmentFunction = library.makeFunction(name: "fragmentLit")
+    let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+    renderPipelineDescriptor.vertexFunction = vertexFunction
+    renderPipelineDescriptor.fragmentFunction = fragmentFunction
+    renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
+    renderPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    do {
+      renderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+    } catch {
+      Swift.print("Unable to compile render pipeline state")
+      return
+    }
+    
+    // Depth stencil
+    let depthSencilDescriptor = MTLDepthStencilDescriptor()
+    depthSencilDescriptor.depthCompareFunction = .less
+    depthSencilDescriptor.isDepthWriteEnabled = true
+    depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)
+    
+    // Matrices
+    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelMatrix = modelMatrix
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
+    constants.viewMatrixInverse = matrix_invert(viewMatrix)
+    
+    // Allow dragging
+    register(forDraggedTypes: [NSFilenamesPboardType])
     
     self.isPaused = true
     self.enableSetNeedsDisplay = true
   }
   
   required init(coder: NSCoder) {
-    Swift.print("MetalView.init(NSCoder)")
+    Swift.print("init(NSCoder)")
     
     super.init(coder: coder)
-    
-    self.isPaused = true
-    self.enableSetNeedsDisplay = true
-  }
-  
-  override var acceptsFirstResponder: Bool {
-    return true
-  }
-  
-  override func awakeFromNib() {
-    super.awakeFromNib()
     
     // View
     clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1)
@@ -147,6 +180,63 @@ class MetalView: MTKView {
     
     // Allow dragging
     register(forDraggedTypes: [NSFilenamesPboardType])
+    
+    self.isPaused = true
+    self.enableSetNeedsDisplay = true
+  }
+  
+  override var acceptsFirstResponder: Bool {
+    return true
+  }
+  
+  func new() {
+    buildingsBuffer = device!.makeBuffer(length: 0, options: [])
+    buildingRoofsBuffer = device!.makeBuffer(length: 0, options: [])
+    roadsBuffer = device!.makeBuffer(length: 0, options: [])
+    terrainBuffer = device!.makeBuffer(length: 0, options: [])
+    waterBuffer = device!.makeBuffer(length: 0, options: [])
+    plantCoverBuffer = device!.makeBuffer(length: 0, options: [])
+    genericBuffer = device!.makeBuffer(length: 0, options: [])
+    bridgesBuffer = device!.makeBuffer(length: 0, options: [])
+    landUseBuffer = device!.makeBuffer(length: 0, options: [])
+    edgesBuffer = device!.makeBuffer(length: 0, options: [])
+    boundingBoxBuffer = device!.makeBuffer(length: 0, options: [])
+    selectedFacesBuffer = device!.makeBuffer(length: 0, options: [])
+    selectedEdgesBuffer = device!.makeBuffer(length: 0, options: [])
+    
+    fieldOfView = 3.141519/4.0
+    
+    modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
+    modelRotationMatrix = matrix_identity_float4x4
+    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelMatrix = modelMatrix
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
+    constants.viewMatrixInverse = matrix_invert(viewMatrix)
+    
+    pullData()
+    needsDisplay = true
+  }
+  
+  func goHome() {
+    fieldOfView = 3.141519/4.0
+    
+    modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
+    modelRotationMatrix = matrix_identity_float4x4
+    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelMatrix = modelMatrix
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
+    constants.viewMatrixInverse = matrix_invert(viewMatrix)
+    needsDisplay = true
   }
   
   override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
@@ -360,7 +450,7 @@ class MetalView: MTKView {
   }
   
   override func mouseDragged(with event: NSEvent) {
-//    Swift.print("MetalView.mouseDragged()")
+//    Swift.print("mouseDragged()")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute the current and last mouse positions and their depth on a sphere
@@ -778,7 +868,7 @@ class MetalView: MTKView {
   }
   
   override func draw(_ dirtyRect: NSRect) {
-//    Swift.print("Renderer.draw()")
+//    Swift.print("MetalView.draw(NSRect)")
     
     let commandBuffer = commandQueue!.makeCommandBuffer()
     let renderPassDescriptor = currentRenderPassDescriptor!
@@ -886,7 +976,7 @@ class MetalView: MTKView {
   }
   
   override func setFrameSize(_ newSize: NSSize) {
-//    Swift.print("MetalView.setFrameSize(NSSize)")
+    Swift.print("setFrameSize(NSSize)")
     super.setFrameSize(newSize)
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     

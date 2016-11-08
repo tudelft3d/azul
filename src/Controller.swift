@@ -23,7 +23,7 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var window: NSWindow!
   @IBOutlet weak var splitView: NSSplitView!
   @IBOutlet weak var outlineView: NSOutlineView!
-  @IBOutlet weak var metalView: MetalView!
+  var view: NSView?
   @IBOutlet weak var progressIndicator: NSProgressIndicator!
   
   @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
@@ -36,10 +36,26 @@ class Controller: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     Swift.print("AppDelegate.applicationDidFinishLaunching(Notification)")
     
+    if let defaultDevice = MTLCreateSystemDefaultDevice() {
+      let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
+      dataStorage.metalView = metalView
+      metalView.controller = self
+      metalView.dataStorage = dataStorage
+      metalView.subviews = splitView.subviews[1].subviews
+      
+      splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
+      splitView.insertArrangedSubview(metalView, at: 1)
+      
+//      splitView.subviews.append(metalView)
+//      metalView.subviews = splitView.subviews[1].subviews
+//      splitView.subviews[1] = metalView
+//      Swift.print("View \(splitView.subviews[1])")
+    } else {
+      
+      return
+    }
+    
     dataStorage.controller = self
-    dataStorage.metalView = metalView
-    metalView.controller = self
-    metalView.dataStorage = dataStorage
     outlineView.delegate = dataStorage
     outlineView.dataSource = dataStorage
     outlineView.doubleAction = #selector(outlineViewDoubleClick)
@@ -83,36 +99,11 @@ class Controller: NSObject, NSApplicationDelegate {
     dataStorage.objects.removeAll()
     self.outlineView.reloadData()
     
-    metalView.buildingsBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.buildingRoofsBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.roadsBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.terrainBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.waterBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.plantCoverBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.genericBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.bridgesBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.landUseBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.edgesBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.boundingBoxBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.selectedFacesBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    metalView.selectedEdgesBuffer = metalView.device!.makeBuffer(length: 0, options: [])
-    
-    metalView.fieldOfView = 3.141519/4.0
-    
-    metalView.modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-    metalView.modelRotationMatrix = matrix_identity_float4x4
-    metalView.modelShiftBackMatrix = matrix4x4_translation(shift: metalView.centre)
-    metalView.modelMatrix = matrix_multiply(matrix_multiply(metalView.modelShiftBackMatrix, metalView.modelRotationMatrix), metalView.modelTranslationToCentreOfRotationMatrix)
-    metalView.viewMatrix = matrix4x4_look_at(eye: metalView.eye, centre: metalView.centre, up: float3(0.0, 1.0, 0.0))
-    metalView.projectionMatrix = matrix4x4_perspective(fieldOfView: metalView.fieldOfView, aspectRatio: Float(metalView.bounds.size.width / metalView.bounds.size.height), nearZ: 0.001, farZ: 100.0)
-    
-    metalView.constants.modelMatrix = metalView.modelMatrix
-    metalView.constants.modelViewProjectionMatrix = matrix_multiply(metalView.projectionMatrix, matrix_multiply(metalView.viewMatrix, metalView.modelMatrix))
-    metalView.constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: metalView.modelMatrix)))
-    metalView.constants.viewMatrixInverse = matrix_invert(metalView.viewMatrix)
-    
-    metalView!.pullData()
-    metalView.needsDisplay = true
+    if let metalView = view as? MetalView {
+      metalView.new()
+    } else {
+      
+    }
   }
   
   @IBAction func openFile(_ sender: NSMenuItem) {
@@ -131,44 +122,43 @@ class Controller: NSObject, NSApplicationDelegate {
   }
   
   @IBAction func toggleViewEdges(_ sender: NSMenuItem) {
-    if metalView.viewEdges {
-      metalView.viewEdges = false
-      sender.state = 0
-      metalView.needsDisplay = true
+    if let metalView = view as? MetalView {
+      if metalView.viewEdges {
+        metalView.viewEdges = false
+        sender.state = 0
+        metalView.needsDisplay = true
+      } else {
+        metalView.viewEdges = true
+        sender.state = 1
+        metalView.needsDisplay = true
+      }
     } else {
-      metalView.viewEdges = true
-      sender.state = 1
-      metalView.needsDisplay = true
+      
     }
   }
   
   @IBAction func toggleViewBoundingBox(_ sender: NSMenuItem) {
-    if metalView.viewBoundingBox {
-      metalView.viewBoundingBox = false
-      sender.state = 0
-      metalView.needsDisplay = true
+    if let metalView = view as? MetalView {
+      if metalView.viewBoundingBox {
+        metalView.viewBoundingBox = false
+        sender.state = 0
+        metalView.needsDisplay = true
+      } else {
+        metalView.viewBoundingBox = true
+        sender.state = 1
+        metalView.needsDisplay = true
+      }
     } else {
-      metalView.viewBoundingBox = true
-      sender.state = 1
-      metalView.needsDisplay = true
+      
     }
   }
   
   @IBAction func goHome(_ sender: NSMenuItem) {
-    metalView.fieldOfView = 3.141519/4.0
-    
-    metalView.modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-    metalView.modelRotationMatrix = matrix_identity_float4x4
-    metalView.modelShiftBackMatrix = matrix4x4_translation(shift: metalView.centre)
-    metalView.modelMatrix = matrix_multiply(matrix_multiply(metalView.modelShiftBackMatrix, metalView.modelRotationMatrix), metalView.modelTranslationToCentreOfRotationMatrix)
-    metalView.viewMatrix = matrix4x4_look_at(eye: metalView.eye, centre: metalView.centre, up: float3(0.0, 1.0, 0.0))
-    metalView.projectionMatrix = matrix4x4_perspective(fieldOfView: metalView.fieldOfView, aspectRatio: Float(metalView.bounds.size.width / metalView.bounds.size.height), nearZ: 0.001, farZ: 100.0)
-    
-    metalView.constants.modelMatrix = metalView.modelMatrix
-    metalView.constants.modelViewProjectionMatrix = matrix_multiply(metalView.projectionMatrix, matrix_multiply(metalView.viewMatrix, metalView.modelMatrix))
-    metalView.constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: metalView.modelMatrix)))
-    metalView.constants.viewMatrixInverse = matrix_invert(metalView.viewMatrix)
-    metalView.needsDisplay = true
+    if let metalView = view as? MetalView {
+      metalView.goHome()
+    } else {
+      
+    }
   }
   
   @IBAction func toggleSideBar(_ sender: NSMenuItem) {
