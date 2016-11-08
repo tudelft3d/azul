@@ -111,7 +111,7 @@ class Controller: NSObject, NSApplicationDelegate {
     metalView.constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: metalView.modelMatrix)))
     metalView.constants.viewMatrixInverse = matrix_invert(metalView.viewMatrix)
     
-    dataStorage.pushData()
+    metalView!.pullData()
     metalView.needsDisplay = true
   }
   

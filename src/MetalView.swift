@@ -278,7 +278,8 @@ class MetalView: MTKView {
     } else {
       controller!.outlineView.deselectAll(self)
     }
-    dataStorage!.pushData()
+    
+    pullData()
   }
   
   func doubleClick(with event: NSEvent) {
@@ -478,6 +479,302 @@ class MetalView: MTKView {
     // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
 //    Swift.print("Depth at centre: \(-d/crossProduct.z)")
     return -d/crossProduct.z
+  }
+  
+  func pullData() {
+    Swift.print("DataStorage.pushData(Renderer)")
+    
+    let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
+    let midCoordinates = dataStorage!.minCoordinates+0.5*range
+    dataStorage!.maxRange = range.x
+    if range.y > dataStorage!.maxRange {
+      dataStorage!.maxRange = range.y
+    }
+    if range.z > dataStorage!.maxRange {
+      dataStorage!.maxRange = range.z
+    }
+    Swift.print("mid = \(dataStorage!.midCoordinates)")
+    
+    var buildingVertices = [Vertex]()
+    var buildingRoofVertices = [Vertex]()
+    var roadVertices = [Vertex]()
+    var waterVertices = [Vertex]()
+    var plantCoverVertices = [Vertex]()
+    var terrainVertices = [Vertex]()
+    var genericVertices = [Vertex]()
+    var bridgeVertices = [Vertex]()
+    var landUseVertices = [Vertex]()
+    var edgeVertices = [Vertex]()
+    var selectionEdgeVertices = [Vertex]()
+    var selectionFaceVertices = [Vertex]()
+    
+    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+                                                normal: float3(0.0, 0.0, 0.0)),  // 000 -> 001
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 000 -> 010
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 000 -> 100
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 001 -> 011
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 001 -> 101
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 010 -> 011
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 010 -> 110
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 011 -> 111
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 100 -> 101
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 100 -> 110
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 101 -> 111
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0)),  // 110 -> 111
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+             normal: float3(0.0, 0.0, 0.0))]
+    
+    for object in dataStorage!.objects {
+      
+      if dataStorage!.selection.contains(object.id) {
+        let numberOfVertices = object.edgesBuffer.count/3
+        for vertexIndex in 0..<numberOfVertices {
+          selectionEdgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                               (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                               (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                              normal: float3(0.0, 0.0, 0.0)))
+        }
+        if object.triangleBuffersByType.keys.contains(0) {
+          let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+          for vertexIndex in 0..<numberOfVertices {
+            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                                 (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                                 (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                                normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                               object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                               object.triangleBuffersByType[0]![6*vertexIndex+5])))
+          }
+        }
+        if object.triangleBuffersByType.keys.contains(1) {
+          let numberOfVertices = object.triangleBuffersByType[1]!.count/6
+          for vertexIndex in 0..<numberOfVertices {
+            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                                 (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                                 (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                                normal: float3(object.triangleBuffersByType[1]![6*vertexIndex+3],
+                                                               object.triangleBuffersByType[1]![6*vertexIndex+4],
+                                                               object.triangleBuffersByType[1]![6*vertexIndex+5])))
+          }
+        }
+      } else {
+        
+        let numberOfVertices = object.edgesBuffer.count/3
+        for vertexIndex in 0..<numberOfVertices {
+          edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                      (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                      (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                     normal: float3(0.0, 0.0, 0.0)))
+        }
+        
+        switch object.type {
+        case 1:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              buildingVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                              (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                              (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                             normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                            object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                            object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+          if object.triangleBuffersByType.keys.contains(1) {
+            let numberOfVertices = object.triangleBuffersByType[1]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              buildingRoofVertices.append(Vertex(position: float3((object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                                  (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                                  (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                                 normal: float3(object.triangleBuffersByType[1]![6*vertexIndex+3],
+                                                                object.triangleBuffersByType[1]![6*vertexIndex+4],
+                                                                object.triangleBuffersByType[1]![6*vertexIndex+5])))
+            }
+          }
+        case 2:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              roadVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                          (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                          (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                         normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                        object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                        object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        case 3:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              waterVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                           (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                           (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                          normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                         object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                         object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        case 4:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              plantCoverVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                                (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                                (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                               normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                              object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                              object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        case 5:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              terrainVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                            normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                           object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                           object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        case 6:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              genericVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                            normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                           object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                           object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        case 7:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              bridgeVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                            (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                            (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                           normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                          object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                          object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        case 8:
+          if object.triangleBuffersByType.keys.contains(0) {
+            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              landUseVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+                                            normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
+                                                           object.triangleBuffersByType[0]![6*vertexIndex+4],
+                                                           object.triangleBuffersByType[0]![6*vertexIndex+5])))
+            }
+          }
+        default:
+          break
+        }
+      }
+    }
+    
+    //    Swift.print("\(buildingVertices.count) building vertices, \(buildingRoofVertices.count) building roof vertices")
+    edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
+    buildingsBuffer = device!.makeBuffer(bytes: buildingVertices, length: MemoryLayout<Vertex>.size*buildingVertices.count, options: [])
+    buildingRoofsBuffer = device!.makeBuffer(bytes: buildingRoofVertices, length: MemoryLayout<Vertex>.size*buildingRoofVertices.count, options: [])
+    roadsBuffer = device!.makeBuffer(bytes: roadVertices, length: MemoryLayout<Vertex>.size*roadVertices.count, options: [])
+    waterBuffer = device!.makeBuffer(bytes: waterVertices, length: MemoryLayout<Vertex>.size*waterVertices.count, options: [])
+    plantCoverBuffer = device!.makeBuffer(bytes: plantCoverVertices, length: MemoryLayout<Vertex>.size*plantCoverVertices.count, options: [])
+    terrainBuffer = device!.makeBuffer(bytes: terrainVertices, length: MemoryLayout<Vertex>.size*terrainVertices.count, options: [])
+    genericBuffer = device!.makeBuffer(bytes: genericVertices, length: MemoryLayout<Vertex>.size*genericVertices.count, options: [])
+    bridgesBuffer = device!.makeBuffer(bytes: bridgeVertices, length: MemoryLayout<Vertex>.size*bridgeVertices.count, options: [])
+    landUseBuffer = device!.makeBuffer(bytes: roadVertices, length: MemoryLayout<Vertex>.size*landUseVertices.count, options: [])
+    boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
+    selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
+    selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
   }
   
   override func draw(_ dirtyRect: NSRect) {
