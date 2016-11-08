@@ -39,67 +39,60 @@ struct CityGMLParserWrapper {
   parserWrapper->parser->clear();
 }
 
-- (void) initialiseIterator {
+- (void) initialiseObjectIterator {
   parserWrapper->parser->currentObject = parserWrapper->parser->objects.begin();
 }
 
-- (void) advanceIterator {
+- (void) advanceObjectIterator {
   ++parserWrapper->parser->currentObject;
 }
 
-- (BOOL) iteratorEnded {
+- (BOOL) objectIteratorEnded {
   if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
     return true;
   } return false;
 }
 
-- (unsigned int) type {
+- (void) initialiseTriangleBufferIterator {
+  parserWrapper->parser->currentTrianglesBuffer = parserWrapper->parser->currentObject->trianglesByType.begin();
+}
+
+- (void) advanceTriangleBufferIterator {
+  ++parserWrapper->parser->currentTrianglesBuffer;
+}
+
+- (BOOL) triangleBufferIteratorEnded {
+  if (parserWrapper->parser->currentTrianglesBuffer == parserWrapper->parser->currentObject->trianglesByType.end()) {
+    return true;
+  } return false;
+}
+
+- (unsigned int) currentObjectType {
   return parserWrapper->parser->currentObject->type;
 }
 
-- (const char *) identifier: (unsigned long *)length {
+- (const char *) currentObjectIdentifierWithLength: (unsigned long *)length {
   *length = parserWrapper->parser->currentObject->id.size();
   return parserWrapper->parser->currentObject->id.c_str();
 }
 
-- (const GLfloat *) trianglesBuffer: (unsigned long *)elements {
-  if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
-    *elements = 0;
-    return nil;
-  } *elements = parserWrapper->parser->currentObject->triangles.size();
-  return parserWrapper->parser->currentObject->triangles.data();
-}
-
-- (const GLfloat *) triangles2Buffer: (unsigned long *)elements {
-  if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
-    *elements = 0;
-    return nil;
-  } *elements = parserWrapper->parser->currentObject->triangles2.size();
-  return parserWrapper->parser->currentObject->triangles2.data();
-}
-
-- (const GLfloat *) edgesBuffer: (unsigned long *)elements {
-  if (parserWrapper->parser->currentObject == parserWrapper->parser->objects.end()) {
-    *elements = 0;
-    return nil;
-  } *elements = parserWrapper->parser->currentObject->edges.size();
+- (const float *) currentObjectEdgesBufferWithElements: (unsigned long *)elements {
+  *elements = parserWrapper->parser->currentObject->edges.size();
   return parserWrapper->parser->currentObject->edges.data();
+}
+
+- (const float *) currentTrianglesBufferWithType: (int *)type andElements:(unsigned long *)elements {
+  *type = parserWrapper->parser->currentTrianglesBuffer->first;
+  *elements = parserWrapper->parser->currentTrianglesBuffer->second.size();
+  return parserWrapper->parser->currentTrianglesBuffer->second.data();
 }
 
 - (float *) minCoordinates {
   return parserWrapper->parser->minCoordinates;
 }
 
-- (float *) midCoordinates {
-  return parserWrapper->parser->midCoordinates;
-}
-
 - (float *) maxCoordinates {
   return parserWrapper->parser->maxCoordinates;
-}
-
-- (float) maxRange {
-  return parserWrapper->parser->maxRange;
 }
 
 - (void) dealloc {

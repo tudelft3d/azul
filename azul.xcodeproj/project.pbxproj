@@ -27,10 +27,13 @@
 		BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */; };
 		BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */; };
 		BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */; };
-		BE4AF9D71DB7D93B004FCF22 /* OpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9D61DB7D93B004FCF22 /* OpenGLView.swift */; };
+		BE5DE7971DD2255900D86610 /* CityGMLParserWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */; };
+		BE5DE7981DD2255900D86610 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */; };
+		BE5DE79A1DD2266900D86610 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7991DD2266900D86610 /* Math.swift */; };
+		BE5DE79C1DD2268100D86610 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79B1DD2268100D86610 /* Shaders.metal */; };
+		BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79E1DD226AF00D86610 /* MetalView.swift */; };
+		BE5DE7A11DD226BE00D86610 /* DataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7A01DD226BE00D86610 /* DataStorage.swift */; };
 		BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE61964F1DBFDC320081B3E8 /* libpugixml.a */; };
-		BE9EB5B61DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE9EB5B51DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm */; };
-		BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
 /* End PBXBuildFile section */
@@ -73,13 +76,16 @@
 		BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BE4AF9CE1DB7D8A1004FCF22 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		BE4AF9D01DB7D8A1004FCF22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BE4AF9D61DB7D93B004FCF22 /* OpenGLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenGLView.swift; sourceTree = "<group>"; };
+		BE5DE7931DD2255900D86610 /* CityGMLParserWrapperWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityGMLParserWrapperWrapper.h; sourceTree = "<group>"; };
+		BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CityGMLParserWrapperWrapper.mm; sourceTree = "<group>"; };
+		BE5DE7951DD2255900D86610 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
+		BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityGMLParser.cpp; sourceTree = "<group>"; };
+		BE5DE7991DD2266900D86610 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		BE5DE79B1DD2268100D86610 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		BE5DE79E1DD226AF00D86610 /* MetalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
+		BE5DE7A01DD226BE00D86610 /* DataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStorage.swift; sourceTree = "<group>"; };
 		BE61964F1DBFDC320081B3E8 /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = ../../../../../usr/local/Cellar/pugixml/1.7/lib/libpugixml.a; sourceTree = "<group>"; };
 		BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Azul-Bridging-Header.h"; sourceTree = "<group>"; };
-		BE9EB5B51DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CityGMLParserWrapperWrapper.mm; sourceTree = "<group>"; };
-		BE9EB5B71DBEA62400C78EC0 /* CityGMLParserWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CityGMLParserWrapperWrapper.h; sourceTree = "<group>"; };
-		BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityGMLParser.cpp; sourceTree = "<group>"; };
-		BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
 		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
@@ -145,11 +151,9 @@
 			isa = PBXGroup;
 			children = (
 				BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */,
-				BE4AF9D61DB7D93B004FCF22 /* OpenGLView.swift */,
-				BE9EB5B71DBEA62400C78EC0 /* CityGMLParserWrapperWrapper.h */,
-				BE9EB5B51DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm */,
-				BE9EB5B91DBEA8CE00C78EC0 /* CityGMLParser.hpp */,
-				BE9EB5B81DBEA8CE00C78EC0 /* CityGMLParser.cpp */,
+				BE5DE7A01DD226BE00D86610 /* DataStorage.swift */,
+				BE5DE79D1DD2268900D86610 /* Metal */,
+				BE5DE7A21DD226C700D86610 /* Parser */,
 				BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */,
 				BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */,
 				BE4AF9D01DB7D8A1004FCF22 /* Info.plist */,
@@ -159,6 +163,27 @@
 			);
 			name = Source;
 			path = src;
+			sourceTree = "<group>";
+		};
+		BE5DE79D1DD2268900D86610 /* Metal */ = {
+			isa = PBXGroup;
+			children = (
+				BE5DE79E1DD226AF00D86610 /* MetalView.swift */,
+				BE5DE79B1DD2268100D86610 /* Shaders.metal */,
+				BE5DE7991DD2266900D86610 /* Math.swift */,
+			);
+			name = Metal;
+			sourceTree = "<group>";
+		};
+		BE5DE7A21DD226C700D86610 /* Parser */ = {
+			isa = PBXGroup;
+			children = (
+				BE5DE7931DD2255900D86610 /* CityGMLParserWrapperWrapper.h */,
+				BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */,
+				BE5DE7951DD2255900D86610 /* CityGMLParser.hpp */,
+				BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */,
+			);
+			name = Parser;
 			sourceTree = "<group>";
 		};
 		BE61964E1DBFDC320081B3E8 /* Static libs */ = {
@@ -250,11 +275,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE9EB5BA1DBEA8CE00C78EC0 /* CityGMLParser.cpp in Sources */,
-				BE9EB5B61DBEA52000C78EC0 /* CityGMLParserWrapperWrapper.mm in Sources */,
+				BE5DE79C1DD2268100D86610 /* Shaders.metal in Sources */,
+				BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */,
+				BE5DE7981DD2255900D86610 /* CityGMLParser.cpp in Sources */,
+				BE5DE7A11DD226BE00D86610 /* DataStorage.swift in Sources */,
 				BE3E5D271DCE72AA0065B553 /* README.md in Sources */,
+				BE5DE7971DD2255900D86610 /* CityGMLParserWrapperWrapper.mm in Sources */,
 				BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */,
-				BE4AF9D71DB7D93B004FCF22 /* OpenGLView.swift in Sources */,
+				BE5DE79A1DD2266900D86610 /* Math.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

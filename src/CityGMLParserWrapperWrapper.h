@@ -18,7 +18,6 @@
 #define CityGMLParserWrapperWrapper_h
 
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
 
 struct CityGMLParserWrapper;
 
@@ -29,18 +28,18 @@ struct CityGMLParserWrapper;
 - (id) init;
 - (void) parse: (const char *)filePath;
 - (void) clear;
-- (void) initialiseIterator;
-- (void) advanceIterator;
-- (BOOL) iteratorEnded;
-- (unsigned int) type;
-- (const char *) identifier: (unsigned long *)length;
-- (const GLfloat *) trianglesBuffer: (unsigned long *)elements;
-- (const GLfloat *) triangles2Buffer: (unsigned long *)elements;
-- (const GLfloat *) edgesBuffer: (unsigned long *)elements;
+- (void) initialiseObjectIterator;
+- (void) advanceObjectIterator;
+- (BOOL) objectIteratorEnded;
+- (void) initialiseTriangleBufferIterator;
+- (void) advanceTriangleBufferIterator;
+- (BOOL) triangleBufferIteratorEnded;
+- (unsigned int) currentObjectType;
+- (const char *) currentObjectIdentifierWithLength: (unsigned long *)length;
+- (const float *) currentObjectEdgesBufferWithElements: (unsigned long *)elements;
+- (const float *) currentTrianglesBufferWithType: (int *)type andElements:(unsigned long *)elements;
 - (float *) minCoordinates;
-- (float *) midCoordinates;
 - (float *) maxCoordinates;
-- (float) maxRange;
 - (void) dealloc;
 
 @end
