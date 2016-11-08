@@ -288,8 +288,10 @@ class MetalView: MTKView {
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute midCoordinates and maxRange
-    let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
-    let midCoordinates = dataStorage!.minCoordinates+0.5*range
+    let minCoordinates = float3(dataStorage!.minCoordinates)
+    let maxCoordinates = float3(dataStorage!.maxCoordinates)
+    let range = maxCoordinates-minCoordinates
+    let midCoordinates = minCoordinates+0.5*range
     var maxRange = range.x
     if range.y > maxRange {
       maxRange = range.y
@@ -432,6 +434,71 @@ class MetalView: MTKView {
     needsDisplay = true
   }
   
+  func outlineViewDoubleClick(_ sender: Any?) {
+    Swift.print("outlineViewDoubleClick()")
+    
+    // Compute midCoordinates and maxRange
+    let minCoordinates = float3(dataStorage!.minCoordinates)
+    let maxCoordinates = float3(dataStorage!.maxCoordinates)
+    let range = maxCoordinates-minCoordinates
+    let midCoordinates = minCoordinates+0.5*range
+    var maxRange = range.x
+    if range.y > maxRange {
+      maxRange = range.y
+    }
+    if range.z > maxRange {
+      maxRange = range.z
+    }
+    
+    // Obtain object at that row
+    let rowObject = controller!.outlineView.item(atRow: controller!.outlineView!.clickedRow) as! CityGMLObject
+    
+    // Iterate through all parsed objects
+    for parsedObject in dataStorage!.objects {
+      
+      // Found
+      if parsedObject.id == rowObject.id {
+        
+        // Compute centroid
+        let numberOfVertices = parsedObject.triangleBuffersByType[0]!.count/6
+        var sumX: Float = 0.0
+        var sumY: Float = 0.0
+        var sumZ: Float = 0.0
+        for vertexIndex in 0..<numberOfVertices {
+          sumX = sumX + (parsedObject.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange
+          sumY = sumY + (parsedObject.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange
+          sumZ = sumZ + (parsedObject.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange
+        }
+        let centroidInObjectCoordinates = float4(sumX/Float(numberOfVertices), sumY/Float(numberOfVertices), sumZ/Float(numberOfVertices), 1.0)
+        
+        // Use the centroid to compute the shift in the view space
+        let objectToCamera = matrix_multiply(viewMatrix, modelMatrix)
+        let centroidInCameraCoordinates = matrix_multiply(objectToCamera, centroidInObjectCoordinates)
+        
+        // Compute shift in object space
+        let shiftInCameraCoordinates = float3(-centroidInCameraCoordinates.x, -centroidInCameraCoordinates.y, 0.0)
+        var cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: objectToCamera))
+        let shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates)
+        modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: shiftInObjectCoordinates))
+        modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+        
+        // Correct shift so that the point of rotation remains at the same depth as the data
+        cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
+        let depthOffset = 1.0+depthAtCentre()
+        let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
+        let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
+        modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
+        modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+        
+        // Put model matrix in arrays and render
+        constants.modelMatrix = modelMatrix
+        constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+        constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
+        needsDisplay = true
+      }
+    }
+  }
+  
   override func scrollWheel(with event: NSEvent) {
     //    Swift.print("MetalView.scrollWheel()")
     //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
@@ -560,8 +627,10 @@ class MetalView: MTKView {
   func depthAtCentre() -> GLfloat {
     
     // Compute midCoordinates and maxRange
-    let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
-    let midCoordinates = dataStorage!.minCoordinates+0.5*range
+    let minCoordinates = float3(dataStorage!.minCoordinates)
+    let maxCoordinates = float3(dataStorage!.maxCoordinates)
+    let range = maxCoordinates-minCoordinates
+    let midCoordinates = minCoordinates+0.5*range
     var maxRange = range.x
     if range.y > maxRange {
       maxRange = range.y
@@ -597,8 +666,11 @@ class MetalView: MTKView {
   func pullData() {
     Swift.print("DataStorage.pushData(Renderer)")
     
-    let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
-    let midCoordinates = dataStorage!.minCoordinates+0.5*range
+    // Compute midCoordinates and maxRange
+    let minCoordinates = float3(dataStorage!.minCoordinates)
+    let maxCoordinates = float3(dataStorage!.maxCoordinates)
+    let range = maxCoordinates-minCoordinates
+    let midCoordinates = minCoordinates+0.5*range
     var maxRange = range.x
     if range.y > maxRange {
       maxRange = range.y

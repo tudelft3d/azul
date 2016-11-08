@@ -15,7 +15,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import Metal
-import MetalKit
 
 @NSApplicationMain
 class Controller: NSObject, NSApplicationDelegate {
@@ -23,7 +22,6 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var window: NSWindow!
   @IBOutlet weak var splitView: NSSplitView!
   @IBOutlet weak var outlineView: NSOutlineView!
-  var view: NSView?
   @IBOutlet weak var progressIndicator: NSProgressIndicator!
   
   @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
@@ -32,9 +30,10 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
   
   let dataStorage = DataStorage()
+  var view: NSView?
   
   func applicationDidFinishLaunching(_ aNotification: Notification) {
-    Swift.print("AppDelegate.applicationDidFinishLaunching(Notification)")
+    Swift.print("Controller.applicationDidFinishLaunching(Notification)")
     
     if let defaultDevice = MTLCreateSystemDefaultDevice() {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
@@ -42,14 +41,9 @@ class Controller: NSObject, NSApplicationDelegate {
       metalView.controller = self
       metalView.dataStorage = dataStorage
       metalView.subviews = splitView.subviews[1].subviews
-      
       splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
       splitView.insertArrangedSubview(metalView, at: 1)
-      
-//      splitView.subviews.append(metalView)
-//      metalView.subviews = splitView.subviews[1].subviews
-//      splitView.subviews[1] = metalView
-//      Swift.print("View \(splitView.subviews[1])")
+      view = metalView
     } else {
       
       return
@@ -63,7 +57,7 @@ class Controller: NSObject, NSApplicationDelegate {
   }
   
   func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-    Swift.print("AppDelegate.application(NSApplication, openFile: String)")
+    Swift.print("Controller.application(NSApplication, openFile: String)")
     Swift.print("Open \(filename)")
     let url = URL(fileURLWithPath: filename)
     self.dataStorage.loadData(from: [url])
@@ -71,7 +65,7 @@ class Controller: NSObject, NSApplicationDelegate {
   }
   
   func application(_ sender: NSApplication, openFiles filenames: [String]) {
-    Swift.print("AppDelegate.application(NSApplication, openFiles: String)")
+    Swift.print("Controller.application(NSApplication, openFiles: String)")
     Swift.print("Open \(filenames)")
     var urls = [URL]()
     for filename in filenames {
@@ -82,7 +76,12 @@ class Controller: NSObject, NSApplicationDelegate {
   }
   
   func outlineViewDoubleClick(_ sender: Any?) {
-    dataStorage.outlineViewDoubleClick(sender)
+    Swift.print("Controller.outlineViewDoubleClick(Any?)")
+    if let metalView = view as? MetalView {
+      metalView.outlineViewDoubleClick(sender)
+    } else {
+      
+    }
   }
   
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -107,7 +106,7 @@ class Controller: NSObject, NSApplicationDelegate {
   }
   
   @IBAction func openFile(_ sender: NSMenuItem) {
-    Swift.print("AppDelegate.openFile(NSMenuItem)")
+    Swift.print("Controller.openFile(NSMenuItem)")
     
     let openPanel = NSOpenPanel()
     openPanel.allowsMultipleSelection = true
@@ -174,7 +173,7 @@ class Controller: NSObject, NSApplicationDelegate {
   }
   
   func applicationWillTerminate(_ aNotification: Notification) {
-    Swift.print("AppDelegate.applicationWillTerminate()")
+    Swift.print("Controller.applicationWillTerminate()")
   }
   
 }

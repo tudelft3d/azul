@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import Metal
-import MetalKit
-
 class CityGMLObject {
   var id: String = ""
   var type: UInt32 = 0
@@ -34,8 +31,8 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
   
   var selection = Set<String>()
   
-  var minCoordinates = float3(0, 0, 0)
-  var maxCoordinates = float3(0, 0, 0)
+  var minCoordinates: [Float] = [0, 0, 0]
+  var maxCoordinates: [Float] = [0, 0, 0]
   
   func loadData(from urls: [URL]) {
     Swift.print("DataStorage.loadData(URL)")
@@ -97,26 +94,15 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
     var maxCoordinatesArray = ContiguousArray(maxCoordinatesBuffer)
     if objects.count == 0 {
-      minCoordinates = float3(minCoordinatesArray[0], minCoordinatesArray[1], minCoordinatesArray[2])
-      maxCoordinates = float3(maxCoordinatesArray[0], maxCoordinatesArray[1], maxCoordinatesArray[2])
+      minCoordinates = [Float](minCoordinatesArray)
+      maxCoordinates = [Float](maxCoordinatesArray)
     } else {
-      if minCoordinatesArray[0] < minCoordinates.x {
-        minCoordinates.x = minCoordinatesArray[0]
-      }
-      if minCoordinatesArray[1] < minCoordinates.y {
-        minCoordinates.y = minCoordinatesArray[1]
-      }
-      if minCoordinatesArray[2] < minCoordinates.z {
-        minCoordinates.z = minCoordinatesArray[2]
-      }
-      if maxCoordinatesArray[0] > maxCoordinates.x {
-        maxCoordinates.x = maxCoordinatesArray[0]
-      }
-      if maxCoordinatesArray[1] > maxCoordinates.y {
-        maxCoordinates.y = maxCoordinatesArray[1]
-      }
-      if maxCoordinatesArray[2] > maxCoordinates.y {
-        maxCoordinates.z = maxCoordinatesArray[2]
+      for currentCoordinate in 0..<3 {
+        if minCoordinatesArray[currentCoordinate] < minCoordinates[currentCoordinate] {
+          minCoordinates[currentCoordinate] = minCoordinatesArray[currentCoordinate]
+        } else if maxCoordinatesArray[currentCoordinate] > maxCoordinates[currentCoordinate] {
+          maxCoordinates[currentCoordinate] = maxCoordinatesArray[currentCoordinate]
+        }
       }
     }
     
@@ -214,69 +200,6 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     }
     metalView!.pullData()
     metalView!.needsDisplay = true
-  }
-  
-  func outlineViewDoubleClick(_ sender: Any?) {
-    Swift.print("outlineViewDoubleClick()")
-    
-    // Compute midCoordinates and maxRange
-    let range = maxCoordinates-minCoordinates
-    let midCoordinates = minCoordinates+0.5*range
-    var maxRange = range.x
-    if range.y > maxRange {
-      maxRange = range.y
-    }
-    if range.z > maxRange {
-      maxRange = range.z
-    }
-    
-    // Obtain object at that row
-    let rowObject = controller!.outlineView.item(atRow: controller!.outlineView!.clickedRow) as! CityGMLObject
-    
-    // Iterate through all parsed objects
-    for parsedObject in objects {
-      
-      // Found
-      if parsedObject.id == rowObject.id {
-        
-        // Compute centroid
-        let numberOfVertices = parsedObject.triangleBuffersByType[0]!.count/6
-        var sumX: Float = 0.0
-        var sumY: Float = 0.0
-        var sumZ: Float = 0.0
-        for vertexIndex in 0..<numberOfVertices {
-          sumX = sumX + (parsedObject.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange
-          sumY = sumY + (parsedObject.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange
-          sumZ = sumZ + (parsedObject.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange
-        }
-        let centroidInObjectCoordinates = float4(sumX/Float(numberOfVertices), sumY/Float(numberOfVertices), sumZ/Float(numberOfVertices), 1.0)
-        
-        // Use the centroid to compute the shift in the view space
-        let objectToCamera = matrix_multiply(metalView!.viewMatrix, metalView!.modelMatrix)
-        let centroidInCameraCoordinates = matrix_multiply(objectToCamera, centroidInObjectCoordinates)
-        
-        // Compute shift in object space
-        let shiftInCameraCoordinates = float3(-centroidInCameraCoordinates.x, -centroidInCameraCoordinates.y, 0.0)
-        var cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: objectToCamera))
-        let shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates)
-        metalView!.modelTranslationToCentreOfRotationMatrix = matrix_multiply(metalView!.modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: shiftInObjectCoordinates))
-        metalView!.modelMatrix = matrix_multiply(matrix_multiply(metalView!.modelShiftBackMatrix, metalView!.modelRotationMatrix), metalView!.modelTranslationToCentreOfRotationMatrix)
-        
-        // Correct shift so that the point of rotation remains at the same depth as the data
-        cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(metalView!.viewMatrix, metalView!.modelMatrix)))
-        let depthOffset = 1.0+metalView!.depthAtCentre()
-        let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
-        let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
-        metalView!.modelTranslationToCentreOfRotationMatrix = matrix_multiply(metalView!.modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
-        metalView!.modelMatrix = matrix_multiply(matrix_multiply(metalView!.modelShiftBackMatrix, metalView!.modelRotationMatrix), metalView!.modelTranslationToCentreOfRotationMatrix)
-        
-        // Put model matrix in arrays and render
-        metalView!.constants.modelMatrix = metalView!.modelMatrix
-        metalView!.constants.modelViewProjectionMatrix = matrix_multiply(metalView!.projectionMatrix, matrix_multiply(metalView!.viewMatrix, metalView!.modelMatrix))
-        metalView!.constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: metalView!.modelMatrix)))
-        metalView!.needsDisplay = true
-      }
-    }
   }
   
   func findObjectRow(with id: String) -> Int {
