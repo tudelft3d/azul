@@ -954,7 +954,7 @@ class MetalView: MTKView {
     terrainBuffer = device!.makeBuffer(bytes: terrainVertices, length: MemoryLayout<Vertex>.size*terrainVertices.count, options: [])
     genericBuffer = device!.makeBuffer(bytes: genericVertices, length: MemoryLayout<Vertex>.size*genericVertices.count, options: [])
     bridgesBuffer = device!.makeBuffer(bytes: bridgeVertices, length: MemoryLayout<Vertex>.size*bridgeVertices.count, options: [])
-    landUseBuffer = device!.makeBuffer(bytes: roadVertices, length: MemoryLayout<Vertex>.size*landUseVertices.count, options: [])
+    landUseBuffer = device!.makeBuffer(bytes: landUseVertices, length: MemoryLayout<Vertex>.size*landUseVertices.count, options: [])
     boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
     selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
     selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
