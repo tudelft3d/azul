@@ -47,7 +47,6 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.insertArrangedSubview(metalView, at: 1)
       view = metalView
       toggleGraphicsMenuItem.title = "Use OpenGL"
-      toggleGraphicsMenuItem.isEnabled = true
     } else {
       let attributes: [NSOpenGLPixelFormatAttribute] = [
         UInt32(NSOpenGLPFAAccelerated),
@@ -66,7 +65,7 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.insertArrangedSubview(openGLView!, at: 1)
       view = openGLView
       toggleGraphicsMenuItem.title = "Use Metal"
-      toggleGraphicsMenuItem.isEnabled = false
+      toggleGraphicsMenuItem.isHidden = true
     }
     
     dataStorage.controller = self
@@ -93,10 +92,17 @@ class Controller: NSObject, NSApplicationDelegate {
       openGLView!.subviews = splitView.subviews[1].subviews
       splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
       splitView.insertArrangedSubview(openGLView!, at: 1)
-//      openGLView!.prepareOpenGL()
       view = openGLView
-//      openGLView!.pullData()
       toggleGraphicsMenuItem.title = "Use Metal"
+      DispatchQueue.global().async(qos: .userInitiated) {
+        while !openGLView!.preparedOpenGL {
+          Thread.sleep(forTimeInterval: 0.01)
+        }
+        DispatchQueue.main.async {
+          openGLView!.pullData()
+          openGLView!.renderFrame()
+        }
+      }
     } else {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: MTLCreateSystemDefaultDevice())
       dataStorage.view = metalView
@@ -109,7 +115,6 @@ class Controller: NSObject, NSApplicationDelegate {
       toggleGraphicsMenuItem.title = "Use OpenGL"
       metalView.pullData()
       metalView.needsDisplay = true
-      toggleGraphicsMenuItem.isEnabled = true
     }
   }
   

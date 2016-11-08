@@ -27,6 +27,8 @@ class OpenGLView: NSOpenGLView {
   
   var program: GLuint = 0
   
+  var preparedOpenGL: Bool = false
+  
   var viewEdges: Bool = true
   var viewBoundingBox: Bool = false
   
@@ -350,8 +352,7 @@ class OpenGLView: NSOpenGLView {
     CVDisplayLinkSetOutputCallback(displayLink!, displayLinkOutputCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
 //    CVDisplayLinkStart(displayLink!)
     
-    pullData()
-    renderFrame()
+    preparedOpenGL = true
   }
   
   override var acceptsFirstResponder: Bool {
