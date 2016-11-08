@@ -8,7 +8,7 @@ attribute vec3 v_coord;
 attribute vec3 v_normal;
 varying vec3 f_color;
 
-vec3 lightPosition = vec3(0.0, -1.0, 1.0);
+vec3 lightPosition = vec3(0.0, 0.0, -1.0);
 
 void main(void) {
   mat4 mvp = mvp;

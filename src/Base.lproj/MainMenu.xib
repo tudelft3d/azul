@@ -19,6 +19,7 @@
                 <outlet property="outlineView" destination="v1V-dZ-gVJ" id="c0C-UN-vX8"/>
                 <outlet property="progressIndicator" destination="jhy-PH-c7Y" id="gus-rN-XcB"/>
                 <outlet property="splitView" destination="LpA-gm-Y05" id="aJn-fS-OMx"/>
+                <outlet property="toggleGraphicsMenuItem" destination="pcM-2j-HDF" id="l0a-kq-nnv"/>
                 <outlet property="toggleSideBarMenuItem" destination="kIP-vf-haE" id="bSW-9v-XfF"/>
                 <outlet property="toggleViewBoundingBoxMenuItem" destination="S18-6j-Hu0" id="bBU-UF-WXj"/>
                 <outlet property="toggleViewEdgesMenuItem" destination="qpu-IH-tZe" id="5tl-Vw-VKX"/>
@@ -648,6 +649,11 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="waf-17-Te0"/>
+                            <menuItem title="Use ?" enabled="NO" keyEquivalent="G" id="pcM-2j-HDF">
+                                <connections>
+                                    <action selector="toggleGraphics:" target="Voe-Tx-rLC" id="bM6-IH-kky"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Reset to data centre" keyEquivalent="H" id="aa1-9g-hgv">
                                 <connections>
                                     <action selector="goHome:" target="Voe-Tx-rLC" id="pE2-w3-xtA"/>

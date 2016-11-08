@@ -28,6 +28,7 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var toggleViewBoundingBoxMenuItem: NSMenuItem!
   @IBOutlet weak var goHomeMenuItem: NSMenuItem!
   @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
+  @IBOutlet weak var toggleGraphicsMenuItem: NSMenuItem!
   
   let dataStorage = DataStorage()
   var view: NSView?
@@ -35,7 +36,7 @@ class Controller: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     Swift.print("Controller.applicationDidFinishLaunching(Notification)")
     
-    let useMetal: Bool = false
+    let useMetal: Bool = true
     if useMetal, let defaultDevice = MTLCreateSystemDefaultDevice() {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
       dataStorage.view = metalView
@@ -45,6 +46,8 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
       splitView.insertArrangedSubview(metalView, at: 1)
       view = metalView
+      toggleGraphicsMenuItem.title = "Use OpenGL"
+      toggleGraphicsMenuItem.isEnabled = true
     } else {
       let attributes: [NSOpenGLPixelFormatAttribute] = [
         UInt32(NSOpenGLPFAAccelerated),
@@ -62,6 +65,8 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
       splitView.insertArrangedSubview(openGLView!, at: 1)
       view = openGLView
+      toggleGraphicsMenuItem.title = "Use Metal"
+      toggleGraphicsMenuItem.isEnabled = false
     }
     
     dataStorage.controller = self
@@ -69,6 +74,43 @@ class Controller: NSObject, NSApplicationDelegate {
     outlineView.dataSource = dataStorage
     outlineView.doubleAction = #selector(outlineViewDoubleClick)
     toggleSideBar(toggleSideBarMenuItem)
+  }
+  
+  @IBAction func toggleGraphics(_ sender: NSMenuItem) {
+    if (view as? MetalView) != nil {
+      let attributes: [NSOpenGLPixelFormatAttribute] = [
+        UInt32(NSOpenGLPFAAccelerated),
+        UInt32(NSOpenGLPFAColorSize), UInt32(24),
+        UInt32(NSOpenGLPFADoubleBuffer),
+        UInt32(NSOpenGLPFADepthSize), UInt32(32),
+        UInt32(0)
+      ]
+      let pixelFormat = NSOpenGLPixelFormat(attributes: attributes)
+      let openGLView = OpenGLView(frame: splitView.subviews[1].frame, pixelFormat: pixelFormat)
+      dataStorage.view = openGLView
+      openGLView!.controller = self
+      openGLView!.dataStorage = dataStorage
+      openGLView!.subviews = splitView.subviews[1].subviews
+      splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
+      splitView.insertArrangedSubview(openGLView!, at: 1)
+//      openGLView!.prepareOpenGL()
+      view = openGLView
+//      openGLView!.pullData()
+      toggleGraphicsMenuItem.title = "Use Metal"
+    } else {
+      let metalView = MetalView(frame: splitView.subviews[1].frame, device: MTLCreateSystemDefaultDevice())
+      dataStorage.view = metalView
+      metalView.controller = self
+      metalView.dataStorage = dataStorage
+      metalView.subviews = splitView.subviews[1].subviews
+      splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
+      splitView.insertArrangedSubview(metalView, at: 1)
+      view = metalView
+      toggleGraphicsMenuItem.title = "Use OpenGL"
+      metalView.pullData()
+      metalView.needsDisplay = true
+      toggleGraphicsMenuItem.isEnabled = true
+    }
   }
   
   func application(_ sender: NSApplication, openFile filename: String) -> Bool {

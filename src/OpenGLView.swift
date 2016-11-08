@@ -349,6 +349,9 @@ class OpenGLView: NSOpenGLView {
     CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
     CVDisplayLinkSetOutputCallback(displayLink!, displayLinkOutputCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
 //    CVDisplayLinkStart(displayLink!)
+    
+    pullData()
+    renderFrame()
   }
   
   override var acceptsFirstResponder: Bool {
@@ -481,7 +484,7 @@ class OpenGLView: NSOpenGLView {
       // u,v are the barycentric coordinates of the intersection point
       // t is the distance from rayOrigin to the intersection point
       for trianglesBuffer in object.triangleBuffersByType {
-        var numberOfTriangles = trianglesBuffer.value.count/18
+        let numberOfTriangles = trianglesBuffer.value.count/18
         for triangleIndex in 0..<numberOfTriangles {
           let vertex0 = GLKVector3Make((trianglesBuffer.value[Int(18*triangleIndex)]-midCoordinates[0])/maxRange,
                                        (trianglesBuffer.value[Int(18*triangleIndex+1)]-midCoordinates[1])/maxRange,
