@@ -36,8 +36,6 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
   
   var minCoordinates = float3(0, 0, 0)
   var maxCoordinates = float3(0, 0, 0)
-  var midCoordinates = float3(0, 0, 0)
-  var maxRange: Float = 0.0
   
   func loadData(from urls: [URL]) {
     Swift.print("DataStorage.loadData(URL)")
@@ -220,6 +218,17 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
   
   func outlineViewDoubleClick(_ sender: Any?) {
     Swift.print("outlineViewDoubleClick()")
+    
+    // Compute midCoordinates and maxRange
+    let range = maxCoordinates-minCoordinates
+    let midCoordinates = minCoordinates+0.5*range
+    var maxRange = range.x
+    if range.y > maxRange {
+      maxRange = range.y
+    }
+    if range.z > maxRange {
+      maxRange = range.z
+    }
     
     // Obtain object at that row
     let rowObject = controller!.outlineView.item(atRow: controller!.outlineView!.clickedRow) as! CityGMLObject

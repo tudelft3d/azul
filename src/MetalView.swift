@@ -270,7 +270,7 @@ class MetalView: MTKView {
   }
   
   override func mouseUp(with event: NSEvent) {
-    //    Swift.print("OpenGLView.mouseUp()")
+    //    Swift.print("MetalView.mouseUp()")
     
     switch event.clickCount {
     case 1:
@@ -284,12 +284,24 @@ class MetalView: MTKView {
   }
   
   func click(with event: NSEvent) {
-        Swift.print("OpenGLView.click()")
+    Swift.print("MetalView.click()")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
+    
+    // Compute midCoordinates and maxRange
+    let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
+    let midCoordinates = dataStorage!.minCoordinates+0.5*range
+    var maxRange = range.x
+    if range.y > maxRange {
+      maxRange = range.y
+    }
+    if range.z > maxRange {
+      maxRange = range.z
+    }
     
     // Compute the current mouse position
     let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
     let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
+//    Swift.print("Current: X = \(currentX), Y = \(currentY)")
     
     // Compute two points on the ray represented by the mouse position at the near and far planes
     let mvpInverse = matrix_invert(matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix)))
@@ -317,15 +329,15 @@ class MetalView: MTKView {
       for trianglesBuffer in object.triangleBuffersByType {
         let numberOfTriangles = trianglesBuffer.value.count/18
         for triangleIndex in 0..<numberOfTriangles {
-          let vertex0 = float3((trianglesBuffer.value[Int(18*triangleIndex)]-dataStorage!.midCoordinates[0])/dataStorage!.maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+1)]-dataStorage!.midCoordinates[1])/dataStorage!.maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+2)]-dataStorage!.midCoordinates[2])/dataStorage!.maxRange)
-          let vertex1 = float3((trianglesBuffer.value[Int(18*triangleIndex+6)]-dataStorage!.midCoordinates[0])/dataStorage!.maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+7)]-dataStorage!.midCoordinates[1])/dataStorage!.maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+8)]-dataStorage!.midCoordinates[2])/dataStorage!.maxRange)
-          let vertex2 = float3((trianglesBuffer.value[Int(18*triangleIndex+12)]-dataStorage!.midCoordinates[0])/dataStorage!.maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+13)]-dataStorage!.midCoordinates[1])/dataStorage!.maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+14)]-dataStorage!.midCoordinates[2])/dataStorage!.maxRange)
+          let vertex0 = float3((trianglesBuffer.value[Int(18*triangleIndex)]-midCoordinates[0])/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+1)]-midCoordinates[1])/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+2)]-midCoordinates[2])/maxRange)
+          let vertex1 = float3((trianglesBuffer.value[Int(18*triangleIndex+6)]-midCoordinates[0])/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+7)]-midCoordinates[1])/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+8)]-midCoordinates[2])/maxRange)
+          let vertex2 = float3((trianglesBuffer.value[Int(18*triangleIndex+12)]-midCoordinates[0])/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+13)]-midCoordinates[1])/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+14)]-midCoordinates[2])/maxRange)
           let edge1 = vertex1 - vertex0
           let edge2 = vertex2 - vertex0
           let pvec = vector_cross(rayDirection, edge2)
@@ -349,7 +361,7 @@ class MetalView: MTKView {
             let intersectionPointInObjectCoordinates = (vertex0 * (1.0-u-v)) + (vertex1 * u) + (vertex2 * v)
             let intersectionPointInCameraCoordinates = matrix_multiply(matrix_upper_left_3x3(matrix: objectToCamera), intersectionPointInObjectCoordinates)
             let distance = intersectionPointInCameraCoordinates.z
-//            Swift.print("Hit \(object.id) at distance \(distance)")
+            Swift.print("Hit \(object.id) at distance \(distance)")
             if distance > hitDistance {
               closestHit = object.id
               hitDistance = distance
@@ -373,7 +385,7 @@ class MetalView: MTKView {
   }
   
   func doubleClick(with event: NSEvent) {
-    //    Swift.print("OpenGLView.doubleClick()")
+    //    Swift.print("MetalView.doubleClick()")
     //    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     //    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
@@ -421,7 +433,7 @@ class MetalView: MTKView {
   }
   
   override func scrollWheel(with event: NSEvent) {
-    //    Swift.print("OpenGLView.scrollWheel()")
+    //    Swift.print("MetalView.scrollWheel()")
     //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
 
     // Motion according to trackpad
@@ -488,7 +500,7 @@ class MetalView: MTKView {
   }
   
   override func rotate(with event: NSEvent) {
-//    Swift.print("OpenGLView.rotate()")
+//    Swift.print("MetalView.rotate()")
 //    Swift.print("Rotation angle: \(event.rotation)")
     
     let axisInCameraCoordinates = float3(0.0, 0.0, 1.0)
@@ -505,7 +517,7 @@ class MetalView: MTKView {
   }
   
   override func rightMouseDragged(with event: NSEvent) {
-//    Swift.print("OpenGLView.rightMouseDragged()")
+//    Swift.print("MetalView.rightMouseDragged()")
 //    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
     
     let zoomSensitivity: Float = 0.005
@@ -519,7 +531,7 @@ class MetalView: MTKView {
   }
   
   override func magnify(with event: NSEvent) {
-//    Swift.print("OpenGLView.magnify()")
+//    Swift.print("MetalView.magnify()")
 //    Swift.print("Pinched: \(event.magnification)")
     let magnification: Float = 1.0+Float(event.magnification)
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
@@ -547,10 +559,21 @@ class MetalView: MTKView {
   
   func depthAtCentre() -> GLfloat {
     
+    // Compute midCoordinates and maxRange
+    let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
+    let midCoordinates = dataStorage!.minCoordinates+0.5*range
+    var maxRange = range.x
+    if range.y > maxRange {
+      maxRange = range.y
+    }
+    if range.z > maxRange {
+      maxRange = range.z
+    }
+    
     // Create three points along the data plane
-    let leftUpPointInObjectCoordinates = float4((dataStorage!.minCoordinates[0]-dataStorage!.midCoordinates[0])/dataStorage!.maxRange, (dataStorage!.maxCoordinates[1]-dataStorage!.midCoordinates[1])/dataStorage!.maxRange, 0.0, 1.0)
-    let rightUpPointInObjectCoordinates = float4((dataStorage!.maxCoordinates[0]-dataStorage!.midCoordinates[0])/dataStorage!.maxRange, (dataStorage!.maxCoordinates[1]-dataStorage!.midCoordinates[1])/dataStorage!.maxRange, 0.0, 1.0)
-    let centreDownPointInObjectCoordinates = float4(0.0, (dataStorage!.minCoordinates[1]-dataStorage!.midCoordinates[1])/dataStorage!.maxRange, 0.0, 1.0)
+    let leftUpPointInObjectCoordinates = float4((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange, (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let rightUpPointInObjectCoordinates = float4((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange, (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let centreDownPointInObjectCoordinates = float4(0.0, (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
     
     // Obtain their coordinates in eye space
     let modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix)
@@ -576,14 +599,13 @@ class MetalView: MTKView {
     
     let range = dataStorage!.maxCoordinates-dataStorage!.minCoordinates
     let midCoordinates = dataStorage!.minCoordinates+0.5*range
-    dataStorage!.maxRange = range.x
-    if range.y > dataStorage!.maxRange {
-      dataStorage!.maxRange = range.y
+    var maxRange = range.x
+    if range.y > maxRange {
+      maxRange = range.y
     }
-    if range.z > dataStorage!.maxRange {
-      dataStorage!.maxRange = range.z
+    if range.z > maxRange {
+      maxRange = range.z
     }
-    Swift.print("mid = \(dataStorage!.midCoordinates)")
     
     var buildingVertices = [Vertex]()
     var buildingRoofVertices = [Vertex]()
@@ -598,101 +620,101 @@ class MetalView: MTKView {
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
     
-    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 000 -> 001
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 000 -> 010
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 000 -> 100
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 001 -> 011
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 001 -> 101
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 010 -> 011
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 010 -> 110
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 011 -> 111
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 100 -> 101
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 100 -> 110
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 101 -> 111
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0)),  // 110 -> 111
-      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/dataStorage!.maxRange,
-                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/dataStorage!.maxRange),
+      Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
+                              (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
+                              (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
              normal: float3(0.0, 0.0, 0.0))]
     
     for object in dataStorage!.objects {
@@ -700,17 +722,17 @@ class MetalView: MTKView {
       if dataStorage!.selection.contains(object.id) {
         let numberOfVertices = object.edgesBuffer.count/3
         for vertexIndex in 0..<numberOfVertices {
-          selectionEdgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                               (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                               (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+          selectionEdgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
+                                                               (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                               (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange),
                                               normal: float3(0.0, 0.0, 0.0)))
         }
         if object.triangleBuffersByType.keys.contains(0) {
           let numberOfVertices = object.triangleBuffersByType[0]!.count/6
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                                 (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                                 (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                 (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                 (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                                 normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                                object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                                object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -719,9 +741,9 @@ class MetalView: MTKView {
         if object.triangleBuffersByType.keys.contains(1) {
           let numberOfVertices = object.triangleBuffersByType[1]!.count/6
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                                 (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                                 (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                 (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                 (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                                 normal: float3(object.triangleBuffersByType[1]![6*vertexIndex+3],
                                                                object.triangleBuffersByType[1]![6*vertexIndex+4],
                                                                object.triangleBuffersByType[1]![6*vertexIndex+5])))
@@ -731,9 +753,9 @@ class MetalView: MTKView {
         
         let numberOfVertices = object.edgesBuffer.count/3
         for vertexIndex in 0..<numberOfVertices {
-          edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                      (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                      (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+          edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
+                                                      (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                      (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange),
                                      normal: float3(0.0, 0.0, 0.0)))
         }
         
@@ -742,9 +764,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              buildingVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                              (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                              (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              buildingVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                              (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                              (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                              normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                             object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                             object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -753,9 +775,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(1) {
             let numberOfVertices = object.triangleBuffersByType[1]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              buildingRoofVertices.append(Vertex(position: float3((object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                                  (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                                  (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              buildingRoofVertices.append(Vertex(position: float3((object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                  (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                  (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                                  normal: float3(object.triangleBuffersByType[1]![6*vertexIndex+3],
                                                                 object.triangleBuffersByType[1]![6*vertexIndex+4],
                                                                 object.triangleBuffersByType[1]![6*vertexIndex+5])))
@@ -765,9 +787,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              roadVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                          (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                          (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              roadVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                          (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                          (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                          normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                         object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                         object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -777,9 +799,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              waterVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                           (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                           (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              waterVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                           (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                           (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                           normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                          object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                          object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -789,9 +811,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              plantCoverVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                                (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                                (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              plantCoverVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                                normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                               object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                               object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -801,9 +823,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              terrainVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              terrainVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                             normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                            object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                            object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -813,9 +835,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              genericVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              genericVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                             normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                            object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                            object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -825,9 +847,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              bridgeVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                            (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                            (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              bridgeVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                            (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                            (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                            normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                           object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                           object.triangleBuffersByType[0]![6*vertexIndex+5])))
@@ -837,9 +859,9 @@ class MetalView: MTKView {
           if object.triangleBuffersByType.keys.contains(0) {
             let numberOfVertices = object.triangleBuffersByType[0]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              landUseVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/dataStorage!.maxRange,
-                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/dataStorage!.maxRange,
-                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/dataStorage!.maxRange),
+              landUseVertices.append(Vertex(position: float3((object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                             (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
                                             normal: float3(object.triangleBuffersByType[0]![6*vertexIndex+3],
                                                            object.triangleBuffersByType[0]![6*vertexIndex+4],
                                                            object.triangleBuffersByType[0]![6*vertexIndex+5])))
