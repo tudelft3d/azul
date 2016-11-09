@@ -85,23 +85,36 @@ class OpenGLView: NSOpenGLView {
     openGLContext = NSOpenGLContext(format: pixelFormat!, share: nil)
     openGLContext!.setValues([1], for: NSOpenGLCPSwapInterval)
     
+    facesColour["Bridge"] = [String: Array<GLfloat>]()
+    facesColour["Bridge"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
     facesColour["Building"] = [String: Array<GLfloat>]()
     facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373]
     facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255]
-    facesColour["Road"] = [String: Array<GLfloat>]()
-    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
-    facesColour["WaterBody"] = [String: Array<GLfloat>]()
-    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
-    facesColour["PlantCover"] = [String: Array<GLfloat>]()
-    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
-    facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
-    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["CityFurniture"] = [String: Array<GLfloat>]()
+    facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7]
     facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
     facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7]
-    facesColour["Bridge"] = [String: Array<GLfloat>]()
-    facesColour["Bridge"]![""] = [0.247058823529412, 0.247058823529412, 0.247058823529412]
     facesColour["LandUse"] = [String: Array<GLfloat>]()
     facesColour["LandUse"]![""] = [1.0, 0.0, 0.0]
+    facesColour["PlantCover"] = [String: Array<GLfloat>]()
+    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["Railway"] = [String: Array<GLfloat>]()
+    facesColour["Railway"]![""] = [0.7, 0.7, 0.7]
+    facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
+    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["Road"] = [String: Array<GLfloat>]()
+    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["SolitaryVegetationObject"] = [String: Array<GLfloat>]()
+    facesColour["SolitaryVegetationObject"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["Tunnel"] = [String: Array<GLfloat>]()
+    facesColour["Tunnel"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["WaterBody"] = [String: Array<GLfloat>]()
+    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
+    
+    
+    
+    
+    
     
     register(forDraggedTypes: [NSFilenamesPboardType])
   }

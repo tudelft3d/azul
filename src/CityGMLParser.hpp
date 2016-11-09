@@ -119,14 +119,24 @@ struct PolygonsWalker: pugi::xml_tree_walker {
 struct ObjectsWalker: pugi::xml_tree_walker {
   std::list<pugi::xml_node> objects;
   virtual bool for_each(pugi::xml_node &node) {
-    if (strcmp(node.name(), "bldg:Building") == 0 ||
-        strcmp(node.name(), "tran:Road") == 0 ||
-        strcmp(node.name(), "dem:ReliefFeature") == 0 ||
-        strcmp(node.name(), "wtr:WaterBody") == 0 ||
-        strcmp(node.name(), "veg:PlantCover") == 0 ||
-        strcmp(node.name(), "gen:GenericCityObject") == 0 ||
-        strcmp(node.name(), "brg:Bridge") == 0 ||
-        strcmp(node.name(), "luse:LandUse") == 0) {
+    const char *nodeType = node.name();
+    const char *namespaceSeparator = strchr(nodeType, ':');
+    if (namespaceSeparator != NULL) {
+      nodeType = namespaceSeparator+1;
+    }
+    
+    if (strcmp(nodeType, "Bridge") == 0 ||
+        strcmp(nodeType, "Building") == 0 ||
+        strcmp(nodeType, "CityFurniture") == 0 ||
+        strcmp(nodeType, "GenericCityObject") == 0 ||
+        strcmp(nodeType, "LandUse") == 0 ||
+        strcmp(nodeType, "PlantCover") == 0 ||
+        strcmp(nodeType, "Railway") == 0 ||
+        strcmp(nodeType, "ReliefFeature") == 0 ||
+        strcmp(nodeType, "Road") == 0 ||
+        strcmp(nodeType, "SolitaryVegetationObject") == 0 ||
+        strcmp(nodeType, "Tunnel") == 0 ||
+        strcmp(nodeType, "WaterBody") == 0) {
       objects.push_back(node);
     } return true;
   }
