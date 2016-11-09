@@ -1098,6 +1098,7 @@ class OpenGLView: NSOpenGLView {
   }
   
   func pullData() {
+    let startTime = CACurrentMediaTime()
     
     // Compute midCoordinates and maxRange
     let minCoordinates = GLKVector3Make(dataStorage!.minCoordinates[0], dataStorage!.minCoordinates[1], dataStorage!.minCoordinates[2])
@@ -1416,6 +1417,7 @@ class OpenGLView: NSOpenGLView {
     
     Swift.print("Loaded triangles: \(buildingsTriangles.count/18) from buildings, \(buildingRoofsTriangles.count) from building roofs, \(roadsTriangles.count/18) from roads, \(waterTriangles.count/18) from water bodies, \(plantCoverTriangles.count/18) from plant cover, \(genericTriangles.count/18) from generic objects, \(bridgeTriangles.count/18) from bridges, \(landUseTriangles.count/18) from land use and \(selectionFaces.count/18) from selected objects.")
     Swift.print("Loaded \(edges.count/6) edges, \(boundingBox.count/6) edges from the bounding box and \(selectionEdges.count/6) edges from the selection.")
+    Swift.print("Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
   }
   
   override func draw(_ dirtyRect: NSRect) {
