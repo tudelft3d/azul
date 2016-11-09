@@ -67,8 +67,9 @@ struct CityGMLParserWrapper {
   } return false;
 }
 
-- (unsigned int) currentObjectType {
-  return parserWrapper->parser->currentObject->type;
+- (const char *) currentObjectTypeWithLength: (unsigned long *)length {
+  *length = parserWrapper->parser->currentObject->type.size();
+  return parserWrapper->parser->currentObject->type.c_str();
 }
 
 - (const char *) currentObjectIdentifierWithLength: (unsigned long *)length {
@@ -81,8 +82,12 @@ struct CityGMLParserWrapper {
   return parserWrapper->parser->currentObject->edges.data();
 }
 
-- (const float *) currentTrianglesBufferWithType: (int *)type andElements:(unsigned long *)elements {
-  *type = parserWrapper->parser->currentTrianglesBuffer->first;
+- (const char *) currentTrianglesBufferTypeWithLength: (unsigned long *)length {
+  *length = parserWrapper->parser->currentTrianglesBuffer->first.size();
+  return parserWrapper->parser->currentTrianglesBuffer->first.c_str();
+}
+
+- (const float *) currentTrianglesBufferWithElements: (unsigned long *)elements {
   *elements = parserWrapper->parser->currentTrianglesBuffer->second.size();
   return parserWrapper->parser->currentTrianglesBuffer->second.data();
 }

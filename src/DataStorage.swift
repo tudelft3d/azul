@@ -16,8 +16,8 @@
 
 class CityGMLObject {
   var id: String = ""
-  var type: UInt32 = 0
-  var triangleBuffersByType = [Int32: ContiguousArray<Float>]()
+  var type: String = ""
+  var triangleBuffersByType = [String: ContiguousArray<Float>]()
   var edgesBuffer = ContiguousArray<Float>()
 }
 
@@ -125,8 +125,12 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       var idLength: UInt = 0
       let firstElementOfIdBuffer = UnsafeRawPointer(cityGMLParser.currentObjectIdentifier(withLength: &idLength))
       let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
-      objects.last!.id = String(data: idData, encoding: String.Encoding.utf8)!
-      objects.last!.type = cityGMLParser.currentObjectType()
+      objects.last!.id = String(data: idData, encoding: .utf8)!
+      
+      var objectTypeLength: UInt = 0
+      let firstElementOfObjectTypeBuffer = UnsafeRawPointer(cityGMLParser.currentObjectType(withLength: &objectTypeLength))
+      let objectTypeData = Data(bytes: firstElementOfObjectTypeBuffer!, count: Int(objectTypeLength)*MemoryLayout<Int8>.size)
+      objects.last!.type = String(data: objectTypeData, encoding: .utf8)!
       
       var numberOfEdgeVertices: UInt = 0
       let firstElementOfEdgesBuffer = cityGMLParser.currentObjectEdgesBuffer(withElements: &numberOfEdgeVertices)
@@ -135,11 +139,16 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       
       cityGMLParser.initialiseTriangleBufferIterator()
       while !cityGMLParser.triangleBufferIteratorEnded() {
-        var type: Int32 = 0
+        var trianglesBufferTypeLength: UInt = 0
+        let firstElementOfTrianglesBufferTypeBuffer = UnsafeRawPointer(cityGMLParser.currentTrianglesBufferType(withLength: &trianglesBufferTypeLength))
+        let trianglesBufferTypeData = Data(bytes: firstElementOfTrianglesBufferTypeBuffer!, count: Int(trianglesBufferTypeLength)*MemoryLayout<Int8>.size)
+        let trianglesBufferType = String(data: trianglesBufferTypeData, encoding: .utf8)!
+        
         var numberOfTriangleVertices: UInt = 0
-        let firstElementOfTrianglesBuffer = cityGMLParser.currentTrianglesBuffer(withType: &type, andElements: &numberOfTriangleVertices)
+        let firstElementOfTrianglesBuffer = cityGMLParser.currentTrianglesBuffer(withElements: &numberOfTriangleVertices)
         let trianglesBuffer = UnsafeBufferPointer(start: firstElementOfTrianglesBuffer, count: Int(numberOfTriangleVertices))
-        objects.last!.triangleBuffersByType[type] = ContiguousArray(trianglesBuffer)
+        
+        objects.last!.triangleBuffersByType[trianglesBufferType] = ContiguousArray(trianglesBuffer)
         cityGMLParser.advanceTriangleBufferIterator()
       }
       
@@ -178,21 +187,21 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
     view.textField?.stringValue = object.id
     switch object.type {
-    case 1:
+    case "Building":
       view.imageView?.image = NSImage(named: "building")
-    case 2:
+    case "Road":
       view.imageView?.image = NSImage(named: "road")
-    case 3:
-      view.imageView?.image = NSImage(named: "water")
-    case 4:
+    case "ReliefFeature":
       view.imageView?.image = NSImage(named: "terrain")
-    case 5:
+    case "WaterBody":
+      view.imageView?.image = NSImage(named: "water")
+    case "PlantCover":
       view.imageView?.image = NSImage(named: "plant")
-    case 6:
+    case "GenericCityObject":
       view.imageView?.image = NSImage(named: "generic")
-    case 7:
+    case "Bridge":
       view.imageView?.image = NSImage(named: "bridge")
-    case 8:
+    case "LandUse":
       view.imageView?.image = NSImage(named: "landuse")
     default:
       view.imageView?.image = NSImage(named: "generic")

@@ -625,14 +625,14 @@ class OpenGLView: NSOpenGLView {
       if parsedObject.id == rowObject.id {
         
         // Compute centroid
-        let numberOfVertices = parsedObject.triangleBuffersByType[0]!.count/6
+        let numberOfVertices = parsedObject.triangleBuffersByType[""]!.count/6
         var sumX: Float = 0.0
         var sumY: Float = 0.0
         var sumZ: Float = 0.0
         for vertexIndex in 0..<numberOfVertices {
-          sumX = sumX + (parsedObject.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange
-          sumY = sumY + (parsedObject.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange
-          sumZ = sumZ + (parsedObject.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange
+          sumX = sumX + (parsedObject.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange
+          sumY = sumY + (parsedObject.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange
+          sumZ = sumZ + (parsedObject.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange
         }
         let centroidInObjectCoordinates = GLKVector4Make(sumX/Float(numberOfVertices), sumY/Float(numberOfVertices), sumZ/Float(numberOfVertices), 1.0)
         
@@ -1163,26 +1163,26 @@ class OpenGLView: NSOpenGLView {
                                              (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
                                              (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange])
         }
-        if object.triangleBuffersByType.keys.contains(0) {
-          let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        if object.triangleBuffersByType.keys.contains("") {
+          let numberOfVertices = object.triangleBuffersByType[""]!.count/6
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaces.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                               (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                               (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                               object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                               object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                               object.triangleBuffersByType[0]![6*vertexIndex+5]])
+            selectionFaces.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                               (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                               (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                               object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                               object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                               object.triangleBuffersByType[""]![6*vertexIndex+5]])
           }
         }
-        if object.triangleBuffersByType.keys.contains(1) {
-          let numberOfVertices = object.triangleBuffersByType[1]!.count/6
+        if object.triangleBuffersByType.keys.contains("RoofSurface") {
+          let numberOfVertices = object.triangleBuffersByType["RoofSurface"]!.count/6
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaces.append(contentsOf: [(object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                               (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                               (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                               object.triangleBuffersByType[1]![6*vertexIndex+3],
-                                               object.triangleBuffersByType[1]![6*vertexIndex+4],
-                                               object.triangleBuffersByType[1]![6*vertexIndex+5]])
+            selectionFaces.append(contentsOf: [(object.triangleBuffersByType["RoofSurface"]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                               (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                               (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+3],
+                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+4],
+                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+5]])
           }
         }
       } else {
@@ -1193,111 +1193,111 @@ class OpenGLView: NSOpenGLView {
                                     (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange])
         }
         switch object.type {
-        case 1:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "Building":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              buildingsTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                     (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                     (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                     object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                     object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                     object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              buildingsTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                     (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                     (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                     object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                     object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                     object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-          if object.triangleBuffersByType.keys.contains(1) {
-            let numberOfVertices = object.triangleBuffersByType[1]!.count/6
+          if object.triangleBuffersByType.keys.contains("RoofSurface") {
+            let numberOfVertices = object.triangleBuffersByType["RoofSurface"]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              buildingRoofsTriangles.append(contentsOf: [(object.triangleBuffersByType[1]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                         (object.triangleBuffersByType[1]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                         (object.triangleBuffersByType[1]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                         object.triangleBuffersByType[1]![6*vertexIndex+3],
-                                                         object.triangleBuffersByType[1]![6*vertexIndex+4],
-                                                         object.triangleBuffersByType[1]![6*vertexIndex+5]])
+              buildingRoofsTriangles.append(contentsOf: [(object.triangleBuffersByType["RoofSurface"]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                         (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                         (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                         object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+3],
+                                                         object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+4],
+                                                         object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+5]])
             }
           }
-        case 2:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "Road":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              roadsTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                 (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                 (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                 object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                 object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                 object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              roadsTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                 (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                 (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                 object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                 object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                 object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-        case 3:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "WaterBody":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              waterTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                 (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                 (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                 object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                 object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                 object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              waterTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                 (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                 (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                 object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                 object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                 object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-        case 4:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "PlantCover":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              plantCoverTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                   (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                   (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              plantCoverTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                   (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                   (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-        case 5:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "ReliefFeature":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              terrainTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                      (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                      (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                      object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                      object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                      object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              terrainTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                      (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                      (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                      object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                      object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                      object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-        case 6:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "GenericCityObject":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              genericTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                   (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                   (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              genericTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                   (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                   (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-        case 7:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "Bridge":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              bridgeTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                  (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                  (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                  object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                  object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                  object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              bridgeTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                  (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                  (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                  object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                  object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                  object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
-        case 8:
-          if object.triangleBuffersByType.keys.contains(0) {
-            let numberOfVertices = object.triangleBuffersByType[0]!.count/6
+        case "LandUse":
+          if object.triangleBuffersByType.keys.contains("") {
+            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
             for vertexIndex in 0..<numberOfVertices {
-              landUseTriangles.append(contentsOf: [(object.triangleBuffersByType[0]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                   (object.triangleBuffersByType[0]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                   (object.triangleBuffersByType[0]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+3],
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+4],
-                                                   object.triangleBuffersByType[0]![6*vertexIndex+5]])
+              landUseTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                   (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                   (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+3],
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+4],
+                                                   object.triangleBuffersByType[""]![6*vertexIndex+5]])
             }
           }
         default:

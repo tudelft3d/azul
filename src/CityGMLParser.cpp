@@ -58,25 +58,8 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
     nodeType = namespaceSeparator+1;
   }
   
-  object.polygonsByType[0] = std::list<CityGMLPolygon>();
-  if (strcmp(nodeType, "Building") == 0) {
-    object.type = CityGMLObject::Type::Building;
-    object.polygonsByType[1] = std::list<CityGMLPolygon>();
-  } else if (strcmp(nodeType, "Road") == 0) {
-    object.type = CityGMLObject::Type::Road;
-  } else if (strcmp(nodeType, "ReliefFeature") == 0) {
-    object.type = CityGMLObject::Type::ReliefFeature;
-  } else if (strcmp(nodeType, "WaterBody") == 0) {
-    object.type = CityGMLObject::Type::WaterBody;
-  } else if (strcmp(nodeType, "PlantCover") == 0) {
-    object.type = CityGMLObject::Type::PlantCover;
-  } else if (strcmp(nodeType, "GenericCityObject") == 0) {
-    object.type = CityGMLObject::Type::GenericCityObject;
-  } else if (strcmp(nodeType, "Bridge") == 0) {
-    object.type = CityGMLObject::Type::Bridge;
-  } else if (strcmp(nodeType, "LandUse") == 0) {
-    object.type = CityGMLObject::Type::LandUse;
-  } object.id = node.attribute("gml:id").value();
+  object.type = nodeType;
+  object.id = node.attribute("gml:id").value();
   
   PolygonsWalker polygonsWalker;
   node.traverse(polygonsWalker);

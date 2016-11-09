@@ -53,11 +53,11 @@ struct CityGMLPolygon {
 };
 
 struct CityGMLObject {
-  enum Type: unsigned int {Building = 1, Road = 2, WaterBody = 3, ReliefFeature = 4, PlantCover = 5, GenericCityObject = 6, Bridge = 7, LandUse = 8};
-  Type type;
+//  enum Type: unsigned int {Building = 1, Road = 2, WaterBody = 3, ReliefFeature = 4, PlantCover = 5, GenericCityObject = 6, Bridge = 7, LandUse = 8};
+  std::string type;
   std::string id;
-  std::map<int, std::list<CityGMLPolygon>> polygonsByType;
-  std::map<int, std::vector<float>> trianglesByType;
+  std::map<std::string, std::list<CityGMLPolygon>> polygonsByType;
+  std::map<std::string, std::vector<float>> trianglesByType;
   std::vector<float> edges;
 };
 
@@ -100,18 +100,17 @@ struct RingsWalker: pugi::xml_tree_walker {
 };
 
 struct PolygonsWalker: pugi::xml_tree_walker {
-  std::map<int, std::list<pugi::xml_node>> polygonsByType;
-  int inDefinedType = 0;  // 0 = undefined
+  std::map<std::string, std::list<pugi::xml_node>> polygonsByType;
+  std::string inDefinedType = "";  // "" = undefined
   unsigned int depthToStop;
   virtual bool for_each(pugi::xml_node &node) {
-    if (inDefinedType != 0 && depth() <= depthToStop) {
-      inDefinedType = 0;
+    if (inDefinedType != "" && depth() <= depthToStop) {
+      inDefinedType = "";
     } if (strcmp(node.name(), "bldg:RoofSurface") == 0) {
-      inDefinedType = 1;
+      inDefinedType = "RoofSurface";
       depthToStop = depth();
     } else if (strcmp(node.name(), "gml:Polygon") == 0 ||
                strcmp(node.name(), "gml:Triangle") == 0) {
-      if (polygonsByType.count(inDefinedType) == 0) polygonsByType[inDefinedType] = std::list<pugi::xml_node>();
       polygonsByType[inDefinedType].push_back(node);
     } return true;
   }
@@ -142,7 +141,7 @@ public:
   float maxCoordinates[3];
   
   std::list<CityGMLObject>::const_iterator currentObject;
-  std::map<int, std::vector<float>>::const_iterator currentTrianglesBuffer;
+  std::map<std::string, std::vector<float>>::const_iterator currentTrianglesBuffer;
   
   CityGMLParser();
   void parse(const char *filePath);
