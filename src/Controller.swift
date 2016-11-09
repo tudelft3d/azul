@@ -38,6 +38,7 @@ class Controller: NSObject, NSApplicationDelegate {
     Swift.print("Controller.applicationDidFinishLaunching(Notification)")
     
     let useMetal: Bool = true
+    toggleSideBar(toggleSideBarMenuItem)
     if useMetal, let defaultDevice = MTLCreateSystemDefaultDevice() {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
       dataStorage.view = metalView
@@ -73,11 +74,10 @@ class Controller: NSObject, NSApplicationDelegate {
     outlineView.delegate = dataStorage
     outlineView.dataSource = dataStorage
     outlineView.doubleAction = #selector(outlineViewDoubleClick)
-    toggleSideBar(toggleSideBarMenuItem)
   }
   
   @IBAction func toggleGraphics(_ sender: NSMenuItem) {
-    if (view as? MetalView) != nil {
+    if let metalView = view as? MetalView {
       let attributes: [NSOpenGLPixelFormatAttribute] = [
         UInt32(NSOpenGLPFAAccelerated),
         UInt32(NSOpenGLPFAColorSize), UInt32(24),
@@ -86,15 +86,15 @@ class Controller: NSObject, NSApplicationDelegate {
         UInt32(0)
       ]
       let pixelFormat = NSOpenGLPixelFormat(attributes: attributes)
-      let openGLView = OpenGLView(frame: splitView.subviews[1].frame, pixelFormat: pixelFormat)
+      let openGLView = OpenGLView(frame: metalView.frame, pixelFormat: pixelFormat)
       dataStorage.view = openGLView
       openGLView!.controller = self
       openGLView!.dataStorage = dataStorage
-      openGLView!.subviews = splitView.subviews[1].subviews
-      splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
-      splitView.insertArrangedSubview(openGLView!, at: 1)
+      openGLView!.subviews = metalView.subviews
+      metalView.removeFromSuperview()
+      splitView.addArrangedSubview(openGLView!)
       view = openGLView
-      toggleGraphicsMenuItem.title = "Use Metal"
+      toggleGraphicsMenuItem.title = "Switch to Metal Rendering"
       DispatchQueue.global().async(qos: .userInitiated) {
         while !openGLView!.preparedOpenGL {
           Thread.sleep(forTimeInterval: 0.01)
@@ -105,15 +105,16 @@ class Controller: NSObject, NSApplicationDelegate {
         }
       }
     } else {
+      let openGLView = view as? OpenGLView
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: MTLCreateSystemDefaultDevice())
       dataStorage.view = metalView
       metalView.controller = self
       metalView.dataStorage = dataStorage
-      metalView.subviews = splitView.subviews[1].subviews
-      splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
-      splitView.insertArrangedSubview(metalView, at: 1)
+      metalView.subviews = openGLView!.subviews
+      openGLView!.removeFromSuperview()
+      splitView.addArrangedSubview(metalView)
       view = metalView
-      toggleGraphicsMenuItem.title = "Use OpenGL"
+      toggleGraphicsMenuItem.title = "Switch to OpenGL Rendering"
       metalView.pullData()
       metalView.needsDisplay = true
     }
