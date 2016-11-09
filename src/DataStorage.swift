@@ -60,7 +60,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
         
       }
       
-      self.pullData(from: cityGMLParser)
+      self.storeData(in: cityGMLParser)
       if let metalView = self.view as? MetalView {
         metalView.pullData()
       } else {
@@ -94,8 +94,8 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     }
   }
   
-  func pullData(from cityGMLParser: CityGMLParserWrapperWrapper) {
-    Swift.print("DataStorage.pullData(CityGMLParserWrapperWrapper)")
+  func storeData(in cityGMLParser: CityGMLParserWrapperWrapper) {
+    Swift.print("DataStorage.storeData(CityGMLParserWrapperWrapper)")
     
     let firstMinCoordinate = cityGMLParser.minCoordinates()
     let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)

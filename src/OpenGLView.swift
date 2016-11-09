@@ -1128,29 +1128,29 @@ class OpenGLView: NSOpenGLView {
     selectionEdges.removeAll(keepingCapacity: true)
     
     let boundingBoxVertices: [GLfloat] = [minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 001
-      minCoordinates[0], minCoordinates[1], maxCoordinates[2],
-      minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 010
-      minCoordinates[0], maxCoordinates[1], minCoordinates[2],
-      minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 100
-      maxCoordinates[0], minCoordinates[1], minCoordinates[2],
-      minCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 001 -> 011
-      minCoordinates[0], maxCoordinates[1], maxCoordinates[2],
-      minCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 001 -> 101
-      maxCoordinates[0], minCoordinates[1], maxCoordinates[2],
-      minCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 010 -> 011
-      minCoordinates[0], maxCoordinates[1], maxCoordinates[2],
-      minCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 010 -> 110
-      maxCoordinates[0], maxCoordinates[1], minCoordinates[2],
-      minCoordinates[0], maxCoordinates[1], maxCoordinates[2],  // 011 -> 111
-      maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
-      maxCoordinates[0], minCoordinates[1], minCoordinates[2],  // 100 -> 101
-      maxCoordinates[0], minCoordinates[1], maxCoordinates[2],
-      maxCoordinates[0], minCoordinates[1], minCoordinates[2],  // 100 -> 110
-      maxCoordinates[0], maxCoordinates[1], minCoordinates[2],
-      maxCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 101 -> 111
-      maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
-      maxCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 110 -> 111
-      maxCoordinates[0], maxCoordinates[1], maxCoordinates[2]
+                                          minCoordinates[0], minCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 010
+                                          minCoordinates[0], maxCoordinates[1], minCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], minCoordinates[2],  // 000 -> 100
+                                          maxCoordinates[0], minCoordinates[1], minCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 001 -> 011
+                                          minCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 001 -> 101
+                                          maxCoordinates[0], minCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 010 -> 011
+                                          minCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          minCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 010 -> 110
+                                          maxCoordinates[0], maxCoordinates[1], minCoordinates[2],
+                                          minCoordinates[0], maxCoordinates[1], maxCoordinates[2],  // 011 -> 111
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          maxCoordinates[0], minCoordinates[1], minCoordinates[2],  // 100 -> 101
+                                          maxCoordinates[0], minCoordinates[1], maxCoordinates[2],
+                                          maxCoordinates[0], minCoordinates[1], minCoordinates[2],  // 100 -> 110
+                                          maxCoordinates[0], maxCoordinates[1], minCoordinates[2],
+                                          maxCoordinates[0], minCoordinates[1], maxCoordinates[2],  // 101 -> 111
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2],
+                                          maxCoordinates[0], maxCoordinates[1], minCoordinates[2],  // 110 -> 111
+                                          maxCoordinates[0], maxCoordinates[1], maxCoordinates[2]
     ]
     boundingBox.append(contentsOf: boundingBoxVertices)
     
@@ -1415,7 +1415,7 @@ class OpenGLView: NSOpenGLView {
       Swift.print("Loading selection edges into memory: some error occurred!")
     }
     
-    Swift.print("Loaded triangles: \(buildingsTriangles.count/18) from buildings, \(buildingRoofsTriangles.count) from building roofs, \(roadsTriangles.count/18) from roads, \(waterTriangles.count/18) from water bodies, \(plantCoverTriangles.count/18) from plant cover, \(genericTriangles.count/18) from generic objects, \(bridgeTriangles.count/18) from bridges, \(landUseTriangles.count/18) from land use and \(selectionFaces.count/18) from selected objects.")
+    Swift.print("Loaded triangles: \(buildingsTriangles.count/18) from buildings, \(buildingRoofsTriangles.count/18) from building roofs, \(roadsTriangles.count/18) from roads, \(waterTriangles.count/18) from water bodies, \(plantCoverTriangles.count/18) from plant cover, \(terrainTriangles.count/18) from terrain, \(genericTriangles.count/18) from generic objects, \(bridgeTriangles.count/18) from bridges, \(landUseTriangles.count/18) from land use and \(selectionFaces.count/18) from selected objects.")
     Swift.print("Loaded \(edges.count/6) edges, \(boundingBox.count/6) edges from the bounding box and \(selectionEdges.count/6) edges from the selection.")
     Swift.print("Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
   }

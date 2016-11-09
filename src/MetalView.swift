@@ -964,6 +964,9 @@ class MetalView: MTKView {
     boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
     selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
     selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
+    
+    Swift.print("Loaded triangles: \(buildingVertices.count/3) from buildings, \(buildingRoofVertices.count/3) from building roofs, \(roadVertices.count/3) from roads, \(waterVertices.count/3) from water bodies, \(plantCoverVertices.count/3) from plant cover, \(terrainVertices.count/3) from terrain, \(genericVertices.count/3) from generic objects, \(bridgeVertices.count/3) from bridges, \(landUseVertices.count/3) from land use and \(selectionFaceVertices.count/3) from selected objects.")
+    Swift.print("Loaded \(edgeVertices.count/2) edges, \(boundingBoxVertices.count/2) edges from the bounding box and \(selectionEdgeVertices.count/2) edges from the selection.")
     Swift.print("Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
   }
   
