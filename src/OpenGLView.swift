@@ -32,15 +32,7 @@ class OpenGLView: NSOpenGLView {
   var viewEdges: Bool = true
   var viewBoundingBox: Bool = false
   
-  var vboBuildings: GLuint = 0
-  var vboBuildingRoofs: GLuint = 0
-  var vboRoads: GLuint = 0
-  var vboWater: GLuint = 0
-  var vboPlantCover: GLuint = 0
-  var vboTerrain: GLuint = 0
-  var vboGeneric: GLuint = 0
-  var vboBridges: GLuint = 0
-  var vboLandUse: GLuint = 0
+  var vboFaces = [String: [String: GLuint]]()
   var vboEdges: GLuint = 0
   var vboBoundingBox: GLuint = 0
   var vboSelectionFaces: GLuint = 0
@@ -72,29 +64,13 @@ class OpenGLView: NSOpenGLView {
   var mitArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var viArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
-  let buildingsColour: Array<GLfloat> = [1.0, 0.956862745098039, 0.690196078431373]
-  let buildingRoofsColour: Array<GLfloat> = [0.882352941176471, 0.254901960784314, 0.219607843137255]
-  let roadsColour: Array<GLfloat> = [0.458823529411765, 0.458823529411765, 0.458823529411765]
-  let waterColour: Array<GLfloat> = [0.584313725490196, 0.917647058823529, 1.0]
-  let plantCoverColour: Array<GLfloat> = [0.4, 0.882352941176471, 0.333333333333333]
-  let terrainColour: Array<GLfloat> = [0.713725490196078, 0.882352941176471, 0.623529411764706]
-  let genericColour: Array<GLfloat> = [0.7, 0.7, 0.7]
-  let bridgeColour: Array<GLfloat> = [0.247058823529412, 0.247058823529412, 0.247058823529412]
-  let landUseColour: Array<GLfloat> = [1.0, 0.0, 0.0]
+  var facesColour = [String: [String: Array<GLfloat>]]()
   let edgesColour: Array<GLfloat> = [0.0, 0.0, 0.0]
   let boundingBoxColour: Array<GLfloat> = [0.0, 0.0, 0.0]
   let selectionFacesColour: Array<GLfloat> = [1.0, 1.0, 0.0]
   let selectionEdgesColour: Array<GLfloat> = [1.0, 0.0, 0.0]
   
-  var buildingsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var buildingRoofsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var roadsTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var waterTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var plantCoverTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var terrainTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var genericTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var bridgeTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
-  var landUseTriangles: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
+  var faceTriangles = [String: [String: ContiguousArray<GLfloat>]]()
   var edges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var boundingBox: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var selectionFaces: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
@@ -108,6 +84,24 @@ class OpenGLView: NSOpenGLView {
     wantsBestResolutionOpenGLSurface = true
     openGLContext = NSOpenGLContext(format: pixelFormat!, share: nil)
     openGLContext!.setValues([1], for: NSOpenGLCPSwapInterval)
+    
+    facesColour["Building"] = [String: Array<GLfloat>]()
+    facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373]
+    facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255]
+    facesColour["Road"] = [String: Array<GLfloat>]()
+    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["WaterBody"] = [String: Array<GLfloat>]()
+    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
+    facesColour["PlantCover"] = [String: Array<GLfloat>]()
+    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
+    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
+    facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7]
+    facesColour["Bridge"] = [String: Array<GLfloat>]()
+    facesColour["Bridge"]![""] = [0.247058823529412, 0.247058823529412, 0.247058823529412]
+    facesColour["LandUse"] = [String: Array<GLfloat>]()
+    facesColour["LandUse"]![""] = [1.0, 0.0, 0.0]
     
     register(forDraggedTypes: [NSFilenamesPboardType])
   }
@@ -130,6 +124,24 @@ class OpenGLView: NSOpenGLView {
     openGLContext = NSOpenGLContext(format: pixelFormat!, share: nil)
     
     openGLContext!.setValues([1], for: NSOpenGLCPSwapInterval)
+    
+    facesColour["Building"] = [String: Array<GLfloat>]()
+    facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373]
+    facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255]
+    facesColour["Road"] = [String: Array<GLfloat>]()
+    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["WaterBody"] = [String: Array<GLfloat>]()
+    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
+    facesColour["PlantCover"] = [String: Array<GLfloat>]()
+    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
+    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
+    facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7]
+    facesColour["Bridge"] = [String: Array<GLfloat>]()
+    facesColour["Bridge"]![""] = [0.247058823529412, 0.247058823529412, 0.247058823529412]
+    facesColour["LandUse"] = [String: Array<GLfloat>]()
+    facesColour["LandUse"]![""] = [1.0, 0.0, 0.0]
     
     register(forDraggedTypes: [NSFilenamesPboardType])
   }
@@ -292,15 +304,13 @@ class OpenGLView: NSOpenGLView {
       }
     }
     
-    glGenBuffers(1, &vboBuildings)
-    glGenBuffers(1, &vboBuildingRoofs)
-    glGenBuffers(1, &vboRoads)
-    glGenBuffers(1, &vboWater)
-    glGenBuffers(1, &vboPlantCover)
-    glGenBuffers(1, &vboTerrain)
-    glGenBuffers(1, &vboGeneric)
-    glGenBuffers(1, &vboBridges)
-    glGenBuffers(1, &vboLandUse)
+    for faceType in facesColour {
+      vboFaces[faceType.key] = [String: GLuint]()
+      for faceSubtype in faceType.value {
+        vboFaces[faceType.key]![faceSubtype.key] = 0
+        glGenBuffers(1, &vboFaces[faceType.key]![faceSubtype.key]!)
+      }
+    }
     glGenBuffers(1, &vboEdges)
     glGenBuffers(1, &vboBoundingBox)
     glGenBuffers(1, &vboSelectionFaces)
@@ -362,15 +372,11 @@ class OpenGLView: NSOpenGLView {
   func new() {
     Swift.print("OpenGLView()")
     
-    buildingsTriangles.removeAll()
-    buildingRoofsTriangles.removeAll()
-    roadsTriangles.removeAll()
-    terrainTriangles.removeAll()
-    waterTriangles.removeAll()
-    plantCoverTriangles.removeAll()
-    genericTriangles.removeAll()
-    bridgeTriangles.removeAll()
-    landUseTriangles.removeAll()
+    for faceType in faceTriangles {
+      for faceSubtype in faceType.value {
+        faceTriangles[faceType.key]![faceSubtype.key]!.removeAll()
+      }
+    }
     edges.removeAll()
     boundingBox.removeAll()
     selectionFaces.removeAll()
@@ -931,121 +937,30 @@ class OpenGLView: NSOpenGLView {
     glEnableVertexAttribArray(GLuint(attributeCoordinates))
     glEnableVertexAttribArray(GLuint(attributeNormals))
     
-    glUniform3f(uniformColour, buildingsColour[0], buildingsColour[1], buildingsColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildings)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    var sizeInBytes: GLint = 0
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    var vertices: GLsizei = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) building triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering buildings: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, buildingRoofsColour[0], buildingRoofsColour[1], buildingRoofsColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildingRoofs)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) building roof triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering building roofs: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, roadsColour[0], roadsColour[1], roadsColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboRoads)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) road triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering roads: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, waterColour[0], waterColour[1], waterColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboWater)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) water triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering water bodies: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, plantCoverColour[0], plantCoverColour[1], plantCoverColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboPlantCover)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) plant cover triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering plant cover: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, terrainColour[0], terrainColour[1], terrainColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboTerrain)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) terrain triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering terrain: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, genericColour[0], genericColour[1], genericColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboGeneric)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) generic triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering generic objects: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, bridgeColour[0], bridgeColour[1], bridgeColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBridges)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) bridge triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering bridges: some error occurred!")
-    }
-    
-    glUniform3f(uniformColour, landUseColour[0], landUseColour[1], landUseColour[2])
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboLandUse)
-    glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
-    glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
-    glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
-//    Swift.print("Drawing \(vertices/6) land use triangles")
-    glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Rendering land use: some error occurred!")
+    for faceType in facesColour {
+      for faceSubtype in faceType.value {
+        glUniform3f(uniformColour, faceSubtype.value[0], faceSubtype.value[1], faceSubtype.value[2])
+        glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboFaces[faceType.key]![faceSubtype.key]!)
+        glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
+        glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
+        var sizeInBytes: GLint = 0
+        glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
+        let vertices: GLsizei = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+//        Swift.print("Drawing \(vertices/6) \(faceType.key) \(faceSubtype.key) triangles")
+        glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
+        if glGetError() != GLenum(GL_NO_ERROR) {
+          Swift.print("Rendering \(faceType.key) \(faceSubtype.key): some error occurred!")
+        }
+      }
     }
     
     glUniform3f(uniformColour, selectionFacesColour[0], selectionFacesColour[1], selectionFacesColour[2])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionFaces)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
+    var sizeInBytes: GLint = 0
     glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
-    vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
+    var vertices = sizeInBytes/GLint(MemoryLayout<GLfloat>.size)
 //        Swift.print("Drawing \(vertices/6) selection triangles")
     glDrawArrays(GLenum(GL_TRIANGLES), 0, vertices)
     if glGetError() != GLenum(GL_NO_ERROR) {
@@ -1113,15 +1028,11 @@ class OpenGLView: NSOpenGLView {
       maxRange = range.z
     }
     
-    buildingsTriangles.removeAll(keepingCapacity: true)
-    buildingRoofsTriangles.removeAll(keepingCapacity: true)
-    roadsTriangles.removeAll(keepingCapacity: true)
-    terrainTriangles.removeAll(keepingCapacity: true)
-    waterTriangles.removeAll(keepingCapacity: true)
-    plantCoverTriangles.removeAll(keepingCapacity: true)
-    genericTriangles.removeAll(keepingCapacity: true)
-    bridgeTriangles.removeAll(keepingCapacity: true)
-    landUseTriangles.removeAll(keepingCapacity: true)
+    for faceType in faceTriangles {
+      for faceSubtype in faceType.value {
+        faceTriangles[faceType.key]![faceSubtype.key]!.removeAll(keepingCapacity: true)
+      }
+    }
     edges.removeAll(keepingCapacity: true)
     boundingBox.removeAll(keepingCapacity: true)
     selectionFaces.removeAll(keepingCapacity: true)
@@ -1155,6 +1066,9 @@ class OpenGLView: NSOpenGLView {
     boundingBox.append(contentsOf: boundingBoxVertices)
     
     for object in dataStorage!.objects {
+      if !faceTriangles.keys.contains(object.type) {
+        faceTriangles[object.type] = [String: ContiguousArray<GLfloat>]()
+      }
       
       if dataStorage!.selection.contains(object.id) {
         let numberOfVertices = object.edgesBuffer.count/3
@@ -1163,26 +1077,17 @@ class OpenGLView: NSOpenGLView {
                                              (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
                                              (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange])
         }
-        if object.triangleBuffersByType.keys.contains("") {
-          let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-          for vertexIndex in 0..<numberOfVertices {
-            selectionFaces.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                               (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                               (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                               object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                               object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                               object.triangleBuffersByType[""]![6*vertexIndex+5]])
-          }
-        }
-        if object.triangleBuffersByType.keys.contains("RoofSurface") {
-          let numberOfVertices = object.triangleBuffersByType["RoofSurface"]!.count/6
-          for vertexIndex in 0..<numberOfVertices {
-            selectionFaces.append(contentsOf: [(object.triangleBuffersByType["RoofSurface"]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                               (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                               (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+3],
-                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+4],
-                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+5]])
+        for triangleBufferType in object.triangleBuffersByType.keys {
+          if object.triangleBuffersByType.keys.contains(triangleBufferType) {
+            let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+            for vertexIndex in 0..<numberOfVertices {
+              selectionFaces.append(contentsOf: [(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                 object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
+                                                 object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
+                                                 object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5]])
+            }
           }
         }
       } else {
@@ -1192,116 +1097,19 @@ class OpenGLView: NSOpenGLView {
                                     (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
                                     (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange])
         }
-        switch object.type {
-        case "Building":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              buildingsTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                     (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                     (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                     object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                     object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                     object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
+        for triangleBufferType in object.triangleBuffersByType.keys {
+          if !faceTriangles[object.type]!.keys.contains(triangleBufferType) {
+            faceTriangles[object.type]![triangleBufferType] = ContiguousArray<GLfloat>()
           }
-          if object.triangleBuffersByType.keys.contains("RoofSurface") {
-            let numberOfVertices = object.triangleBuffersByType["RoofSurface"]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              buildingRoofsTriangles.append(contentsOf: [(object.triangleBuffersByType["RoofSurface"]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                         (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                         (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                         object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+3],
-                                                         object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+4],
-                                                         object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+5]])
-            }
+          let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+          for vertexIndex in 0..<numberOfVertices {
+            faceTriangles[object.type]![triangleBufferType]!.append(contentsOf: [(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                               (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                               (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
+                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
+                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5]])
           }
-        case "Road":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              roadsTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                 (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                 (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                 object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                 object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                 object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        case "WaterBody":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              waterTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                 (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                 (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                 object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                 object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                 object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        case "PlantCover":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              plantCoverTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                   (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                   (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        case "ReliefFeature":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              terrainTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                      (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                      (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                      object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                      object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                      object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        case "GenericCityObject":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              genericTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                   (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                   (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        case "Bridge":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              bridgeTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                  (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                  (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                  object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                  object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                  object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        case "LandUse":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              landUseTriangles.append(contentsOf: [(object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                   (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                   (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                   object.triangleBuffersByType[""]![6*vertexIndex+5]])
-            }
-          }
-        default:
-          break
         }
       }
     }
@@ -1311,76 +1119,16 @@ class OpenGLView: NSOpenGLView {
       Swift.print("There's a previous OpenGL error")
     }
     
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildings)
-    buildingsTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), buildingsTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading building triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBuildingRoofs)
-    buildingRoofsTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), buildingRoofsTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading building roof triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboRoads)
-    roadsTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), roadsTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading road triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboWater)
-    waterTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), waterTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading water body triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboPlantCover)
-    plantCoverTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), plantCoverTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading plant cover triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboTerrain)
-    terrainTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), terrainTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading terrain triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboGeneric)
-    genericTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), genericTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading generic triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBridges)
-    bridgeTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), bridgeTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading bridge triangles into memory: some error occurred!")
-    }
-    
-    glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboLandUse)
-    landUseTriangles.withUnsafeBufferPointer { pointer in
-      glBufferData(GLenum(GL_ARRAY_BUFFER), landUseTriangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
-    }
-    if glGetError() != GLenum(GL_NO_ERROR) {
-      Swift.print("Loading land use triangles into memory: some error occurred!")
+    for faceType in faceTriangles {
+      for faceSubtype in faceType.value {
+        glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboFaces[faceType.key]![faceSubtype.key]!)
+        faceSubtype.value.withUnsafeBufferPointer { pointer in
+          glBufferData(GLenum(GL_ARRAY_BUFFER), faceSubtype.value.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+        }
+        if glGetError() != GLenum(GL_NO_ERROR) {
+          Swift.print("Loading \(faceType.key) \(faceSubtype.key) into memory: some error occurred!")
+        }
+      }
     }
     
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboEdges)
@@ -1415,7 +1163,13 @@ class OpenGLView: NSOpenGLView {
       Swift.print("Loading selection edges into memory: some error occurred!")
     }
     
-    Swift.print("Loaded triangles: \(buildingsTriangles.count/18) from buildings, \(buildingRoofsTriangles.count/18) from building roofs, \(roadsTriangles.count/18) from roads, \(waterTriangles.count/18) from water bodies, \(plantCoverTriangles.count/18) from plant cover, \(terrainTriangles.count/18) from terrain, \(genericTriangles.count/18) from generic objects, \(bridgeTriangles.count/18) from bridges, \(landUseTriangles.count/18) from land use and \(selectionFaces.count/18) from selected objects.")
+    Swift.print("Loaded triangles: ", separator: "", terminator: "")
+    for faceType in faceTriangles {
+      for faceSubtype in faceType.value {
+        Swift.print("\(faceSubtype.value.count/18) from \(faceType.key) \(faceSubtype.key)", separator: "", terminator: ", ")
+      }
+    }
+    Swift.print("and \(selectionFaces.count/18) from selected objects.")
     Swift.print("Loaded \(edges.count/6) edges, \(boundingBox.count/6) edges from the bounding box and \(selectionEdges.count/6) edges from the selection.")
     Swift.print("Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
   }
@@ -1432,14 +1186,13 @@ class OpenGLView: NSOpenGLView {
 //    CVDisplayLinkStop(displayLink!)
     
     glDeleteProgram(program)
-    glDeleteBuffers(1, &vboBuildings)
-    glDeleteBuffers(1, &vboBuildingRoofs)
-    glDeleteBuffers(1, &vboRoads)
-    glDeleteBuffers(1, &vboWater)
-    glDeleteBuffers(1, &vboPlantCover)
-    glDeleteBuffers(1, &vboTerrain)
-    glDeleteBuffers(1, &vboGeneric)
-    glDeleteBuffers(1, &vboLandUse)
+    for faceType in facesColour {
+      vboFaces[faceType.key] = [String: GLuint]()
+      for faceSubtype in faceType.value {
+        vboFaces[faceType.key]![faceSubtype.key]! = 0
+        glDeleteBuffers(1, &vboFaces[faceType.key]![faceSubtype.key]!)
+      }
+    }
     glDeleteBuffers(1, &vboEdges)
     glDeleteBuffers(1, &vboBoundingBox)
     glDeleteBuffers(1, &vboSelectionFaces)

@@ -39,15 +39,9 @@ class MetalView: MTKView {
   var renderPipelineState: MTLRenderPipelineState?
   var depthStencilState: MTLDepthStencilState?
   
-  var buildingsBuffer: MTLBuffer?
-  var buildingRoofsBuffer: MTLBuffer?
-  var roadsBuffer: MTLBuffer?
-  var waterBuffer: MTLBuffer?
-  var plantCoverBuffer: MTLBuffer?
-  var terrainBuffer: MTLBuffer?
-  var genericBuffer: MTLBuffer?
-  var bridgesBuffer: MTLBuffer?
-  var landUseBuffer: MTLBuffer?
+  var renderedTypes = [String: [String: float3]]()
+
+  var faceBuffers = [String: [String: MTLBuffer]]()
   var edgesBuffer: MTLBuffer?
   var boundingBoxBuffer: MTLBuffer?
   var selectedFacesBuffer: MTLBuffer?
@@ -116,6 +110,25 @@ class MetalView: MTKView {
     constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
     constants.viewMatrixInverse = matrix_invert(viewMatrix)
     
+    // Rendered types
+    renderedTypes["Building"] = [String: float3]()
+    renderedTypes["Building"]![""] = float3(1.0, 0.956862745098039, 0.690196078431373)
+    renderedTypes["Building"]!["RoofSurface"] = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
+    renderedTypes["Road"] = [String: float3]()
+    renderedTypes["Road"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
+    renderedTypes["WaterBody"] = [String: float3]()
+    renderedTypes["WaterBody"]![""] = float3(0.584313725490196, 0.917647058823529, 1.0)
+    renderedTypes["PlantCover"] = [String: float3]()
+    renderedTypes["PlantCover"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
+    renderedTypes["ReliefFeature"] = [String: float3]()
+    renderedTypes["ReliefFeature"]![""] = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
+    renderedTypes["GenericCityObject"] = [String: float3]()
+    renderedTypes["GenericCityObject"]![""] = float3(0.7, 0.7, 0.7)
+    renderedTypes["Bridge"] = [String: float3]()
+    renderedTypes["Bridge"]![""] = float3(0.247058823529412, 0.247058823529412, 0.247058823529412)
+    renderedTypes["LandUse"] = [String: float3]()
+    renderedTypes["LandUse"]![""] = float3(1.0, 0.0, 0.0)
+    
     // Allow dragging
     register(forDraggedTypes: [NSFilenamesPboardType])
     
@@ -177,6 +190,25 @@ class MetalView: MTKView {
     constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
     constants.viewMatrixInverse = matrix_invert(viewMatrix)
     
+    // Rendered types
+    renderedTypes["Building"] = [String: float3]()
+    renderedTypes["Building"]![""] = float3(1.0, 0.956862745098039, 0.690196078431373)
+    renderedTypes["Building"]!["RoofSurface"] = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
+    renderedTypes["Road"] = [String: float3]()
+    renderedTypes["Road"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
+    renderedTypes["WaterBody"] = [String: float3]()
+    renderedTypes["WaterBody"]![""] = float3(0.584313725490196, 0.917647058823529, 1.0)
+    renderedTypes["PlantCover"] = [String: float3]()
+    renderedTypes["PlantCover"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
+    renderedTypes["ReliefFeature"] = [String: float3]()
+    renderedTypes["ReliefFeature"]![""] = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
+    renderedTypes["GenericCityObject"] = [String: float3]()
+    renderedTypes["GenericCityObject"]![""] = float3(0.7, 0.7, 0.7)
+    renderedTypes["Bridge"] = [String: float3]()
+    renderedTypes["Bridge"]![""] = float3(0.247058823529412, 0.247058823529412, 0.247058823529412)
+    renderedTypes["LandUse"] = [String: float3]()
+    renderedTypes["LandUse"]![""] = float3(1.0, 0.0, 0.0)
+    
     // Allow dragging
     register(forDraggedTypes: [NSFilenamesPboardType])
     
@@ -189,15 +221,12 @@ class MetalView: MTKView {
   }
   
   func new() {
-    buildingsBuffer = device!.makeBuffer(length: 0, options: [])
-    buildingRoofsBuffer = device!.makeBuffer(length: 0, options: [])
-    roadsBuffer = device!.makeBuffer(length: 0, options: [])
-    terrainBuffer = device!.makeBuffer(length: 0, options: [])
-    waterBuffer = device!.makeBuffer(length: 0, options: [])
-    plantCoverBuffer = device!.makeBuffer(length: 0, options: [])
-    genericBuffer = device!.makeBuffer(length: 0, options: [])
-    bridgesBuffer = device!.makeBuffer(length: 0, options: [])
-    landUseBuffer = device!.makeBuffer(length: 0, options: [])
+    for faceBufferType in faceBuffers {
+      for faceBufferSubtype in faceBufferType.value {
+        faceBuffers[faceBufferType.key]![faceBufferSubtype.key] = device!.makeBuffer(length: 0, options: [])
+      }
+    }
+    
     edgesBuffer = device!.makeBuffer(length: 0, options: [])
     boundingBoxBuffer = device!.makeBuffer(length: 0, options: [])
     selectedFacesBuffer = device!.makeBuffer(length: 0, options: [])
@@ -685,15 +714,16 @@ class MetalView: MTKView {
       maxRange = range.z
     }
     
-    var buildingVertices = [Vertex]()
-    var buildingRoofVertices = [Vertex]()
-    var roadVertices = [Vertex]()
-    var waterVertices = [Vertex]()
-    var plantCoverVertices = [Vertex]()
-    var terrainVertices = [Vertex]()
-    var genericVertices = [Vertex]()
-    var bridgeVertices = [Vertex]()
-    var landUseVertices = [Vertex]()
+    var vertices = [String: [String: [Vertex]]]()
+//    var buildingVertices = [Vertex]()
+//    var buildingRoofVertices = [Vertex]()
+//    var roadVertices = [Vertex]()
+//    var waterVertices = [Vertex]()
+//    var plantCoverVertices = [Vertex]()
+//    var terrainVertices = [Vertex]()
+//    var genericVertices = [Vertex]()
+//    var bridgeVertices = [Vertex]()
+//    var landUseVertices = [Vertex]()
     var edgeVertices = [Vertex]()
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
@@ -796,6 +826,9 @@ class MetalView: MTKView {
                                                 normal: float3(0.0, 0.0, 0.0))]
     
     for object in dataStorage!.objects {
+      if !vertices.keys.contains(object.type) {
+        vertices[object.type] = [String: [Vertex]]()
+      }
       
       if dataStorage!.selection.contains(object.id) {
         let numberOfVertices = object.edgesBuffer.count/3
@@ -805,30 +838,19 @@ class MetalView: MTKView {
                                                                (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange),
                                               normal: float3(0.0, 0.0, 0.0)))
         }
-        if object.triangleBuffersByType.keys.contains("") {
-          let numberOfVertices = object.triangleBuffersByType[""]!.count/6
+        for triangleBufferType in object.triangleBuffersByType.keys {
+          let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                 (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                 (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                               object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                               object.triangleBuffersByType[""]![6*vertexIndex+5])))
+            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
+                                                normal: float3(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
+                                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
+                                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5])))
           }
         }
-        if object.triangleBuffersByType.keys.contains("RoofSurface") {
-          let numberOfVertices = object.triangleBuffersByType["RoofSurface"]!.count/6
-          for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType["RoofSurface"]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                 (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                 (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                normal: float3(object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+3],
-                                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+4],
-                                                               object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+5])))
-          }
-        }
-      } else {
         
+      } else {
         let numberOfVertices = object.edgesBuffer.count/3
         for vertexIndex in 0..<numberOfVertices {
           edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
@@ -836,136 +858,43 @@ class MetalView: MTKView {
                                                       (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange),
                                      normal: float3(0.0, 0.0, 0.0)))
         }
-        
-        switch object.type {
-        case "Building":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              buildingVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                              (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                              (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                             normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                            object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                            object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
+        for triangleBufferType in object.triangleBuffersByType.keys {
+          if !vertices[object.type]!.keys.contains(triangleBufferType) {
+            vertices[object.type]![triangleBufferType] = [Vertex]()
           }
-          if object.triangleBuffersByType.keys.contains("RoofSurface") {
-            let numberOfVertices = object.triangleBuffersByType["RoofSurface"]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              buildingRoofVertices.append(Vertex(position: float3((object.triangleBuffersByType["RoofSurface"]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                  (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                  (object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                 normal: float3(object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+3],
-                                                                object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+4],
-                                                                object.triangleBuffersByType["RoofSurface"]![6*vertexIndex+5])))
-            }
+          let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+          for vertexIndex in 0..<numberOfVertices {
+            vertices[object.type]![triangleBufferType]!.append(Vertex(position: float3((object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                            (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                            (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
+                                           normal: float3(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
+                                                          object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
+                                                          object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5])))
           }
-        case "Road":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              roadVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                          (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                          (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                         normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                        object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                        object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        case "WaterBody":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              waterVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                           (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                           (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                          normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                         object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                         object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        case "PlantCover":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              plantCoverVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                               normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                              object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                              object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        case "ReliefFeature":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              terrainVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                             (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                             (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                            normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                           object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                           object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        case "GenericCityObject":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              genericVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                             (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                             (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                            normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                           object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                           object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        case "Bridge":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              bridgeVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                            (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                            (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                           normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                          object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                          object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        case "LandUse":
-          if object.triangleBuffersByType.keys.contains("") {
-            let numberOfVertices = object.triangleBuffersByType[""]!.count/6
-            for vertexIndex in 0..<numberOfVertices {
-              landUseVertices.append(Vertex(position: float3((object.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                             (object.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                             (object.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                            normal: float3(object.triangleBuffersByType[""]![6*vertexIndex+3],
-                                                           object.triangleBuffersByType[""]![6*vertexIndex+4],
-                                                           object.triangleBuffersByType[""]![6*vertexIndex+5])))
-            }
-          }
-        default:
-          break
         }
       }
     }
     
     edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
-    buildingsBuffer = device!.makeBuffer(bytes: buildingVertices, length: MemoryLayout<Vertex>.size*buildingVertices.count, options: [])
-    buildingRoofsBuffer = device!.makeBuffer(bytes: buildingRoofVertices, length: MemoryLayout<Vertex>.size*buildingRoofVertices.count, options: [])
-    roadsBuffer = device!.makeBuffer(bytes: roadVertices, length: MemoryLayout<Vertex>.size*roadVertices.count, options: [])
-    waterBuffer = device!.makeBuffer(bytes: waterVertices, length: MemoryLayout<Vertex>.size*waterVertices.count, options: [])
-    plantCoverBuffer = device!.makeBuffer(bytes: plantCoverVertices, length: MemoryLayout<Vertex>.size*plantCoverVertices.count, options: [])
-    terrainBuffer = device!.makeBuffer(bytes: terrainVertices, length: MemoryLayout<Vertex>.size*terrainVertices.count, options: [])
-    genericBuffer = device!.makeBuffer(bytes: genericVertices, length: MemoryLayout<Vertex>.size*genericVertices.count, options: [])
-    bridgesBuffer = device!.makeBuffer(bytes: bridgeVertices, length: MemoryLayout<Vertex>.size*bridgeVertices.count, options: [])
-    landUseBuffer = device!.makeBuffer(bytes: landUseVertices, length: MemoryLayout<Vertex>.size*landUseVertices.count, options: [])
+    for vertexType in vertices {
+      if !faceBuffers.keys.contains(vertexType.key) {
+        faceBuffers[vertexType.key] = [String: MTLBuffer]()
+      }
+      for vertexSubtype in vertexType.value {
+        faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices[vertexType.key]![vertexSubtype.key]!, length: MemoryLayout<Vertex>.size*vertices[vertexType.key]![vertexSubtype.key]!.count, options: [])
+      }
+    }
     boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
     selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
     selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
     
-    Swift.print("Loaded triangles: \(buildingVertices.count/3) from buildings, \(buildingRoofVertices.count/3) from building roofs, \(roadVertices.count/3) from roads, \(waterVertices.count/3) from water bodies, \(plantCoverVertices.count/3) from plant cover, \(terrainVertices.count/3) from terrain, \(genericVertices.count/3) from generic objects, \(bridgeVertices.count/3) from bridges, \(landUseVertices.count/3) from land use and \(selectionFaceVertices.count/3) from selected objects.")
+    Swift.print("Loaded triangles: ", separator: "", terminator: "")
+    for vertexType in vertices {
+      for vertexSubtype in vertexType.value {
+        Swift.print("\(vertexSubtype.value.count/3) from \(vertexType.key) \(vertexSubtype.key)", separator: "", terminator: ", ")
+      }
+    }
+    Swift.print("and \(selectionFaceVertices.count/3) from selected objects.")
     Swift.print("Loaded \(edgeVertices.count/2) edges, \(boundingBoxVertices.count/2) edges from the bounding box and \(selectionEdgeVertices.count/2) edges from the selection.")
     Swift.print("Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
   }
@@ -985,67 +914,23 @@ class MetalView: MTKView {
     renderEncoder.setDepthStencilState(depthStencilState)
     renderEncoder.setRenderPipelineState(renderPipelineState!)
     
-    if buildingsBuffer != nil && buildingsBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(buildingsBuffer, offset:0, at:0)
-      constants.colour = float3(1.0, 0.956862745098039, 0.690196078431373)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: buildingsBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if buildingRoofsBuffer != nil && buildingRoofsBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(buildingRoofsBuffer, offset:0, at:0)
-      constants.colour = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: buildingRoofsBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if roadsBuffer != nil && roadsBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(roadsBuffer, offset:0, at:0)
-      constants.colour = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: roadsBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if waterBuffer != nil && waterBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(waterBuffer, offset:0, at:0)
-      constants.colour = float3(0.584313725490196, 0.917647058823529, 1.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: waterBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if plantCoverBuffer != nil && plantCoverBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(plantCoverBuffer, offset:0, at:0)
-      constants.colour = float3(0.4, 0.882352941176471, 0.333333333333333)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: plantCoverBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if terrainBuffer != nil && terrainBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(terrainBuffer, offset:0, at:0)
-      constants.colour = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: terrainBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if genericBuffer != nil && genericBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(genericBuffer, offset:0, at:0)
-      constants.colour = float3(0.7, 0.7, 0.7)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: genericBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if bridgesBuffer != nil && bridgesBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(bridgesBuffer, offset:0, at:0)
-      constants.colour = float3(0.247058823529412, 0.247058823529412, 0.247058823529412)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: bridgesBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if landUseBuffer != nil && landUseBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(landUseBuffer, offset:0, at:0)
-      constants.colour = float3(1.0, 0.0, 0.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: landUseBuffer!.length/MemoryLayout<Vertex>.size)
+    for bufferType in faceBuffers {
+      if !renderedTypes.keys.contains(bufferType.key) {
+        Swift.print("Render type for \(bufferType.key) not set")
+        continue
+      }
+      for bufferSubtype in bufferType.value {
+        if !renderedTypes[bufferType.key]!.keys.contains(bufferSubtype.key) {
+          Swift.print("Render type for \(bufferType.key) \(bufferSubtype.key) not set")
+          continue
+        }
+        if faceBuffers[bufferType.key]![bufferSubtype.key]!.length > 0 {
+          renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
+          constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
+          renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
+          renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<Vertex>.size)
+        }
+      }
     }
     
     if viewEdges && edgesBuffer != nil && edgesBuffer!.length > 0 {
