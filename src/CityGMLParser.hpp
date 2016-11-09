@@ -104,13 +104,20 @@ struct PolygonsWalker: pugi::xml_tree_walker {
   std::string inDefinedType = "";  // "" = undefined
   unsigned int depthToStop;
   virtual bool for_each(pugi::xml_node &node) {
+    const char *nodeType = node.name();
+    const char *namespaceSeparator = strchr(nodeType, ':');
+    if (namespaceSeparator != NULL) {
+      nodeType = namespaceSeparator+1;
+    }
+    
     if (inDefinedType != "" && depth() <= depthToStop) {
       inDefinedType = "";
-    } if (strcmp(node.name(), "bldg:RoofSurface") == 0) {
-      inDefinedType = "RoofSurface";
+    } if (strcmp(nodeType, "RoofSurface") == 0 ||
+          strcmp(nodeType, "GroundSurface") == 0) {
+      inDefinedType = nodeType;
       depthToStop = depth();
-    } else if (strcmp(node.name(), "gml:Polygon") == 0 ||
-               strcmp(node.name(), "gml:Triangle") == 0) {
+    } else if (strcmp(nodeType, "Polygon") == 0 ||
+               strcmp(nodeType, "Triangle") == 0) {
       polygonsByType[inDefinedType].push_back(node);
     } return true;
   }

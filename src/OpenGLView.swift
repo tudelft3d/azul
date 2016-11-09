@@ -89,13 +89,14 @@ class OpenGLView: NSOpenGLView {
     facesColour["Bridge"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
     facesColour["Building"] = [String: Array<GLfloat>]()
     facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373]
+    facesColour["Building"]!["GroundSurface"] = [0.7, 0.7, 0.7]
     facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255]
     facesColour["CityFurniture"] = [String: Array<GLfloat>]()
     facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7]
     facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
     facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7]
     facesColour["LandUse"] = [String: Array<GLfloat>]()
-    facesColour["LandUse"]![""] = [1.0, 0.0, 0.0]
+    facesColour["LandUse"]![""] = [0.3, 0.3, 0.3]
     facesColour["PlantCover"] = [String: Array<GLfloat>]()
     facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
     facesColour["Railway"] = [String: Array<GLfloat>]()
