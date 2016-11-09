@@ -1080,13 +1080,14 @@ class OpenGLView: NSOpenGLView {
         for triangleBufferType in object.triangleBuffersByType.keys {
           if object.triangleBuffersByType.keys.contains(triangleBufferType) {
             let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+            let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
             for vertexIndex in 0..<numberOfVertices {
-              selectionFaces.append(contentsOf: [(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                                 object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
-                                                 object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
-                                                 object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5]])
+              selectionFaces.append(contentsOf: [(currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                 (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                 (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                 currentTriangleBuffer[6*vertexIndex+3],
+                                                 currentTriangleBuffer[6*vertexIndex+4],
+                                                 currentTriangleBuffer[6*vertexIndex+5]])
             }
           }
         }
@@ -1102,14 +1103,17 @@ class OpenGLView: NSOpenGLView {
             faceTriangles[object.type]![triangleBufferType] = ContiguousArray<GLfloat>()
           }
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+          var temporaryBuffer = ContiguousArray<GLfloat>()
+          let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
           for vertexIndex in 0..<numberOfVertices {
-            faceTriangles[object.type]![triangleBufferType]!.append(contentsOf: [(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                               (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                               (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange,
-                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
-                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
-                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5]])
+            temporaryBuffer.append(contentsOf: [(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange,
+                                                currentTriangleBuffer[6*vertexIndex+3],
+                                                currentTriangleBuffer[6*vertexIndex+4],
+                                                currentTriangleBuffer[6*vertexIndex+5]])
           }
+          faceTriangles[object.type]![triangleBufferType]!.append(contentsOf: temporaryBuffer)
         }
       }
     }

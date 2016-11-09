@@ -831,13 +831,14 @@ class MetalView: MTKView {
         }
         for triangleBufferType in object.triangleBuffersByType.keys {
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+          let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(Vertex(position: float3((object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                 (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                normal: float3(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
-                                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
-                                                               object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5])))
+            selectionFaceVertices.append(Vertex(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                 (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                 (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
+                                                normal: float3(currentTriangleBuffer[6*vertexIndex+3],
+                                                               currentTriangleBuffer[6*vertexIndex+4],
+                                                               currentTriangleBuffer[6*vertexIndex+5])))
           }
         }
         
