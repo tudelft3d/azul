@@ -854,14 +854,17 @@ class MetalView: MTKView {
             vertices[object.type]![triangleBufferType] = [Vertex]()
           }
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
+          var temporaryBuffer = [Vertex]()
+          let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
           for vertexIndex in 0..<numberOfVertices {
-            vertices[object.type]![triangleBufferType]!.append(Vertex(position: float3((object.triangleBuffersByType[triangleBufferType]![6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                            (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                            (object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                           normal: float3(object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+3],
-                                                          object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+4],
-                                                          object.triangleBuffersByType[triangleBufferType]![6*vertexIndex+5])))
+            temporaryBuffer.append(Vertex(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                           (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                           (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
+                                          normal: float3(currentTriangleBuffer[6*vertexIndex+3],
+                                                         currentTriangleBuffer[6*vertexIndex+4],
+                                                         currentTriangleBuffer[6*vertexIndex+5])))
           }
+          vertices[object.type]![triangleBufferType]!.append(contentsOf: temporaryBuffer)
         }
       }
     }
