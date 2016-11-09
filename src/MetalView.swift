@@ -969,6 +969,10 @@ class MetalView: MTKView {
   override func draw(_ dirtyRect: NSRect) {
 //    Swift.print("MetalView.draw(NSRect)")
     
+    if dirtyRect.width == 0 {
+      return
+    }
+    
     let commandBuffer = commandQueue!.makeCommandBuffer()
     let renderPassDescriptor = currentRenderPassDescriptor!
     let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
