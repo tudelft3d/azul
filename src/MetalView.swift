@@ -131,7 +131,7 @@ class MetalView: MTKView {
     // View
     clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1)
     colorPixelFormat = .bgra8Unorm
-    depthStencilPixelFormat = .depth16Unorm
+    depthStencilPixelFormat = .depth32Float
     
     // Device
     if let defaultDevice = MTLCreateSystemDefaultDevice() {

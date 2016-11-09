@@ -38,8 +38,10 @@ class Controller: NSObject, NSApplicationDelegate {
     Swift.print("Controller.applicationDidFinishLaunching(Notification)")
     
     let useMetal: Bool = true
+    let processInfo = ProcessInfo.processInfo
+    let sierraOrHigher = processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 10, minorVersion: 12, patchVersion: 0))
     toggleSideBar(toggleSideBarMenuItem)
-    if useMetal, let defaultDevice = MTLCreateSystemDefaultDevice() {
+    if sierraOrHigher && useMetal, let defaultDevice = MTLCreateSystemDefaultDevice() {
       let metalView = MetalView(frame: splitView.subviews[1].frame, device: defaultDevice)
       dataStorage.view = metalView
       metalView.controller = self
