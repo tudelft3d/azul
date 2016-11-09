@@ -715,15 +715,6 @@ class MetalView: MTKView {
     }
     
     var vertices = [String: [String: [Vertex]]]()
-//    var buildingVertices = [Vertex]()
-//    var buildingRoofVertices = [Vertex]()
-//    var roadVertices = [Vertex]()
-//    var waterVertices = [Vertex]()
-//    var plantCoverVertices = [Vertex]()
-//    var terrainVertices = [Vertex]()
-//    var genericVertices = [Vertex]()
-//    var bridgeVertices = [Vertex]()
-//    var landUseVertices = [Vertex]()
     var edgeVertices = [Vertex]()
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
@@ -875,6 +866,7 @@ class MetalView: MTKView {
       }
     }
     
+    faceBuffers.removeAll()
     edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
     for vertexType in vertices {
       if !faceBuffers.keys.contains(vertexType.key) {
