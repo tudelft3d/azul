@@ -110,7 +110,8 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       for currentCoordinate in 0..<3 {
         if minCoordinatesArray[currentCoordinate] < minCoordinates[currentCoordinate] {
           minCoordinates[currentCoordinate] = minCoordinatesArray[currentCoordinate]
-        } else if maxCoordinatesArray[currentCoordinate] > maxCoordinates[currentCoordinate] {
+        }
+        if maxCoordinatesArray[currentCoordinate] > maxCoordinates[currentCoordinate] {
           maxCoordinates[currentCoordinate] = maxCoordinatesArray[currentCoordinate]
         }
       }
