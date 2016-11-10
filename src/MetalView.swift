@@ -22,7 +22,7 @@ struct Constants {
   var modelViewProjectionMatrix = matrix_identity_float4x4
   var modelMatrixInverseTransposed = matrix_identity_float3x3
   var viewMatrixInverse = matrix_identity_float4x4
-  var colour = float3(0.0, 0.0, 0.0)
+  var colour = float4(0.0, 0.0, 0.0, 1.0)
 }
 
 struct Vertex {
@@ -39,7 +39,7 @@ class MetalView: MTKView {
   var renderPipelineState: MTLRenderPipelineState?
   var depthStencilState: MTLDepthStencilState?
   
-  var renderedTypes = [String: [String: float3]]()
+  var renderedTypes = [String: [String: float4]]()
 
   var faceBuffers = [String: [String: MTLBuffer]]()
   var edgesBuffer: MTLBuffer?
@@ -87,6 +87,11 @@ class MetalView: MTKView {
     renderPipelineDescriptor.vertexFunction = vertexFunction
     renderPipelineDescriptor.fragmentFunction = fragmentFunction
     renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
+    renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+    renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+    renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
+    renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+    renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
     renderPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
     do {
       renderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
@@ -113,34 +118,34 @@ class MetalView: MTKView {
     constants.viewMatrixInverse = matrix_invert(viewMatrix)
     
     // Rendered types
-    renderedTypes["Bridge"] = [String: float3]()
-    renderedTypes["Bridge"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["Building"] = [String: float3]()
-    renderedTypes["Building"]![""] = float3(1.0, 0.956862745098039, 0.690196078431373)
-    renderedTypes["Building"]!["Door"] = float3(0.482352941176471, 0.376470588235294, 0.231372549019608)
-    renderedTypes["Building"]!["GroundSurface"] = float3(0.7, 0.7, 0.7)
-    renderedTypes["Building"]!["RoofSurface"] = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
-    renderedTypes["Building"]!["Window"] = float3(0.584313725490196, 0.917647058823529, 1.0)
-    renderedTypes["CityFurniture"] = [String: float3]()
-    renderedTypes["CityFurniture"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["GenericCityObject"] = [String: float3]()
-    renderedTypes["GenericCityObject"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["LandUse"] = [String: float3]()
-    renderedTypes["LandUse"]![""] = float3(0.3, 0.3, 0.3)
-    renderedTypes["PlantCover"] = [String: float3]()
-    renderedTypes["PlantCover"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
-    renderedTypes["Railway"] = [String: float3]()
-    renderedTypes["Railway"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["ReliefFeature"] = [String: float3]()
-    renderedTypes["ReliefFeature"]![""] = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
-    renderedTypes["Road"] = [String: float3]()
-    renderedTypes["Road"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["SolitaryVegetationObject"] = [String: float3]()
-    renderedTypes["SolitaryVegetationObject"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
-    renderedTypes["Tunnel"] = [String: float3]()
-    renderedTypes["Tunnel"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["WaterBody"] = [String: float3]()
-    renderedTypes["WaterBody"]![""] = float3(0.584313725490196, 0.917647058823529, 1.0)
+    renderedTypes["Bridge"] = [String: float4]()
+    renderedTypes["Bridge"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
+    renderedTypes["Building"] = [String: float4]()
+    renderedTypes["Building"]![""] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
+    renderedTypes["Building"]!["Door"] = float4(0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0)
+    renderedTypes["Building"]!["GroundSurface"] = float4(0.7, 0.7, 0.7, 1.0)
+    renderedTypes["Building"]!["RoofSurface"] = float4(0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0)
+    renderedTypes["Building"]!["Window"] = float4(0.584313725490196, 0.917647058823529, 1.0, 0.3)
+    renderedTypes["CityFurniture"] = [String: float4]()
+    renderedTypes["CityFurniture"]![""] = float4(0.7, 0.7, 0.7, 1.0)
+    renderedTypes["GenericCityObject"] = [String: float4]()
+    renderedTypes["GenericCityObject"]![""] = float4(0.7, 0.7, 0.7, 1.0)
+    renderedTypes["LandUse"] = [String: float4]()
+    renderedTypes["LandUse"]![""] = float4(0.3, 0.3, 0.3, 1.0)
+    renderedTypes["PlantCover"] = [String: float4]()
+    renderedTypes["PlantCover"]![""] = float4(0.4, 0.882352941176471, 0.333333333333333, 1.0)
+    renderedTypes["Railway"] = [String: float4]()
+    renderedTypes["Railway"]![""] = float4(0.7, 0.7, 0.7, 1.0)
+    renderedTypes["ReliefFeature"] = [String: float4]()
+    renderedTypes["ReliefFeature"]![""] = float4(0.713725490196078, 0.882352941176471, 0.623529411764706, 1.0)
+    renderedTypes["Road"] = [String: float4]()
+    renderedTypes["Road"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
+    renderedTypes["SolitaryVegetationObject"] = [String: float4]()
+    renderedTypes["SolitaryVegetationObject"]![""] = float4(0.4, 0.882352941176471, 0.333333333333333, 1.0)
+    renderedTypes["Tunnel"] = [String: float4]()
+    renderedTypes["Tunnel"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
+    renderedTypes["WaterBody"] = [String: float4]()
+    renderedTypes["WaterBody"]![""] = float4(0.584313725490196, 0.917647058823529, 1.0, 1.0)
     
     // Allow dragging
     register(forDraggedTypes: [NSFilenamesPboardType])
@@ -886,28 +891,28 @@ class MetalView: MTKView {
     
     if viewEdges && edgesBuffer != nil && edgesBuffer!.length > 0 {
       renderEncoder.setVertexBuffer(edgesBuffer, offset:0, at:0)
-      constants.colour = float3(0.0, 0.0, 0.0)
+      constants.colour = float4(0.0, 0.0, 0.0, 1.0)
       renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
       renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: edgesBuffer!.length/MemoryLayout<Vertex>.size)
     }
     
     if viewBoundingBox && boundingBoxBuffer != nil && boundingBoxBuffer!.length > 0 {
       renderEncoder.setVertexBuffer(boundingBoxBuffer, offset:0, at:0)
-      constants.colour = float3(0.0, 0.0, 0.0)
+      constants.colour = float4(0.0, 0.0, 0.0, 1.0)
       renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
       renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: boundingBoxBuffer!.length/MemoryLayout<Vertex>.size)
     }
     
     if selectedFacesBuffer != nil && selectedFacesBuffer!.length > 0 {
       renderEncoder.setVertexBuffer(selectedFacesBuffer, offset:0, at:0)
-      constants.colour = float3(1.0, 1.0, 0.0)
+      constants.colour = float4(1.0, 1.0, 0.0, 1.0)
       renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
       renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: selectedFacesBuffer!.length/MemoryLayout<Vertex>.size)
     }
     
     if viewEdges && selectedEdgesBuffer != nil && selectedEdgesBuffer!.length > 0 {
       renderEncoder.setVertexBuffer(selectedEdgesBuffer, offset:0, at:0)
-      constants.colour = float3(1.0, 0.0, 0.0)
+      constants.colour = float4(1.0, 0.0, 0.0, 1.0)
       renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
       renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: selectedEdgesBuffer!.length/MemoryLayout<Vertex>.size)
     }

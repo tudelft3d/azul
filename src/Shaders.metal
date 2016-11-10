@@ -22,7 +22,7 @@ struct Constants {
   float4x4 modelViewProjectionMatrix;
   float3x3 modelMatrixInverseTransposed;
   float4x4 viewMatrixInverse;
-  float3 colour;
+  float4 colour;
 };
 
 constant float3 ambientLightIntensity(0.8, 0.8, 0.8);
@@ -37,7 +37,7 @@ struct VertexIn {
 
 struct VertexOut {
   float4 position [[position]];
-  float3 colour;
+  float4 colour;
 };
 
 vertex VertexOut vertexTransform(device VertexIn *vertices [[buffer(0)]],
@@ -48,16 +48,16 @@ vertex VertexOut vertexTransform(device VertexIn *vertices [[buffer(0)]],
   float3 viewDirection = normalize(float3(uniforms.viewMatrixInverse * float4(0.0, 0.0, 0.0, 1.0) - uniforms.modelMatrix * float4(vertices[VertexId].position, 1.0)));
   float3 lightDirection = normalize(lightPosition);
   
-  float3 ambient = ambientLightIntensity * uniforms.colour;
-  float3 diffuse = diffuseLightIntensity * uniforms.colour * max(0.0, dot(normalDirection, lightDirection));
-  float3 specular = specularLightIntensity * uniforms.colour * max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection));
+  float3 ambient = ambientLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b);
+  float3 diffuse = diffuseLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(normalDirection, lightDirection));
+  float3 specular = specularLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection));
   
   VertexOut out;
   out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
-  out.colour = ambient + diffuse + specular;
+  out.colour = float4(ambient + diffuse + specular, uniforms.colour.a);
   return out;
 }
 
 fragment half4 fragmentLit(VertexOut fragmentIn [[stage_in]]) {
-  return half4(half3(fragmentIn.colour), 1.0);
+  return half4(fragmentIn.colour);
 }
