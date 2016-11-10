@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C32f" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C41b" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
@@ -644,7 +644,7 @@
                                     <action selector="toggleViewBoundingBox:" target="Voe-Tx-rLC" id="ETN-Jd-TZM"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Edges" state="on" keyEquivalent="E" id="qpu-IH-tZe">
+                            <menuItem title="Edges" keyEquivalent="E" id="qpu-IH-tZe">
                                 <connections>
                                     <action selector="toggleViewEdges:" target="Voe-Tx-rLC" id="hSW-uM-kNq"/>
                                 </connections>

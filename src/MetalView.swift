@@ -47,7 +47,7 @@ class MetalView: MTKView {
   var selectedFacesBuffer: MTLBuffer?
   var selectedEdgesBuffer: MTLBuffer?
   
-  var viewEdges: Bool = true
+  var viewEdges: Bool = false
   var viewBoundingBox: Bool = false
   
   var multipleSelection: Bool = false
@@ -117,8 +117,10 @@ class MetalView: MTKView {
     renderedTypes["Bridge"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
     renderedTypes["Building"] = [String: float3]()
     renderedTypes["Building"]![""] = float3(1.0, 0.956862745098039, 0.690196078431373)
+    renderedTypes["Building"]!["Door"] = float3(0.482352941176471, 0.376470588235294, 0.231372549019608)
     renderedTypes["Building"]!["GroundSurface"] = float3(0.7, 0.7, 0.7)
     renderedTypes["Building"]!["RoofSurface"] = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
+    renderedTypes["Building"]!["Window"] = float3(0.584313725490196, 0.917647058823529, 1.0)
     renderedTypes["CityFurniture"] = [String: float3]()
     renderedTypes["CityFurniture"]![""] = float3(0.7, 0.7, 0.7)
     renderedTypes["GenericCityObject"] = [String: float3]()
@@ -149,91 +151,7 @@ class MetalView: MTKView {
   
   required init(coder: NSCoder) {
     Swift.print("init(NSCoder)")
-    
     super.init(coder: coder)
-    
-    // View
-    clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1)
-    colorPixelFormat = .bgra8Unorm
-    depthStencilPixelFormat = .depth32Float
-    
-    // Device
-    if let defaultDevice = MTLCreateSystemDefaultDevice() {
-      device = defaultDevice
-    } else {
-      Swift.print("Metal is not supported")
-      return
-    }
-    
-    // Command queue
-    commandQueue = device!.makeCommandQueue()
-    
-    // Render pipeline
-    let library = device!.newDefaultLibrary()!
-    let vertexFunction = library.makeFunction(name: "vertexTransform")
-    let fragmentFunction = library.makeFunction(name: "fragmentLit")
-    let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
-    renderPipelineDescriptor.vertexFunction = vertexFunction
-    renderPipelineDescriptor.fragmentFunction = fragmentFunction
-    renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
-    renderPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
-    do {
-      renderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
-    } catch {
-      Swift.print("Unable to compile render pipeline state")
-      return
-    }
-    
-    // Depth stencil
-    let depthSencilDescriptor = MTLDepthStencilDescriptor()
-    depthSencilDescriptor.depthCompareFunction = .less
-    depthSencilDescriptor.isDepthWriteEnabled = true
-    depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)
-    
-    // Matrices
-    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
-    
-    constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    constants.viewMatrixInverse = matrix_invert(viewMatrix)
-    
-    // Rendered types
-    renderedTypes["Bridge"] = [String: float3]()
-    renderedTypes["Bridge"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["Building"] = [String: float3]()
-    renderedTypes["Building"]![""] = float3(1.0, 0.956862745098039, 0.690196078431373)
-    renderedTypes["Building"]!["GroundSurface"] = float3(0.7, 0.7, 0.7)
-    renderedTypes["Building"]!["RoofSurface"] = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
-    renderedTypes["CityFurniture"] = [String: float3]()
-    renderedTypes["CityFurniture"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["GenericCityObject"] = [String: float3]()
-    renderedTypes["GenericCityObject"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["LandUse"] = [String: float3]()
-    renderedTypes["LandUse"]![""] = float3(0.3, 0.3, 0.3)
-    renderedTypes["PlantCover"] = [String: float3]()
-    renderedTypes["PlantCover"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
-    renderedTypes["Railway"] = [String: float3]()
-    renderedTypes["Railway"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["ReliefFeature"] = [String: float3]()
-    renderedTypes["ReliefFeature"]![""] = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
-    renderedTypes["Road"] = [String: float3]()
-    renderedTypes["Road"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["SolitaryVegetationObject"] = [String: float3]()
-    renderedTypes["SolitaryVegetationObject"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
-    renderedTypes["Tunnel"] = [String: float3]()
-    renderedTypes["Tunnel"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["WaterBody"] = [String: float3]()
-    renderedTypes["WaterBody"]![""] = float3(0.584313725490196, 0.917647058823529, 1.0)
-    
-    // Allow dragging
-    register(forDraggedTypes: [NSFilenamesPboardType])
-    
-    self.isPaused = true
-    self.enableSetNeedsDisplay = true
   }
   
   override var acceptsFirstResponder: Bool {

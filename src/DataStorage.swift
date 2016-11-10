@@ -17,6 +17,7 @@
 class CityGMLObject {
   var id: String = ""
   var type: String = ""
+  var attributes = [String: String]()
   var triangleBuffersByType = [String: ContiguousArray<Float>]()
   var edgesBuffer = ContiguousArray<Float>()
 }

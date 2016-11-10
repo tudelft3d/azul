@@ -112,8 +112,10 @@ struct PolygonsWalker: pugi::xml_tree_walker {
     
     if (inDefinedType != "" && depth() <= depthToStop) {
       inDefinedType = "";
-    } if (strcmp(nodeType, "RoofSurface") == 0 ||
-          strcmp(nodeType, "GroundSurface") == 0) {
+    } if (strcmp(nodeType, "Door") == 0 ||
+          strcmp(nodeType, "GroundSurface") == 0 ||
+          strcmp(nodeType, "RoofSurface") == 0 ||
+          strcmp(nodeType, "Window") == 0) {
       inDefinedType = nodeType;
       depthToStop = depth();
     } else if (strcmp(nodeType, "Polygon") == 0 ||
