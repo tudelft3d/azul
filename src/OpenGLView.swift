@@ -113,6 +113,8 @@ class OpenGLView: NSOpenGLView {
     facesColour["SolitaryVegetationObject"]![""] = [0.4, 0.882352941176471, 0.333333333333333, 1.0]
     facesColour["Tunnel"] = [String: Array<GLfloat>]()
     facesColour["Tunnel"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
+    facesColour["Tunnel"]!["GroundSurface"] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
+    facesColour["Tunnel"]!["RoofSurface"] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["WaterBody"] = [String: Array<GLfloat>]()
     facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0, 1.0]
     

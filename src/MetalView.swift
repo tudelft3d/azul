@@ -144,6 +144,8 @@ class MetalView: MTKView {
     renderedTypes["SolitaryVegetationObject"]![""] = float4(0.4, 0.882352941176471, 0.333333333333333, 1.0)
     renderedTypes["Tunnel"] = [String: float4]()
     renderedTypes["Tunnel"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
+    renderedTypes["Tunnel"]!["GroundSurface"] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
+    renderedTypes["Tunnel"]!["RoofSurface"] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
     renderedTypes["WaterBody"] = [String: float4]()
     renderedTypes["WaterBody"]![""] = float4(0.584313725490196, 0.917647058823529, 1.0, 1.0)
     
