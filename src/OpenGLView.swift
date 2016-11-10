@@ -67,10 +67,10 @@ class OpenGLView: NSOpenGLView {
   var viArray: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   
   var facesColour = [String: [String: Array<GLfloat>]]()
-  let edgesColour: Array<GLfloat> = [0.0, 0.0, 0.0]
-  let boundingBoxColour: Array<GLfloat> = [0.0, 0.0, 0.0]
-  let selectionFacesColour: Array<GLfloat> = [1.0, 1.0, 0.0]
-  let selectionEdgesColour: Array<GLfloat> = [1.0, 0.0, 0.0]
+  let edgesColour: Array<GLfloat> = [0.0, 0.0, 0.0, 1.0]
+  let boundingBoxColour: Array<GLfloat> = [0.0, 0.0, 0.0, 1.0]
+  let selectionFacesColour: Array<GLfloat> = [1.0, 1.0, 0.0, 1.0]
+  let selectionEdgesColour: Array<GLfloat> = [1.0, 0.0, 0.0, 1.0]
   
   var faceTriangles = [String: [String: ContiguousArray<GLfloat>]]()
   var edges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
@@ -88,33 +88,33 @@ class OpenGLView: NSOpenGLView {
     openGLContext!.setValues([1], for: NSOpenGLCPSwapInterval)
     
     facesColour["Bridge"] = [String: Array<GLfloat>]()
-    facesColour["Bridge"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["Bridge"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["Building"] = [String: Array<GLfloat>]()
-    facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373]
-    facesColour["Building"]!["Door"] = [0.482352941176471, 0.376470588235294, 0.231372549019608]
-    facesColour["Building"]!["GroundSurface"] = [0.7, 0.7, 0.7]
-    facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255]
-    facesColour["Building"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0]
+    facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
+    facesColour["Building"]!["Door"] = [0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0]
+    facesColour["Building"]!["GroundSurface"] = [0.7, 0.7, 0.7, 1.0]
+    facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0]
+    facesColour["Building"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0, 0.3]
     facesColour["CityFurniture"] = [String: Array<GLfloat>]()
-    facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7]
+    facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
-    facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7]
+    facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["LandUse"] = [String: Array<GLfloat>]()
-    facesColour["LandUse"]![""] = [0.3, 0.3, 0.3]
+    facesColour["LandUse"]![""] = [0.3, 0.3, 0.3, 1.0]
     facesColour["PlantCover"] = [String: Array<GLfloat>]()
-    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333, 1.0]
     facesColour["Railway"] = [String: Array<GLfloat>]()
-    facesColour["Railway"]![""] = [0.7, 0.7, 0.7]
+    facesColour["Railway"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
-    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706, 1.0]
     facesColour["Road"] = [String: Array<GLfloat>]()
-    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["SolitaryVegetationObject"] = [String: Array<GLfloat>]()
-    facesColour["SolitaryVegetationObject"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["SolitaryVegetationObject"]![""] = [0.4, 0.882352941176471, 0.333333333333333, 1.0]
     facesColour["Tunnel"] = [String: Array<GLfloat>]()
-    facesColour["Tunnel"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["Tunnel"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["WaterBody"] = [String: Array<GLfloat>]()
-    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
+    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0, 1.0]
     
     register(forDraggedTypes: [NSFilenamesPboardType])
   }
@@ -934,7 +934,7 @@ class OpenGLView: NSOpenGLView {
     
     for faceType in facesColour {
       for faceSubtype in faceType.value {
-        glUniform3f(uniformColour, faceSubtype.value[0], faceSubtype.value[1], faceSubtype.value[2])
+        glUniform4f(uniformColour, faceSubtype.value[0], faceSubtype.value[1], faceSubtype.value[2], faceSubtype.value[3])
         glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboFaces[faceType.key]![faceSubtype.key]!)
         glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
         glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
@@ -949,7 +949,7 @@ class OpenGLView: NSOpenGLView {
       }
     }
     
-    glUniform3f(uniformColour, selectionFacesColour[0], selectionFacesColour[1], selectionFacesColour[2])
+    glUniform4f(uniformColour, selectionFacesColour[0], selectionFacesColour[1], selectionFacesColour[2], selectionFacesColour[3])
     glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionFaces)
     glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: UInt(0)))
     glVertexAttribPointer(GLuint(attributeNormals), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(6*MemoryLayout<GLfloat>.size), UnsafeRawPointer(bitPattern: 3*MemoryLayout<GLfloat>.size))
@@ -965,7 +965,7 @@ class OpenGLView: NSOpenGLView {
     glDisableVertexAttribArray(GLuint(attributeNormals))
     
     if (viewEdges) {
-      glUniform3f(uniformColour, selectionEdgesColour[0], selectionEdgesColour[1], selectionEdgesColour[2])
+      glUniform4f(uniformColour, selectionEdgesColour[0], selectionEdgesColour[1], selectionEdgesColour[2], selectionEdgesColour[3])
       glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboSelectionEdges)
       glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
       glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
@@ -976,7 +976,7 @@ class OpenGLView: NSOpenGLView {
         Swift.print("Rendering selection edges: some error occurred!")
       }
       
-      glUniform3f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2])
+      glUniform4f(uniformColour, edgesColour[0], edgesColour[1], edgesColour[2], edgesColour[3])
       glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboEdges)
       glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
       glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
@@ -989,7 +989,7 @@ class OpenGLView: NSOpenGLView {
     }
     
     if (viewBoundingBox) {
-      glUniform3f(uniformColour, boundingBoxColour[0], boundingBoxColour[1], boundingBoxColour[2])
+      glUniform4f(uniformColour, boundingBoxColour[0], boundingBoxColour[1], boundingBoxColour[2], boundingBoxColour[3])
       glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboBoundingBox)
       glVertexAttribPointer(GLuint(attributeCoordinates), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), 0, UnsafeRawPointer(bitPattern: UInt(0)))
       glGetBufferParameteriv(GLenum(GL_ARRAY_BUFFER), GLenum(GL_BUFFER_SIZE), &sizeInBytes)
@@ -1185,10 +1185,8 @@ class OpenGLView: NSOpenGLView {
 //    CVDisplayLinkStop(displayLink!)
     
     glDeleteProgram(program)
-    for faceType in facesColour {
-      vboFaces[faceType.key] = [String: GLuint]()
+    for faceType in vboFaces {
       for faceSubtype in faceType.value {
-        vboFaces[faceType.key]![faceSubtype.key]! = 0
         glDeleteBuffers(1, &vboFaces[faceType.key]![faceSubtype.key]!)
       }
     }
