@@ -611,7 +611,12 @@ class OpenGLView: NSOpenGLView {
     }
     
     // Obtain object at that row
-    let rowObject = controller!.outlineView.item(atRow: controller!.outlineView!.clickedRow) as! CityGMLObject
+    let rowObject: CityGMLObject
+    if let object = controller!.outlineView.item(atRow: controller!.outlineView!.clickedRow) as? CityGMLObject {
+      rowObject = object
+    } else {
+      return
+    }
     
     // Iterate through all parsed objects
     for parsedObject in dataStorage!.objects {
