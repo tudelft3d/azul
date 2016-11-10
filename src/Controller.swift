@@ -50,6 +50,7 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
       splitView.insertArrangedSubview(metalView, at: 1)
       view = metalView
+      window.makeFirstResponder(metalView)
       toggleGraphicsMenuItem.title = "Switch to OpenGL Rendering"
     } else {
       let attributes: [NSOpenGLPixelFormatAttribute] = [
@@ -68,6 +69,7 @@ class Controller: NSObject, NSApplicationDelegate {
       splitView.removeArrangedSubview(splitView.arrangedSubviews[1])
       splitView.insertArrangedSubview(openGLView!, at: 1)
       view = openGLView
+      window.makeFirstResponder(openGLView)
       toggleGraphicsMenuItem.title = "Switch to Metal Rendering"
       toggleGraphicsMenuItem.isHidden = true
     }

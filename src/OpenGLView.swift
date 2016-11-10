@@ -32,6 +32,8 @@ class OpenGLView: NSOpenGLView {
   var viewEdges: Bool = true
   var viewBoundingBox: Bool = false
   
+  var multipleSelection: Bool = false
+  
   var vboFaces = [String: [String: GLuint]]()
   var vboEdges: GLuint = 0
   var vboBoundingBox: GLuint = 0
@@ -112,11 +114,6 @@ class OpenGLView: NSOpenGLView {
     facesColour["WaterBody"] = [String: Array<GLfloat>]()
     facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
     
-    
-    
-    
-    
-    
     register(forDraggedTypes: [NSFilenamesPboardType])
   }
   
@@ -139,23 +136,32 @@ class OpenGLView: NSOpenGLView {
     
     openGLContext!.setValues([1], for: NSOpenGLCPSwapInterval)
     
+    facesColour["Bridge"] = [String: Array<GLfloat>]()
+    facesColour["Bridge"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
     facesColour["Building"] = [String: Array<GLfloat>]()
     facesColour["Building"]![""] = [1.0, 0.956862745098039, 0.690196078431373]
+    facesColour["Building"]!["GroundSurface"] = [0.7, 0.7, 0.7]
     facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255]
-    facesColour["Road"] = [String: Array<GLfloat>]()
-    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
-    facesColour["WaterBody"] = [String: Array<GLfloat>]()
-    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
-    facesColour["PlantCover"] = [String: Array<GLfloat>]()
-    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
-    facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
-    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["CityFurniture"] = [String: Array<GLfloat>]()
+    facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7]
     facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
     facesColour["GenericCityObject"]![""] = [0.7, 0.7, 0.7]
-    facesColour["Bridge"] = [String: Array<GLfloat>]()
-    facesColour["Bridge"]![""] = [0.247058823529412, 0.247058823529412, 0.247058823529412]
     facesColour["LandUse"] = [String: Array<GLfloat>]()
-    facesColour["LandUse"]![""] = [1.0, 0.0, 0.0]
+    facesColour["LandUse"]![""] = [0.3, 0.3, 0.3]
+    facesColour["PlantCover"] = [String: Array<GLfloat>]()
+    facesColour["PlantCover"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["Railway"] = [String: Array<GLfloat>]()
+    facesColour["Railway"]![""] = [0.7, 0.7, 0.7]
+    facesColour["ReliefFeature"] = [String: Array<GLfloat>]()
+    facesColour["ReliefFeature"]![""] = [0.713725490196078, 0.882352941176471, 0.623529411764706]
+    facesColour["Road"] = [String: Array<GLfloat>]()
+    facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["SolitaryVegetationObject"] = [String: Array<GLfloat>]()
+    facesColour["SolitaryVegetationObject"]![""] = [0.4, 0.882352941176471, 0.333333333333333]
+    facesColour["Tunnel"] = [String: Array<GLfloat>]()
+    facesColour["Tunnel"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765]
+    facesColour["WaterBody"] = [String: Array<GLfloat>]()
+    facesColour["WaterBody"]![""] = [0.584313725490196, 0.917647058823529, 1.0]
     
     register(forDraggedTypes: [NSFilenamesPboardType])
   }
@@ -549,13 +555,22 @@ class OpenGLView: NSOpenGLView {
       }
     }
     
-    // Select closest hit
+    // (De)select closest hit
     if hitDistance > -1.0 {
-      let selectedRow = dataStorage!.findObjectRow(with: closestHit)
-      let rowIndexes = IndexSet(integer: selectedRow)
-      controller!.outlineView.selectRowIndexes(rowIndexes, byExtendingSelection: false)
-      controller!.outlineView.scrollRowToVisible(selectedRow)
-    } else {
+      let rowToSelect = dataStorage!.findObjectRow(with: closestHit)
+      if multipleSelection {
+        if controller!.outlineView.selectedRowIndexes.contains(rowToSelect) {
+          controller!.outlineView.deselectRow(rowToSelect)
+        } else {
+          let rowToSelectIndexes = IndexSet(integer: rowToSelect)
+          controller!.outlineView.selectRowIndexes(rowToSelectIndexes, byExtendingSelection: true)
+        }
+      } else {
+        let rowToSelectIndexes = IndexSet(integer: rowToSelect)
+        controller!.outlineView.selectRowIndexes(rowToSelectIndexes, byExtendingSelection: false)
+      }
+      controller!.outlineView.scrollRowToVisible(rowToSelect)
+    } else if !multipleSelection {
       controller!.outlineView.deselectAll(self)
     }
   }
@@ -869,6 +884,14 @@ class OpenGLView: NSOpenGLView {
       controller!.goHome(controller!.goHomeMenuItem)
     default:
       break
+    }
+  }
+  
+  override func flagsChanged(with event: NSEvent) {
+    if event.modifierFlags.contains(.command) || event.modifierFlags.contains(.shift) {
+      multipleSelection = true
+    } else {
+      multipleSelection = false
     }
   }
   

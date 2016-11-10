@@ -50,6 +50,8 @@ class MetalView: MTKView {
   var viewEdges: Bool = true
   var viewBoundingBox: Bool = false
   
+  var multipleSelection: Bool = false
+  
   var constants = Constants()
 
   var eye = float3(0.0, 0.0, 0.0)
@@ -200,23 +202,32 @@ class MetalView: MTKView {
     constants.viewMatrixInverse = matrix_invert(viewMatrix)
     
     // Rendered types
+    renderedTypes["Bridge"] = [String: float3]()
+    renderedTypes["Bridge"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
     renderedTypes["Building"] = [String: float3]()
     renderedTypes["Building"]![""] = float3(1.0, 0.956862745098039, 0.690196078431373)
+    renderedTypes["Building"]!["GroundSurface"] = float3(0.7, 0.7, 0.7)
     renderedTypes["Building"]!["RoofSurface"] = float3(0.882352941176471, 0.254901960784314, 0.219607843137255)
-    renderedTypes["Road"] = [String: float3]()
-    renderedTypes["Road"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
-    renderedTypes["WaterBody"] = [String: float3]()
-    renderedTypes["WaterBody"]![""] = float3(0.584313725490196, 0.917647058823529, 1.0)
-    renderedTypes["PlantCover"] = [String: float3]()
-    renderedTypes["PlantCover"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
-    renderedTypes["ReliefFeature"] = [String: float3]()
-    renderedTypes["ReliefFeature"]![""] = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
+    renderedTypes["CityFurniture"] = [String: float3]()
+    renderedTypes["CityFurniture"]![""] = float3(0.7, 0.7, 0.7)
     renderedTypes["GenericCityObject"] = [String: float3]()
     renderedTypes["GenericCityObject"]![""] = float3(0.7, 0.7, 0.7)
-    renderedTypes["Bridge"] = [String: float3]()
-    renderedTypes["Bridge"]![""] = float3(0.247058823529412, 0.247058823529412, 0.247058823529412)
     renderedTypes["LandUse"] = [String: float3]()
-    renderedTypes["LandUse"]![""] = float3(1.0, 0.0, 0.0)
+    renderedTypes["LandUse"]![""] = float3(0.3, 0.3, 0.3)
+    renderedTypes["PlantCover"] = [String: float3]()
+    renderedTypes["PlantCover"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
+    renderedTypes["Railway"] = [String: float3]()
+    renderedTypes["Railway"]![""] = float3(0.7, 0.7, 0.7)
+    renderedTypes["ReliefFeature"] = [String: float3]()
+    renderedTypes["ReliefFeature"]![""] = float3(0.713725490196078, 0.882352941176471, 0.623529411764706)
+    renderedTypes["Road"] = [String: float3]()
+    renderedTypes["Road"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
+    renderedTypes["SolitaryVegetationObject"] = [String: float3]()
+    renderedTypes["SolitaryVegetationObject"]![""] = float3(0.4, 0.882352941176471, 0.333333333333333)
+    renderedTypes["Tunnel"] = [String: float3]()
+    renderedTypes["Tunnel"]![""] = float3(0.458823529411765, 0.458823529411765, 0.458823529411765)
+    renderedTypes["WaterBody"] = [String: float3]()
+    renderedTypes["WaterBody"]![""] = float3(0.584313725490196, 0.917647058823529, 1.0)
     
     // Allow dragging
     register(forDraggedTypes: [NSFilenamesPboardType])
@@ -411,13 +422,22 @@ class MetalView: MTKView {
       }
     }
     
-    // Select closest hit
+    // (De)select closest hit
     if hitDistance > -1.0 {
-      let selectedRow = dataStorage!.findObjectRow(with: closestHit)
-      let rowIndexes = IndexSet(integer: selectedRow)
-      controller!.outlineView.selectRowIndexes(rowIndexes, byExtendingSelection: false)
-      controller!.outlineView.scrollRowToVisible(selectedRow)
-    } else {
+      let rowToSelect = dataStorage!.findObjectRow(with: closestHit)
+      if multipleSelection {
+        if controller!.outlineView.selectedRowIndexes.contains(rowToSelect) {
+          controller!.outlineView.deselectRow(rowToSelect)
+        } else {
+          let rowToSelectIndexes = IndexSet(integer: rowToSelect)
+          controller!.outlineView.selectRowIndexes(rowToSelectIndexes, byExtendingSelection: true)
+        }
+      } else {
+        let rowToSelectIndexes = IndexSet(integer: rowToSelect)
+        controller!.outlineView.selectRowIndexes(rowToSelectIndexes, byExtendingSelection: false)
+      }
+      controller!.outlineView.scrollRowToVisible(rowToSelect)
+    } else if !multipleSelection {
       controller!.outlineView.deselectAll(self)
     }
     Swift.print("Click computed in \(CACurrentMediaTime()-startTime) seconds.")
@@ -664,6 +684,14 @@ class MetalView: MTKView {
       controller!.goHome(controller!.goHomeMenuItem)
     default:
       break
+    }
+  }
+  
+  override func flagsChanged(with event: NSEvent) {
+    if event.modifierFlags.contains(.command) || event.modifierFlags.contains(.shift) {
+      multipleSelection = true
+    } else {
+      multipleSelection = false
     }
   }
   

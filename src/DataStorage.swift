@@ -203,6 +203,12 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       view.imageView?.image = NSImage(named: "bridge")
     case "LandUse":
       view.imageView?.image = NSImage(named: "landuse")
+    case "SolitaryVegetationObject":
+      view.imageView?.image = NSImage(named: "tree")
+    case "Railway":
+      view.imageView?.image = NSImage(named: "railway")
+    case "CityFurniture":
+      view.imageView?.image = NSImage(named: "bench")
     default:
       view.imageView?.image = NSImage(named: "generic")
     }
