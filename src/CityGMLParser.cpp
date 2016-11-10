@@ -19,6 +19,21 @@
 CityGMLParser::CityGMLParser() {
   firstRing = true;
   std::cout.precision(std::numeric_limits<float>::max_digits10);
+  attributesToPreserve.insert("class");
+  attributesToPreserve.insert("function");
+  attributesToPreserve.insert("usage");
+  attributesToPreserve.insert("yearOfConstruction");
+  attributesToPreserve.insert("yearOfDemolition");
+  attributesToPreserve.insert("roofType");
+  attributesToPreserve.insert("measuredHeight");
+  attributesToPreserve.insert("storeysAboveGround");
+  attributesToPreserve.insert("storeysBelowGround");
+  attributesToPreserve.insert("storeyHeightsAboveGround");
+  attributesToPreserve.insert("storeyHeightsBelowGround");
+  attributesToPreserve.insert("isMovable");
+  attributesToPreserve.insert("averageHeight");
+  attributesToPreserve.insert("trunkDiameter");
+  attributesToPreserve.insert("crownDiameter"); 
 }
 
 void CityGMLParser::parse(const char *filePath) {
@@ -58,8 +73,19 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
     nodeType = namespaceSeparator+1;
   }
   
-  object.type = nodeType;
   object.id = node.attribute("gml:id").value();
+  object.type = nodeType;
+  
+  for (auto const &child: node.children()) {
+    const char *childType = child.name();
+    namespaceSeparator = strchr(childType, ':');
+    if (namespaceSeparator != NULL) {
+      childType = namespaceSeparator+1;
+    } if (attributesToPreserve.count(childType)) {
+      std::cout << childType << ": " << child.child_value() << std::endl;
+      object.attributes[childType] = child.child_value();
+    }
+  }
   
   PolygonsWalker polygonsWalker;
   node.traverse(polygonsWalker);

@@ -36,8 +36,6 @@
 		BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE61964F1DBFDC320081B3E8 /* libpugixml.a */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
-		BEB006C61DD2405100C0909D /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEB006C51DD2405100C0909D /* vertex.glsl */; };
-		BEB006C91DD2405E00C0909D /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEB006C81DD2405E00C0909D /* fragment.glsl */; };
 		BEB006CB1DD2406400C0909D /* OpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB006CA1DD2406400C0909D /* OpenGLView.swift */; };
 /* End PBXBuildFile section */
 
@@ -280,9 +278,7 @@
 				BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */,
 				BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */,
 				BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */,
-				BEB006C61DD2405100C0909D /* vertex.glsl in Resources */,
 				BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */,
-				BEB006C91DD2405E00C0909D /* fragment.glsl in Resources */,
 				BE3E5D251DCE72A50065B553 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

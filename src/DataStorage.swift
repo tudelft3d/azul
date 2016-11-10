@@ -17,9 +17,14 @@
 class CityGMLObject {
   var id: String = ""
   var type: String = ""
-  var attributes = [String: String]()
+  var attributes = [CityGMLObjectAttribute]()
   var triangleBuffersByType = [String: ContiguousArray<Float>]()
   var edgesBuffer = ContiguousArray<Float>()
+}
+
+struct CityGMLObjectAttribute {
+  var name: String
+  var value: String
 }
 
 class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
@@ -133,6 +138,23 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       let objectTypeData = Data(bytes: firstElementOfObjectTypeBuffer!, count: Int(objectTypeLength)*MemoryLayout<Int8>.size)
       objects.last!.type = String(data: objectTypeData, encoding: .utf8)!
       
+      cityGMLParser.initialiseAttributeIterator()
+      while !cityGMLParser.attributeIteratorEnded() {
+        
+        var attributeNameLength: UInt = 0
+        let firstElementOfAttributeNameBuffer = UnsafeRawPointer(cityGMLParser.currentAttributeName(withLength: &attributeNameLength))
+        let attributeNameData = Data(bytes: firstElementOfAttributeNameBuffer!, count: Int(attributeNameLength)*MemoryLayout<Int8>.size)
+        let attributeName = String(data: attributeNameData, encoding: .utf8)!
+        
+        var attributeValueLength: UInt = 0
+        let firstElementOfAttributeValueBuffer = UnsafeRawPointer(cityGMLParser.currentAttributeValue(withLength: &attributeValueLength))
+        let attributeValueData = Data(bytes: firstElementOfAttributeValueBuffer!, count: Int(attributeValueLength)*MemoryLayout<Int8>.size)
+        let attributeValue = String(data: attributeValueData, encoding: .utf8)!
+        
+        objects.last!.attributes.append(CityGMLObjectAttribute(name: attributeName, value: attributeValue))
+        cityGMLParser.advanceAttributeIterator()
+      }
+      
       var numberOfEdgeVertices: UInt = 0
       let firstElementOfEdgesBuffer = cityGMLParser.currentObjectEdgesBuffer(withElements: &numberOfEdgeVertices)
       let edgesBuffer = UnsafeBufferPointer(start: firstElementOfEdgesBuffer, count: Int(numberOfEdgeVertices))
@@ -161,59 +183,84 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
 //    Swift.print("numberOfChildrenOfItem of \(item)")
     if item == nil {
       return objects.count
+    } else if let object = item as? CityGMLObject {
+      return object.attributes.count
+    } else if let attribute = item as? CityGMLObjectAttribute {
+      return 0
     } else {
+      Swift.print("Unsupported item is \(item)")
       return 0
     }
   }
   
   func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
     //    Swift.print("isItemExpandable of \(item)")
+    if let object = item as? CityGMLObject {
+      if object.attributes.count > 0 {
+        return true
+      }
+    }
     return false
   }
   
   func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
     //    Swift.print("child \(index) of \(item)")
-    return objects[index]
+    if item == nil {
+      return objects[index]
+    } else if let object = item as? CityGMLObject {
+      return object.attributes[index]
+    } else {
+      return 0
+    }
   }
   
   func outlineView(_ outlineView: NSOutlineView, objectValueFor tableColumn: NSTableColumn?, byItem item: Any?) -> Any? {
-    let object = item as! CityGMLObject
     //    Swift.print("object value for column \(tableColumn!.title) for item \(item) = \(object.id)")
-    return object.id
+    if let object = item as? CityGMLObject {
+      return object.id
+    } else if let attribute = item as? CityGMLObjectAttribute {
+      return attribute.name + ": " + attribute.value
+    } else {
+      return nil
+    }
   }
   
   func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-    let object = item as! CityGMLObject
     //    Swift.print("view for column \(tableColumn!.identifier) for item \(item) = \(object.id)")
     let view = outlineView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-    view.textField?.stringValue = object.id
-    switch object.type {
-    case "Building":
-      view.imageView?.image = NSImage(named: "building")
-    case "Road":
-      view.imageView?.image = NSImage(named: "road")
-    case "ReliefFeature":
-      view.imageView?.image = NSImage(named: "terrain")
-    case "WaterBody":
-      view.imageView?.image = NSImage(named: "water")
-    case "PlantCover":
-      view.imageView?.image = NSImage(named: "plant")
-    case "GenericCityObject":
-      view.imageView?.image = NSImage(named: "generic")
-    case "Bridge":
-      view.imageView?.image = NSImage(named: "bridge")
-    case "LandUse":
-      view.imageView?.image = NSImage(named: "landuse")
-    case "SolitaryVegetationObject":
-      view.imageView?.image = NSImage(named: "tree")
-    case "Railway":
-      view.imageView?.image = NSImage(named: "railway")
-    case "CityFurniture":
-      view.imageView?.image = NSImage(named: "bench")
-    default:
-      view.imageView?.image = NSImage(named: "generic")
+    if let object = item as? CityGMLObject {
+      view.textField!.stringValue = object.id
+      switch object.type {
+      case "Building":
+        view.imageView?.image = NSImage(named: "building")
+      case "Road":
+        view.imageView?.image = NSImage(named: "road")
+      case "ReliefFeature":
+        view.imageView?.image = NSImage(named: "terrain")
+      case "WaterBody":
+        view.imageView?.image = NSImage(named: "water")
+      case "PlantCover":
+        view.imageView?.image = NSImage(named: "plant")
+      case "GenericCityObject":
+        view.imageView?.image = NSImage(named: "generic")
+      case "Bridge":
+        view.imageView?.image = NSImage(named: "bridge")
+      case "LandUse":
+        view.imageView?.image = NSImage(named: "landuse")
+      case "SolitaryVegetationObject":
+        view.imageView?.image = NSImage(named: "tree")
+      case "Railway":
+        view.imageView?.image = NSImage(named: "railway")
+      case "CityFurniture":
+        view.imageView?.image = NSImage(named: "bench")
+      default:
+        view.imageView?.image = NSImage(named: "generic")
+      }
+    } else if let attribute = item as? CityGMLObjectAttribute {
+      view.textField!.stringValue = String(attribute.name + ": " + attribute.value)
+    } else {
+      Swift.print("Unsupported item is \(item)")
     }
-    
     return view
   }
   
@@ -221,9 +268,10 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
 //    Swift.print("outlineViewSelectionDidChange")
     selection.removeAll()
     for row in controller!.outlineView.selectedRowIndexes {
-      let item = controller!.outlineView.item(atRow: row) as! CityGMLObject
+      if let item = controller!.outlineView.item(atRow: row) as? CityGMLObject {
 //      Swift.print("\tSelected row: \(item.id)")
-      selection.insert(item.id)
+        selection.insert(item.id)
+      }
     }
     if let metalView = view as? MetalView {
       metalView.pullData()

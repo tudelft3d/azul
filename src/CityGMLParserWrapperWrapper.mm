@@ -67,6 +67,20 @@ struct CityGMLParserWrapper {
   } return false;
 }
 
+- (void) initialiseAttributeIterator {
+  parserWrapper->parser->currentAttribute = parserWrapper->parser->currentObject->attributes.begin();
+}
+
+- (void) advanceAttributeIterator {
+  ++parserWrapper->parser->currentAttribute;
+}
+
+- (BOOL) attributeIteratorEnded {
+  if (parserWrapper->parser->currentAttribute == parserWrapper->parser->currentObject->attributes.end()) {
+    return true;
+  } return false;
+}
+
 - (const char *) currentObjectTypeWithLength: (unsigned long *)length {
   *length = parserWrapper->parser->currentObject->type.size();
   return parserWrapper->parser->currentObject->type.c_str();
@@ -90,6 +104,16 @@ struct CityGMLParserWrapper {
 - (const float *) currentTrianglesBufferWithElements: (unsigned long *)elements {
   *elements = parserWrapper->parser->currentTrianglesBuffer->second.size();
   return parserWrapper->parser->currentTrianglesBuffer->second.data();
+}
+
+- (const char *) currentAttributeNameWithLength: (unsigned long *)length {
+  *length = parserWrapper->parser->currentAttribute->first.size();
+  return parserWrapper->parser->currentAttribute->first.c_str();
+}
+
+- (const char *) currentAttributeValueWithLength: (unsigned long *)length {
+  *length = parserWrapper->parser->currentAttribute->second.size();
+  return parserWrapper->parser->currentAttribute->second.c_str();
 }
 
 - (float *) minCoordinates {

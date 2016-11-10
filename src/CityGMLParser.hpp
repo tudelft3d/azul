@@ -53,9 +53,9 @@ struct CityGMLPolygon {
 };
 
 struct CityGMLObject {
-//  enum Type: unsigned int {Building = 1, Road = 2, WaterBody = 3, ReliefFeature = 4, PlantCover = 5, GenericCityObject = 6, Bridge = 7, LandUse = 8};
   std::string type;
   std::string id;
+  std::map<std::string, std::string> attributes;
   std::map<std::string, std::list<CityGMLPolygon>> polygonsByType;
   std::map<std::string, std::vector<float>> trianglesByType;
   std::vector<float> edges;
@@ -159,8 +159,11 @@ public:
   float minCoordinates[3];
   float maxCoordinates[3];
   
+  std::set<std::string> attributesToPreserve;
+  
   std::list<CityGMLObject>::const_iterator currentObject;
   std::map<std::string, std::vector<float>>::const_iterator currentTrianglesBuffer;
+  std::map<std::string, std::string>::const_iterator currentAttribute;
   
   CityGMLParser();
   void parse(const char *filePath);
