@@ -80,13 +80,13 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
         switch self.openFiles.count {
         case 0:
           self.controller!.window.representedURL = nil
-          self.controller!.window.title = "Azul"
+          self.controller!.window.title = "azul"
         case 1:
           self.controller!.window.representedURL = self.openFiles.first!
           self.controller!.window.title = self.openFiles.first!.lastPathComponent
         default:
           self.controller!.window.representedURL = nil
-          self.controller!.window.title = "Azul (\(self.openFiles.count) open files)"
+          self.controller!.window.title = "azul (\(self.openFiles.count) open files)"
         }
         Swift.print("Read files in \(CACurrentMediaTime()-startTime) seconds.")
         if let metalView = self.view as? MetalView {
