@@ -30,6 +30,18 @@ struct Vertex {
   var normal: float3
 }
 
+class VertexList {
+  var vertices = [Vertex]()
+}
+
+class VertexListsBySubtype {
+  var vertexListOfSubtype = [String: VertexList]()
+}
+
+class VertexListsByTypeAndSubtype {
+  var vertexListOfType = [String: VertexListsBySubtype]()
+}
+
 class MetalView: MTKView {
   
   var controller: Controller?
@@ -681,7 +693,8 @@ class MetalView: MTKView {
       maxRange = range.z
     }
     
-    var vertices = [String: [String: [Vertex]]]()
+//    var vertices = [String: [String: [Vertex]]]()
+    var vertices = VertexListsByTypeAndSubtype()
     var edgeVertices = [Vertex]()
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
@@ -784,10 +797,10 @@ class MetalView: MTKView {
                                                 normal: float3(0.0, 0.0, 0.0))]
     
     for object in dataStorage!.objects {
-      if !vertices.keys.contains(object.type) {
-        vertices[object.type] = [String: [Vertex]]()
+      if !vertices.vertexListOfType.keys.contains(object.type) {
+        vertices.vertexListOfType[object.type] = VertexListsBySubtype()
       }
-      
+
       if dataStorage!.selection.contains(object.id) {
         let numberOfVertices = object.edgesBuffer.count/3
         for vertexIndex in 0..<numberOfVertices {
@@ -818,8 +831,8 @@ class MetalView: MTKView {
                                      normal: float3(0.0, 0.0, 0.0)))
         }
         for triangleBufferType in object.triangleBuffersByType.keys {
-          if !vertices[object.type]!.keys.contains(triangleBufferType) {
-            vertices[object.type]![triangleBufferType] = [Vertex]()
+          if !vertices.vertexListOfType[object.type]!.vertexListOfSubtype.keys.contains(triangleBufferType) {
+            vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType] = VertexList()
           }
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
           var temporaryBuffer = [Vertex]()
@@ -833,19 +846,20 @@ class MetalView: MTKView {
                                                          currentTriangleBuffer[6*vertexIndex+4],
                                                          currentTriangleBuffer[6*vertexIndex+5])))
           }
-          vertices[object.type]![triangleBufferType]!.append(contentsOf: temporaryBuffer)
+//          vertices[object.type]![triangleBufferType]!.append(contentsOf: [])
+          vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType]!.vertices.append(contentsOf: temporaryBuffer)
         }
       }
     }
     
     faceBuffers.removeAll()
     edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
-    for vertexType in vertices {
+    for vertexType in vertices.vertexListOfType {
       if !faceBuffers.keys.contains(vertexType.key) {
         faceBuffers[vertexType.key] = [String: MTLBuffer]()
       }
-      for vertexSubtype in vertexType.value {
-        faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices[vertexType.key]![vertexSubtype.key]!, length: MemoryLayout<Vertex>.size*vertices[vertexType.key]![vertexSubtype.key]!.count, options: [])
+      for vertexSubtype in vertexType.value.vertexListOfSubtype {
+        faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices, length: MemoryLayout<Vertex>.size*vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count, options: [])
       }
     }
     boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
@@ -857,9 +871,9 @@ class MetalView: MTKView {
     }
     
     Swift.print("Loaded triangles: ", separator: "", terminator: "")
-    for vertexType in vertices {
-      for vertexSubtype in vertexType.value {
-        Swift.print("\(vertexSubtype.value.count/3) from \(vertexType.key) \(vertexSubtype.key)", separator: "", terminator: ", ")
+    for vertexType in vertices.vertexListOfType {
+      for vertexSubtype in vertexType.value.vertexListOfSubtype {
+        Swift.print("\(vertexSubtype.value.vertices.count/3) from \(vertexType.key) \(vertexSubtype.key)", separator: "", terminator: ", ")
       }
     }
     Swift.print("and \(selectionFaceVertices.count/3) from selected objects.")
