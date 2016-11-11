@@ -18,6 +18,18 @@ import Cocoa
 import OpenGL.GL3
 import GLKit
 
+class TriangleList {
+  var triangles = ContiguousArray<GLfloat>()
+}
+
+class TriangleListsBySubtype {
+  var triangleListOfSubtype = [String: TriangleList]()
+}
+
+class TriangleListsByTypeAndSubtype {
+  var triangleListOfType = [String: TriangleListsBySubtype]()
+}
+
 class OpenGLView: NSOpenGLView {
   
   var controller: Controller?
@@ -72,7 +84,7 @@ class OpenGLView: NSOpenGLView {
   let selectionFacesColour: Array<GLfloat> = [1.0, 1.0, 0.0, 1.0]
   let selectionEdgesColour: Array<GLfloat> = [1.0, 0.0, 0.0, 1.0]
   
-  var faceTriangles = [String: [String: ContiguousArray<GLfloat>]]()
+  var faceTriangles = TriangleListsByTypeAndSubtype()
   var edges: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var boundingBox: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
   var selectionFaces: ContiguousArray<GLfloat> = ContiguousArray<GLfloat>()
@@ -352,9 +364,9 @@ class OpenGLView: NSOpenGLView {
   func new() {
     Swift.print("OpenGLView()")
     
-    for faceType in faceTriangles {
-      for faceSubtype in faceType.value {
-        faceTriangles[faceType.key]![faceSubtype.key]!.removeAll()
+    for faceType in faceTriangles.triangleListOfType {
+      for faceSubtype in faceType.value.triangleListOfSubtype {
+        faceTriangles.triangleListOfType[faceType.key]!.triangleListOfSubtype[faceSubtype.key]!.triangles.removeAll()
       }
     }
     edges.removeAll()
@@ -1030,9 +1042,9 @@ class OpenGLView: NSOpenGLView {
       maxRange = range.z
     }
     
-    for faceType in faceTriangles {
-      for faceSubtype in faceType.value {
-        faceTriangles[faceType.key]![faceSubtype.key]!.removeAll(keepingCapacity: true)
+    for faceType in faceTriangles.triangleListOfType {
+      for faceSubtype in faceType.value.triangleListOfSubtype {
+        faceTriangles.triangleListOfType[faceType.key]!.triangleListOfSubtype[faceSubtype.key]!.triangles.removeAll(keepingCapacity: true)
       }
     }
     edges.removeAll(keepingCapacity: true)
@@ -1068,8 +1080,8 @@ class OpenGLView: NSOpenGLView {
     boundingBox.append(contentsOf: boundingBoxVertices)
     
     for object in dataStorage!.objects {
-      if !faceTriangles.keys.contains(object.type) {
-        faceTriangles[object.type] = [String: ContiguousArray<GLfloat>]()
+      if !faceTriangles.triangleListOfType.keys.contains(object.type) {
+        faceTriangles.triangleListOfType[object.type] = TriangleListsBySubtype()
       }
       
       if dataStorage!.selection.contains(object.id) {
@@ -1101,8 +1113,8 @@ class OpenGLView: NSOpenGLView {
                                     (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange])
         }
         for triangleBufferType in object.triangleBuffersByType.keys {
-          if !faceTriangles[object.type]!.keys.contains(triangleBufferType) {
-            faceTriangles[object.type]![triangleBufferType] = ContiguousArray<GLfloat>()
+          if !faceTriangles.triangleListOfType[object.type]!.triangleListOfSubtype.keys.contains(triangleBufferType) {
+            faceTriangles.triangleListOfType[object.type]!.triangleListOfSubtype[triangleBufferType] = TriangleList()
           }
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
           var temporaryBuffer = ContiguousArray<GLfloat>()
@@ -1115,7 +1127,7 @@ class OpenGLView: NSOpenGLView {
                                                 currentTriangleBuffer[6*vertexIndex+4],
                                                 currentTriangleBuffer[6*vertexIndex+5]])
           }
-          faceTriangles[object.type]![triangleBufferType]!.append(contentsOf: temporaryBuffer)
+          faceTriangles.triangleListOfType[object.type]!.triangleListOfSubtype[triangleBufferType]!.triangles.append(contentsOf: temporaryBuffer)
         }
       }
     }
@@ -1125,11 +1137,11 @@ class OpenGLView: NSOpenGLView {
       Swift.print("There's a previous OpenGL error")
     }
     
-    for faceType in faceTriangles {
-      for faceSubtype in faceType.value {
+    for faceType in faceTriangles.triangleListOfType {
+      for faceSubtype in faceType.value.triangleListOfSubtype {
         glBindBuffer(GLenum(GL_ARRAY_BUFFER), vboFaces[faceType.key]![faceSubtype.key]!)
-        faceSubtype.value.withUnsafeBufferPointer { pointer in
-          glBufferData(GLenum(GL_ARRAY_BUFFER), faceSubtype.value.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
+        faceSubtype.value.triangles.withUnsafeBufferPointer { pointer in
+          glBufferData(GLenum(GL_ARRAY_BUFFER), faceSubtype.value.triangles.count*MemoryLayout<GLfloat>.size, pointer.baseAddress, GLenum(GL_STATIC_DRAW))
         }
         if glGetError() != GLenum(GL_NO_ERROR) {
           Swift.print("Loading \(faceType.key) \(faceSubtype.key) into memory: some error occurred!")
@@ -1170,9 +1182,9 @@ class OpenGLView: NSOpenGLView {
     }
     
     Swift.print("Loaded triangles: ", separator: "", terminator: "")
-    for faceType in faceTriangles {
-      for faceSubtype in faceType.value {
-        Swift.print("\(faceSubtype.value.count/18) from \(faceType.key) \(faceSubtype.key)", separator: "", terminator: ", ")
+    for faceType in faceTriangles.triangleListOfType {
+      for faceSubtype in faceType.value.triangleListOfSubtype {
+        Swift.print("\(faceSubtype.value.triangles.count/18) from \(faceType.key) \(faceSubtype.key)", separator: "", terminator: ", ")
       }
     }
     Swift.print("and \(selectionFaces.count/18) from selected objects.")

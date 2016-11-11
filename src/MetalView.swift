@@ -693,8 +693,7 @@ class MetalView: MTKView {
       maxRange = range.z
     }
     
-//    var vertices = [String: [String: [Vertex]]]()
-    var vertices = VertexListsByTypeAndSubtype()
+    let vertices = VertexListsByTypeAndSubtype()
     var edgeVertices = [Vertex]()
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
