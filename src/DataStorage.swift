@@ -56,10 +56,12 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
           continue
         }
         
-        //        Swift.print("Loading \(url)")
+        Swift.print("Loading \(url)")
+        let parsingStartTime = CACurrentMediaTime()
         url.path.utf8CString.withUnsafeBufferPointer { pointer in
           cityGMLParser.parse(pointer.baseAddress)
         }
+        Swift.print("\t1. Parsed data in \(CACurrentMediaTime()-parsingStartTime) seconds.")
         
         self.openFiles.insert(url)
         NSDocumentController.shared().noteNewRecentDocumentURL(url)
@@ -67,6 +69,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       }
       
       self.storeData(in: cityGMLParser)
+      
       if let metalView = self.view as? MetalView {
         metalView.pullData()
       } else {
@@ -88,7 +91,6 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
           self.controller!.window.representedURL = nil
           self.controller!.window.title = "azul (\(self.openFiles.count) open files)"
         }
-        Swift.print("Read files in \(CACurrentMediaTime()-startTime) seconds.")
         if let metalView = self.view as? MetalView {
           metalView.needsDisplay = true
         } else {
@@ -96,12 +98,14 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
           openGLView.renderFrame()
         }
         self.controller!.outlineView.reloadData()
+        Swift.print("Total: Loaded data in \(CACurrentMediaTime()-startTime) seconds.")
       }
     }
   }
   
   func storeData(in cityGMLParser: CityGMLParserWrapperWrapper) {
     Swift.print("DataStorage.storeData(CityGMLParserWrapperWrapper)")
+    let startTime = CACurrentMediaTime()
     
     let firstMinCoordinate = cityGMLParser.minCoordinates()
     let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
@@ -177,6 +181,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       
       cityGMLParser.advanceObjectIterator()
     }
+    Swift.print("\t2. Stored data in \(CACurrentMediaTime()-startTime) seconds.")
   }
   
   func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {

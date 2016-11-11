@@ -305,15 +305,15 @@ class MetalView: MTKView {
       for trianglesBuffer in object.triangleBuffersByType {
         let numberOfTriangles = trianglesBuffer.value.count/18
         for triangleIndex in 0..<numberOfTriangles {
-          let vertex0 = float3((trianglesBuffer.value[Int(18*triangleIndex)]-midCoordinates[0])/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+1)]-midCoordinates[1])/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+2)]-midCoordinates[2])/maxRange)
-          let vertex1 = float3((trianglesBuffer.value[Int(18*triangleIndex+6)]-midCoordinates[0])/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+7)]-midCoordinates[1])/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+8)]-midCoordinates[2])/maxRange)
-          let vertex2 = float3((trianglesBuffer.value[Int(18*triangleIndex+12)]-midCoordinates[0])/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+13)]-midCoordinates[1])/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+14)]-midCoordinates[2])/maxRange)
+          let vertex0 = float3((trianglesBuffer.value[Int(18*triangleIndex)]-midCoordinates.x)/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+1)]-midCoordinates.y)/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+2)]-midCoordinates.z)/maxRange)
+          let vertex1 = float3((trianglesBuffer.value[Int(18*triangleIndex+6)]-midCoordinates.x)/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+7)]-midCoordinates.y)/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+8)]-midCoordinates.z)/maxRange)
+          let vertex2 = float3((trianglesBuffer.value[Int(18*triangleIndex+12)]-midCoordinates.x)/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+13)]-midCoordinates.y)/maxRange,
+                               (trianglesBuffer.value[Int(18*triangleIndex+14)]-midCoordinates.z)/maxRange)
           let edge1 = vertex1 - vertex0
           let edge2 = vertex2 - vertex0
           let pvec = vector_cross(rayDirection, edge2)
@@ -686,101 +686,101 @@ class MetalView: MTKView {
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
     
-    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 000 -> 001
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 000 -> 010
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 000 -> 100
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 001 -> 011
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 001 -> 101
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 010 -> 011
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 010 -> 110
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 011 -> 111
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 100 -> 101
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 100 -> 110
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 101 -> 111
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.minCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0)),  // 110 -> 111
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates[2])/maxRange),
+                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0))]
     
     for object in dataStorage!.objects {
@@ -823,6 +823,7 @@ class MetalView: MTKView {
           }
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
           var temporaryBuffer = [Vertex]()
+          temporaryBuffer.reserveCapacity(numberOfVertices)
           let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
           for vertexIndex in 0..<numberOfVertices {
             temporaryBuffer.append(Vertex(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
@@ -863,7 +864,7 @@ class MetalView: MTKView {
     }
     Swift.print("and \(selectionFaceVertices.count/3) from selected objects.")
     Swift.print("Loaded \(edgeVertices.count/2) edges, \(boundingBoxVertices.count/2) edges from the bounding box and \(selectionEdgeVertices.count/2) edges from the selection.")
-    Swift.print("Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
+    Swift.print("\t3. Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
   }
   
   override func draw(_ dirtyRect: NSRect) {
