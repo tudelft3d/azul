@@ -75,13 +75,18 @@ struct PointsWalker: pugi::xml_tree_walker {
         iss >> substring;
         if (substring.length() > 0) {
           if (currentCoordinate == 0) points.push_back(CityGMLPoint());
-          points.back().coordinates[currentCoordinate] = std::stof(substring);
-          currentCoordinate = (currentCoordinate+1)%3;
+          try {
+            points.back().coordinates[currentCoordinate] = std::stof(substring);
+          } catch (const std::invalid_argument& ia) {
+            std::cout << "Invalid point: " << substring << ". Skipping..." << std::endl;
+            points.clear();
+            return true;
+          } currentCoordinate = (currentCoordinate+1)%3;
         }
       } while (iss);
       if (currentCoordinate != 0) {
         std::cout << "Wrong number of coordinates: not divisible by 3" << std::endl;
-        points.pop_back();
+        points.clear();
       } //std::cout << "Created " << points.size() << " points" << std::endl;
     } return true;
   }

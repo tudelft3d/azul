@@ -45,6 +45,8 @@ void CityGMLParser::parse(const char *filePath) {
   pugi::xml_document doc;
   doc.load_file(filePath);
   
+  std::cout << "Loaded XML file" << std::endl;
+  
   // With single traversal
   ObjectsWalker objectsWalker;
   doc.traverse(objectsWalker);
