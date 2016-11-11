@@ -252,11 +252,17 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBAction func toggleSideBar(_ sender: NSMenuItem) {
     if splitView.subviews[0].bounds.size.width == 0 {
       //      Swift.print("Open sidebar")
-      splitView.setPosition(200, ofDividerAt: 0)
+      NSAnimationContext.runAnimationGroup({ (context) -> Void in
+        context.allowsImplicitAnimation = true
+        splitView.setPosition(200, ofDividerAt: 0)
+    }, completionHandler: nil)
       sender.title = "Hide Sidebar"
     } else {
       //      Swift.print("Close sidebar")
-      splitView.setPosition(0, ofDividerAt: 0)
+      NSAnimationContext.runAnimationGroup({ (context) -> Void in
+        context.allowsImplicitAnimation = true
+        splitView.setPosition(0, ofDividerAt: 0)
+      }, completionHandler: nil)
       sender.title = "Show Sidebar"
     }
   }
