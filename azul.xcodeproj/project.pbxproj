@@ -34,6 +34,7 @@
 		BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79E1DD226AF00D86610 /* MetalView.swift */; };
 		BE5DE7A11DD226BE00D86610 /* DataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7A01DD226BE00D86610 /* DataStorage.swift */; };
 		BE6196501DBFDC320081B3E8 /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE61964F1DBFDC320081B3E8 /* libpugixml.a */; };
+		BE8B362D1DD547D6007BCC29 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BE8B362C1DD547D6007BCC29 /* Credits.rtf */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
 		BEB006CB1DD2406400C0909D /* OpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB006CA1DD2406400C0909D /* OpenGLView.swift */; };
@@ -86,6 +87,7 @@
 		BE5DE79E1DD226AF00D86610 /* MetalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		BE5DE7A01DD226BE00D86610 /* DataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStorage.swift; sourceTree = "<group>"; };
 		BE61964F1DBFDC320081B3E8 /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = ../../../../../usr/local/Cellar/pugixml/1.7/lib/libpugixml.a; sourceTree = "<group>"; };
+		BE8B362C1DD547D6007BCC29 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Azul-Bridging-Header.h"; sourceTree = "<group>"; };
 		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				BEADB0D91DB8A19600B44D7B /* vertex.glsl */,
 				BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */,
 				BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */,
+				BE8B362C1DD547D6007BCC29 /* Credits.rtf */,
 			);
 			name = Source;
 			path = src;
@@ -276,6 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */,
+				BE8B362D1DD547D6007BCC29 /* Credits.rtf in Resources */,
 				BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */,
 				BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */,
 				BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */,
