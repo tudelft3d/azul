@@ -33,7 +33,10 @@ CityGMLParser::CityGMLParser() {
   attributesToPreserve.insert("isMovable");
   attributesToPreserve.insert("averageHeight");
   attributesToPreserve.insert("trunkDiameter");
-  attributesToPreserve.insert("crownDiameter"); 
+  attributesToPreserve.insert("crownDiameter");
+  attributesToPreserve.insert("species");
+  attributesToPreserve.insert("height");
+  attributesToPreserve.insert("name");
 }
 
 void CityGMLParser::parse(const char *filePath) {
@@ -82,7 +85,7 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
     if (namespaceSeparator != NULL) {
       childType = namespaceSeparator+1;
     } if (attributesToPreserve.count(childType)) {
-      std::cout << childType << ": " << child.child_value() << std::endl;
+//      std::cout << childType << ": " << child.child_value() << std::endl;
       object.attributes[childType] = child.child_value();
     }
   }

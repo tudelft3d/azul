@@ -185,7 +185,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       return objects.count
     } else if let object = item as? CityGMLObject {
       return object.attributes.count
-    } else if let attribute = item as? CityGMLObjectAttribute {
+    } else if (item as? CityGMLObjectAttribute) != nil {
       return 0
     } else {
       Swift.print("Unsupported item is \(item)")
@@ -258,6 +258,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       }
     } else if let attribute = item as? CityGMLObjectAttribute {
       view.textField!.stringValue = String(attribute.name + ": " + attribute.value)
+      view.imageView?.image = nil
     } else {
       Swift.print("Unsupported item is \(item)")
     }
