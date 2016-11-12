@@ -136,6 +136,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       let firstElementOfIdBuffer = UnsafeRawPointer(cityGMLParser.currentObjectIdentifier(withLength: &idLength))
       let idData = Data(bytes: firstElementOfIdBuffer!, count: Int(idLength)*MemoryLayout<Int8>.size)
       objects.last!.id = String(data: idData, encoding: .utf8)!
+//      Swift.print("Object with id \(objects.last!.id)")
       
       var objectTypeLength: UInt = 0
       let firstElementOfObjectTypeBuffer = UnsafeRawPointer(cityGMLParser.currentObjectType(withLength: &objectTypeLength))
@@ -148,14 +149,24 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
         var attributeNameLength: UInt = 0
         let firstElementOfAttributeNameBuffer = UnsafeRawPointer(cityGMLParser.currentAttributeName(withLength: &attributeNameLength))
         let attributeNameData = Data(bytes: firstElementOfAttributeNameBuffer!, count: Int(attributeNameLength)*MemoryLayout<Int8>.size)
-        let attributeName = String(data: attributeNameData, encoding: .utf8)!
+        let attributeName = String(data: attributeNameData, encoding: .utf8)
+        if attributeName == nil {
+          Swift.print("Couldn't parse attribute name with \(attributeNameData)")
+          cityGMLParser.advanceAttributeIterator()
+          continue
+        }
         
         var attributeValueLength: UInt = 0
         let firstElementOfAttributeValueBuffer = UnsafeRawPointer(cityGMLParser.currentAttributeValue(withLength: &attributeValueLength))
         let attributeValueData = Data(bytes: firstElementOfAttributeValueBuffer!, count: Int(attributeValueLength)*MemoryLayout<Int8>.size)
-        let attributeValue = String(data: attributeValueData, encoding: .utf8)!
+        let attributeValue = String(data: attributeValueData, encoding: .utf8)
+        if attributeValue == nil {
+          Swift.print("Couldn't parse attribute value with \(attributeValueData.base64EncodedString())")
+          cityGMLParser.advanceAttributeIterator()
+          continue
+        }
         
-        objects.last!.attributes.append(CityGMLObjectAttribute(name: attributeName, value: attributeValue))
+        objects.last!.attributes.append(CityGMLObjectAttribute(name: attributeName!, value: attributeValue!))
         cityGMLParser.advanceAttributeIterator()
       }
       
