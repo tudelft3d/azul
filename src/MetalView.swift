@@ -178,16 +178,12 @@ class MetalView: MTKView {
   }
   
   func new() {
-    for faceBufferType in faceBuffers {
-      for faceBufferSubtype in faceBufferType.value {
-        faceBuffers[faceBufferType.key]![faceBufferSubtype.key] = device!.makeBuffer(length: 0, options: [])
-      }
-    }
     
-    edgesBuffer = device!.makeBuffer(length: 0, options: [])
-    boundingBoxBuffer = device!.makeBuffer(length: 0, options: [])
-    selectedFacesBuffer = device!.makeBuffer(length: 0, options: [])
-    selectedEdgesBuffer = device!.makeBuffer(length: 0, options: [])
+    faceBuffers.removeAll()
+    edgesBuffer = nil
+    boundingBoxBuffer = nil
+    selectedFacesBuffer = nil
+    selectedEdgesBuffer = nil
     
     fieldOfView = 3.141519/4.0
     
@@ -693,11 +689,14 @@ class MetalView: MTKView {
       maxRange = range.z
     }
     
+    // Initialise arrays for buffers
     let vertices = VertexListsByTypeAndSubtype()
     var edgeVertices = [Vertex]()
     var selectionEdgeVertices = [Vertex]()
     var selectionFaceVertices = [Vertex]()
+    faceBuffers.removeAll()
     
+    // Create bounding box vertices
     let boundingBoxVertices: [Vertex] = [Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
                                                                  (minCoordinates.z-midCoordinates.z)/maxRange),
@@ -795,11 +794,13 @@ class MetalView: MTKView {
                                                                  (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
                                                 normal: float3(0.0, 0.0, 0.0))]
     
+    // Create vertices of faces per type and subtype
     for object in dataStorage!.objects {
       if !vertices.vertexListOfType.keys.contains(object.type) {
         vertices.vertexListOfType[object.type] = VertexListsBySubtype()
       }
 
+      // Selected edges and faces
       if dataStorage!.selection.contains(object.id) {
         let numberOfVertices = object.edgesBuffer.count/3
         for vertexIndex in 0..<numberOfVertices {
@@ -821,7 +822,10 @@ class MetalView: MTKView {
           }
         }
         
-      } else {
+      }
+      
+      // Not selected edges and faces
+      else {
         let numberOfVertices = object.edgesBuffer.count/3
         for vertexIndex in 0..<numberOfVertices {
           edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
@@ -845,30 +849,56 @@ class MetalView: MTKView {
                                                          currentTriangleBuffer[6*vertexIndex+4],
                                                          currentTriangleBuffer[6*vertexIndex+5])))
           }
-//          vertices[object.type]![triangleBufferType]!.append(contentsOf: [])
           vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType]!.vertices.append(contentsOf: temporaryBuffer)
         }
       }
     }
     
-    faceBuffers.removeAll()
-    edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
-    for vertexType in vertices.vertexListOfType {
-      if !faceBuffers.keys.contains(vertexType.key) {
-        faceBuffers[vertexType.key] = [String: MTLBuffer]()
-      }
-      for vertexSubtype in vertexType.value.vertexListOfSubtype {
-        faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices, length: MemoryLayout<Vertex>.size*vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count, options: [])
-      }
-    }
-    boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
-    if (selectionEdgeVertices.count > 0) {
-      selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
-    }
-    if (selectionFaceVertices.count > 0) {
-      selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
+    // Make buffer for edges
+    if edgeVertices.count > 0 {
+      edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
+    } else {
+      edgesBuffer = nil
     }
     
+    // Make buffer for faces per type and subtype
+    if vertices.vertexListOfType.count > 0 {
+      for vertexType in vertices.vertexListOfType {
+        if !faceBuffers.keys.contains(vertexType.key) {
+          faceBuffers[vertexType.key] = [String: MTLBuffer]()
+        }
+        for vertexSubtype in vertexType.value.vertexListOfSubtype {
+          if vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count > 0 {
+            faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices, length: MemoryLayout<Vertex>.size*vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count, options: [])
+          } else {
+            faceBuffers[vertexType.key]!.removeValue(forKey: vertexSubtype.key)
+          }
+        }
+      }
+    }
+    
+    // Make buffer for bounding box
+    if edgeVertices.count > 0 {
+      boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
+    } else {
+      boundingBoxBuffer = nil
+    }
+    
+    // Make buffer for selected edges
+    if selectionEdgeVertices.count > 0 {
+      selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
+    } else {
+      selectedEdgesBuffer = nil
+    }
+    
+    // Make buffer for selected faces
+    if selectionFaceVertices.count > 0 {
+      selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
+    } else {
+      selectedFacesBuffer = nil
+    }
+    
+    // Print stats
     Swift.print("Loaded triangles: ", separator: "", terminator: "")
     for vertexType in vertices.vertexListOfType {
       for vertexSubtype in vertexType.value.vertexListOfSubtype {
