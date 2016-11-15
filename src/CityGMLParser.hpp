@@ -141,6 +141,7 @@ struct ObjectsWalker: pugi::xml_tree_walker {
     
     if (strcmp(nodeType, "Bridge") == 0 ||
         strcmp(nodeType, "Building") == 0 ||
+        strcmp(nodeType, "BuildingPart") == 0 ||
         strcmp(nodeType, "CityFurniture") == 0 ||
         strcmp(nodeType, "GenericCityObject") == 0 ||
         strcmp(nodeType, "LandUse") == 0 ||

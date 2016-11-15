@@ -138,6 +138,8 @@ class MetalView: MTKView {
     renderedTypes["Building"]!["GroundSurface"] = float4(0.7, 0.7, 0.7, 1.0)
     renderedTypes["Building"]!["RoofSurface"] = float4(0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0)
     renderedTypes["Building"]!["Window"] = float4(0.584313725490196, 0.917647058823529, 1.0, 0.3)
+    renderedTypes["BuildingPart"] = [String: float4]()
+    renderedTypes["BuildingPart"]![""] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
     renderedTypes["CityFurniture"] = [String: float4]()
     renderedTypes["CityFurniture"]![""] = float4(0.7, 0.7, 0.7, 1.0)
     renderedTypes["GenericCityObject"] = [String: float4]()
