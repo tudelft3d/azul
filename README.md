@@ -4,17 +4,17 @@ azul is a CityGML viewer for macOS 10.12, although it also works with minor issu
 
 ## Controls
 
-Pan: scroll
-Rotate: drag on left click, rotate on trackpad
-Zoom: pinch on trackpad, drag on right click
-Select: click on object (in view or sidebar)
-Centre view: double click (in view or sidebar object), h or cmd+shift+h (to dataset centre)
+* Pan: scroll
+* Rotate: drag on left click, rotate on trackpad
+* Zoom: pinch on trackpad, drag on right click
+* Select: click on object (in view or sidebar)
+* Centre view: double click (in view or sidebar object), h or cmd+shift+h (to dataset centre)
 
-New file (clear view): n or cmd+n
-Open file: o or cmd+o
-Show bounding box: b or cmd+shift+b
-Show edges: e or cmd+shift+e
-Toggle Metal/OpenGL rendering: g or cmd+opt+ctrl+g
+* New file (clear view): n or cmd+n
+* Open file: o or cmd+o
+* Show bounding box: b or cmd+shift+b
+* Show edges: e or cmd+shift+e
+* Toggle Metal/OpenGL rendering: g or cmd+opt+ctrl+g
 
 ## Download
 
