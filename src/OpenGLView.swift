@@ -857,10 +857,10 @@ class OpenGLView: NSOpenGLView {
       controller!.toggleGraphics(controller!.toggleGraphicsMenuItem)
     case "h":
       controller!.goHome(controller!.goHomeMenuItem)
+    case "n":
+      controller?.new(controller!.newFileMenuItem)
     case "o":
       controller!.openFile(controller!.openFileMenuItem)
-    case "r":
-      controller!.goHome(controller!.goHomeMenuItem)
     default:
       break
     }

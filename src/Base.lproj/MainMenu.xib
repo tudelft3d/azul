@@ -16,6 +16,7 @@
         <customObject id="Voe-Tx-rLC" customClass="Controller" customModule="azul" customModuleProvider="target">
             <connections>
                 <outlet property="goHomeMenuItem" destination="aa1-9g-hgv" id="xEp-ze-7U1"/>
+                <outlet property="newFileMenuItem" destination="Was-JA-tGl" id="CMS-Lb-QhR"/>
                 <outlet property="openFileMenuItem" destination="IAo-SY-fd9" id="PQa-65-lna"/>
                 <outlet property="outlineView" destination="v1V-dZ-gVJ" id="g3A-uw-urL"/>
                 <outlet property="progressIndicator" destination="jhy-PH-c7Y" id="gus-rN-XcB"/>

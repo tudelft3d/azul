@@ -30,6 +30,7 @@ class Controller: NSObject, NSApplicationDelegate {
   @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
   @IBOutlet weak var toggleGraphicsMenuItem: NSMenuItem!
   @IBOutlet weak var openFileMenuItem: NSMenuItem!
+  @IBOutlet weak var newFileMenuItem: NSMenuItem!
   
   let dataStorage = DataStorage()
   var view: NSView?
