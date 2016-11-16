@@ -45,8 +45,8 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     Swift.print("Opening \(urls)")
     
     let startTime = CACurrentMediaTime()
-    controller!.progressIndicator.startAnimation(self)
     let cityGMLParser = CityGMLParserWrapperWrapper()!
+    controller?.progressIndicator.startAnimation(self)
     
     DispatchQueue.global().async(qos: .userInitiated) {
       for url in urls {
@@ -70,6 +70,9 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       
       self.storeData(in: cityGMLParser)
       
+      while self.view == nil {
+        Thread.sleep(forTimeInterval: 0.01)
+      }
       if let metalView = self.view as? MetalView {
         metalView.pullData()
       } else {
