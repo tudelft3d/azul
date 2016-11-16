@@ -27,6 +27,7 @@
 		BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */; };
 		BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */; };
 		BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */; };
+		BE57BC861DDCF2AC0057EEB7 /* file icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE57BC851DDCF2AC0057EEB7 /* file icon.icns */; };
 		BE5DE7971DD2255900D86610 /* CityGMLParserWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */; };
 		BE5DE7981DD2255900D86610 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */; };
 		BE5DE79A1DD2266900D86610 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7991DD2266900D86610 /* Math.swift */; };
@@ -78,6 +79,7 @@
 		BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BE4AF9CE1DB7D8A1004FCF22 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		BE4AF9D01DB7D8A1004FCF22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BE57BC851DDCF2AC0057EEB7 /* file icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file icon.icns"; sourceTree = "<group>"; };
 		BE5DE7931DD2255900D86610 /* CityGMLParserWrapperWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityGMLParserWrapperWrapper.h; sourceTree = "<group>"; };
 		BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CityGMLParserWrapperWrapper.mm; sourceTree = "<group>"; };
 		BE5DE7951DD2255900D86610 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				BE5DE7A21DD226C700D86610 /* Parser */,
 				BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */,
 				BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */,
+				BE57BC851DDCF2AC0057EEB7 /* file icon.icns */,
 				BE4AF9D01DB7D8A1004FCF22 /* Info.plist */,
 				BEADB0D91DB8A19600B44D7B /* vertex.glsl */,
 				BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */,
@@ -279,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */,
+				BE57BC861DDCF2AC0057EEB7 /* file icon.icns in Resources */,
 				BE8B362D1DD547D6007BCC29 /* Credits.rtf in Resources */,
 				BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */,
 				BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */,
