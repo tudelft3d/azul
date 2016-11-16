@@ -68,7 +68,7 @@ class MetalView: MTKView {
 
   var eye = float3(0.0, 0.0, 0.0)
   var centre = float3(0.0, 0.0, -1.0)
-  var fieldOfView: Float = 3.141519/4.0
+  var fieldOfView: Float = 1.047197551196598
   
   var modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
   var modelRotationMatrix = matrix_identity_float4x4
@@ -187,7 +187,7 @@ class MetalView: MTKView {
     selectedFacesBuffer = nil
     selectedEdgesBuffer = nil
     
-    fieldOfView = 3.141519/4.0
+    fieldOfView = 1.047197551196598
     
     modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
     modelRotationMatrix = matrix_identity_float4x4
@@ -201,12 +201,12 @@ class MetalView: MTKView {
     constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
     constants.viewMatrixInverse = matrix_invert(viewMatrix)
     
-    pullData()
     needsDisplay = true
   }
   
   func goHome() {
-    fieldOfView = 3.141519/4.0
+    
+    fieldOfView = 1.047197551196598
     
     modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
     modelRotationMatrix = matrix_identity_float4x4

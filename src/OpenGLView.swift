@@ -322,7 +322,7 @@ class OpenGLView: NSOpenGLView {
     
     eye = GLKVector3Make(0.0, 0.0, 0.0)
     centre = GLKVector3Make(0.0, 0.0, -1.0)
-    fieldOfView = GLKMathDegreesToRadians(45.0)
+    fieldOfView = GLKMathDegreesToRadians(60.0)
     
     modelTranslationToCentreOfRotation = GLKMatrix4Identity
     modelRotation = GLKMatrix4Identity
@@ -376,7 +376,7 @@ class OpenGLView: NSOpenGLView {
     selectionFaces.removeAll()
     selectionEdges.removeAll()
     
-    fieldOfView = GLKMathDegreesToRadians(45.0)
+    fieldOfView = GLKMathDegreesToRadians(60.0)
     
     modelTranslationToCentreOfRotation = GLKMatrix4Identity
     modelRotation = GLKMatrix4Identity
@@ -409,7 +409,7 @@ class OpenGLView: NSOpenGLView {
   }
   
   func goHome() {
-    fieldOfView = GLKMathDegreesToRadians(45.0)
+    fieldOfView = GLKMathDegreesToRadians(60.0)
     
     modelTranslationToCentreOfRotation = GLKMatrix4Identity
     modelRotation = GLKMatrix4Identity
