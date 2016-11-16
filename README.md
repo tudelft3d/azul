@@ -1,12 +1,12 @@
-![Icon](https://3d.bk.tudelft.nl/img/cover/azul.png)
-
-# azul
+# ![Icon](https://3d.bk.tudelft.nl/ken/img/azul-small.png) azul
 
 azul is a CityGML viewer for macOS 10.12, although it works with minor issues on 10.11. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, and browsing their attributes. It is currently pre-release software, but it is pretty stable and most CityGML datasets already work without problems. It is available under the GPLv3 licence.
 
 ## Download
 
-You can download the latest stable release of azul in the [releases page](https://github.com/tudelft3d/azul/releases). It should also be available in the App Store in the near future.
+You can download the latest stable release of azul in the [releases page](https://github.com/tudelft3d/azul/releases) or from the [App Store](https://itunes.apple.com/app/azul/id1173239678?mt=12)
+
+![Random3DCity](https://3d.bk.tudelft.nl/img/2016/azul0.png)
 
 ![CityGML 2.0 sample dataset](https://3d.bk.tudelft.nl/img/2016/azul1.png)
 
