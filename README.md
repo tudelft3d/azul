@@ -41,7 +41,6 @@ azul is written mostly in Swift 3 and C++11 with a bit of Objective-C and Object
 * Support for very big datasets (over around 2 GB): app crashes if any single Metal buffer is > 1 GB
 * Shifting the rotation point out of the data plane
 * Showing the data plane and rotation point
-* iOS support
 * Animations when re-centering
 * Keyboard navigation
 * Sorting and grouping objects in sidebar
@@ -49,12 +48,13 @@ azul is written mostly in Swift 3 and C++11 with a bit of Objective-C and Object
 * Customising colours
 * QuickLook plug-in
 * Icon previews
+* iOS support
 
 ## Compilation
 
 We have included an Xcode 8 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 3.
 
-azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh). However, we also provide bundled versions of them for convenience. These assume that they will be put into the Frameworks folder in the azul app bundle (i.e. their install names and cross dependencies are set to @rpath/xxx.dylib), but they are otherwise identical to those that can be obtained from Homebrew.
+azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh). However, we also provide bundled versions of the first four for convenience, and pugixml works well as a static library. The provided libraries assume that they will be put into the Frameworks folder in the azul app bundle (i.e. their install names and cross dependencies are set to @rpath/xxx.dylib), but they are otherwise identical to those that can be obtained from Homebrew.
 
 ## Licence
 
