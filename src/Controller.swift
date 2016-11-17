@@ -191,6 +191,13 @@ class Controller: NSObject, NSApplicationDelegate {
     })
   }
   
+  @IBAction func copy(_ sender: NSMenuItem) {
+    let pasteboard = NSPasteboard.general()
+    pasteboard.clearContents()
+    pasteboard.declareTypes([NSStringPboardType], owner: self)
+    pasteboard.setString(dataStorage.selection.joined(separator: ","), forType: NSStringPboardType)
+  }
+  
   @IBAction func toggleViewEdges(_ sender: NSMenuItem) {
     if let metalView = view as? MetalView {
       if metalView.viewEdges {

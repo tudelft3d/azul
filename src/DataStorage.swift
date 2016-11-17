@@ -69,6 +69,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
       }
       
       self.storeData(in: cityGMLParser)
+      cityGMLParser.clear()
       
       while self.view == nil {
         Thread.sleep(forTimeInterval: 0.01)
