@@ -27,19 +27,23 @@ struct Constants {
 
 struct Vertex {
   var position: float3
+}
+
+struct VertexWithNormal {
+  var position: float3
   var normal: float3
 }
 
-class VertexList {
-  var vertices = [Vertex]()
+class VertexWithNormalList {
+  var vertices = [VertexWithNormal]()
 }
 
-class VertexListsBySubtype {
-  var vertexListOfSubtype = [String: VertexList]()
+class VertexWithNormalListsBySubtype {
+  var vertexListOfSubtype = [String: VertexWithNormalList]()
 }
 
-class VertexListsByTypeAndSubtype {
-  var vertexListOfType = [String: VertexListsBySubtype]()
+class VertexWithNormalListsByTypeAndSubtype {
+  var vertexListOfType = [String: VertexWithNormalListsBySubtype]()
 }
 
 class MetalView: MTKView {
@@ -48,7 +52,8 @@ class MetalView: MTKView {
   var dataStorage: DataStorage?
   
   var commandQueue: MTLCommandQueue?
-  var renderPipelineState: MTLRenderPipelineState?
+  var litRenderPipelineState: MTLRenderPipelineState?
+  var unlitRenderPipelineState: MTLRenderPipelineState?
   var depthStencilState: MTLDepthStencilState?
   
   var renderedTypes = [String: [String: float4]]()
@@ -93,10 +98,11 @@ class MetalView: MTKView {
     
     // Render pipeline
     let library = device!.newDefaultLibrary()!
-    let vertexFunction = library.makeFunction(name: "vertexTransform")
+    let litVertexFunction = library.makeFunction(name: "vertexLit")
+    let unlitVertexFunction = library.makeFunction(name: "vertexUnlit")
     let fragmentFunction = library.makeFunction(name: "fragmentLit")
     let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
-    renderPipelineDescriptor.vertexFunction = vertexFunction
+    renderPipelineDescriptor.vertexFunction = litVertexFunction
     renderPipelineDescriptor.fragmentFunction = fragmentFunction
     renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
     renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
@@ -106,9 +112,17 @@ class MetalView: MTKView {
     renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
     renderPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
     do {
-      renderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+      litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
     } catch {
-      Swift.print("Unable to compile render pipeline state")
+      Swift.print("Unable to compile lit render pipeline state")
+      return
+    }
+    renderPipelineDescriptor.vertexFunction = unlitVertexFunction
+    renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = false
+    do {
+      unlitRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+    } catch {
+      Swift.print("Unable to compile unlit render pipeline state")
       return
     }
     
@@ -692,114 +706,90 @@ class MetalView: MTKView {
     }
     
     // Initialise arrays for buffers
-    let vertices = VertexListsByTypeAndSubtype()
+    let vertices = VertexWithNormalListsByTypeAndSubtype()
     var edgeVertices = [Vertex]()
     var selectionEdgeVertices = [Vertex]()
-    var selectionFaceVertices = [Vertex]()
+    var selectionFaceVertices = [VertexWithNormal]()
     faceBuffers.removeAll()
     
     // Create bounding box vertices
     let boundingBoxVertices: [Vertex] = [Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 000 -> 001
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 000 -> 001
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 000 -> 010
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 000 -> 010
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 000 -> 100
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 000 -> 100
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 001 -> 011
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 001 -> 011
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 001 -> 101
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 001 -> 101
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 010 -> 011
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 010 -> 011
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 010 -> 110
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 010 -> 110
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 011 -> 111
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 011 -> 111
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 100 -> 101
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 100 -> 101
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 100 -> 110
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 100 -> 110
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 101 -> 111
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 101 -> 111
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0)),  // 110 -> 111
+                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 110 -> 111
                                          Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
                                                                  (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange),
-                                                normal: float3(0.0, 0.0, 0.0))]
+                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange))]
     
     // Create vertices of faces per type and subtype
     for object in dataStorage!.objects {
       if !vertices.vertexListOfType.keys.contains(object.type) {
-        vertices.vertexListOfType[object.type] = VertexListsBySubtype()
+        vertices.vertexListOfType[object.type] = VertexWithNormalListsBySubtype()
       }
 
       // Selected edges and faces
@@ -808,19 +798,18 @@ class MetalView: MTKView {
         for vertexIndex in 0..<numberOfVertices {
           selectionEdgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
                                                                (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                               (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                              normal: float3(0.0, 0.0, 0.0)))
+                                                               (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange)))
         }
         for triangleBufferType in object.triangleBuffersByType.keys {
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
           let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
           for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(Vertex(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                 (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                 (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                normal: float3(currentTriangleBuffer[6*vertexIndex+3],
-                                                               currentTriangleBuffer[6*vertexIndex+4],
-                                                               currentTriangleBuffer[6*vertexIndex+5])))
+            selectionFaceVertices.append(VertexWithNormal(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                           (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                           (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
+                                                          normal: float3(currentTriangleBuffer[6*vertexIndex+3],
+                                                                         currentTriangleBuffer[6*vertexIndex+4],
+                                                                         currentTriangleBuffer[6*vertexIndex+5])))
           }
         }
         
@@ -832,24 +821,23 @@ class MetalView: MTKView {
         for vertexIndex in 0..<numberOfVertices {
           edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
                                                       (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                      (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                     normal: float3(0.0, 0.0, 0.0)))
+                                                      (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange)))
         }
         for triangleBufferType in object.triangleBuffersByType.keys {
           if !vertices.vertexListOfType[object.type]!.vertexListOfSubtype.keys.contains(triangleBufferType) {
-            vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType] = VertexList()
+            vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType] = VertexWithNormalList()
           }
           let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
-          var temporaryBuffer = [Vertex]()
+          var temporaryBuffer = [VertexWithNormal]()
           temporaryBuffer.reserveCapacity(numberOfVertices)
           let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
           for vertexIndex in 0..<numberOfVertices {
-            temporaryBuffer.append(Vertex(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                           (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                           (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                          normal: float3(currentTriangleBuffer[6*vertexIndex+3],
-                                                         currentTriangleBuffer[6*vertexIndex+4],
-                                                         currentTriangleBuffer[6*vertexIndex+5])))
+            temporaryBuffer.append(VertexWithNormal(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
+                                                                     (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
+                                                                     (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
+                                                    normal: float3(currentTriangleBuffer[6*vertexIndex+3],
+                                                                   currentTriangleBuffer[6*vertexIndex+4],
+                                                                   currentTriangleBuffer[6*vertexIndex+5])))
           }
           vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType]!.vertices.append(contentsOf: temporaryBuffer)
         }
@@ -871,7 +859,7 @@ class MetalView: MTKView {
         }
         for vertexSubtype in vertexType.value.vertexListOfSubtype {
           if vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count > 0 {
-            faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices, length: MemoryLayout<Vertex>.size*vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count, options: [])
+            faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices, length: MemoryLayout<VertexWithNormal>.size*vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count, options: [])
           } else {
             faceBuffers[vertexType.key]!.removeValue(forKey: vertexSubtype.key)
           }
@@ -895,7 +883,7 @@ class MetalView: MTKView {
     
     // Make buffer for selected faces
     if selectionFaceVertices.count > 0 {
-      selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<Vertex>.size*selectionFaceVertices.count, options: [])
+      selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<VertexWithNormal>.size*selectionFaceVertices.count, options: [])
     } else {
       selectedFacesBuffer = nil
     }
@@ -925,7 +913,7 @@ class MetalView: MTKView {
 
     renderEncoder.setFrontFacing(.counterClockwise)
     renderEncoder.setDepthStencilState(depthStencilState)
-    renderEncoder.setRenderPipelineState(renderPipelineState!)
+    renderEncoder.setRenderPipelineState(litRenderPipelineState!)
     
     for bufferType in faceBuffers {
       if !renderedTypes.keys.contains(bufferType.key) {
@@ -941,10 +929,19 @@ class MetalView: MTKView {
           renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
           constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
           renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-          renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<Vertex>.size)
+          renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<VertexWithNormal>.size)
         }
       }
     }
+    
+    if selectedFacesBuffer != nil && selectedFacesBuffer!.length > 0 {
+      renderEncoder.setVertexBuffer(selectedFacesBuffer, offset:0, at:0)
+      constants.colour = float4(1.0, 1.0, 0.0, 1.0)
+      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
+      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: selectedFacesBuffer!.length/MemoryLayout<VertexWithNormal>.size)
+    }
+    
+    renderEncoder.setRenderPipelineState(unlitRenderPipelineState!)
     
     if viewEdges && edgesBuffer != nil && edgesBuffer!.length > 0 {
       renderEncoder.setVertexBuffer(edgesBuffer, offset:0, at:0)
@@ -958,13 +955,6 @@ class MetalView: MTKView {
       constants.colour = float4(0.0, 0.0, 0.0, 1.0)
       renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
       renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: boundingBoxBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if selectedFacesBuffer != nil && selectedFacesBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(selectedFacesBuffer, offset:0, at:0)
-      constants.colour = float4(1.0, 1.0, 0.0, 1.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: selectedFacesBuffer!.length/MemoryLayout<Vertex>.size)
     }
     
     if viewEdges && selectedEdgesBuffer != nil && selectedEdgesBuffer!.length > 0 {
