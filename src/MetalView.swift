@@ -926,10 +926,33 @@ class MetalView: MTKView {
           continue
         }
         if faceBuffers[bufferType.key]![bufferSubtype.key]!.length > 0 {
-          renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
-          constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
-          renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-          renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<VertexWithNormal>.size)
+          if renderedTypes[bufferType.key]![bufferSubtype.key]!.w == 1.0 {
+            renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
+            constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
+            renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<VertexWithNormal>.size)
+          }
+        }
+      }
+    }
+    
+    for bufferType in faceBuffers {
+      if !renderedTypes.keys.contains(bufferType.key) {
+//        Swift.print("Render type for \(bufferType.key) not set")
+        continue
+      }
+      for bufferSubtype in bufferType.value {
+        if !renderedTypes[bufferType.key]!.keys.contains(bufferSubtype.key) {
+//          Swift.print("Render type for \(bufferType.key) \(bufferSubtype.key) not set")
+          continue
+        }
+        if faceBuffers[bufferType.key]![bufferSubtype.key]!.length > 0 {
+          if renderedTypes[bufferType.key]![bufferSubtype.key]!.w < 1.0 {
+            renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
+            constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
+            renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<VertexWithNormal>.size)
+          }
         }
       }
     }
