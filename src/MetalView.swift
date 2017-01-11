@@ -471,6 +471,9 @@ class MetalView: MTKView {
       if parsedObject.id == rowObject.id {
         
         // Compute centroid
+        if parsedObject.triangleBuffersByType[""] == nil {
+          return
+        }
         let numberOfVertices = parsedObject.triangleBuffersByType[""]!.count/6
         var sumX: Float = 0.0
         var sumY: Float = 0.0
