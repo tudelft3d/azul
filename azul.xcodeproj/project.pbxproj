@@ -22,7 +22,6 @@
 		BE19D1501DCCE05000664B07 /* libCGAL_Core.12.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BE19D1511DCCE05000664B07 /* libgmp.10.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BE19D1521DCCE05000664B07 /* libmpfr.4.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BE2CB8AB1DEF26990039785C /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE2CB8AA1DEF26990039785C /* libpugixml.a */; };
 		BE3E5D251DCE72A50065B553 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = BE3E5D241DCE72A50065B553 /* LICENSE */; };
 		BE3E5D271DCE72AA0065B553 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = BE3E5D261DCE72AA0065B553 /* README.md */; };
 		BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9C91DB7D8A1004FCF22 /* Controller.swift */; };
@@ -35,6 +34,7 @@
 		BE5DE79C1DD2268100D86610 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79B1DD2268100D86610 /* Shaders.metal */; };
 		BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79E1DD226AF00D86610 /* MetalView.swift */; };
 		BE5DE7A11DD226BE00D86610 /* DataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7A01DD226BE00D86610 /* DataStorage.swift */; };
+		BE80B5EE1E38F9210070582B /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE2CB8AA1DEF26990039785C /* libpugixml.a */; };
 		BE8B362D1DD547D6007BCC29 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BE8B362C1DD547D6007BCC29 /* Credits.rtf */; };
 		BEADB0DA1DB8A19600B44D7B /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0D91DB8A19600B44D7B /* vertex.glsl */; };
 		BEADB0DC1DB8BA2500B44D7B /* fragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */; };
@@ -72,7 +72,7 @@
 		BE19D1341DCCDFE700664B07 /* libCGAL_Core.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libCGAL_Core.12.0.0.dylib; sourceTree = "<group>"; };
 		BE19D1351DCCDFE700664B07 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libgmp.10.dylib; sourceTree = "<group>"; };
 		BE19D1361DCCDFE700664B07 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmpfr.4.dylib; sourceTree = "<group>"; };
-		BE2CB8AA1DEF26990039785C /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = "../../../../usr/local/Cellar/pugixml/1.8.1/lib/pugixml-1.8/libpugixml.a"; sourceTree = "<group>"; };
+		BE2CB8AA1DEF26990039785C /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = "/usr/local/Cellar/pugixml/1.8.1/lib/pugixml-1.8/libpugixml.a"; sourceTree = "<absolute>"; };
 		BE3E5D241DCE72A50065B553 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		BE3E5D261DCE72AA0065B553 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BE4AF9C61DB7D8A0004FCF22 /* azul.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = azul.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,7 +89,6 @@
 		BE5DE79B1DD2268100D86610 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BE5DE79E1DD226AF00D86610 /* MetalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		BE5DE7A01DD226BE00D86610 /* DataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStorage.swift; sourceTree = "<group>"; };
-		BE61964F1DBFDC320081B3E8 /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = ../../../../../usr/local/Cellar/pugixml/1.7/lib/libpugixml.a; sourceTree = "<group>"; };
 		BE8B362C1DD547D6007BCC29 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Azul-Bridging-Header.h"; sourceTree = "<group>"; };
 		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
@@ -105,7 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE2CB8AB1DEF26990039785C /* libpugixml.a in Frameworks */,
+				BE80B5EE1E38F9210070582B /* libpugixml.a in Frameworks */,
 				BE19D1431DCCE01B00664B07 /* libboost_system-mt.dylib in Frameworks */,
 				BE19D1441DCCE01D00664B07 /* libboost_thread-mt.dylib in Frameworks */,
 				BE19D1451DCCE01F00664B07 /* libCGAL.12.0.0.dylib in Frameworks */,
@@ -138,7 +137,6 @@
 		BE2CB8A91DEF26990039785C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BE2CB8AA1DEF26990039785C /* libpugixml.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -210,7 +208,7 @@
 		BE61964E1DBFDC320081B3E8 /* Static libs */ = {
 			isa = PBXGroup;
 			children = (
-				BE61964F1DBFDC320081B3E8 /* libpugixml.a */,
+				BE2CB8AA1DEF26990039785C /* libpugixml.a */,
 			);
 			name = "Static libs";
 			sourceTree = "<group>";

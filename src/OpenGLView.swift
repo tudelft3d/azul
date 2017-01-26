@@ -109,6 +109,10 @@ class OpenGLView: NSOpenGLView {
     facesColour["Building"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0, 0.3]
     facesColour["BuildingPart"] = [String: Array<GLfloat>]()
     facesColour["BuildingPart"]![""] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
+    facesColour["BuildingPart"]!["Door"] = [0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0]
+    facesColour["BuildingPart"]!["GroundSurface"] = [0.7, 0.7, 0.7, 1.0]
+    facesColour["BuildingPart"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0]
+    facesColour["BuildingPart"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0, 0.3]
     facesColour["CityFurniture"] = [String: Array<GLfloat>]()
     facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
