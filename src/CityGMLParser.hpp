@@ -139,9 +139,10 @@ struct ObjectsWalker: pugi::xml_tree_walker {
       nodeType = namespaceSeparator+1;
     }
     
-    if (strcmp(nodeType, "Bridge") == 0 ||
+    if (strcmp(nodeType, "AuxiliaryTrafficArea") == 0 ||
+        strcmp(nodeType, "Bridge") == 0 ||
         strcmp(nodeType, "Building") == 0 ||
-//        strcmp(nodeType, "BuildingPart") == 0 ||
+        strcmp(nodeType, "BuildingPart") == 0 ||
         strcmp(nodeType, "CityFurniture") == 0 ||
         strcmp(nodeType, "GenericCityObject") == 0 ||
         strcmp(nodeType, "LandUse") == 0 ||
@@ -150,6 +151,7 @@ struct ObjectsWalker: pugi::xml_tree_walker {
         strcmp(nodeType, "ReliefFeature") == 0 ||
         strcmp(nodeType, "Road") == 0 ||
         strcmp(nodeType, "SolitaryVegetationObject") == 0 ||
+        strcmp(nodeType, "TrafficArea") == 0 ||
         strcmp(nodeType, "Tunnel") == 0 ||
         strcmp(nodeType, "WaterBody") == 0) {
       objects.push_back(node);

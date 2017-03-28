@@ -144,6 +144,8 @@ class MetalView: MTKView {
     constants.viewMatrixInverse = matrix_invert(viewMatrix)
     
     // Rendered types
+    renderedTypes["AuxiliaryTrafficArea"] = [String: float4]()
+    renderedTypes["AuxiliaryTrafficArea"]![""] = float4(0.7, 0.7, 0.7, 1.0)
     renderedTypes["Bridge"] = [String: float4]()
     renderedTypes["Bridge"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
     renderedTypes["Building"] = [String: float4]()
@@ -174,6 +176,8 @@ class MetalView: MTKView {
     renderedTypes["Road"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
     renderedTypes["SolitaryVegetationObject"] = [String: float4]()
     renderedTypes["SolitaryVegetationObject"]![""] = float4(0.4, 0.882352941176471, 0.333333333333333, 1.0)
+    renderedTypes["TrafficArea"] = [String: float4]()
+    renderedTypes["TrafficArea"]![""] = float4(0.7, 0.7, 0.7, 1.0)
     renderedTypes["Tunnel"] = [String: float4]()
     renderedTypes["Tunnel"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
     renderedTypes["Tunnel"]!["GroundSurface"] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)

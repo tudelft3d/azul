@@ -99,6 +99,8 @@ class OpenGLView: NSOpenGLView {
     openGLContext = NSOpenGLContext(format: pixelFormat!, share: nil)
     openGLContext!.setValues([1], for: NSOpenGLCPSwapInterval)
     
+    facesColour["AuxiliaryTrafficArea"] = [String: Array<GLfloat>]()
+    facesColour["AuxiliaryTrafficArea"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["Bridge"] = [String: Array<GLfloat>]()
     facesColour["Bridge"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["Building"] = [String: Array<GLfloat>]()
@@ -129,6 +131,8 @@ class OpenGLView: NSOpenGLView {
     facesColour["Road"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["SolitaryVegetationObject"] = [String: Array<GLfloat>]()
     facesColour["SolitaryVegetationObject"]![""] = [0.4, 0.882352941176471, 0.333333333333333, 1.0]
+    facesColour["TrafficArea"] = [String: Array<GLfloat>]()
+    facesColour["TrafficArea"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["Tunnel"] = [String: Array<GLfloat>]()
     facesColour["Tunnel"]![""] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]
     facesColour["Tunnel"]!["GroundSurface"] = [0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0]

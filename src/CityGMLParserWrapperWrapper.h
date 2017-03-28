@@ -17,7 +17,8 @@
 #ifndef CityGMLParserWrapperWrapper_h
 #define CityGMLParserWrapperWrapper_h
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
+#import <OpenGL/OpenGL.h>
 
 struct CityGMLParserWrapper;
 

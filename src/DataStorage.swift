@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import Cocoa
+
 class CityGMLObject {
   var id: String = ""
   var type: String = ""
@@ -208,7 +210,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     } else if (item as? CityGMLObjectAttribute) != nil {
       return 0
     } else {
-      Swift.print("Unsupported item is \(item)")
+      Swift.print("Unsupported item is \(item!)")
       return 0
     }
   }
