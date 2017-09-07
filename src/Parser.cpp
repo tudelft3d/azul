@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "CityGMLParser.hpp"
+#include "Parser.hpp"
 
-CityGMLParser::CityGMLParser() {
+Parser::Parser() {
   firstRing = true;
   std::cout.precision(std::numeric_limits<float>::max_digits10);
   attributesToPreserve.insert("class");
@@ -39,7 +39,7 @@ CityGMLParser::CityGMLParser() {
   attributesToPreserve.insert("name");
 }
 
-void CityGMLParser::parse(const char *filePath) {
+void Parser::parse(const char *filePath) {
   //  std::cout << "Parsing " << filePath << std::endl;
   
   pugi::xml_document doc;
@@ -65,12 +65,12 @@ void CityGMLParser::parse(const char *filePath) {
   regenerateGeometries();
 }
 
-void CityGMLParser::clear() {
+void Parser::clear() {
   objects.clear();
   firstRing = true;
 }
 
-void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
+void Parser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
 //  std::cout << "Parsing object " << node.name() << " with id " << node.attribute("gml:id").value() << std::endl;
   const char *nodeType = node.name();
   const char *namespaceSeparator = strchr(nodeType, ':');
@@ -102,7 +102,7 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
   }
 }
 
-void CityGMLParser::parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon) {
+void Parser::parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon) {
   //  std::cout << "\tParsing polygon" << std::endl;
   RingsWalker ringsWalker;
   node.traverse(ringsWalker);
@@ -113,7 +113,7 @@ void CityGMLParser::parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon) 
   }
 }
 
-void CityGMLParser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
+void Parser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
   //  std::cout << "\t\tParsing ring" << std::endl;
   PointsWalker pointsWalker;
   node.traverse(pointsWalker);
@@ -131,7 +131,7 @@ void CityGMLParser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
   }
 }
 
-void CityGMLParser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
+void Parser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
   for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
     centroid.coordinates[currentCoordinate] = 0.0;
   } for (auto const &point: ring.points) {
@@ -143,7 +143,7 @@ void CityGMLParser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
   }
 }
 
-void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<float> &triangles) {
+void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<float> &triangles) {
   // Check if last == first
   if (polygon.exteriorRing.points.back().coordinates[0] != polygon.exteriorRing.points.front().coordinates[0] ||
       polygon.exteriorRing.points.back().coordinates[1] != polygon.exteriorRing.points.front().coordinates[1] ||
@@ -284,7 +284,7 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
   
 }
 
-void CityGMLParser::regenerateTrianglesFor(CityGMLObject &object) {
+void Parser::regenerateTrianglesFor(CityGMLObject &object) {
   object.trianglesByType.clear();
   
   for (auto &polygonsByType: object.polygonsByType) {
@@ -294,7 +294,7 @@ void CityGMLParser::regenerateTrianglesFor(CityGMLObject &object) {
   }
 }
 
-void CityGMLParser::regenerateEdgesFor(CityGMLObject &object) {
+void Parser::regenerateEdgesFor(CityGMLObject &object) {
   object.edges.clear();
   
   for (auto const &polygonsByType: object.polygonsByType) {
@@ -317,7 +317,7 @@ void CityGMLParser::regenerateEdgesFor(CityGMLObject &object) {
   }
 }
 
-void CityGMLParser::regenerateGeometries() {
+void Parser::regenerateGeometries() {
   for (auto &object: objects) {
     regenerateTrianglesFor(object);
     regenerateEdgesFor(object);

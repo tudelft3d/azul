@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef CityGMLParser_hpp
-#define CityGMLParser_hpp
+#ifndef Parser_hpp
+#define Parser_hpp
 
 #include <iostream>
 #include <sstream>
@@ -159,7 +159,7 @@ struct ObjectsWalker: pugi::xml_tree_walker {
   }
 };
 
-class CityGMLParser {
+class Parser {
 public:
   std::list<CityGMLObject> objects;
   
@@ -173,7 +173,7 @@ public:
   std::map<std::string, std::vector<float>>::const_iterator currentTrianglesBuffer;
   std::map<std::string, std::string>::const_iterator currentAttribute;
   
-  CityGMLParser();
+  Parser();
   void parse(const char *filePath);
   void clear();
   
@@ -188,4 +188,4 @@ public:
   void regenerateGeometries();
 };
 
-#endif /* CityGMLParser_hpp */
+#endif /* Parser_hpp */

@@ -47,7 +47,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     Swift.print("Opening \(urls)")
     
     let startTime = CACurrentMediaTime()
-    let cityGMLParser = CityGMLParserWrapperWrapper()!
+    let parser = ParserWrapperWrapper()!
     controller?.progressIndicator.startAnimation(self)
     
     DispatchQueue.global().async(qos: .userInitiated) {
@@ -61,7 +61,7 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
         Swift.print("Loading \(url)")
         let parsingStartTime = CACurrentMediaTime()
         url.path.utf8CString.withUnsafeBufferPointer { pointer in
-          cityGMLParser.parse(pointer.baseAddress)
+          parser.parse(pointer.baseAddress)
         }
         Swift.print("\t1. Parsed data in \(CACurrentMediaTime()-parsingStartTime) seconds.")
         
@@ -70,8 +70,8 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
         
       }
       
-      self.storeData(in: cityGMLParser)
-      cityGMLParser.clear()
+      self.storeData(in: parser)
+      parser.clear()
       
       while self.view == nil {
         Thread.sleep(forTimeInterval: 0.01)
@@ -109,8 +109,8 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
     }
   }
   
-  func storeData(in cityGMLParser: CityGMLParserWrapperWrapper) {
-    Swift.print("DataStorage.storeData(CityGMLParserWrapperWrapper)")
+  func storeData(in cityGMLParser: ParserWrapperWrapper) {
+    Swift.print("DataStorage.storeData(ParserWrapperWrapper)")
     let startTime = CACurrentMediaTime()
     
     let firstMinCoordinate = cityGMLParser.minCoordinates()

@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import "CityGMLParserWrapperWrapper.h"
-#import "CityGMLParser.hpp"
+#import "ParserWrapperWrapper.h"
+#import "Parser.hpp"
 
-struct CityGMLParserWrapper {
-  CityGMLParser *parser;
+struct ParserWrapper {
+  Parser *parser;
   std::vector<GLfloat> boundingBox;
 };
 
-@implementation CityGMLParserWrapperWrapper
+@implementation ParserWrapperWrapper
 
 - (id) init {
   if (self = [super init]) {
-    parserWrapper = new CityGMLParserWrapper();
-    parserWrapper->parser = new CityGMLParser();
+    parserWrapper = new ParserWrapper();
+    parserWrapper->parser = new Parser();
   } return self;
 }
 
