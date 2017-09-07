@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016 Ken Arroyo Ohori
+// Copyright © 2016-2017 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
