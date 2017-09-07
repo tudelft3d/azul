@@ -31,8 +31,12 @@ struct ParserWrapper {
   } return self;
 }
 
-- (void) parse: (const char *)filePath {
-  parserWrapper->parser->parse(filePath);
+- (void) parseCityGML: (const char *)filePath {
+  parserWrapper->parser->parseCityGML(filePath);
+}
+
+- (void) parseCityJSON: (const char *)filePath {
+  parserWrapper->parser->parseCityJSON(filePath);
 }
 
 - (void) clear {

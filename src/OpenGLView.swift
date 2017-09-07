@@ -155,7 +155,7 @@ class OpenGLView: NSOpenGLView {
     for filename in filenames {
       let filenameString = filename as! String
 //      Swift.print(filenameString)
-      if !filenameString.hasSuffix(".gml") && !filenameString.hasSuffix(".xml") {
+      if !filenameString.hasSuffix(".gml") && !filenameString.hasSuffix(".xml") && !filenameString.hasSuffix(".json") {
         return NSDragOperation(rawValue: 0)
       }
     }

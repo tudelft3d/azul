@@ -27,7 +27,8 @@ struct ParserWrapper;
 }
 
 - (id) init;
-- (void) parse: (const char *)filePath;
+- (void) parseCityGML: (const char *)filePath;
+- (void) parseCityJSON: (const char *)filePath;
 - (void) clear;
 - (void) initialiseObjectIterator;
 - (void) advanceObjectIterator;

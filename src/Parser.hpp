@@ -174,7 +174,8 @@ public:
   std::map<std::string, std::string>::const_iterator currentAttribute;
   
   Parser();
-  void parse(const char *filePath);
+  void parseCityGML(const char *filePath);
+  void parseCityJSON(const char *filePath);
   void clear();
   
   void parseObject(pugi::xml_node &node, ParsedObject &object);

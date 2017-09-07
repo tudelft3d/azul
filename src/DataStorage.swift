@@ -61,7 +61,11 @@ class DataStorage: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
         Swift.print("Loading \(url)")
         let parsingStartTime = CACurrentMediaTime()
         url.path.utf8CString.withUnsafeBufferPointer { pointer in
-          parser.parse(pointer.baseAddress)
+          if url.path.hasSuffix(".gml") || url.path.hasSuffix(".xml") {
+            parser.parseCityGML(pointer.baseAddress)
+          } else if url.path.hasSuffix(".json") {
+            parser.parseCityJSON(pointer.baseAddress)
+          }
         }
         Swift.print("\t1. Parsed data in \(CACurrentMediaTime()-parsingStartTime) seconds.")
         

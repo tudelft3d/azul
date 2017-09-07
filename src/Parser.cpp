@@ -39,13 +39,13 @@ Parser::Parser() {
   attributesToPreserve.insert("name");
 }
 
-void Parser::parse(const char *filePath) {
+void Parser::parseCityGML(const char *filePath) {
   //  std::cout << "Parsing " << filePath << std::endl;
   
   pugi::xml_document doc;
   doc.load_file(filePath);
   
-  std::cout << "Loaded XML file" << std::endl;
+  std::cout << "Loaded CityGML file" << std::endl;
   
   // With single traversal
   ObjectsWalker objectsWalker;
@@ -63,6 +63,12 @@ void Parser::parse(const char *filePath) {
   
   // Regenerate geometries
   regenerateGeometries();
+}
+
+void Parser::parseCityJSON(const char *filePath) {
+  
+  std::cout << "Loaded CityJSON file" << std::endl;
+  
 }
 
 void Parser::clear() {
