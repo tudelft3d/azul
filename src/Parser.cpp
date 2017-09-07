@@ -51,7 +51,7 @@ void Parser::parse(const char *filePath) {
   ObjectsWalker objectsWalker;
   doc.traverse(objectsWalker);
   for (auto &object: objectsWalker.objects) {
-    objects.push_back(CityGMLObject());
+    objects.push_back(ParsedObject());
     parseObject(object, objects.back());
   }
   
@@ -70,7 +70,7 @@ void Parser::clear() {
   firstRing = true;
 }
 
-void Parser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
+void Parser::parseObject(pugi::xml_node &node, ParsedObject &object) {
 //  std::cout << "Parsing object " << node.name() << " with id " << node.attribute("gml:id").value() << std::endl;
   const char *nodeType = node.name();
   const char *namespaceSeparator = strchr(nodeType, ':');
@@ -96,24 +96,24 @@ void Parser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
   node.traverse(polygonsWalker);
   for (auto &polygonsByType: polygonsWalker.polygonsByType) {
     for (auto &polygon: polygonsByType.second) {
-      object.polygonsByType[polygonsByType.first].push_back(CityGMLPolygon());
+      object.polygonsByType[polygonsByType.first].push_back(ParsedPolygon());
       parsePolygon(polygon, object.polygonsByType[polygonsByType.first].back());
     }
   }
 }
 
-void Parser::parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon) {
+void Parser::parsePolygon(pugi::xml_node &node, ParsedPolygon &polygon) {
   //  std::cout << "\tParsing polygon" << std::endl;
   RingsWalker ringsWalker;
   node.traverse(ringsWalker);
   parseRing(ringsWalker.exteriorRing, polygon.exteriorRing);
   for (auto &ring: ringsWalker.interiorRings) {
-    polygon.interiorRings.push_back(CityGMLRing());
+    polygon.interiorRings.push_back(ParsedRing());
     parseRing(ring, polygon.interiorRings.back());
   }
 }
 
-void Parser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
+void Parser::parseRing(pugi::xml_node &node, ParsedRing &ring) {
   //  std::cout << "\t\tParsing ring" << std::endl;
   PointsWalker pointsWalker;
   node.traverse(pointsWalker);
@@ -131,7 +131,7 @@ void Parser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
   }
 }
 
-void Parser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
+void Parser::centroidOf(ParsedRing &ring, ParsedPoint &centroid) {
   for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
     centroid.coordinates[currentCoordinate] = 0.0;
   } for (auto const &point: ring.points) {
@@ -143,7 +143,7 @@ void Parser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
   }
 }
 
-void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<float> &triangles) {
+void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(ParsedPolygon &polygon, std::vector<float> &triangles) {
   // Check if last == first
   if (polygon.exteriorRing.points.back().coordinates[0] != polygon.exteriorRing.points.front().coordinates[0] ||
       polygon.exteriorRing.points.back().coordinates[1] != polygon.exteriorRing.points.front().coordinates[1] ||
@@ -167,10 +167,10 @@ void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon
   
   // Triangle
   else if (polygon.exteriorRing.points.size() == 4 && polygon.interiorRings.size() == 0) {
-    std::list<CityGMLPoint>::const_iterator point1 = polygon.exteriorRing.points.begin();
-    std::list<CityGMLPoint>::const_iterator point2 = point1;
+    std::list<ParsedPoint>::const_iterator point1 = polygon.exteriorRing.points.begin();
+    std::list<ParsedPoint>::const_iterator point2 = point1;
     ++point2;
-    std::list<CityGMLPoint>::const_iterator point3 = point2;
+    std::list<ParsedPoint>::const_iterator point3 = point2;
     ++point3;
     Kernel::Plane_3 plane(Kernel::Point_3(point1->coordinates[0], point1->coordinates[1], point1->coordinates[2]),
                           Kernel::Point_3(point2->coordinates[0], point2->coordinates[1], point2->coordinates[2]),
@@ -209,7 +209,7 @@ void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon
     
     // Triangulate the projection of the edges to the plane
     Triangulation triangulation;
-    std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
+    std::list<ParsedPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
     Triangulation::Vertex_handle currentVertex = triangulation.insert(bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])));
     ++currentPoint;
     Triangulation::Vertex_handle previousVertex;
@@ -284,7 +284,7 @@ void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon
   
 }
 
-void Parser::regenerateTrianglesFor(CityGMLObject &object) {
+void Parser::regenerateTrianglesFor(ParsedObject &object) {
   object.trianglesByType.clear();
   
   for (auto &polygonsByType: object.polygonsByType) {
@@ -294,7 +294,7 @@ void Parser::regenerateTrianglesFor(CityGMLObject &object) {
   }
 }
 
-void Parser::regenerateEdgesFor(CityGMLObject &object) {
+void Parser::regenerateEdgesFor(ParsedObject &object) {
   object.edges.clear();
   
   for (auto const &polygonsByType: object.polygonsByType) {
@@ -302,8 +302,8 @@ void Parser::regenerateEdgesFor(CityGMLObject &object) {
       if (polygon.exteriorRing.points.size() < 4) {
         std::cout << "Polygon with < 4 points! Skipping..." << std::endl;
         continue;
-      } std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
-      std::list<CityGMLPoint>::const_iterator nextPoint = currentPoint;
+      } std::list<ParsedPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
+      std::list<ParsedPoint>::const_iterator nextPoint = currentPoint;
       ++nextPoint;
       while (nextPoint != polygon.exteriorRing.points.end()) {
         for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {

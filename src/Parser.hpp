@@ -39,30 +39,30 @@ typedef CGAL::Triangulation_face_base_with_info_2<std::pair<bool, bool>, Kernel,
 typedef CGAL::Triangulation_data_structure_2<VertexBase, FaceBaseWithInfo> TriangulationDataStructure;
 typedef CGAL::Constrained_Delaunay_triangulation_2<Kernel, TriangulationDataStructure, Tag> Triangulation;
 
-struct CityGMLPoint {
+struct ParsedPoint {
   float coordinates[3];
 };
 
-struct CityGMLRing {
-  std::list<CityGMLPoint> points;
+struct ParsedRing {
+  std::list<ParsedPoint> points;
 };
 
-struct CityGMLPolygon {
-  CityGMLRing exteriorRing;
-  std::list<CityGMLRing> interiorRings;
+struct ParsedPolygon {
+  ParsedRing exteriorRing;
+  std::list<ParsedRing> interiorRings;
 };
 
-struct CityGMLObject {
+struct ParsedObject {
   std::string type;
   std::string id;
   std::map<std::string, std::string> attributes;
-  std::map<std::string, std::list<CityGMLPolygon>> polygonsByType;
+  std::map<std::string, std::list<ParsedPolygon>> polygonsByType;
   std::map<std::string, std::vector<float>> trianglesByType;
   std::vector<float> edges;
 };
 
 struct PointsWalker: pugi::xml_tree_walker {
-  std::list<CityGMLPoint> points;
+  std::list<ParsedPoint> points;
   virtual bool for_each(pugi::xml_node &node) {
     if (strcmp(node.name(), "gml:pos") == 0 ||
         strcmp(node.name(), "gml:posList") == 0) {
@@ -74,7 +74,7 @@ struct PointsWalker: pugi::xml_tree_walker {
         std::string substring;
         iss >> substring;
         if (substring.length() > 0) {
-          if (currentCoordinate == 0) points.push_back(CityGMLPoint());
+          if (currentCoordinate == 0) points.push_back(ParsedPoint());
           try {
             points.back().coordinates[currentCoordinate] = std::stof(substring);
           } catch (const std::invalid_argument& ia) {
@@ -161,7 +161,7 @@ struct ObjectsWalker: pugi::xml_tree_walker {
 
 class Parser {
 public:
-  std::list<CityGMLObject> objects;
+  std::list<ParsedObject> objects;
   
   bool firstRing;
   float minCoordinates[3];
@@ -169,7 +169,7 @@ public:
   
   std::set<std::string> attributesToPreserve;
   
-  std::list<CityGMLObject>::const_iterator currentObject;
+  std::list<ParsedObject>::const_iterator currentObject;
   std::map<std::string, std::vector<float>>::const_iterator currentTrianglesBuffer;
   std::map<std::string, std::string>::const_iterator currentAttribute;
   
@@ -177,14 +177,14 @@ public:
   void parse(const char *filePath);
   void clear();
   
-  void parseObject(pugi::xml_node &node, CityGMLObject &object);
-  void parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon);
-  void parseRing(pugi::xml_node &node, CityGMLRing &ring);
+  void parseObject(pugi::xml_node &node, ParsedObject &object);
+  void parsePolygon(pugi::xml_node &node, ParsedPolygon &polygon);
+  void parseRing(pugi::xml_node &node, ParsedRing &ring);
   
-  void centroidOf(CityGMLRing &ring, CityGMLPoint &centroid);
-  void addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<float> &triangles);
-  void regenerateTrianglesFor(CityGMLObject &object);
-  void regenerateEdgesFor(CityGMLObject &object);
+  void centroidOf(ParsedRing &ring, ParsedPoint &centroid);
+  void addTrianglesFromTheConstrainedTriangulationOfPolygon(ParsedPolygon &polygon, std::vector<float> &triangles);
+  void regenerateTrianglesFor(ParsedObject &object);
+  void regenerateEdgesFor(ParsedObject &object);
   void regenerateGeometries();
 };
 
