@@ -18,6 +18,7 @@
 #define Parser_hpp
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <list>
 #include <vector>
@@ -30,6 +31,8 @@
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/Triangulation_face_base_with_info_2.h>
 #include <CGAL/linear_least_squares_fitting_3.h>
+
+#include "json.hpp"
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Exact_predicates_tag Tag;
@@ -143,6 +146,7 @@ struct ObjectsWalker: pugi::xml_tree_walker {
         strcmp(nodeType, "Bridge") == 0 ||
         strcmp(nodeType, "Building") == 0 ||
         strcmp(nodeType, "BuildingPart") == 0 ||
+        strcmp(nodeType, "BuildingInstallation") == 0 ||
         strcmp(nodeType, "CityFurniture") == 0 ||
         strcmp(nodeType, "GenericCityObject") == 0 ||
         strcmp(nodeType, "LandUse") == 0 ||
@@ -178,9 +182,13 @@ public:
   void parseCityJSON(const char *filePath);
   void clear();
   
-  void parseObject(pugi::xml_node &node, ParsedObject &object);
-  void parsePolygon(pugi::xml_node &node, ParsedPolygon &polygon);
-  void parseRing(pugi::xml_node &node, ParsedRing &ring);
+  void parseCityGMLObject(pugi::xml_node &node, ParsedObject &object);
+  void parseCityGMLPolygon(pugi::xml_node &node, ParsedPolygon &polygon);
+  void parseCityGMLRing(pugi::xml_node &node, ParsedRing &ring);
+  
+  void parseCityJSONObject(nlohmann::json::const_iterator &iterator, ParsedObject &object, std::vector<std::vector<double>> &vertices);
+  void parseCityJSONPolygon(const std::vector<std::vector<std::size_t>> &jsonPolygon, ParsedPolygon &polygon, std::vector<std::vector<double>> &vertices);
+  void parseCityJSONRing(const std::vector<std::size_t> &jsonRing, ParsedRing &ring, std::vector<std::vector<double>> &vertices);
   
   void centroidOf(ParsedRing &ring, ParsedPoint &centroid);
   void addTrianglesFromTheConstrainedTriangulationOfPolygon(ParsedPolygon &polygon, std::vector<float> &triangles);

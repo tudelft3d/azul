@@ -91,6 +91,7 @@
 		BE5DE7A01DD226BE00D86610 /* DataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStorage.swift; sourceTree = "<group>"; };
 		BE8B362C1DD547D6007BCC29 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Azul-Bridging-Header.h"; sourceTree = "<group>"; };
+		BEA55A391F61637F00829A86 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
@@ -197,6 +198,7 @@
 		BE5DE7A21DD226C700D86610 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
+				BEA55A391F61637F00829A86 /* json.hpp */,
 				BE5DE7931DD2255900D86610 /* ParserWrapperWrapper.h */,
 				BE5DE7941DD2255900D86610 /* ParserWrapperWrapper.mm */,
 				BE5DE7951DD2255900D86610 /* Parser.hpp */,

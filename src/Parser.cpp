@@ -52,7 +52,7 @@ void Parser::parseCityGML(const char *filePath) {
   doc.traverse(objectsWalker);
   for (auto &object: objectsWalker.objects) {
     objects.push_back(ParsedObject());
-    parseObject(object, objects.back());
+    parseCityGMLObject(object, objects.back());
   }
   
   // Stats
@@ -65,10 +65,119 @@ void Parser::parseCityGML(const char *filePath) {
   regenerateGeometries();
 }
 
+void parseCityJSONPolygon(std::vector<std::vector<std::size_t>> &node, ParsedPolygon &polygon, std::vector<std::vector<double>> &vertices) {
+  
+}
+
+void Parser::parseCityJSONObject(nlohmann::json::const_iterator &jsonObject, ParsedObject &object, std::vector<std::vector<double>> &vertices) {
+  
+  object.id = jsonObject.key();
+//  std::cout << "ID: " << object.id << std::endl;
+  object.type = jsonObject.value()["type"];
+//  std::cout << "Type: " << object.type << std::endl;
+
+  for (auto const &geometry: jsonObject.value()["geometry"]) {
+//      std::cout << "Geometry: " << geometry.dump(2) << std::endl;
+    
+    if (geometry["type"] == "MultiSurface" || geometry["type"] == "CompositeSurface") {
+//        std::cout << "Boundaries: " << geometry["boundaries"].dump() << std::endl;
+      for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"].size(); ++surfaceIndex) {
+//          std::cout << "Surface: " << geometry["boundaries"][surfaceIndex].dump() << std::endl;
+        std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][surfaceIndex];
+        auto const &surfaceSemantics = geometry["semantics"][surfaceIndex];
+//          std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
+        std::string surfaceType = surfaceSemantics["type"];
+//          std::cout << "Surface type: " << surfaceType << std::endl;
+        
+        object.polygonsByType[surfaceType].push_back(ParsedPolygon());
+        parseCityJSONPolygon(surface, object.polygonsByType[surfaceType].back(), vertices);
+      }
+    }
+    
+    else {
+      std::cout << "Unsupported geometry: " << jsonObject.value()["geometry"]["type"] << std::endl;;
+    }
+  }
+}
+
+void Parser::parseCityJSONPolygon(const std::vector<std::vector<std::size_t>> &jsonPolygon, ParsedPolygon &polygon, std::vector<std::vector<double>> &vertices) {
+  bool outer = true;
+  for (auto const &ring: jsonPolygon) {
+    if (outer) {
+      parseCityJSONRing(ring, polygon.exteriorRing, vertices);
+      outer = false;
+    } else {
+      polygon.interiorRings.push_back(ParsedRing());
+      parseCityJSONRing(ring, polygon.interiorRings.back(), vertices);
+    }
+  }
+}
+
+void Parser::parseCityJSONRing(const std::vector<std::size_t> &jsonRing, ParsedRing &ring, std::vector<std::vector<double>> &vertices) {
+  for (auto const &point: jsonRing) {
+    ring.points.push_back(ParsedPoint());
+    for (int dimension = 0; dimension < 3; ++dimension) {
+      ring.points.back().coordinates[dimension] = vertices[point][dimension];
+      if (firstRing) {
+        minCoordinates[dimension] = vertices[point][dimension];
+        maxCoordinates[dimension] = vertices[point][dimension];
+//        std::cout << "Start bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;
+      } else {
+        if (vertices[point][dimension] < minCoordinates[dimension]) minCoordinates[dimension] = vertices[point][dimension];
+        else if (vertices[point][dimension] > maxCoordinates[dimension]) maxCoordinates[dimension] = vertices[point][dimension];
+      }
+    } firstRing = false;
+  } ring.points.push_back(ring.points.front());
+}
+
 void Parser::parseCityJSON(const char *filePath) {
+  
+  std::ifstream inputStream(filePath);
+  nlohmann::json json;
+  inputStream >> json;
+  
+  std::vector<std::vector<double>> vertices = json["vertices"];
+  
+  for (nlohmann::json::const_iterator cityObject = json["CityObjects"].begin();
+       cityObject != json["CityObjects"].end();
+       ++cityObject) {
+    objects.push_back(ParsedObject());
+    parseCityJSONObject(cityObject, objects.back(), vertices);
+  }
   
   std::cout << "Loaded CityJSON file" << std::endl;
   
+  // Stats
+  std::cout << "Parsed " << objects.size() << " objects" << std::endl;
+  std::cout << "Bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;
+  
+  std::cout << objects.size() << " objects" << std::endl;
+  
+  // Regenerate geometries
+  regenerateGeometries();
+  
+  // See what's in here
+//  for (auto const &object: objects) {
+//    std::cout << "Object " << object.id << std::endl;
+//    for (auto const &polygonsOfType: object.polygonsByType) {
+//      std::cout << "\tPolygons of type " << polygonsOfType.first << std::endl;
+//      for (auto const &polygon: polygonsOfType.second) {
+//        std::cout << "\t\tPolygon" << std::endl << "\t\t\tExterior ring" << std::endl;
+//        for (auto const &point: polygon.exteriorRing.points) {
+//          std::cout << "\t\t\t\t";
+//          for (unsigned int dimension = 0; dimension < 3; ++dimension) std::cout << point.coordinates[dimension] << " ";
+//          std::cout << std::endl;
+//        } for (auto const &ring: polygon.interiorRings) {
+//          std::cout << "\t\t\tInterior ring" << std::endl;
+//          for (auto const &point: ring.points) {
+//            std::cout << "\t\t\t\t";
+//            for (unsigned int dimension = 0; dimension < 3; ++dimension) std::cout << point.coordinates[dimension] << " ";
+//            std::cout << std::endl;
+//          }
+//        }
+//      }
+//    }
+//  }
 }
 
 void Parser::clear() {
@@ -76,7 +185,7 @@ void Parser::clear() {
   firstRing = true;
 }
 
-void Parser::parseObject(pugi::xml_node &node, ParsedObject &object) {
+void Parser::parseCityGMLObject(pugi::xml_node &node, ParsedObject &object) {
 //  std::cout << "Parsing object " << node.name() << " with id " << node.attribute("gml:id").value() << std::endl;
   const char *nodeType = node.name();
   const char *namespaceSeparator = strchr(nodeType, ':');
@@ -103,23 +212,23 @@ void Parser::parseObject(pugi::xml_node &node, ParsedObject &object) {
   for (auto &polygonsByType: polygonsWalker.polygonsByType) {
     for (auto &polygon: polygonsByType.second) {
       object.polygonsByType[polygonsByType.first].push_back(ParsedPolygon());
-      parsePolygon(polygon, object.polygonsByType[polygonsByType.first].back());
+      parseCityGMLPolygon(polygon, object.polygonsByType[polygonsByType.first].back());
     }
   }
 }
 
-void Parser::parsePolygon(pugi::xml_node &node, ParsedPolygon &polygon) {
+void Parser::parseCityGMLPolygon(pugi::xml_node &node, ParsedPolygon &polygon) {
   //  std::cout << "\tParsing polygon" << std::endl;
   RingsWalker ringsWalker;
   node.traverse(ringsWalker);
-  parseRing(ringsWalker.exteriorRing, polygon.exteriorRing);
+  parseCityGMLRing(ringsWalker.exteriorRing, polygon.exteriorRing);
   for (auto &ring: ringsWalker.interiorRings) {
     polygon.interiorRings.push_back(ParsedRing());
-    parseRing(ring, polygon.interiorRings.back());
+    parseCityGMLRing(ring, polygon.interiorRings.back());
   }
 }
 
-void Parser::parseRing(pugi::xml_node &node, ParsedRing &ring) {
+void Parser::parseCityGMLRing(pugi::xml_node &node, ParsedRing &ring) {
   //  std::cout << "\t\tParsing ring" << std::endl;
   PointsWalker pointsWalker;
   node.traverse(pointsWalker);
