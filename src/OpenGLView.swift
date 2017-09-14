@@ -108,13 +108,22 @@ class OpenGLView: NSOpenGLView {
     facesColour["Building"]!["Door"] = [0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0]
     facesColour["Building"]!["GroundSurface"] = [0.7, 0.7, 0.7, 1.0]
     facesColour["Building"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0]
+    facesColour["Building"]!["WallSurface"] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
     facesColour["Building"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0, 0.3]
     facesColour["BuildingPart"] = [String: Array<GLfloat>]()
     facesColour["BuildingPart"]![""] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
     facesColour["BuildingPart"]!["Door"] = [0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0]
     facesColour["BuildingPart"]!["GroundSurface"] = [0.7, 0.7, 0.7, 1.0]
     facesColour["BuildingPart"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0]
+    facesColour["BuildingPart"]!["WallSurface"] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
     facesColour["BuildingPart"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0, 0.3]
+    facesColour["BuildingInstallation"] = [String: Array<GLfloat>]()
+    facesColour["BuildingInstallation"]![""] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
+    facesColour["BuildingInstallation"]!["Door"] = [0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0]
+    facesColour["BuildingInstallation"]!["GroundSurface"] = [0.7, 0.7, 0.7, 1.0]
+    facesColour["BuildingInstallation"]!["RoofSurface"] = [0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0]
+    facesColour["BuildingInstallation"]!["WallSurface"] = [1.0, 0.956862745098039, 0.690196078431373, 1.0]
+    facesColour["BuildingInstallation"]!["Window"] = [0.584313725490196, 0.917647058823529, 1.0, 0.3]
     facesColour["CityFurniture"] = [String: Array<GLfloat>]()
     facesColour["CityFurniture"]![""] = [0.7, 0.7, 0.7, 1.0]
     facesColour["GenericCityObject"] = [String: Array<GLfloat>]()
@@ -155,7 +164,7 @@ class OpenGLView: NSOpenGLView {
     for filename in filenames {
       let filenameString = filename as! String
 //      Swift.print(filenameString)
-      if !filenameString.hasSuffix(".gml") && !filenameString.hasSuffix(".xml") {
+      if !filenameString.hasSuffix(".gml") && !filenameString.hasSuffix(".xml") && !filenameString.hasSuffix(".json") {
         return NSDragOperation(rawValue: 0)
       }
     }

@@ -184,7 +184,7 @@ class Controller: NSObject, NSApplicationDelegate {
     openPanel.allowsMultipleSelection = true
     openPanel.canChooseDirectories = false
     openPanel.canChooseFiles = true
-    openPanel.allowedFileTypes = ["gml", "xml"]
+    openPanel.allowedFileTypes = ["gml", "xml", "json"]
     openPanel.begin(completionHandler:{(result: Int) in
       if result == NSFileHandlingPanelOKButton {
         self.dataStorage.loadData(from: openPanel.urls)

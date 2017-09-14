@@ -28,8 +28,8 @@
 		BE4AF9CC1DB7D8A1004FCF22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CB1DB7D8A1004FCF22 /* Assets.xcassets */; };
 		BE4AF9CF1DB7D8A1004FCF22 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BE4AF9CD1DB7D8A1004FCF22 /* MainMenu.xib */; };
 		BE57BC861DDCF2AC0057EEB7 /* file icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE57BC851DDCF2AC0057EEB7 /* file icon.icns */; };
-		BE5DE7971DD2255900D86610 /* CityGMLParserWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */; };
-		BE5DE7981DD2255900D86610 /* CityGMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */; };
+		BE5DE7971DD2255900D86610 /* ParserWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7941DD2255900D86610 /* ParserWrapperWrapper.mm */; };
+		BE5DE7981DD2255900D86610 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7961DD2255900D86610 /* Parser.cpp */; };
 		BE5DE79A1DD2266900D86610 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE7991DD2266900D86610 /* Math.swift */; };
 		BE5DE79C1DD2268100D86610 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79B1DD2268100D86610 /* Shaders.metal */; };
 		BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5DE79E1DD226AF00D86610 /* MetalView.swift */; };
@@ -81,16 +81,17 @@
 		BE4AF9CE1DB7D8A1004FCF22 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		BE4AF9D01DB7D8A1004FCF22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BE57BC851DDCF2AC0057EEB7 /* file icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file icon.icns"; sourceTree = "<group>"; };
-		BE5DE7931DD2255900D86610 /* CityGMLParserWrapperWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityGMLParserWrapperWrapper.h; sourceTree = "<group>"; };
-		BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CityGMLParserWrapperWrapper.mm; sourceTree = "<group>"; };
-		BE5DE7951DD2255900D86610 /* CityGMLParser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CityGMLParser.hpp; sourceTree = "<group>"; };
-		BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityGMLParser.cpp; sourceTree = "<group>"; };
+		BE5DE7931DD2255900D86610 /* ParserWrapperWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParserWrapperWrapper.h; sourceTree = "<group>"; };
+		BE5DE7941DD2255900D86610 /* ParserWrapperWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParserWrapperWrapper.mm; sourceTree = "<group>"; };
+		BE5DE7951DD2255900D86610 /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
+		BE5DE7961DD2255900D86610 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
 		BE5DE7991DD2266900D86610 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
 		BE5DE79B1DD2268100D86610 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BE5DE79E1DD226AF00D86610 /* MetalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		BE5DE7A01DD226BE00D86610 /* DataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStorage.swift; sourceTree = "<group>"; };
 		BE8B362C1DD547D6007BCC29 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BE9EB5B41DBEA52000C78EC0 /* Azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Azul-Bridging-Header.h"; sourceTree = "<group>"; };
+		BEA55A391F61637F00829A86 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		BEA6D17E1DCE6714005D066F /* azul.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = azul.entitlements; sourceTree = "<group>"; };
 		BEADB0D91DB8A19600B44D7B /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		BEADB0DB1DB8BA2500B44D7B /* fragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.glsl; sourceTree = "<group>"; };
@@ -197,10 +198,11 @@
 		BE5DE7A21DD226C700D86610 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
-				BE5DE7931DD2255900D86610 /* CityGMLParserWrapperWrapper.h */,
-				BE5DE7941DD2255900D86610 /* CityGMLParserWrapperWrapper.mm */,
-				BE5DE7951DD2255900D86610 /* CityGMLParser.hpp */,
-				BE5DE7961DD2255900D86610 /* CityGMLParser.cpp */,
+				BEA55A391F61637F00829A86 /* json.hpp */,
+				BE5DE7931DD2255900D86610 /* ParserWrapperWrapper.h */,
+				BE5DE7941DD2255900D86610 /* ParserWrapperWrapper.mm */,
+				BE5DE7951DD2255900D86610 /* Parser.hpp */,
+				BE5DE7961DD2255900D86610 /* Parser.cpp */,
 			);
 			name = Parser;
 			sourceTree = "<group>";
@@ -308,11 +310,11 @@
 			files = (
 				BE5DE79C1DD2268100D86610 /* Shaders.metal in Sources */,
 				BE5DE79F1DD226AF00D86610 /* MetalView.swift in Sources */,
-				BE5DE7981DD2255900D86610 /* CityGMLParser.cpp in Sources */,
+				BE5DE7981DD2255900D86610 /* Parser.cpp in Sources */,
 				BE5DE7A11DD226BE00D86610 /* DataStorage.swift in Sources */,
 				BEB006CB1DD2406400C0909D /* OpenGLView.swift in Sources */,
 				BE3E5D271DCE72AA0065B553 /* README.md in Sources */,
-				BE5DE7971DD2255900D86610 /* CityGMLParserWrapperWrapper.mm in Sources */,
+				BE5DE7971DD2255900D86610 /* ParserWrapperWrapper.mm in Sources */,
 				BE4AF9CA1DB7D8A1004FCF22 /* Controller.swift in Sources */,
 				BE5DE79A1DD2266900D86610 /* Math.swift in Sources */,
 			);

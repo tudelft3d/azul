@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef CityGMLParser_hpp
-#define CityGMLParser_hpp
+#ifndef Parser_hpp
+#define Parser_hpp
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <list>
 #include <vector>
@@ -31,6 +32,8 @@
 #include <CGAL/Triangulation_face_base_with_info_2.h>
 #include <CGAL/linear_least_squares_fitting_3.h>
 
+#include "json.hpp"
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Exact_predicates_tag Tag;
 typedef CGAL::Triangulation_vertex_base_2<Kernel> VertexBase;
@@ -39,30 +42,30 @@ typedef CGAL::Triangulation_face_base_with_info_2<std::pair<bool, bool>, Kernel,
 typedef CGAL::Triangulation_data_structure_2<VertexBase, FaceBaseWithInfo> TriangulationDataStructure;
 typedef CGAL::Constrained_Delaunay_triangulation_2<Kernel, TriangulationDataStructure, Tag> Triangulation;
 
-struct CityGMLPoint {
+struct ParsedPoint {
   float coordinates[3];
 };
 
-struct CityGMLRing {
-  std::list<CityGMLPoint> points;
+struct ParsedRing {
+  std::list<ParsedPoint> points;
 };
 
-struct CityGMLPolygon {
-  CityGMLRing exteriorRing;
-  std::list<CityGMLRing> interiorRings;
+struct ParsedPolygon {
+  ParsedRing exteriorRing;
+  std::list<ParsedRing> interiorRings;
 };
 
-struct CityGMLObject {
+struct ParsedObject {
   std::string type;
   std::string id;
   std::map<std::string, std::string> attributes;
-  std::map<std::string, std::list<CityGMLPolygon>> polygonsByType;
+  std::map<std::string, std::list<ParsedPolygon>> polygonsByType;
   std::map<std::string, std::vector<float>> trianglesByType;
   std::vector<float> edges;
 };
 
 struct PointsWalker: pugi::xml_tree_walker {
-  std::list<CityGMLPoint> points;
+  std::list<ParsedPoint> points;
   virtual bool for_each(pugi::xml_node &node) {
     if (strcmp(node.name(), "gml:pos") == 0 ||
         strcmp(node.name(), "gml:posList") == 0) {
@@ -74,7 +77,7 @@ struct PointsWalker: pugi::xml_tree_walker {
         std::string substring;
         iss >> substring;
         if (substring.length() > 0) {
-          if (currentCoordinate == 0) points.push_back(CityGMLPoint());
+          if (currentCoordinate == 0) points.push_back(ParsedPoint());
           try {
             points.back().coordinates[currentCoordinate] = std::stof(substring);
           } catch (const std::invalid_argument& ia) {
@@ -143,6 +146,7 @@ struct ObjectsWalker: pugi::xml_tree_walker {
         strcmp(nodeType, "Bridge") == 0 ||
         strcmp(nodeType, "Building") == 0 ||
         strcmp(nodeType, "BuildingPart") == 0 ||
+        strcmp(nodeType, "BuildingInstallation") == 0 ||
         strcmp(nodeType, "CityFurniture") == 0 ||
         strcmp(nodeType, "GenericCityObject") == 0 ||
         strcmp(nodeType, "LandUse") == 0 ||
@@ -159,9 +163,9 @@ struct ObjectsWalker: pugi::xml_tree_walker {
   }
 };
 
-class CityGMLParser {
+class Parser {
 public:
-  std::list<CityGMLObject> objects;
+  std::list<ParsedObject> objects;
   
   bool firstRing;
   float minCoordinates[3];
@@ -169,23 +173,28 @@ public:
   
   std::set<std::string> attributesToPreserve;
   
-  std::list<CityGMLObject>::const_iterator currentObject;
+  std::list<ParsedObject>::const_iterator currentObject;
   std::map<std::string, std::vector<float>>::const_iterator currentTrianglesBuffer;
   std::map<std::string, std::string>::const_iterator currentAttribute;
   
-  CityGMLParser();
-  void parse(const char *filePath);
+  Parser();
+  void parseCityGML(const char *filePath);
+  void parseCityJSON(const char *filePath);
   void clear();
   
-  void parseObject(pugi::xml_node &node, CityGMLObject &object);
-  void parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon);
-  void parseRing(pugi::xml_node &node, CityGMLRing &ring);
+  void parseCityGMLObject(pugi::xml_node &node, ParsedObject &object);
+  void parseCityGMLPolygon(pugi::xml_node &node, ParsedPolygon &polygon);
+  void parseCityGMLRing(pugi::xml_node &node, ParsedRing &ring);
   
-  void centroidOf(CityGMLRing &ring, CityGMLPoint &centroid);
-  void addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<float> &triangles);
-  void regenerateTrianglesFor(CityGMLObject &object);
-  void regenerateEdgesFor(CityGMLObject &object);
+  void parseCityJSONObject(nlohmann::json::const_iterator &iterator, ParsedObject &object, std::vector<std::vector<double>> &vertices);
+  void parseCityJSONPolygon(const std::vector<std::vector<std::size_t>> &jsonPolygon, ParsedPolygon &polygon, std::vector<std::vector<double>> &vertices);
+  void parseCityJSONRing(const std::vector<std::size_t> &jsonRing, ParsedRing &ring, std::vector<std::vector<double>> &vertices);
+  
+  void centroidOf(ParsedRing &ring, ParsedPoint &centroid);
+  void addTrianglesFromTheConstrainedTriangulationOfPolygon(ParsedPolygon &polygon, std::vector<float> &triangles);
+  void regenerateTrianglesFor(ParsedObject &object);
+  void regenerateEdgesFor(ParsedObject &object);
   void regenerateGeometries();
 };
 
-#endif /* CityGMLParser_hpp */
+#endif /* Parser_hpp */

@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "CityGMLParser.hpp"
+#include "Parser.hpp"
 
-CityGMLParser::CityGMLParser() {
+Parser::Parser() {
   firstRing = true;
   std::cout.precision(std::numeric_limits<float>::max_digits10);
   attributesToPreserve.insert("class");
@@ -39,20 +39,20 @@ CityGMLParser::CityGMLParser() {
   attributesToPreserve.insert("name");
 }
 
-void CityGMLParser::parse(const char *filePath) {
+void Parser::parseCityGML(const char *filePath) {
   //  std::cout << "Parsing " << filePath << std::endl;
   
   pugi::xml_document doc;
   doc.load_file(filePath);
   
-  std::cout << "Loaded XML file" << std::endl;
+  std::cout << "Loaded CityGML file" << std::endl;
   
   // With single traversal
   ObjectsWalker objectsWalker;
   doc.traverse(objectsWalker);
   for (auto &object: objectsWalker.objects) {
-    objects.push_back(CityGMLObject());
-    parseObject(object, objects.back());
+    objects.push_back(ParsedObject());
+    parseCityGMLObject(object, objects.back());
   }
   
   // Stats
@@ -65,12 +65,123 @@ void CityGMLParser::parse(const char *filePath) {
   regenerateGeometries();
 }
 
-void CityGMLParser::clear() {
+void Parser::parseCityJSONObject(nlohmann::json::const_iterator &jsonObject, ParsedObject &object, std::vector<std::vector<double>> &vertices) {
+  
+  object.id = jsonObject.key();
+//  std::cout << "ID: " << object.id << std::endl;
+  object.type = jsonObject.value()["type"];
+//  std::cout << "Type: " << object.type << std::endl;
+
+  for (auto const &geometry: jsonObject.value()["geometry"]) {
+//      std::cout << "Geometry: " << geometry.dump(2) << std::endl;
+    
+    if (geometry["type"] == "MultiSurface" || geometry["type"] == "CompositeSurface") {
+//        std::cout << "Boundaries: " << geometry["boundaries"].dump() << std::endl;
+      for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"].size(); ++surfaceIndex) {
+//          std::cout << "Surface: " << geometry["boundaries"][surfaceIndex].dump() << std::endl;
+        std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][surfaceIndex];
+        auto const &surfaceSemantics = geometry["semantics"][surfaceIndex];
+//          std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
+        std::string surfaceType = surfaceSemantics["type"];
+//          std::cout << "Surface type: " << surfaceType << std::endl;
+        
+        object.polygonsByType[surfaceType].push_back(ParsedPolygon());
+        parseCityJSONPolygon(surface, object.polygonsByType[surfaceType].back(), vertices);
+      }
+    }
+    
+    else {
+//      std::cout << "Unsupported geometry: " << jsonObject.value()["geometry"]["type"] << std::endl;;
+    }
+  }
+}
+
+void Parser::parseCityJSONPolygon(const std::vector<std::vector<std::size_t>> &jsonPolygon, ParsedPolygon &polygon, std::vector<std::vector<double>> &vertices) {
+  bool outer = true;
+  for (auto const &ring: jsonPolygon) {
+    if (outer) {
+      parseCityJSONRing(ring, polygon.exteriorRing, vertices);
+      outer = false;
+    } else {
+      polygon.interiorRings.push_back(ParsedRing());
+      parseCityJSONRing(ring, polygon.interiorRings.back(), vertices);
+    }
+  }
+}
+
+void Parser::parseCityJSONRing(const std::vector<std::size_t> &jsonRing, ParsedRing &ring, std::vector<std::vector<double>> &vertices) {
+  for (auto const &point: jsonRing) {
+    ring.points.push_back(ParsedPoint());
+    for (int dimension = 0; dimension < 3; ++dimension) {
+      ring.points.back().coordinates[dimension] = vertices[point][dimension];
+      if (firstRing) {
+        minCoordinates[dimension] = vertices[point][dimension];
+        maxCoordinates[dimension] = vertices[point][dimension];
+//        std::cout << "Start bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;
+      } else {
+        if (vertices[point][dimension] < minCoordinates[dimension]) minCoordinates[dimension] = vertices[point][dimension];
+        else if (vertices[point][dimension] > maxCoordinates[dimension]) maxCoordinates[dimension] = vertices[point][dimension];
+      }
+    } firstRing = false;
+  } ring.points.push_back(ring.points.front());
+}
+
+void Parser::parseCityJSON(const char *filePath) {
+  
+  std::ifstream inputStream(filePath);
+  nlohmann::json json;
+  inputStream >> json;
+  
+  std::vector<std::vector<double>> vertices = json["vertices"];
+  
+  for (nlohmann::json::const_iterator cityObject = json["CityObjects"].begin();
+       cityObject != json["CityObjects"].end();
+       ++cityObject) {
+    objects.push_back(ParsedObject());
+    parseCityJSONObject(cityObject, objects.back(), vertices);
+  }
+  
+  std::cout << "Loaded CityJSON file" << std::endl;
+  
+  // Stats
+  std::cout << "Parsed " << objects.size() << " objects" << std::endl;
+  std::cout << "Bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;
+  
+  std::cout << objects.size() << " objects" << std::endl;
+  
+  // Regenerate geometries
+  regenerateGeometries();
+  
+  // See what's in here
+//  for (auto const &object: objects) {
+//    std::cout << "Object " << object.id << std::endl;
+//    for (auto const &polygonsOfType: object.polygonsByType) {
+//      std::cout << "\tPolygons of type " << polygonsOfType.first << std::endl;
+//      for (auto const &polygon: polygonsOfType.second) {
+//        std::cout << "\t\tPolygon" << std::endl << "\t\t\tExterior ring" << std::endl;
+//        for (auto const &point: polygon.exteriorRing.points) {
+//          std::cout << "\t\t\t\t";
+//          for (unsigned int dimension = 0; dimension < 3; ++dimension) std::cout << point.coordinates[dimension] << " ";
+//          std::cout << std::endl;
+//        } for (auto const &ring: polygon.interiorRings) {
+//          std::cout << "\t\t\tInterior ring" << std::endl;
+//          for (auto const &point: ring.points) {
+//            std::cout << "\t\t\t\t";
+//            for (unsigned int dimension = 0; dimension < 3; ++dimension) std::cout << point.coordinates[dimension] << " ";
+//            std::cout << std::endl;
+//          }
+//        }
+//      }
+//    }
+//  }
+}
+
+void Parser::clear() {
   objects.clear();
   firstRing = true;
 }
 
-void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
+void Parser::parseCityGMLObject(pugi::xml_node &node, ParsedObject &object) {
 //  std::cout << "Parsing object " << node.name() << " with id " << node.attribute("gml:id").value() << std::endl;
   const char *nodeType = node.name();
   const char *namespaceSeparator = strchr(nodeType, ':');
@@ -96,24 +207,24 @@ void CityGMLParser::parseObject(pugi::xml_node &node, CityGMLObject &object) {
   node.traverse(polygonsWalker);
   for (auto &polygonsByType: polygonsWalker.polygonsByType) {
     for (auto &polygon: polygonsByType.second) {
-      object.polygonsByType[polygonsByType.first].push_back(CityGMLPolygon());
-      parsePolygon(polygon, object.polygonsByType[polygonsByType.first].back());
+      object.polygonsByType[polygonsByType.first].push_back(ParsedPolygon());
+      parseCityGMLPolygon(polygon, object.polygonsByType[polygonsByType.first].back());
     }
   }
 }
 
-void CityGMLParser::parsePolygon(pugi::xml_node &node, CityGMLPolygon &polygon) {
+void Parser::parseCityGMLPolygon(pugi::xml_node &node, ParsedPolygon &polygon) {
   //  std::cout << "\tParsing polygon" << std::endl;
   RingsWalker ringsWalker;
   node.traverse(ringsWalker);
-  parseRing(ringsWalker.exteriorRing, polygon.exteriorRing);
+  parseCityGMLRing(ringsWalker.exteriorRing, polygon.exteriorRing);
   for (auto &ring: ringsWalker.interiorRings) {
-    polygon.interiorRings.push_back(CityGMLRing());
-    parseRing(ring, polygon.interiorRings.back());
+    polygon.interiorRings.push_back(ParsedRing());
+    parseCityGMLRing(ring, polygon.interiorRings.back());
   }
 }
 
-void CityGMLParser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
+void Parser::parseCityGMLRing(pugi::xml_node &node, ParsedRing &ring) {
   //  std::cout << "\t\tParsing ring" << std::endl;
   PointsWalker pointsWalker;
   node.traverse(pointsWalker);
@@ -131,7 +242,7 @@ void CityGMLParser::parseRing(pugi::xml_node &node, CityGMLRing &ring) {
   }
 }
 
-void CityGMLParser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
+void Parser::centroidOf(ParsedRing &ring, ParsedPoint &centroid) {
   for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
     centroid.coordinates[currentCoordinate] = 0.0;
   } for (auto const &point: ring.points) {
@@ -143,7 +254,7 @@ void CityGMLParser::centroidOf(CityGMLRing &ring, CityGMLPoint &centroid) {
   }
 }
 
-void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGMLPolygon &polygon, std::vector<float> &triangles) {
+void Parser::addTrianglesFromTheConstrainedTriangulationOfPolygon(ParsedPolygon &polygon, std::vector<float> &triangles) {
   // Check if last == first
   if (polygon.exteriorRing.points.back().coordinates[0] != polygon.exteriorRing.points.front().coordinates[0] ||
       polygon.exteriorRing.points.back().coordinates[1] != polygon.exteriorRing.points.front().coordinates[1] ||
@@ -167,10 +278,10 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
   
   // Triangle
   else if (polygon.exteriorRing.points.size() == 4 && polygon.interiorRings.size() == 0) {
-    std::list<CityGMLPoint>::const_iterator point1 = polygon.exteriorRing.points.begin();
-    std::list<CityGMLPoint>::const_iterator point2 = point1;
+    std::list<ParsedPoint>::const_iterator point1 = polygon.exteriorRing.points.begin();
+    std::list<ParsedPoint>::const_iterator point2 = point1;
     ++point2;
-    std::list<CityGMLPoint>::const_iterator point3 = point2;
+    std::list<ParsedPoint>::const_iterator point3 = point2;
     ++point3;
     Kernel::Plane_3 plane(Kernel::Point_3(point1->coordinates[0], point1->coordinates[1], point1->coordinates[2]),
                           Kernel::Point_3(point2->coordinates[0], point2->coordinates[1], point2->coordinates[2]),
@@ -209,7 +320,7 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
     
     // Triangulate the projection of the edges to the plane
     Triangulation triangulation;
-    std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
+    std::list<ParsedPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
     Triangulation::Vertex_handle currentVertex = triangulation.insert(bestPlane.to_2d(Kernel::Point_3(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2])));
     ++currentPoint;
     Triangulation::Vertex_handle previousVertex;
@@ -284,7 +395,7 @@ void CityGMLParser::addTrianglesFromTheConstrainedTriangulationOfPolygon(CityGML
   
 }
 
-void CityGMLParser::regenerateTrianglesFor(CityGMLObject &object) {
+void Parser::regenerateTrianglesFor(ParsedObject &object) {
   object.trianglesByType.clear();
   
   for (auto &polygonsByType: object.polygonsByType) {
@@ -294,7 +405,7 @@ void CityGMLParser::regenerateTrianglesFor(CityGMLObject &object) {
   }
 }
 
-void CityGMLParser::regenerateEdgesFor(CityGMLObject &object) {
+void Parser::regenerateEdgesFor(ParsedObject &object) {
   object.edges.clear();
   
   for (auto const &polygonsByType: object.polygonsByType) {
@@ -302,8 +413,8 @@ void CityGMLParser::regenerateEdgesFor(CityGMLObject &object) {
       if (polygon.exteriorRing.points.size() < 4) {
         std::cout << "Polygon with < 4 points! Skipping..." << std::endl;
         continue;
-      } std::list<CityGMLPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
-      std::list<CityGMLPoint>::const_iterator nextPoint = currentPoint;
+      } std::list<ParsedPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
+      std::list<ParsedPoint>::const_iterator nextPoint = currentPoint;
       ++nextPoint;
       while (nextPoint != polygon.exteriorRing.points.end()) {
         for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
@@ -317,7 +428,7 @@ void CityGMLParser::regenerateEdgesFor(CityGMLObject &object) {
   }
 }
 
-void CityGMLParser::regenerateGeometries() {
+void Parser::regenerateGeometries() {
   for (auto &object: objects) {
     regenerateTrianglesFor(object);
     regenerateEdgesFor(object);

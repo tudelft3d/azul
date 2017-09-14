@@ -14,20 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef CityGMLParserWrapperWrapper_h
-#define CityGMLParserWrapperWrapper_h
+#ifndef ParserWrapperWrapper_h
+#define ParserWrapperWrapper_h
 
 #import <Foundation/Foundation.h>
 #import <OpenGL/OpenGL.h>
 
-struct CityGMLParserWrapper;
+struct ParserWrapper;
 
-@interface CityGMLParserWrapperWrapper: NSObject {
-  struct CityGMLParserWrapper *parserWrapper;
+@interface ParserWrapperWrapper: NSObject {
+  struct ParserWrapper *parserWrapper;
 }
 
 - (id) init;
-- (void) parse: (const char *)filePath;
+- (void) parseCityGML: (const char *)filePath;
+- (void) parseCityJSON: (const char *)filePath;
 - (void) clear;
 - (void) initialiseObjectIterator;
 - (void) advanceObjectIterator;
@@ -51,4 +52,4 @@ struct CityGMLParserWrapper;
 
 @end
 
-#endif /* CityGMLParserWrapperWrapper_h */
+#endif /* ParserWrapperWrapper_h */
