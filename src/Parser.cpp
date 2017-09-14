@@ -65,10 +65,6 @@ void Parser::parseCityGML(const char *filePath) {
   regenerateGeometries();
 }
 
-void parseCityJSONPolygon(std::vector<std::vector<std::size_t>> &node, ParsedPolygon &polygon, std::vector<std::vector<double>> &vertices) {
-  
-}
-
 void Parser::parseCityJSONObject(nlohmann::json::const_iterator &jsonObject, ParsedObject &object, std::vector<std::vector<double>> &vertices) {
   
   object.id = jsonObject.key();
@@ -95,7 +91,7 @@ void Parser::parseCityJSONObject(nlohmann::json::const_iterator &jsonObject, Par
     }
     
     else {
-      std::cout << "Unsupported geometry: " << jsonObject.value()["geometry"]["type"] << std::endl;;
+//      std::cout << "Unsupported geometry: " << jsonObject.value()["geometry"]["type"] << std::endl;;
     }
   }
 }
