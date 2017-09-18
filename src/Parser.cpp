@@ -73,37 +73,55 @@ void Parser::parseCityJSONObject(nlohmann::json::const_iterator &jsonObject, Par
 //  std::cout << "Type: " << object.type << std::endl;
 
   for (auto const &geometry: jsonObject.value()["geometry"]) {
-    std::cout << "Geometry: " << geometry.dump() << std::endl;
+    std::cout << "Geometry: " << geometry.dump(2) << std::endl;
     
     if (geometry["type"] == "MultiSurface" || geometry["type"] == "CompositeSurface") {
 //        std::cout << "Surfaces: " << geometry["boundaries"].dump() << std::endl;
       for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"].size(); ++surfaceIndex) {
 //          std::cout << "Surface: " << geometry["boundaries"][surfaceIndex].dump() << std::endl;
         std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][surfaceIndex];
-        auto const &surfaceSemantics = geometry["semantics"][surfaceIndex];
+        std::string surfaceType;
+        if (geometry.count("semantics")) {
+          auto const &surfaceSemantics = geometry["semantics"][surfaceIndex];
 //          std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
-        std::string surfaceType = surfaceSemantics["type"];
+          surfaceType = surfaceSemantics["type"];
 //          std::cout << "Surface type: " << surfaceType << std::endl;
-        
-        object.polygonsByType[surfaceType].push_back(ParsedPolygon());
+        } object.polygonsByType[surfaceType].push_back(ParsedPolygon());
         parseCityJSONPolygon(surface, object.polygonsByType[surfaceType].back(), vertices);
       }
     }
     
-    if (geometry["type"] == "Solid") {
-      std::cout << "Shells: " << geometry["boundaries"].dump() << std::endl;
+    else if (geometry["type"] == "Solid") {
+//      std::cout << "Shells: " << geometry["boundaries"].dump() << std::endl;
       for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"].size(); ++shellIndex) {
-        std::cout << "Shell: " << geometry["boundaries"][shellIndex].dump() << std::endl;
+//        std::cout << "Shell: " << geometry["boundaries"][shellIndex].dump() << std::endl;
         for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][shellIndex].size(); ++surfaceIndex) {
-          std::cout << "Surface: " << geometry["boundaries"][shellIndex][surfaceIndex].dump() << std::endl;
+//          std::cout << "Surface: " << geometry["boundaries"][shellIndex][surfaceIndex].dump() << std::endl;
           std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][shellIndex][surfaceIndex];
-          auto const &surfaceSemantics = geometry["semantics"][shellIndex][surfaceIndex];
-          std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
-          std::string surfaceType = surfaceSemantics["type"];
-          std::cout << "Surface type: " << surfaceType << std::endl;
-          
-          object.polygonsByType[surfaceType].push_back(ParsedPolygon());
+          std::string surfaceType;
+          if (geometry.count("semantics")) {
+            auto const &surfaceSemantics = geometry["semantics"][shellIndex][surfaceIndex];
+//            std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
+            surfaceType = surfaceSemantics["type"];
+//            std::cout << "Surface type: " << surfaceType << std::endl;
+          } object.polygonsByType[surfaceType].push_back(ParsedPolygon());
           parseCityJSONPolygon(surface, object.polygonsByType[surfaceType].back(), vertices);
+        }
+      }
+    }
+    
+    else if (geometry["type"] == "MultiSolid" || geometry["type"] == "CompositeSolid") {
+      for (unsigned int solidIndex = 0; solidIndex < geometry["boundaries"].size(); ++solidIndex) {
+        for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"][solidIndex].size(); ++shellIndex) {
+          for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][solidIndex][shellIndex].size(); ++surfaceIndex) {
+            std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][solidIndex][shellIndex][surfaceIndex];
+            std::string surfaceType;
+            if (geometry.count("semantics")) {
+              auto const &surfaceSemantics = geometry["semantics"][solidIndex][shellIndex][surfaceIndex];
+              surfaceType = surfaceSemantics["type"];
+            } object.polygonsByType[surfaceType].push_back(ParsedPolygon());
+            parseCityJSONPolygon(surface, object.polygonsByType[surfaceType].back(), vertices);
+          }
         }
       }
     }
