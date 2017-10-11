@@ -16,7 +16,9 @@
             <connections>
                 <outlet property="goHomeMenuItem" destination="t0b-aK-FgX" id="3Q2-YM-6JH"/>
                 <outlet property="newFileMenuItem" destination="Was-JA-tGl" id="9gs-s5-CzM"/>
+                <outlet property="objectsMenuItem" destination="Sb6-he-fay" id="HJt-IH-sn4"/>
                 <outlet property="openFileMenuItem" destination="IAo-SY-fd9" id="hGy-TO-reb"/>
+                <outlet property="parametersMenuItem" destination="wNe-Qn-eHB" id="DKT-UY-cum"/>
                 <outlet property="toggleSideBarMenuItem" destination="kIP-vf-haE" id="0aX-El-qa3"/>
                 <outlet property="toggleViewBoundingBoxMenuItem" destination="76v-Zz-CJt" id="6R5-NJ-EVa"/>
                 <outlet property="toggleViewEdgesMenuItem" destination="IbD-3d-E4c" id="RIS-KO-PFM"/>
@@ -641,7 +643,20 @@
                                     <action selector="toggleViewBoundingBox:" target="Voe-Tx-rLC" id="LWi-dc-cg8"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
+                            <menuItem isSeparatorItem="YES" id="8ZJ-uu-5z8"/>
+                            <menuItem title="Objects in Sidebar" keyEquivalent="1" id="Sb6-he-fay">
+                                <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
+                                <connections>
+                                    <action selector="showObjects:" target="Voe-Tx-rLC" id="CzD-br-ghy"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Parameters in Sidebar" keyEquivalent="2" id="wNe-Qn-eHB">
+                                <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
+                                <connections>
+                                    <action selector="showParameters:" target="Voe-Tx-rLC" id="Y05-F6-JEj"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="whX-XN-hP6"/>
                             <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                 <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                 <connections>
@@ -684,7 +699,7 @@
                                     <action selector="performZoom:" target="-1" id="DIl-cC-cCs"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
+                            <menuItem isSeparatorItem="YES" id="rhJ-z9-vQk"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

@@ -108,6 +108,8 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
   @IBOutlet weak var openFileMenuItem: NSMenuItem!
   @IBOutlet weak var newFileMenuItem: NSMenuItem!
+  @IBOutlet weak var objectsMenuItem: NSMenuItem!
+  @IBOutlet weak var parametersMenuItem: NSMenuItem!
   
   let dataManager = DataManagerWrapperWrapper()!
   let performanceHelper = PerformanceHelperWrapperWrapper()!
@@ -218,6 +220,8 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     objectsSourceList!.delegate = dataManager
     objectsSourceList!.doubleAction = #selector(sourceListDoubleClick)
     attributesTableView!.dataSource = dataManager
+    
+    showObjects(objectsMenuItem)
   }
   
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -230,6 +234,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     regenerateBoundingBoxBuffer()
     metalView!.new()
     objectsSourceList!.reloadData()
+    attributesTableView!.reloadData()
     openFiles = Set<URL>()
     self.window.representedURL = nil
     self.window.title = "azul"
@@ -621,5 +626,14 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     }
     pasteboard.setString(selectionString, forType: NSPasteboard.PasteboardType.string)
   }
+  
+  @IBAction func showObjects(_ sender: NSMenuItem) {
+    objectsMenuItem.state = .on
+    parametersMenuItem.state = .off
+  }
+  
+  @IBAction func showParameters(_ sender: NSMenuItem) {
+    objectsMenuItem.state = .off
+    parametersMenuItem.state = .on
+  }
 }
-
