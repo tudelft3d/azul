@@ -3,12 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
-			<string>file icon</string>
+			<string>xml</string>
 			<key>CFBundleTypeName</key>
 			<string>XML document</string>
 			<key>CFBundleTypeRole</key>
@@ -34,11 +34,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5.4</string>
+	<string>0.8</string>
 	<key>CFBundleVersion</key>
-	<string>7</string>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.utilities</string>
+	<string>800</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
@@ -57,14 +55,90 @@
 			<key>UTTypeDescription</key>
 			<string>GML document</string>
 			<key>UTTypeIconFile</key>
-			<string>file icon</string>
+			<string>gml</string>
 			<key>UTTypeIdentifier</key>
-			<string>public.gml</string>
+			<string>tudelft3d.gml</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
 					<string>gml</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CityJSON document</string>
+			<key>UTTypeIconFile</key>
+			<string>cityjson</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.json</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>json</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>OBJ document</string>
+			<key>UTTypeIconFile</key>
+			<string>obj</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.obj</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>obj</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>OFF document</string>
+			<key>UTTypeIconFile</key>
+			<string>off</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.off</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>off</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>POLY document</string>
+			<key>UTTypeIconFile</key>
+			<string>poly</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.poly</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>poly</string>
 				</array>
 			</dict>
 		</dict>

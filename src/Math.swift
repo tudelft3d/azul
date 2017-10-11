@@ -21,25 +21,25 @@ func matrix4x4_perspective(fieldOfView: Float, aspectRatio: Float, nearZ: Float,
   let ys: Float = 1.0 / tanf(fieldOfView*0.5)
   let xs: Float = ys / aspectRatio
   let zs: Float = farZ / (nearZ-farZ)
-  return matrix_from_columns(vector4(xs, 0.0, 0.0, 0.0),
-                             vector4(0.0, ys, 0.0, 0.0),
-                             vector4(0.0, 0.0, zs, -1.0),
-                             vector4(0.0, 0.0, zs*nearZ, 0.0))
+  return simd_float4x4(vector4(xs, 0.0, 0.0, 0.0),
+                       vector4(0.0, ys, 0.0, 0.0),
+                       vector4(0.0, 0.0, zs, -1.0),
+                       vector4(0.0, 0.0, zs*nearZ, 0.0))
 }
 
 func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4x4 {
-  let z = vector_normalize(eye-centre)
-  let x = vector_normalize(vector_cross(up, z))
-  let y = vector_cross(z, x)
-  let t = vector3(-vector_dot(x, eye), -vector_dot(y, eye), -vector_dot(z, eye))
-  return matrix_from_columns(vector4(x.x, y.x, z.x, 0.0),
-                             vector4(x.y, y.y, z.y, 0.0),
-                             vector4(x.z, y.z, z.z, 0.0),
-                             vector4(t.x, t.y, t.z, 1.0))
+  let z = normalize(eye-centre)
+  let x = normalize(cross(up, z))
+  let y = cross(z, x)
+  let t = vector3(-dot(x, eye), -dot(y, eye), -dot(z, eye))
+  return simd_float4x4(vector4(x.x, y.x, z.x, 0.0),
+                       vector4(x.y, y.y, z.y, 0.0),
+                       vector4(x.z, y.z, z.z, 0.0),
+                       vector4(t.x, t.y, t.z, 1.0))
 }
 
 func matrix4x4_rotation(angle: Float, axis: float3) -> matrix_float4x4 {
-  let normalisedAxis = vector_normalize(axis)
+  let normalisedAxis = normalize(axis)
   if normalisedAxis.x.isNaN || normalisedAxis.y.isNaN || normalisedAxis.z.isNaN {
     return matrix_identity_float4x4
   }
@@ -49,21 +49,22 @@ func matrix4x4_rotation(angle: Float, axis: float3) -> matrix_float4x4 {
   let x = normalisedAxis.x
   let y = normalisedAxis.y
   let z = normalisedAxis.z
-  return matrix_from_columns(vector4(ct + x * x * ci, y * x * ci + z * st, z * x * ci - y * st, 0),
-                             vector4(x * y * ci - z * st, ct + y * y * ci, z * y * ci + x * st, 0),
-                             vector4(x * z * ci + y * st, y * z * ci - x * st, ct + z * z * ci, 0),
-                             vector4(0.0, 0.0, 0.0, 1.0))
+  return simd_float4x4(vector4(ct + x * x * ci, y * x * ci + z * st, z * x * ci - y * st, 0),
+                       vector4(x * y * ci - z * st, ct + y * y * ci, z * y * ci + x * st, 0),
+                       vector4(x * z * ci + y * st, y * z * ci - x * st, ct + z * z * ci, 0),
+                       vector4(0.0, 0.0, 0.0, 1.0))
 }
 
 func matrix4x4_translation(shift: float3) -> matrix_float4x4 {
-  return matrix_from_columns(vector4(1.0, 0.0, 0.0, 0.0),
-                             vector4(0.0, 1.0, 0.0, 0.0),
-                             vector4(0.0, 0.0, 1.0, 0.0),
-                             vector4(shift.x, shift.y, shift.z, 1.0))
+  return simd_float4x4(vector4(1.0, 0.0, 0.0, 0.0),
+                       vector4(0.0, 1.0, 0.0, 0.0),
+                       vector4(0.0, 0.0, 1.0, 0.0),
+                       vector4(shift.x, shift.y, shift.z, 1.0))
 }
 
 func matrix_upper_left_3x3(matrix: matrix_float4x4) -> matrix_float3x3 {
-  return matrix_from_columns(vector3(matrix.columns.0.x, matrix.columns.0.y, matrix.columns.0.z),
-                             vector3(matrix.columns.1.x, matrix.columns.1.y, matrix.columns.1.z),
-                             vector3(matrix.columns.2.x, matrix.columns.2.y, matrix.columns.2.z))
+  return simd_float3x3(vector3(matrix.columns.0.x, matrix.columns.0.y, matrix.columns.0.z),
+                       vector3(matrix.columns.1.x, matrix.columns.1.y, matrix.columns.1.z),
+                       vector3(matrix.columns.2.x, matrix.columns.2.y, matrix.columns.2.z))
 }
+

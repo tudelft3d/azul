@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/ken/Versioned/code/CityGML Viewer/azul.xcodeproj">
+      location = "self:azul.xcodeproj">
    </FileRef>
 </Workspace>

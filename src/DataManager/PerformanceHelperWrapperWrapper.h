@@ -14,5 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import "PerformanceHelperWrapperWrapper.h"
-#import "DataManagerWrapperWrapper.h"
+#ifndef PerformanceHelperWrapperWrapper_hpp
+#define PerformanceHelperWrapperWrapper_hpp
+
+#import <Foundation/Foundation.h>
+
+struct PerformanceHelperWrapper;
+
+@interface PerformanceHelperWrapperWrapper: NSObject {
+  struct PerformanceHelperWrapper *performanceHelperWrapper;
+}
+
+- (id) init;
+- (void) startTimer;
+- (void) printTimeSpent;
+- (void) printMemoryUsage;
+- (void) dealloc;
+
+@end
+
+#endif /* PerformanceHelperWrapperWrapper_h */
