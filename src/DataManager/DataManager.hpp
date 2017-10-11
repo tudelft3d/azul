@@ -110,7 +110,7 @@ public:
   void clearSearch();
   bool isExpandable(AzulObject &object);
   int numberOfChildren(AzulObject &object);
-  std::vector<AzulObject>::iterator child(AzulObject &object, int index);
+  std::vector<AzulObject>::iterator child(AzulObject &object, long index);
   
   // Math
   simd_float3x3 matrix_upper_left_3x3(const simd_float4x4 &matrix);

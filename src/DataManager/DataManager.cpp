@@ -642,7 +642,7 @@ int DataManager::numberOfChildren(AzulObject &object) {
   } return matchingChildren;
 }
 
-std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, int index) {
+std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long index) {
   int matchingChildren = 0;
   for (std::vector<AzulObject>::iterator child = object.children.begin();
        child != object.children.end();
