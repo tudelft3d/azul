@@ -18,6 +18,20 @@ import Cocoa
 import Metal
 import MetalKit
 
+struct ViewParameters: Codable {
+  var eye: [Float]
+  var centre: [Float]
+  var fieldOfView: Float
+  var modelTranslationToCentreOfRotationMatrix: [Float]
+  var modelRotationMatrix: [Float]
+  var modelShiftBackMatrix: [Float]
+  var modelMatrix: [Float]
+  var viewMatrix: [Float]
+  var projectionMatrix: [Float]
+  var viewEdges: Bool
+  var viewBoundingBox: Bool
+}
+
 class SplitViewController: NSObject, NSSplitViewDelegate {
   func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
     let dividerThickness = splitView.dividerThickness
@@ -108,8 +122,11 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   @IBOutlet weak var toggleSideBarMenuItem: NSMenuItem!
   @IBOutlet weak var openFileMenuItem: NSMenuItem!
   @IBOutlet weak var newFileMenuItem: NSMenuItem!
-  @IBOutlet weak var objectsMenuItem: NSMenuItem!
-  @IBOutlet weak var parametersMenuItem: NSMenuItem!
+  @IBOutlet weak var copyObjectIdMenuItem: NSMenuItem!
+  @IBOutlet weak var findMenuItem: NSMenuItem!
+  @IBOutlet weak var loadViewParametersMenuItem: NSMenuItem!
+  @IBOutlet weak var saveViewParametersMenuItem: NSMenuItem!
+  @IBOutlet weak var toggleFullScreenMenuItem: NSMenuItem!
   
   let dataManager = DataManagerWrapperWrapper()!
   let performanceHelper = PerformanceHelperWrapperWrapper()!
@@ -220,8 +237,6 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     objectsSourceList!.delegate = dataManager
     objectsSourceList!.doubleAction = #selector(sourceListDoubleClick)
     attributesTableView!.dataSource = dataManager
-    
-    showObjects(objectsMenuItem)
   }
   
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -249,7 +264,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     openPanel.canChooseFiles = true
     openPanel.allowedFileTypes = ["gml", "xml", "json", "obj", "off", "poly"]
     
-    openPanel.begin { (result: NSApplication.ModalResponse) in
+    openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
       if result == .OK {
         self.loadData(from: openPanel.urls)
       }
@@ -627,13 +642,69 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     pasteboard.setString(selectionString, forType: NSPasteboard.PasteboardType.string)
   }
   
-  @IBAction func showObjects(_ sender: NSMenuItem) {
-    objectsMenuItem.state = .on
-    parametersMenuItem.state = .off
+  @IBAction func loadViewParameters(_ sender: NSMenuItem) {
+    let openPanel = NSOpenPanel()
+    openPanel.allowsMultipleSelection = false
+    openPanel.canChooseDirectories = false
+    openPanel.canChooseFiles = true
+    openPanel.allowedFileTypes = ["azulview"]
+    openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
+      if result == .OK {
+        let jsonDecoder = JSONDecoder()
+        do {
+          let jsonData = try Data(contentsOf: openPanel.url!)
+          let viewParameters = try jsonDecoder.decode(ViewParameters.self, from: jsonData)
+          self.metalView!.eye = deserialiseToFloat3(vector: viewParameters.eye)
+          self.metalView!.centre = deserialiseToFloat3(vector: viewParameters.centre)
+          self.metalView!.fieldOfView = viewParameters.fieldOfView
+          self.metalView!.modelTranslationToCentreOfRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelTranslationToCentreOfRotationMatrix)
+          self.metalView!.modelRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelRotationMatrix)
+          self.metalView!.modelShiftBackMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelShiftBackMatrix)
+          self.metalView!.modelMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelMatrix)
+          self.metalView!.viewMatrix = deserialiseToMatrix4x4(matrix: viewParameters.viewMatrix)
+          self.metalView!.projectionMatrix = deserialiseToMatrix4x4(matrix: viewParameters.projectionMatrix)
+          self.metalView!.viewEdges = viewParameters.viewEdges
+          self.metalView!.viewBoundingBox = viewParameters.viewBoundingBox
+          
+          self.metalView!.constants.modelMatrix = self.metalView!.modelMatrix
+          self.metalView!.constants.modelViewProjectionMatrix = matrix_multiply(self.metalView!.projectionMatrix, matrix_multiply(self.metalView!.viewMatrix, self.metalView!.modelMatrix))
+          self.metalView!.constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: self.metalView!.modelMatrix).inverse.transpose
+          self.metalView!.needsDisplay = true
+        } catch {
+          Swift.print("Couldn't load view parameters...")
+        }
+      }
+    }
   }
   
-  @IBAction func showParameters(_ sender: NSMenuItem) {
-    objectsMenuItem.state = .off
-    parametersMenuItem.state = .on
+  @IBAction func saveViewParameters(_ sender: NSMenuItem) {
+    let jsonEncoder = JSONEncoder()
+    let viewParameters = ViewParameters(eye: serialise(vector: metalView!.eye),
+                                        centre: serialise(vector: metalView!.centre),
+                                        fieldOfView: metalView!.fieldOfView,
+                                        modelTranslationToCentreOfRotationMatrix: serialise(matrix: metalView!.modelTranslationToCentreOfRotationMatrix),
+                                        modelRotationMatrix: serialise(matrix: metalView!.modelRotationMatrix),
+                                        modelShiftBackMatrix: serialise(matrix: metalView!.modelShiftBackMatrix),
+                                        modelMatrix: serialise(matrix: metalView!.modelMatrix),
+                                        viewMatrix: serialise(matrix: metalView!.viewMatrix),
+                                        projectionMatrix: serialise(matrix: metalView!.projectionMatrix),
+                                        viewEdges: metalView!.viewEdges,
+                                        viewBoundingBox: metalView!.viewBoundingBox)
+    do {
+      let jsonData = try jsonEncoder.encode(viewParameters)
+      let savePanel = NSSavePanel()
+      savePanel.allowedFileTypes = ["azulview"]
+      savePanel.beginSheetModal(for: window, completionHandler: { (result: NSApplication.ModalResponse) in
+        if result == .OK {
+          do {
+            try jsonData.write(to: savePanel.url!, options: [])
+          } catch {
+            Swift.print("Couldn't write file...")
+          }
+        }
+      })
+    } catch {
+      Swift.print("Couldn't encode...")
+    }
   }
 }

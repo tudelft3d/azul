@@ -35,7 +35,6 @@ azul is written in a mix of C++14, Swift 4, Objective-C 2 and Objective-C++. The
 
 ## To do before 0.8 release
 
-* Show/edit camera parameters
 * New screenshots
 * Update colour scheme
 

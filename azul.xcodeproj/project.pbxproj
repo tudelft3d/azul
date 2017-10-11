@@ -24,6 +24,7 @@
 		BEB3C35B1F8E5D1200F14F1A /* libgmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3541F8E5CCB00F14F1A /* libgmp.a */; };
 		BEB3C35C1F8E5D1200F14F1A /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3551F8E5CDB00F14F1A /* libmpfr.a */; };
 		BEB3C35D1F8E5D1200F14F1A /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3561F8E5CFC00F14F1A /* libpugixml.a */; };
+		BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */; };
 		BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */; };
 		BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF621F6FC5950002A79E /* DataManagerWrapperWrapper.mm */; };
 		BED5AF751F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */; };
@@ -65,6 +66,7 @@
 		BEB3C3541F8E5CCB00F14F1A /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libgmp.a; sourceTree = "<group>"; };
 		BEB3C3551F8E5CDB00F14F1A /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmpfr.a; sourceTree = "<group>"; };
 		BEB3C3561F8E5CFC00F14F1A /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpugixml.a; sourceTree = "<group>"; };
+		BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = azulview.icns; sourceTree = "<group>"; };
 		BEC4DC131F77D17100540A63 /* libCGAL.13.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.13.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.11/lib/libCGAL.13.0.1.dylib; sourceTree = "<group>"; };
 		BEC4DC141F77D17100540A63 /* libCGAL_Core.13.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.13.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.11/lib/libCGAL_Core.13.0.1.dylib; sourceTree = "<group>"; };
 		BECCEE4B1F7058B500527DC1 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				BE8C43CD1F8D1CAD0021CA0B /* obj.icns */,
 				BE8C43CC1F8D1CAD0021CA0B /* off.icns */,
 				BE8C43CA1F8D1CAD0021CA0B /* poly.icns */,
+				BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */,
 				BE8C43D61F8D1EA50021CA0B /* xml.icns */,
 			);
 			path = Icons;
@@ -291,6 +294,7 @@
 				BE8C43D31F8D1E850021CA0B /* obj.icns in Resources */,
 				BE8C43D41F8D1E880021CA0B /* off.icns in Resources */,
 				BE8C43D51F8D1E8A0021CA0B /* poly.icns in Resources */,
+				BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */,
 				BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */,
 				BE8C43CF1F8D1E6A0021CA0B /* LICENSE in Resources */,
 				BEF69F461F6AA0520079531B /* MainMenu.xib in Resources */,

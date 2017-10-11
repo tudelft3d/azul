@@ -142,6 +142,25 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>azul view parameters</string>
+			<key>UTTypeIconFile</key>
+			<string>azulview</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.azulview</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>azulview</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 </dict>
 </plist>

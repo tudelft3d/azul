@@ -68,3 +68,24 @@ func matrix_upper_left_3x3(matrix: matrix_float4x4) -> matrix_float3x3 {
                        vector3(matrix.columns.2.x, matrix.columns.2.y, matrix.columns.2.z))
 }
 
+func serialise(vector: float3) -> [Float] {
+  return [vector.x, vector.y, vector.z]
+}
+
+func deserialiseToFloat3(vector: [Float]) -> float3 {
+  return float3(vector[0], vector[1], vector[2])
+}
+
+func serialise(matrix: matrix_float4x4) -> [Float] {
+  return [matrix.columns.0.x, matrix.columns.0.y, matrix.columns.0.z, matrix.columns.0.w,
+          matrix.columns.1.x, matrix.columns.1.y, matrix.columns.1.z, matrix.columns.1.w,
+          matrix.columns.2.x, matrix.columns.2.y, matrix.columns.2.z, matrix.columns.2.w,
+          matrix.columns.3.x, matrix.columns.3.y, matrix.columns.3.z, matrix.columns.3.w]
+}
+
+func deserialiseToMatrix4x4(matrix: [Float]) -> matrix_float4x4 {
+  return simd_float4x4(float4(matrix[0], matrix[1], matrix[2], matrix[3]),
+                       float4(matrix[4], matrix[5], matrix[6], matrix[7]),
+                       float4(matrix[8], matrix[9], matrix[10], matrix[11]),
+                       float4(matrix[12], matrix[13], matrix[14], matrix[15]))
+}
