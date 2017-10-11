@@ -361,9 +361,9 @@ DataManager::DataManager() {
   colourForType[""] = std::tuple<float, float, float, float>(0.75, 0.75, 0.75, 1.0);
   colourForType["AuxiliaryTrafficArea"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["Bridge"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
-  colourForType["Building"] = std::tuple<float, float, float, float>(0.9, 0.9, 0.9, 1.0);
-  colourForType["BuildingInstallation"] = std::tuple<float, float, float, float>(0.9, 0.9, 0.9, 1.0);
-  colourForType["BuildingPart"] = std::tuple<float, float, float, float>(0.9, 0.9, 0.9, 1.0);
+  colourForType["Building"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
+  colourForType["BuildingInstallation"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
+  colourForType["BuildingPart"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
   colourForType["CityFurniture"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["Door"] = std::tuple<float, float, float, float>(0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0);
   colourForType["GenericCityObject"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
@@ -377,7 +377,7 @@ DataManager::DataManager() {
   colourForType["SolitaryVegetationObject"] = std::tuple<float, float, float, float>(0.4, 0.882352941176471, 0.333333333333333, 1.0);
   colourForType["TrafficArea"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["Tunnel"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
-  colourForType["WallSurface"] = std::tuple<float, float, float, float>(0.9, 0.9, 0.9, 1.0);
+  colourForType["WallSurface"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
   colourForType["WaterBody"] = std::tuple<float, float, float, float>(0.584313725490196, 0.917647058823529, 1.0, 1.0);
   colourForType["Window"] = std::tuple<float, float, float, float>(0.584313725490196, 0.917647058823529, 1.0, 0.3);
   
