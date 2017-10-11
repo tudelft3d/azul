@@ -500,14 +500,22 @@ struct BufferWithColour {
     switch event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!] {
     case "b":
       controller!.toggleViewBoundingBox(controller!.toggleViewBoundingBoxMenuItem)
+    case "c":
+      controller!.copyObjectId(controller!.copyObjectIdMenuItem)
     case "e":
       controller!.toggleViewEdges(controller!.toggleViewEdgesMenuItem)
+    case "f":
+      controller!.focusOnSearchBar(controller!.findMenuItem)
+    case "l":
+      controller!.loadViewParameters(controller!.loadViewParametersMenuItem)
     case "h":
       controller!.goHome(controller!.goHomeMenuItem)
     case "n":
-      controller?.new(controller!.newFileMenuItem)
+      controller!.new(controller!.newFileMenuItem)
     case "o":
       controller!.openFile(controller!.openFileMenuItem)
+    case "s":
+      controller!.saveViewParameters(controller!.saveViewParametersMenuItem)
     default:
       break
     }
