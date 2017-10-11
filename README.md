@@ -31,28 +31,27 @@ You can download the latest stable release of azul in the [releases page](https:
 
 ## Technical details
 
-azul is written in a mix of C++14, Swift 4, Objective-C and Objective-C++. The core is written in C++, but it uses Apple's Metal for visualisation and SIMD for fast matrix computations. It uses [pugixml](https://pugixml.org) in order to parse XML, Niels Lohmann's [JSON for Modern C++](https://github.com/nlohmann/json) library, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
+azul is written in a mix of C++14, Swift 4, Objective-C 2 and Objective-C++. The core is written in C++, but it uses Apple's Metal for visualisation and SIMD for fast matrix computations. It uses [pugixml](https://pugixml.org) in order to parse XML, Niels Lohmann's [JSON for Modern C++](https://github.com/nlohmann/json) library, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
 
 ## To do before 0.8 release
 
 * Show/edit camera parameters
-* Add updated re-linked libs
 * New screenshots
+* Update colour scheme
 
 ## Not implemented / ideas for the future
 
-* Removing files
+* Removing (unloading) files
 * Improved search with live viewing of matching objects
-* Materials and textures: ignored
-* Implicit representations: coordinate transformations are not applied
+* Customising colours, more complex materials
+* Materials and textures (from files)
+* Implicit representations
 * Shifting the rotation point out of the data plane
 * Using a rotation point at a visible object in the centre (good for zooming in and rotating)
 * Showing the data plane and rotation point
 * Animations when re-centering
 * Keyboard navigation
-* Search
 * Multi-threaded file loading and ray shooting
-* Customising colours, more complex materials
 * QuickLook plug-in
 * Icon previews
 * iOS support
@@ -61,8 +60,8 @@ azul is written in a mix of C++14, Swift 4, Objective-C and Objective-C++. The c
 
 We have included an Xcode 9 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 4.
 
-azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh). However, we also provide bundled versions of the first four for convenience, and pugixml works well as a static library. The provided libraries assume that they will be put into the Frameworks folder in the azul app bundle (i.e. their install names and cross dependencies are set to @rpath/xxx.dylib), but they are otherwise identical to those that can be obtained from Homebrew.
+azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh), but we provide bundled static versions of them for convenience.
 
 ## Licence
 
-In order to comply with the CGAL Triangulation package license, azul is available under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) licence.
+azul is available under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) licence.

@@ -17,15 +17,15 @@
 		BE8C43D41F8D1E880021CA0B /* off.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CC1F8D1CAD0021CA0B /* off.icns */; };
 		BE8C43D51F8D1E8A0021CA0B /* poly.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CA1F8D1CAD0021CA0B /* poly.icns */; };
 		BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43D61F8D1EA50021CA0B /* xml.icns */; };
-		BEC4DC151F77D17100540A63 /* libCGAL.13.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC4DC131F77D17100540A63 /* libCGAL.13.0.1.dylib */; };
-		BEC4DC161F77D17100540A63 /* libCGAL_Core.13.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC4DC141F77D17100540A63 /* libCGAL_Core.13.0.1.dylib */; };
+		BEB3C3571F8E5D1200F14F1A /* libboost_system-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3531F8E5CB900F14F1A /* libboost_system-mt.a */; };
+		BEB3C3581F8E5D1200F14F1A /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3521F8E5CB900F14F1A /* libboost_thread-mt.a */; };
+		BEB3C3591F8E5D1200F14F1A /* libCGAL_Core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C34F1F8E5C7D00F14F1A /* libCGAL_Core.a */; };
+		BEB3C35A1F8E5D1200F14F1A /* libCGAL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3501F8E5C7E00F14F1A /* libCGAL.a */; };
+		BEB3C35B1F8E5D1200F14F1A /* libgmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3541F8E5CCB00F14F1A /* libgmp.a */; };
+		BEB3C35C1F8E5D1200F14F1A /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3551F8E5CDB00F14F1A /* libmpfr.a */; };
+		BEB3C35D1F8E5D1200F14F1A /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3561F8E5CFC00F14F1A /* libpugixml.a */; };
 		BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */; };
 		BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF621F6FC5950002A79E /* DataManagerWrapperWrapper.mm */; };
-		BED5AF671F6FC8470002A79E /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BED5AF661F6FC8470002A79E /* libpugixml.a */; };
-		BED5AF6F1F6FC88E0002A79E /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BED5AF691F6FC88E0002A79E /* libgmp.10.dylib */; };
-		BED5AF701F6FC88E0002A79E /* libboost_system-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BED5AF6A1F6FC88E0002A79E /* libboost_system-mt.dylib */; };
-		BED5AF721F6FC88E0002A79E /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BED5AF6C1F6FC88E0002A79E /* libmpfr.4.dylib */; };
-		BED5AF731F6FC88E0002A79E /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BED5AF6D1F6FC88E0002A79E /* libboost_thread-mt.dylib */; };
 		BED5AF751F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */; };
 		BEF69F411F6AA0520079531B /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F401F6AA0520079531B /* Controller.swift */; };
 		BEF69F431F6AA0520079531B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEF69F421F6AA0520079531B /* Assets.xcassets */; };
@@ -52,6 +52,19 @@
 		BEA2DAD01F705482002FBEF4 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BEA2DAD21F7055A7002FBEF4 /* JSONParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSONParsingHelper.hpp; sourceTree = "<group>"; };
+		BEB3C3411F8E58E700F14F1A /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../../../usr/local/Cellar/boost/1.65.1/lib/libboost_thread-mt.a"; sourceTree = "<group>"; };
+		BEB3C3421F8E58E700F14F1A /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "../../../../usr/local/Cellar/boost/1.65.1/lib/libboost_system-mt.a"; sourceTree = "<group>"; };
+		BEB3C3451F8E590600F14F1A /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = ../../../../usr/local/Cellar/gmp/6.1.2/lib/libgmp.a; sourceTree = "<group>"; };
+		BEB3C3461F8E590600F14F1A /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = ../../../../usr/local/Cellar/mpfr/3.1.6/lib/libmpfr.a; sourceTree = "<group>"; };
+		BEB3C34B1F8E5BF400F14F1A /* libCGAL_Core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCGAL_Core.a; path = "../../Downloads/CGAL-4.11/lib/libCGAL_Core.a"; sourceTree = "<group>"; };
+		BEB3C34C1F8E5BF500F14F1A /* libCGAL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCGAL.a; path = "../../Downloads/CGAL-4.11/lib/libCGAL.a"; sourceTree = "<group>"; };
+		BEB3C34F1F8E5C7D00F14F1A /* libCGAL_Core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libCGAL_Core.a; sourceTree = "<group>"; };
+		BEB3C3501F8E5C7E00F14F1A /* libCGAL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libCGAL.a; sourceTree = "<group>"; };
+		BEB3C3521F8E5CB900F14F1A /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libboost_thread-mt.a"; sourceTree = "<group>"; };
+		BEB3C3531F8E5CB900F14F1A /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libboost_system-mt.a"; sourceTree = "<group>"; };
+		BEB3C3541F8E5CCB00F14F1A /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libgmp.a; sourceTree = "<group>"; };
+		BEB3C3551F8E5CDB00F14F1A /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmpfr.a; sourceTree = "<group>"; };
+		BEB3C3561F8E5CFC00F14F1A /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpugixml.a; sourceTree = "<group>"; };
 		BEC4DC131F77D17100540A63 /* libCGAL.13.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.13.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.11/lib/libCGAL.13.0.1.dylib; sourceTree = "<group>"; };
 		BEC4DC141F77D17100540A63 /* libCGAL_Core.13.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.13.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.11/lib/libCGAL_Core.13.0.1.dylib; sourceTree = "<group>"; };
 		BECCEE4B1F7058B500527DC1 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
@@ -87,13 +100,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEC4DC151F77D17100540A63 /* libCGAL.13.0.1.dylib in Frameworks */,
-				BEC4DC161F77D17100540A63 /* libCGAL_Core.13.0.1.dylib in Frameworks */,
-				BED5AF6F1F6FC88E0002A79E /* libgmp.10.dylib in Frameworks */,
-				BED5AF701F6FC88E0002A79E /* libboost_system-mt.dylib in Frameworks */,
-				BED5AF721F6FC88E0002A79E /* libmpfr.4.dylib in Frameworks */,
-				BED5AF731F6FC88E0002A79E /* libboost_thread-mt.dylib in Frameworks */,
-				BED5AF671F6FC8470002A79E /* libpugixml.a in Frameworks */,
+				BEB3C3571F8E5D1200F14F1A /* libboost_system-mt.a in Frameworks */,
+				BEB3C3581F8E5D1200F14F1A /* libboost_thread-mt.a in Frameworks */,
+				BEB3C3591F8E5D1200F14F1A /* libCGAL_Core.a in Frameworks */,
+				BEB3C35A1F8E5D1200F14F1A /* libCGAL.a in Frameworks */,
+				BEB3C35B1F8E5D1200F14F1A /* libgmp.a in Frameworks */,
+				BEB3C35C1F8E5D1200F14F1A /* libmpfr.a in Frameworks */,
+				BEB3C35D1F8E5D1200F14F1A /* libpugixml.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +124,20 @@
 				BE8C43D61F8D1EA50021CA0B /* xml.icns */,
 			);
 			path = Icons;
+			sourceTree = "<group>";
+		};
+		BEB3C3511F8E5C8A00F14F1A /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				BEB3C34F1F8E5C7D00F14F1A /* libCGAL_Core.a */,
+				BEB3C3501F8E5C7E00F14F1A /* libCGAL.a */,
+				BEB3C3531F8E5CB900F14F1A /* libboost_system-mt.a */,
+				BEB3C3521F8E5CB900F14F1A /* libboost_thread-mt.a */,
+				BEB3C3541F8E5CCB00F14F1A /* libgmp.a */,
+				BEB3C3551F8E5CDB00F14F1A /* libmpfr.a */,
+				BEB3C3561F8E5CFC00F14F1A /* libpugixml.a */,
+			);
+			path = libs;
 			sourceTree = "<group>";
 		};
 		BED5AF601F6FC49D0002A79E /* DataManager */ = {
@@ -139,6 +166,12 @@
 		BED5AF651F6FC8470002A79E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BEB3C34B1F8E5BF400F14F1A /* libCGAL_Core.a */,
+				BEB3C34C1F8E5BF500F14F1A /* libCGAL.a */,
+				BEB3C3451F8E590600F14F1A /* libgmp.a */,
+				BEB3C3461F8E590600F14F1A /* libmpfr.a */,
+				BEB3C3421F8E58E700F14F1A /* libboost_system-mt.a */,
+				BEB3C3411F8E58E700F14F1A /* libboost_thread-mt.a */,
 				BEC4DC141F77D17100540A63 /* libCGAL_Core.13.0.1.dylib */,
 				BEC4DC131F77D17100540A63 /* libCGAL.13.0.1.dylib */,
 				BED5AF6A1F6FC88E0002A79E /* libboost_system-mt.dylib */,
@@ -158,6 +191,7 @@
 				BEF69F481F6AA0520079531B /* azul.entitlements */,
 				BEA2DACF1F705479002FBEF4 /* LICENSE */,
 				BEA2DAD01F705482002FBEF4 /* README.md */,
+				BEB3C3511F8E5C8A00F14F1A /* libs */,
 				BEF69F3F1F6AA0520079531B /* src */,
 				BEF69F3E1F6AA0520079531B /* Products */,
 				BED5AF651F6FC8470002A79E /* Frameworks */,
@@ -421,6 +455,11 @@
 				LIBRARY_SEARCH_PATHS = (
 					"/usr/local/Cellar/pugixml/1.8.1/lib/pugixml-1.8",
 					/usr/local/lib,
+					/usr/local/Cellar/boost/1.65.1/lib,
+					/usr/local/Cellar/gmp/6.1.2/lib,
+					/usr/local/Cellar/mpfr/3.1.6/lib,
+					/usr/local/Cellar/cgal/4.11/lib,
+					"$(PROJECT_DIR)/libs",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -448,6 +487,11 @@
 				LIBRARY_SEARCH_PATHS = (
 					"/usr/local/Cellar/pugixml/1.8.1/lib/pugixml-1.8",
 					/usr/local/lib,
+					/usr/local/Cellar/boost/1.65.1/lib,
+					/usr/local/Cellar/gmp/6.1.2/lib,
+					/usr/local/Cellar/mpfr/3.1.6/lib,
+					/usr/local/Cellar/cgal/4.11/lib,
+					"$(PROJECT_DIR)/libs",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
