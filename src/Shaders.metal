@@ -26,8 +26,8 @@ struct Constants {
 };
 
 constant float3 ambientLightIntensity(0.8, 0.8, 0.8);
-constant float3 diffuseLightIntensity(0.2, 0.2, 0.2);
-constant float3 specularLightIntensity(0.2, 0.2, 0.2);
+constant float3 diffuseLightIntensity(0.1, 0.1, 0.1);
+constant float3 specularLightIntensity(0.1, 0.1, 0.1);
 constant float3 lightPosition(0.5, 0.5, -1.0);
 
 struct VertexWithNormalIn {
