@@ -110,6 +110,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   @objc var attributesTableView: NSTableView?
   var attributeNamesColumn: NSTableColumn?
   var attributeValuesColumn: NSTableColumn?
+  var totalProgress: Double = 0.0
   var progressIndicator: NSProgressIndicator?
   var statusTextField: NSTextField?
   
@@ -275,7 +276,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     Swift.print("Controller.application(NSApplication, openFile: String)")
     Swift.print("Open \(filename)")
     let url = URL(fileURLWithPath: filename)
-    self.loadData(from: [url])
+    loadData(from: [url])
     return true
   }
   
@@ -286,7 +287,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     for filename in filenames {
       urls.append(URL(fileURLWithPath: filename))
     }
-    self.loadData(from: urls)
+    loadData(from: urls)
   }
   
   @IBAction func toggleViewEdges(_ sender: NSMenuItem) {
@@ -344,23 +345,45 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     self.performanceHelper.startTimer()
     
     let progressPerFile = 100.0/Double(urls.count)
-    progressIndicator!.doubleValue = 0.0
-    progressIndicator!.isHidden = false
-    statusTextField!.isHidden = false
+    totalProgress = 0.0
+    progressIndicator?.doubleValue = totalProgress
+    progressIndicator?.isHidden = false
+    statusTextField?.isHidden = false
     DispatchQueue.global().async(qos: .userInitiated) {
       for url in urls {
+        
+        if url.pathExtension == "azulview" {
+          Swift.print("View url: \(url)")
+          DispatchQueue.main.async {
+            self.loadViewParameters(url: url)
+            self.totalProgress += progressPerFile
+            self.progressIndicator?.doubleValue = self.totalProgress
+            if urls.last == url {
+              self.progressIndicator!.isHidden = true
+              self.statusTextField!.isHidden = true
+            }
+          }
+          continue
+        }
         
         if self.openFiles.contains(url) {
           Swift.print("\(url) already open")
           DispatchQueue.main.async {
-            self.progressIndicator!.increment(by: progressPerFile)
+            self.totalProgress += progressPerFile
+            self.progressIndicator?.doubleValue = self.totalProgress
+            if urls.last == url {
+              self.progressIndicator!.isHidden = true
+              self.statusTextField!.isHidden = true
+            }
           }
           continue
         }
         
         Swift.print("Loading " + url.path + "...")
         DispatchQueue.main.async {
-          self.statusTextField!.stringValue = "Loading " + url.path + "..."
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
+          self.statusTextField?.stringValue = "Loading " + url.path + "..."
         }
         url.path.utf8CString.withUnsafeBufferPointer { pointer in
           self.dataManager.parse(pointer.baseAddress)
@@ -368,91 +391,123 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*20.071734/75.165239)
+          self.totalProgress += progressPerFile*20.071734/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Clearing helpers")
+        Swift.print("Clearing helpers...")
         self.dataManager.clearHelpers()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*0.51605/75.165239)
+          self.totalProgress += progressPerFile*0.51605/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Updating bounds")
+        Swift.print("Updating bounds...")
         self.dataManager.updateBoundsWithLastFile()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*0.158675/75.165239)
+          self.totalProgress += progressPerFile*0.158675/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Triangulating")
+        Swift.print("Triangulating...")
         self.dataManager.triangulateLastFile()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*45.400172/75.165239)
+          self.totalProgress += progressPerFile*45.400172/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Generating edges")
+        Swift.print("Generating edges...")
         self.dataManager.generateEdgesForLastFile()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*1.150533/75.165239)
+          self.totalProgress += progressPerFile*1.150533/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Clearing polygons")
+        Swift.print("Clearing polygons...")
         self.dataManager.clearPolygonsOfLastFile()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*0.359982/75.165239)
+          self.totalProgress += progressPerFile*0.359982/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Making triangle buffers")
+        Swift.print("Making triangle buffers...")
         self.dataManager.regenerateTriangleBuffers(withMaximumSize: 16*1024*1024)
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*3.535023/75.165239)
+          self.totalProgress += progressPerFile*3.535023/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Making edge buffers")
+        Swift.print("Making edge buffers...")
         self.dataManager.regenerateEdgeBuffers(withMaximumSize: 16*1024*1024)
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*2.085606/75.165239)
+          self.totalProgress += progressPerFile*2.085606/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Loading triangle buffers")
+        Swift.print("Loading triangle buffers...")
+        while self.metalView == nil {
+          Thread.sleep(forTimeInterval: 0.01)
+        }
         self.reloadTriangleBuffers()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*1.31523/75.165239)
+          self.totalProgress += progressPerFile*1.31523/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Loading edge buffers")
+        Swift.print("Loading edge buffers...")
         self.reloadEdgeBuffers()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*0.572072/75.165239)
+          self.totalProgress += progressPerFile*0.572072/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
-        Swift.print("Regenerating bounding box buffer")
+        Swift.print("Regenerating bounding box buffer...")
         self.regenerateBoundingBoxBuffer()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
-          self.progressIndicator!.increment(by: progressPerFile*0.000162/75.165239)
-          if url == urls.last {
-            self.progressIndicator!.isHidden = true
-            self.statusTextField!.isHidden = true
-          }
+          self.totalProgress += progressPerFile*0.000162/75.165239
+          self.progressIndicator?.doubleValue = self.totalProgress
+          self.statusTextField?.isHidden = false
+          self.progressIndicator?.isHidden = false
         }
         
         self.openFiles.insert(url)
@@ -471,6 +526,10 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           default:
             self.window.representedURL = nil
             self.window.title = "azul (\(self.openFiles.count) open files)"
+          }
+          if urls.last == url {
+            self.progressIndicator!.isHidden = true
+            self.statusTextField!.isHidden = true
           }
         }
       }
@@ -642,6 +701,32 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     pasteboard.setString(selectionString, forType: NSPasteboard.PasteboardType.string)
   }
   
+  func loadViewParameters(url: URL) {
+    do {
+      let jsonDecoder = JSONDecoder()
+      let jsonData = try Data(contentsOf: url)
+      let viewParameters = try jsonDecoder.decode(ViewParameters.self, from: jsonData)
+      self.metalView!.eye = deserialiseToFloat3(vector: viewParameters.eye)
+      self.metalView!.centre = deserialiseToFloat3(vector: viewParameters.centre)
+      self.metalView!.fieldOfView = viewParameters.fieldOfView
+      self.metalView!.modelTranslationToCentreOfRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelTranslationToCentreOfRotationMatrix)
+      self.metalView!.modelRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelRotationMatrix)
+      self.metalView!.modelShiftBackMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelShiftBackMatrix)
+      self.metalView!.modelMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelMatrix)
+      self.metalView!.viewMatrix = deserialiseToMatrix4x4(matrix: viewParameters.viewMatrix)
+      self.metalView!.projectionMatrix = deserialiseToMatrix4x4(matrix: viewParameters.projectionMatrix)
+      self.metalView!.viewEdges = viewParameters.viewEdges
+      self.metalView!.viewBoundingBox = viewParameters.viewBoundingBox
+      
+      self.metalView!.constants.modelMatrix = self.metalView!.modelMatrix
+      self.metalView!.constants.modelViewProjectionMatrix = matrix_multiply(self.metalView!.projectionMatrix, matrix_multiply(self.metalView!.viewMatrix, self.metalView!.modelMatrix))
+      self.metalView!.constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: self.metalView!.modelMatrix).inverse.transpose
+      self.metalView!.needsDisplay = true
+    } catch {
+      Swift.print("Couldn't load view parameters...")
+    }
+  }
+  
   @IBAction func loadViewParameters(_ sender: NSMenuItem) {
     let openPanel = NSOpenPanel()
     openPanel.allowsMultipleSelection = false
@@ -650,29 +735,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     openPanel.allowedFileTypes = ["azulview"]
     openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
       if result == .OK {
-        let jsonDecoder = JSONDecoder()
-        do {
-          let jsonData = try Data(contentsOf: openPanel.url!)
-          let viewParameters = try jsonDecoder.decode(ViewParameters.self, from: jsonData)
-          self.metalView!.eye = deserialiseToFloat3(vector: viewParameters.eye)
-          self.metalView!.centre = deserialiseToFloat3(vector: viewParameters.centre)
-          self.metalView!.fieldOfView = viewParameters.fieldOfView
-          self.metalView!.modelTranslationToCentreOfRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelTranslationToCentreOfRotationMatrix)
-          self.metalView!.modelRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelRotationMatrix)
-          self.metalView!.modelShiftBackMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelShiftBackMatrix)
-          self.metalView!.modelMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelMatrix)
-          self.metalView!.viewMatrix = deserialiseToMatrix4x4(matrix: viewParameters.viewMatrix)
-          self.metalView!.projectionMatrix = deserialiseToMatrix4x4(matrix: viewParameters.projectionMatrix)
-          self.metalView!.viewEdges = viewParameters.viewEdges
-          self.metalView!.viewBoundingBox = viewParameters.viewBoundingBox
-          
-          self.metalView!.constants.modelMatrix = self.metalView!.modelMatrix
-          self.metalView!.constants.modelViewProjectionMatrix = matrix_multiply(self.metalView!.projectionMatrix, matrix_multiply(self.metalView!.viewMatrix, self.metalView!.modelMatrix))
-          self.metalView!.constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: self.metalView!.modelMatrix).inverse.transpose
-          self.metalView!.needsDisplay = true
-        } catch {
-          Swift.print("Couldn't load view parameters...")
-        }
+        self.loadViewParameters(url: openPanel.url!)
       }
     }
   }
