@@ -358,7 +358,10 @@ DataManager::DataManager() {
     maxCoordinates[coordinate] = std::numeric_limits<float>::lowest();
   } // std::cout << "Min: " << minCoordinates[0] << " max: " << maxCoordinates[0];
   
+  // Default
   colourForType[""] = std::tuple<float, float, float, float>(0.75, 0.75, 0.75, 1.0);
+  
+  // CityGML types
   colourForType["AuxiliaryTrafficArea"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["Bridge"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
   colourForType["Building"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
@@ -381,6 +384,9 @@ DataManager::DataManager() {
   colourForType["WallSurface"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
   colourForType["WaterBody"] = std::tuple<float, float, float, float>(0.36, 0.78, 1.0, 1.0);
   colourForType["Window"] = std::tuple<float, float, float, float>(0.584313725490196, 0.917647058823529, 1.0, 0.3);
+  
+  // CityJSON
+  colourForType["TINRelief"] = std::tuple<float, float, float, float>(0.85, 0.92, 0.48, 1.0);
   
   black = std::tuple<float, float, float, float>(0.0, 0.0, 0.0, 1.0);
   selectedTrianglesColour = std::tuple<float, float, float, float>(1.0, 1.0, 0.0, 1.0);
