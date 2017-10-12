@@ -34,10 +34,10 @@ class JSONParsingHelper {
 //      std::cout << "Geometry: " << geometry.dump(2) << std::endl;
       
       if (geometry["type"] == "MultiSurface" || geometry["type"] == "CompositeSurface") {
-        //        std::cout << "Surfaces: " << geometry["boundaries"].dump() << std::endl;
-        for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"].size(); ++surfaceIndex) {
-          //          std::cout << "Surface: " << geometry["boundaries"][surfaceIndex].dump() << std::endl;
-          std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][surfaceIndex];
+        //        std::cout << "Surfaces: " << geometry["geometry"].dump() << std::endl;
+        for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["geometry"].size(); ++surfaceIndex) {
+          //          std::cout << "Surface: " << geometry["geometry"][surfaceIndex].dump() << std::endl;
+          std::vector<std::vector<std::size_t>> surface = geometry["geometry"][surfaceIndex];
           std::string surfaceType;
           if (geometry.count("semantics")) {
             auto const &surfaceSemantics = geometry["semantics"][surfaceIndex];
@@ -59,12 +59,12 @@ class JSONParsingHelper {
       }
       
       else if (geometry["type"] == "Solid") {
-        //      std::cout << "Shells: " << geometry["boundaries"].dump() << std::endl;
-        for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"].size(); ++shellIndex) {
-          //        std::cout << "Shell: " << geometry["boundaries"][shellIndex].dump() << std::endl;
-          for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][shellIndex].size(); ++surfaceIndex) {
-            //          std::cout << "Surface: " << geometry["boundaries"][shellIndex][surfaceIndex].dump() << std::endl;
-            std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][shellIndex][surfaceIndex];
+        //      std::cout << "Shells: " << geometry["geometry"].dump() << std::endl;
+        for (unsigned int shellIndex = 0; shellIndex < geometry["geometry"].size(); ++shellIndex) {
+          //        std::cout << "Shell: " << geometry["geometry"][shellIndex].dump() << std::endl;
+          for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["geometry"][shellIndex].size(); ++surfaceIndex) {
+            //          std::cout << "Surface: " << geometry["geometry"][shellIndex][surfaceIndex].dump() << std::endl;
+            std::vector<std::vector<std::size_t>> surface = geometry["geometry"][shellIndex][surfaceIndex];
             std::string surfaceType;
             if (geometry.count("semantics")) {
               auto const &surfaceSemantics = geometry["semantics"][shellIndex][surfaceIndex];
@@ -87,10 +87,10 @@ class JSONParsingHelper {
       }
       
       else if (geometry["type"] == "MultiSolid" || geometry["type"] == "CompositeSolid") {
-        for (unsigned int solidIndex = 0; solidIndex < geometry["boundaries"].size(); ++solidIndex) {
-          for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"][solidIndex].size(); ++shellIndex) {
-            for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][solidIndex][shellIndex].size(); ++surfaceIndex) {
-              std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][solidIndex][shellIndex][surfaceIndex];
+        for (unsigned int solidIndex = 0; solidIndex < geometry["geometry"].size(); ++solidIndex) {
+          for (unsigned int shellIndex = 0; shellIndex < geometry["geometry"][solidIndex].size(); ++shellIndex) {
+            for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["geometry"][solidIndex][shellIndex].size(); ++surfaceIndex) {
+              std::vector<std::vector<std::size_t>> surface = geometry["geometry"][solidIndex][shellIndex][surfaceIndex];
               std::string surfaceType;
               if (geometry.count("semantics")) {
                 auto const &surfaceSemantics = geometry["semantics"][solidIndex][shellIndex][surfaceIndex];
