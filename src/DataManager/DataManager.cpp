@@ -369,16 +369,16 @@ DataManager::DataManager() {
   colourForType["GenericCityObject"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["GroundSurface"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["LandUse"] = std::tuple<float, float, float, float>(0.3, 0.3, 0.3, 1.0);
-  colourForType["PlantCover"] = std::tuple<float, float, float, float>(0.4, 0.882352941176471, 0.333333333333333, 1.0);
+  colourForType["PlantCover"] = std::tuple<float, float, float, float>(0.02, 0.65, 0.16, 1.0);
   colourForType["Railway"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["ReliefFeature"] = std::tuple<float, float, float, float>(0.713725490196078, 0.882352941176471, 0.623529411764706, 1.0);
+  colourForType["ReliefFeature"] = std::tuple<float, float, float, float>(0.85, 0.92, 0.48, 1.0);
   colourForType["Road"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
-  colourForType["RoofSurface"] = std::tuple<float, float, float, float>(0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0);
+  colourForType["RoofSurface"] = std::tuple<float, float, float, float>(1.0, 0.2, 0.2, 1.0);
   colourForType["SolitaryVegetationObject"] = std::tuple<float, float, float, float>(0.4, 0.882352941176471, 0.333333333333333, 1.0);
   colourForType["TrafficArea"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
   colourForType["Tunnel"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
   colourForType["WallSurface"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
-  colourForType["WaterBody"] = std::tuple<float, float, float, float>(0.584313725490196, 0.917647058823529, 1.0, 1.0);
+  colourForType["WaterBody"] = std::tuple<float, float, float, float>(0.36, 0.78, 1.0, 1.0);
   colourForType["Window"] = std::tuple<float, float, float, float>(0.584313725490196, 0.917647058823529, 1.0, 0.3);
   
   black = std::tuple<float, float, float, float>(0.0, 0.0, 0.0, 1.0);
