@@ -165,6 +165,8 @@ class GMLParsingHelper {
         strcmp(nodeType, "ReliefFeature") == 0 ||
         strcmp(nodeType, "Road") == 0 ||
         strcmp(nodeType, "SolitaryVegetationObject") == 0 ||
+        strcmp(nodeType, "Square") == 0 ||
+        strcmp(nodeType, "Track") == 0 ||
         strcmp(nodeType, "TrafficArea") == 0 ||
         strcmp(nodeType, "Tunnel") == 0 ||
         strcmp(nodeType, "WaterBody") == 0 ||
