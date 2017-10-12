@@ -1,61 +1,73 @@
 # ![Icon](https://3d.bk.tudelft.nl/ken/img/azul-small.png) azul
 
-azul is a CityGML viewer for macOS 10.12, although it also works with minor issues on 10.11. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, and browsing their attributes. It is currently pre-release software, but it is pretty stable and most CityGML datasets already work without problems. It is available under the GPLv3 licence.
+azul is a 3D viewer for macOS 10.13. It is intended for viewing 3D city models in (City)GML, CityJSON, OBJ, OFF and POLY. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, and browsing their attributes. It is currently pre-release software, but it is pretty stable and most datasets already work without problems. It is available under the GPLv3 licence.
 
 ## Controls
 
 * Pan: scroll
-* Rotate: drag on left click, rotate on trackpad
+* Rotate: drag on (left) click, rotate on trackpad
 * Zoom: pinch on trackpad, drag on right click
 * Select: click on object (in view or sidebar)
 * Centre view: double click (in view or sidebar object), h or cmd+shift+h (to dataset centre)
 
 * New file (clear view): n or cmd+n
-* Open file: o or cmd+o
+* Open file (import): o or cmd+o
+* Load view (camera) parameters: l or cmd+l
+* Save view (camera) parameters: s or cmd+s
+* Copy selected object ids: c or cmd+c
+* Find objects: f or cmd+f
 * Show bounding box: b or cmd+shift+b
 * Show edges: e or cmd+shift+e
-* Toggle Metal/OpenGL rendering: g or cmd+opt+ctrl+g
+
+* Show sidebar: cmd+ctrl+s
+* Go full screen: cmd+ctrl+f
+* Close window (quits): cmd+w
+* Quit: cmd+q
 
 ## Download
 
 You can download the latest stable release of azul in the [releases page](https://github.com/tudelft3d/azul/releases) or from the [App Store](https://itunes.apple.com/app/azul/id1173239678?mt=12). If you want more information on how to compile it from source, see below.
 
-![Random3DCity](https://3d.bk.tudelft.nl/img/2016/azul0.png)
+![Random3DCity](https://3d.bk.tudelft.nl/ken/img/azul/random.png)
 
-![CityGML 2.0 sample dataset](https://3d.bk.tudelft.nl/img/2016/azul1.png)
+![LOD2 example](https://3d.bk.tudelft.nl/ken/img/azul/lod2.png)
 
-![Ettenheim](https://3d.bk.tudelft.nl/img/2016/azul2.png)
+![The Hague](https://3d.bk.tudelft.nl/ken/img/azul/denhaag.png)
 
-![Lyon](https://3d.bk.tudelft.nl/img/2016/azul3.png)
+![CityGML 2.0 sample dataset](https://3d.bk.tudelft.nl/ken/img/azul/citygml2.png)
 
-![New York City](https://3d.bk.tudelft.nl/img/2016/azul4.png)
+![Ettenheim](https://3d.bk.tudelft.nl/ken/img/azul/ettenheim.png)
+
+![New York City](https://3d.bk.tudelft.nl/ken/img/azul/nyc.png)
 
 ## Technical details
 
-azul is written mostly in Swift 3 and C++11 with a bit of Objective-C and Objective-C++ to bind them together. It uses Metal (when available) or OpenGL (otherwise) for visualisation and simd (with Metal) or GLKit (with OpenGL) for matrix computations. It uses pugixml in order to parse XML since it is much faster than Apple's XMLParser, as well as the CGAL Triangulation package to triangulate concave polygons for display.
+azul is written in a mix of C++14, Swift 4, Objective-C 2 and Objective-C++. The core is written in C++, but it uses Apple's Metal for visualisation and SIMD for fast vector/matrix computations. It uses [pugixml](https://pugixml.org) in order to parse XML, Niels Lohmann's [JSON for Modern C++](https://github.com/nlohmann/json) library, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
 
 ## Not implemented / ideas for the future
 
-* Textures: not shown
-* Implicit representations: coordinate transformations are not applied
-* Support for very big datasets (over around 2 GB): app crashes if any single Metal buffer is > 1 GB
+* Removing (unloading) files
+* Toggle to hide objects
+* Improved search with live viewing of matching objects
+* Customising colours, more complex materials
+* Materials and textures (loaded from files)
+* Implicit representations
 * Shifting the rotation point out of the data plane
+* Using a rotation point at a visible object in the centre (good for zooming in and rotating)
 * Showing the data plane and rotation point
 * Animations when re-centering
 * Keyboard navigation
-* Sorting and grouping objects in sidebar
 * Multi-threaded file loading and ray shooting
-* Customising colours
 * QuickLook plug-in
 * Icon previews
 * iOS support
 
 ## Compilation
 
-We have included an Xcode 8 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 3.
+We have included an Xcode 9 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 4.
 
-azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh). However, we also provide bundled versions of the first four for convenience, and pugixml works well as a static library. The provided libraries assume that they will be put into the Frameworks folder in the azul app bundle (i.e. their install names and cross dependencies are set to @rpath/xxx.dylib), but they are otherwise identical to those that can be obtained from Homebrew.
+azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh), but we provide bundled static versions of them for convenience.
 
 ## Licence
 
-In order to comply with the CGAL Triangulation package license, azul is available under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) licence.
+azul is available under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) licence.

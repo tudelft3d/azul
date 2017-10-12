@@ -3,12 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
-			<string>file icon</string>
+			<string>xml</string>
 			<key>CFBundleTypeName</key>
 			<string>XML document</string>
 			<key>CFBundleTypeRole</key>
@@ -18,6 +18,76 @@
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.xml</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>json</string>
+			<key>CFBundleTypeName</key>
+			<string>JSON document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.json</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>obj</string>
+			<key>CFBundleTypeName</key>
+			<string>OBJ document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.geometry-definition-format</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>off</string>
+			<key>CFBundleTypeName</key>
+			<string>OFF document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>tudelft3d.off</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>poly</string>
+			<key>CFBundleTypeName</key>
+			<string>POLY document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>tudelft3d.poly</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>azulview</string>
+			<key>CFBundleTypeName</key>
+			<string>azul view parameters</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>tudelft3d.azulview</string>
 			</array>
 		</dict>
 	</array>
@@ -34,9 +104,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5.4</string>
+	<string>0.8</string>
 	<key>CFBundleVersion</key>
-	<string>7</string>
+	<string>800</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -57,14 +127,71 @@
 			<key>UTTypeDescription</key>
 			<string>GML document</string>
 			<key>UTTypeIconFile</key>
-			<string>file icon</string>
+			<string>gml</string>
 			<key>UTTypeIdentifier</key>
-			<string>public.gml</string>
+			<string>tudelft3d.gml</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
 					<string>gml</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>OFF document</string>
+			<key>UTTypeIconFile</key>
+			<string>off</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.off</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>off</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>POLY document</string>
+			<key>UTTypeIconFile</key>
+			<string>poly</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.poly</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>poly</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>azul view parameters</string>
+			<key>UTTypeIconFile</key>
+			<string>azulview</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.azulview</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>azulview</string>
 				</array>
 			</dict>
 		</dict>

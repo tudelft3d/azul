@@ -75,3 +75,4 @@ vertex VertexOut vertexUnlit(device VertexIn *vertices [[buffer(0)]],
 fragment half4 fragmentLit(VertexOut fragmentIn [[stage_in]]) {
   return half4(fragmentIn.colour);
 }
+

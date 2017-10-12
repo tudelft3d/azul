@@ -14,5 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import "PerformanceHelperWrapperWrapper.h"
-#import "DataManagerWrapperWrapper.h"
+#ifndef TableCellView_h
+#define TableCellView_h
+
+#import <Cocoa/Cocoa.h>
+
+@interface TableCellView: NSTableCellView {
+  NSImageView *image;
+  NSTextField *text;
+}
+
+- (TableCellView *)initWithFrame:(NSRect)frameRect;
+
+@end
+
+#endif /* TableCellView_h */

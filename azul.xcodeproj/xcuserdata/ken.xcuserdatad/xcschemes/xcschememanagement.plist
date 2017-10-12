@@ -4,7 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>CityGML Viewer.xcscheme</key>
+		<key>azul.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
@@ -12,7 +12,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>BE4AF9C51DB7D8A0004FCF22</key>
+		<key>BEF69F3C1F6AA0520079531B</key>
 		<dict>
 			<key>primary</key>
 			<true/>

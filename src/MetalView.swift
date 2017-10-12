@@ -34,62 +34,51 @@ struct VertexWithNormal {
   var normal: float3
 }
 
-class VertexWithNormalList {
-  var vertices = [VertexWithNormal]()
+struct BufferWithColour {
+  var buffer: MTLBuffer
+  var type: String
+  var colour: float4
 }
 
-class VertexWithNormalListsBySubtype {
-  var vertexListOfSubtype = [String: VertexWithNormalList]()
-}
-
-class VertexWithNormalListsByTypeAndSubtype {
-  var vertexListOfType = [String: VertexWithNormalListsBySubtype]()
-}
-
-class MetalView: MTKView {
+@objc class MetalView: MTKView {
   
   var controller: Controller?
-  var dataStorage: DataStorage?
+  var dataManager: DataManagerWrapperWrapper?
   
   var commandQueue: MTLCommandQueue?
   var litRenderPipelineState: MTLRenderPipelineState?
   var unlitRenderPipelineState: MTLRenderPipelineState?
   var depthStencilState: MTLDepthStencilState?
   
-  var renderedTypes = [String: [String: float4]]()
-
-  var faceBuffers = [String: [String: MTLBuffer]]()
-  var edgesBuffer: MTLBuffer?
+  var triangleBuffers = [BufferWithColour]()
+  var edgeBuffers = [BufferWithColour]()
   var boundingBoxBuffer: MTLBuffer?
-  var selectedFacesBuffer: MTLBuffer?
-  var selectedEdgesBuffer: MTLBuffer?
   
   var viewEdges: Bool = false
   var viewBoundingBox: Bool = false
   
-  var multipleSelection: Bool = false
+  @objc var multipleSelection: Bool = false
   
   var constants = Constants()
-
+  
   var eye = float3(0.0, 0.0, 0.0)
   var centre = float3(0.0, 0.0, -1.0)
   var fieldOfView: Float = 1.047197551196598
   
-  var modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-  var modelRotationMatrix = matrix_identity_float4x4
-  var modelShiftBackMatrix = matrix_identity_float4x4
+  @objc var modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
+  @objc var modelRotationMatrix = matrix_identity_float4x4
+  @objc var modelShiftBackMatrix = matrix_identity_float4x4
   
-  var modelMatrix = matrix_identity_float4x4
-  var viewMatrix = matrix_identity_float4x4
-  var projectionMatrix = matrix_identity_float4x4
+  @objc var modelMatrix = matrix_identity_float4x4
+  @objc var viewMatrix = matrix_identity_float4x4
+  @objc var projectionMatrix = matrix_identity_float4x4
   
   override init(frame frameRect: CGRect, device: MTLDevice?) {
-//    Swift.print("MetalView.init(CGRect, MTLDevice?)")
-    
+    Swift.print("MetalView.init(CGRect, MTLDevice)")
     super.init(frame: frameRect, device: device)
     
     // View
-    clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1)
+    clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1.0)
     colorPixelFormat = .bgra8Unorm
     depthStencilPixelFormat = .depth32Float
     
@@ -97,7 +86,7 @@ class MetalView: MTKView {
     commandQueue = device!.makeCommandQueue()
     
     // Render pipeline
-    let library = device!.newDefaultLibrary()!
+    let library = device!.makeDefaultLibrary()!
     let litVertexFunction = library.makeFunction(name: "vertexLit")
     let unlitVertexFunction = library.makeFunction(name: "vertexUnlit")
     let fragmentFunction = library.makeFunction(name: "fragmentLit")
@@ -140,69 +129,18 @@ class MetalView: MTKView {
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    constants.viewMatrixInverse = matrix_invert(viewMatrix)
-    
-    // Rendered types
-    renderedTypes["AuxiliaryTrafficArea"] = [String: float4]()
-    renderedTypes["AuxiliaryTrafficArea"]![""] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["Bridge"] = [String: float4]()
-    renderedTypes["Bridge"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
-    renderedTypes["Building"] = [String: float4]()
-    renderedTypes["Building"]![""] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
-    renderedTypes["Building"]!["Door"] = float4(0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0)
-    renderedTypes["Building"]!["GroundSurface"] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["Building"]!["RoofSurface"] = float4(0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0)
-    renderedTypes["Building"]!["WallSurface"] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
-    renderedTypes["Building"]!["Window"] = float4(0.584313725490196, 0.917647058823529, 1.0, 0.3)
-    renderedTypes["BuildingPart"] = [String: float4]()
-    renderedTypes["BuildingPart"]![""] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
-    renderedTypes["BuildingPart"]!["Door"] = float4(0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0)
-    renderedTypes["BuildingPart"]!["GroundSurface"] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["BuildingPart"]!["RoofSurface"] = float4(0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0)
-    renderedTypes["BuildingPart"]!["WallSurface"] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
-    renderedTypes["BuildingPart"]!["Window"] = float4(0.584313725490196, 0.917647058823529, 1.0, 0.3)
-    renderedTypes["BuildingInstallation"] = [String: float4]()
-    renderedTypes["BuildingInstallation"]![""] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
-    renderedTypes["BuildingInstallation"]!["Door"] = float4(0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0)
-    renderedTypes["BuildingInstallation"]!["GroundSurface"] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["BuildingInstallation"]!["RoofSurface"] = float4(0.882352941176471, 0.254901960784314, 0.219607843137255, 1.0)
-    renderedTypes["BuildingInstallation"]!["WallSurface"] = float4(1.0, 0.956862745098039, 0.690196078431373, 1.0)
-    renderedTypes["BuildingInstallation"]!["Window"] = float4(0.584313725490196, 0.917647058823529, 1.0, 0.3)
-    renderedTypes["CityFurniture"] = [String: float4]()
-    renderedTypes["CityFurniture"]![""] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["GenericCityObject"] = [String: float4]()
-    renderedTypes["GenericCityObject"]![""] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["LandUse"] = [String: float4]()
-    renderedTypes["LandUse"]![""] = float4(0.3, 0.3, 0.3, 1.0)
-    renderedTypes["PlantCover"] = [String: float4]()
-    renderedTypes["PlantCover"]![""] = float4(0.4, 0.882352941176471, 0.333333333333333, 1.0)
-    renderedTypes["Railway"] = [String: float4]()
-    renderedTypes["Railway"]![""] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["ReliefFeature"] = [String: float4]()
-    renderedTypes["ReliefFeature"]![""] = float4(0.713725490196078, 0.882352941176471, 0.623529411764706, 1.0)
-    renderedTypes["Road"] = [String: float4]()
-    renderedTypes["Road"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
-    renderedTypes["SolitaryVegetationObject"] = [String: float4]()
-    renderedTypes["SolitaryVegetationObject"]![""] = float4(0.4, 0.882352941176471, 0.333333333333333, 1.0)
-    renderedTypes["TrafficArea"] = [String: float4]()
-    renderedTypes["TrafficArea"]![""] = float4(0.7, 0.7, 0.7, 1.0)
-    renderedTypes["Tunnel"] = [String: float4]()
-    renderedTypes["Tunnel"]![""] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
-    renderedTypes["Tunnel"]!["GroundSurface"] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
-    renderedTypes["Tunnel"]!["RoofSurface"] = float4(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0)
-    renderedTypes["WaterBody"] = [String: float4]()
-    renderedTypes["WaterBody"]![""] = float4(0.584313725490196, 0.917647058823529, 1.0, 1.0)
+    constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
+    constants.viewMatrixInverse = viewMatrix.inverse
     
     // Allow dragging
-    register(forDraggedTypes: [NSFilenamesPboardType])
+    registerForDraggedTypes([NSPasteboard.PasteboardType.fileURL])
     
     self.isPaused = true
     self.enableSetNeedsDisplay = true
   }
   
   required init(coder: NSCoder) {
-    Swift.print("init(NSCoder)")
+    Swift.print("MetalView.init(NSCoder)")
     super.init(coder: coder)
   }
   
@@ -210,28 +148,290 @@ class MetalView: MTKView {
     return true
   }
   
-  func new() {
+  override func draw(_ dirtyRect: NSRect) {
+//    Swift.print("MetalView.draw(NSRect)")
     
-    faceBuffers.removeAll()
-    edgesBuffer = nil
-    boundingBoxBuffer = nil
-    selectedFacesBuffer = nil
-    selectedEdgesBuffer = nil
+    if dirtyRect.width == 0 {
+      return
+    }
     
-    fieldOfView = 1.047197551196598
+    let commandBuffer = commandQueue!.makeCommandBuffer()!
+    let renderPassDescriptor = currentRenderPassDescriptor!
+    let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
     
-    modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-    modelRotationMatrix = matrix_identity_float4x4
-    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    renderEncoder.setFrontFacing(.counterClockwise)
+    renderEncoder.setDepthStencilState(depthStencilState)
+    renderEncoder.setRenderPipelineState(litRenderPipelineState!)
+
+    for triangleBuffer in triangleBuffers {
+      if triangleBuffer.colour.w == 1.0 {
+        renderEncoder.setVertexBuffer(triangleBuffer.buffer, offset:0, index:0)
+        constants.colour = triangleBuffer.colour
+        renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
+      }
+    }
+    
+    for triangleBuffer in triangleBuffers {
+      if triangleBuffer.colour.w != 1.0 {
+        renderEncoder.setVertexBuffer(triangleBuffer.buffer, offset:0, index:0)
+        constants.colour = triangleBuffer.colour
+        renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
+      }
+    }
+    
+    renderEncoder.setRenderPipelineState(unlitRenderPipelineState!)
+    
+    if viewEdges {
+      for edgeBuffer in edgeBuffers {
+        renderEncoder.setVertexBuffer(edgeBuffer.buffer, offset:0, index:0)
+        constants.colour = edgeBuffer.colour
+        renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+        renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: edgeBuffer.buffer.length/MemoryLayout<Vertex>.size)
+      }
+    }
+    
+    if viewBoundingBox && boundingBoxBuffer != nil {
+      renderEncoder.setVertexBuffer(boundingBoxBuffer, offset:0, index:0)
+      constants.colour = float4(0.0, 0.0, 0.0, 1.0)
+      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+      renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: boundingBoxBuffer!.length/MemoryLayout<Vertex>.size)
+    }
+   
+    renderEncoder.endEncoding()
+    let drawable = currentDrawable!
+    commandBuffer.present(drawable)
+    commandBuffer.commit()
+  }
+  
+  override func setFrameSize(_ newSize: NSSize) {
+//    Swift.print("MetalView.setFrameSize(NSSize)")
+    super.setFrameSize(newSize)
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    needsDisplay = true
+    controller!.progressIndicator!.setFrameSize(NSSize(width: self.frame.width/4, height: 12))
+    controller!.statusTextField!.setFrameOrigin(NSPoint(x: self.frame.width/4, y: 0))
+    controller!.statusTextField!.setFrameSize(NSSize(width: 3*self.frame.width/4, height: 16))
+  }
+  
+  @objc func depthAtCentre() -> Float {
+    
+    let firstMinCoordinate = dataManager!.minCoordinates()
+    let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
+    let minCoordinatesArray = ContiguousArray(minCoordinatesBuffer)
+    let minCoordinates = [Float](minCoordinatesArray)
+    let firstMidCoordinate = dataManager!.midCoordinates()
+    let midCoordinatesBuffer = UnsafeBufferPointer(start: firstMidCoordinate, count: 3)
+    let midCoordinatesArray = ContiguousArray(midCoordinatesBuffer)
+    let midCoordinates = [Float](midCoordinatesArray)
+    let firstMaxCoordinate = dataManager!.maxCoordinates()
+    let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
+    let maxCoordinatesArray = ContiguousArray(maxCoordinatesBuffer)
+    let maxCoordinates = [Float](maxCoordinatesArray)
+    let maxRange = dataManager!.maxRange()
+
+    // Create three points along the data plane
+    let leftUpPointInObjectCoordinates = float4((minCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let rightUpPointInObjectCoordinates = float4((maxCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+
+    // Obtain their coordinates in eye space
+    let modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix)
+    let leftUpPoint = matrix_multiply(modelViewMatrix, leftUpPointInObjectCoordinates)
+    let rightUpPoint = matrix_multiply(modelViewMatrix, rightUpPointInObjectCoordinates)
+    let centreDownPoint = matrix_multiply(modelViewMatrix, centreDownPointInObjectCoordinates)
+
+    // Compute the plane passing through the points.
+    // In ax + by + cz + d = 0, abc are given by the cross product, d by evaluating a point in the equation.
+    let vector1 = float3(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z)
+    let vector2 = float3(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z)
+    let crossProduct = cross(vector1, vector2)
+    let point3 = float3(centreDownPoint.x/centreDownPoint.w, centreDownPoint.y/centreDownPoint.w, centreDownPoint.z/centreDownPoint.w)
+    let d = -dot(crossProduct, point3)
+
+    // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
+    //    Swift.print("Depth at centre: \(-d/crossProduct.z)")
+    return -d/crossProduct.z
+  }
+
+  override func scrollWheel(with event: NSEvent) {
+    //    Swift.print("MetalView.scrollWheel()")
+    //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
+
+    // Motion according to trackpad
+    let scrollingSensitivity: Float = 0.003*(fieldOfView/(3.141519/4.0))
+    let motionInCameraCoordinates = float3(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
+    var cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
+    let motionInObjectCoordinates = matrix_multiply(cameraToObject, motionInCameraCoordinates)
+    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: motionInObjectCoordinates))
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+
+    // Correct motion so that the point of rotation remains at the same depth as the data
+    cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
+    let depthOffset = 1.0+depthAtCentre()
+    //    Swift.print("Depth offset: \(depthOffset)")
+    let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
+    let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
+    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+
+    // Put model matrix in arrays and render
+    constants.modelMatrix = modelMatrix
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
+    constants.viewMatrixInverse = viewMatrix.inverse
+    needsDisplay = true
+  }
+  
+  override func magnify(with event: NSEvent) {
+    //    Swift.print("MetalView.magnify()")
+    //    Swift.print("Pinched: \(event.magnification)")
+    let magnification: Float = 1.0+Float(event.magnification)
+    fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
+    //    Swift.print("Field of view: \(fieldOfView)")
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    needsDisplay = true
+  }
+  
+  override func rotate(with event: NSEvent) {
+    //    Swift.print("MetalView.rotate()")
+    //    Swift.print("Rotation angle: \(event.rotation)")
+    
+    let axisInCameraCoordinates = float3(0.0, 0.0, 1.0)
+    let cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
+    let axisInObjectCoordinates = matrix_multiply(cameraToObject, axisInCameraCoordinates)
+    modelRotationMatrix = matrix_multiply(modelRotationMatrix, matrix4x4_rotation(angle: 3.14159*event.rotation/180.0, axis: axisInObjectCoordinates))
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    constants.viewMatrixInverse = matrix_invert(viewMatrix)
+    constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
+    constants.viewMatrixInverse = viewMatrix.inverse
+    needsDisplay = true
+  }
+  
+  override func mouseDragged(with event: NSEvent) {
+    //    Swift.print("mouseDragged()")
+    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
+    // Compute the current and last mouse positions and their depth on a sphere
+    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
+    let currentZ: Float = sqrt(1.0 - (currentX*currentX+currentY*currentY))
+    let currentPosition = normalize(float3(currentX, currentY, currentZ))
+    //    Swift.print("Current position \(currentPosition)")
+    let lastX: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x)-event.deltaX) / bounds.size.width)
+    let lastY: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y)+event.deltaY) / bounds.size.height)
+    let lastZ: Float = sqrt(1.0 - (lastX*lastX+lastY*lastY))
+    let lastPosition = normalize(float3(lastX, lastY, lastZ))
+    //    Swift.print("Last position \(lastPosition)")
+    if currentPosition.x == lastPosition.x && currentPosition.y == lastPosition.y && currentPosition.z == lastPosition.z {
+      return
+    }
+    
+    // Compute the angle between the two and use it to move in camera space
+    let angle = acos(dot(lastPosition, currentPosition))
+    if !angle.isNaN && angle > 0.0 {
+      let axisInCameraCoordinates = cross(lastPosition, currentPosition)
+      let cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
+      let axisInObjectCoordinates = matrix_multiply(cameraToObject, axisInCameraCoordinates)
+      modelRotationMatrix = matrix_multiply(modelRotationMatrix, matrix4x4_rotation(angle: angle, axis: axisInObjectCoordinates))
+      modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+      
+      constants.modelMatrix = modelMatrix
+      constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+      constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
+      constants.viewMatrixInverse = viewMatrix.inverse
+      needsDisplay = true
+    } else {
+      //      Swift.print("NaN!")
+    }
+  }
+  
+  override func rightMouseDragged(with event: NSEvent) {
+    //    Swift.print("MetalView.rightMouseDragged()")
+    //    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
+    
+    let zoomSensitivity: Float = 0.005
+    let magnification: Float = 1.0+zoomSensitivity*Float(event.deltaY)
+    fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
+    //    Swift.print("Field of view: \(fieldOfView)")
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    needsDisplay = true
+  }
+  
+  override func mouseUp(with event: NSEvent) {
+    //    Swift.print("MetalView.mouseUp()")
+    switch event.clickCount {
+    case 1:
+      click(with: event)
+      break
+    case 2:
+      doubleClick(with: event)
+    default:
+      break
+    }
+  }
+  
+  func click(with event: NSEvent) {
+    Swift.print("MetalView.click()")
+    let startTime = CACurrentMediaTime()
+    dataManager!.click()
+    Swift.print("Click computed in \(CACurrentMediaTime()-startTime) seconds.")
+  }
+  
+  func doubleClick(with event: NSEvent) {
+        Swift.print("MetalView.doubleClick()")
+    //    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
+    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
+    //    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
+    
+    // Compute the current mouse position
+    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
+    //    Swift.print("currentX: \(currentX), currentY: \(currentY)")
+    
+    // Compute two points on the ray represented by the mouse position at the near and far planes
+    let mvpInverse = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix)).inverse
+    let pointOnNearPlaneInProjectionCoordinates = float4(currentX, currentY, -1.0, 1.0)
+    let pointOnNearPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
+    let pointOnFarPlaneInProjectionCoordinates = float4(currentX, currentY, 1.0, 1.0)
+    let pointOnFarPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
+    
+    // Interpolate the points to obtain the intersection with the data plane z = 0
+    let alpha: Float = -(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)/((pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)-(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))
+    let clickedPointInObjectCoordinates = float4(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
+    
+    // Use the intersection to compute the shift in the view space
+    let objectToCamera = matrix_multiply(viewMatrix, modelMatrix)
+    let clickedPointInCameraCoordinates = matrix_multiply(objectToCamera, clickedPointInObjectCoordinates)
+    
+    // Compute shift in object space
+    let shiftInCameraCoordinates = float3(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
+    var cameraToObject = matrix_upper_left_3x3(matrix: objectToCamera).inverse
+    let shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates)
+    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: shiftInObjectCoordinates))
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    
+    // Correct shift so that the point of rotation remains at the same depth as the data
+    cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
+    let depthOffset = 1.0+depthAtCentre()
+    let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
+    let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
+    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    
+    // Put model matrix in arrays and render
+    constants.modelMatrix = modelMatrix
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     needsDisplay = true
   }
   
@@ -248,414 +448,74 @@ class MetalView: MTKView {
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    constants.viewMatrixInverse = matrix_invert(viewMatrix)
+    constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
+    constants.viewMatrixInverse = viewMatrix.inverse
+    needsDisplay = true
+  }
+  
+  func new() {
+    
+    triangleBuffers.removeAll()
+    edgeBuffers.removeAll()
+    
+    fieldOfView = 1.047197551196598
+    
+    modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
+    modelRotationMatrix = matrix_identity_float4x4
+    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
+    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    
+    constants.modelMatrix = modelMatrix
+    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
+    constants.viewMatrixInverse = viewMatrix.inverse
+    
     needsDisplay = true
   }
   
   override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-    //    Swift.print("Dragging entered")
-    let filenames: NSArray = sender.draggingPasteboard().propertyList(forType: NSFilenamesPboardType)! as! NSArray
-    //    Swift.print(filenames)
-    for filename in filenames {
-      let filenameString = filename as! String
-      //      Swift.print(filenameString)
-      if !filenameString.hasSuffix(".gml") && !filenameString.hasSuffix(".xml") && !filenameString.hasSuffix(".json") {
-        return NSDragOperation(rawValue: 0)
+    let acceptedFileTypes: Set = ["gml", "xml", "json", "obj", "off", "poly"]
+    if let urls = sender.draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
+      for url in urls {
+        if acceptedFileTypes.contains(url.pathExtension) {
+          return .copy
+        }
       }
     }
-    
-    return NSDragOperation.copy
+    return [];
   }
   
   override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-    //    Swift.print("Perform drag")
-    if controller != nil {
-      let filenames: NSArray = sender.draggingPasteboard().propertyList(forType: NSFilenamesPboardType)! as! NSArray
-      //      Swift.print(filenames)
-      var urls = [URL]()
-      for filename in filenames {
-        let filenameString = filename as! String
-        urls.append(URL(fileURLWithPath: filenameString))
-      }
-      dataStorage!.loadData(from: urls)
+    if let urls = sender.draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
+      controller!.loadData(from: urls)
     }
     return true
   }
   
-  override func mouseUp(with event: NSEvent) {
-    //    Swift.print("MetalView.mouseUp()")
-    
-    switch event.clickCount {
-    case 1:
-      click(with: event)
-      break
-    case 2:
-      doubleClick(with: event)
-    default:
-      break
-    }
-  }
-  
-  func click(with event: NSEvent) {
-    Swift.print("MetalView.click()")
-    let startTime = CACurrentMediaTime()
-    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
-    
-    // Compute midCoordinates and maxRange
-    let minCoordinates = float3(dataStorage!.minCoordinates)
-    let maxCoordinates = float3(dataStorage!.maxCoordinates)
-    let range = maxCoordinates-minCoordinates
-    let midCoordinates = minCoordinates+0.5*range
-    var maxRange = range.x
-    if range.y > maxRange {
-      maxRange = range.y
-    }
-    if range.z > maxRange {
-      maxRange = range.z
-    }
-    
-    // Compute the current mouse position
-    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
-//    Swift.print("Current: X = \(currentX), Y = \(currentY)")
-    
-    // Compute two points on the ray represented by the mouse position at the near and far planes
-    let mvpInverse = matrix_invert(matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix)))
-    let pointOnNearPlaneInProjectionCoordinates = float4(currentX, currentY, -1.0, 1.0)
-    let pointOnNearPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
-    let pointOnFarPlaneInProjectionCoordinates = float4(currentX, currentY, 1.0, 1.0)
-    let pointOnFarPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
-    
-    // Compute ray
-    let rayOrigin = float3(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w, pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w, pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)
-    let rayDestination = float3(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w, pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w, pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)
-    let rayDirection = rayDestination - rayOrigin
-    
-    // Test intersections with triangles
-    var closestHit: String = ""
-    var hitDistance: Float = -1.0
-    for object in dataStorage!.objects {
-      
-      let epsilon: Float = 0.000001
-      let objectToCamera = matrix_multiply(viewMatrix, modelMatrix)
-      
-      // Moller-Trumbore algorithm for triangle-ray intersection (non-culling)
-      // u,v are the barycentric coordinates of the intersection point
-      // t is the distance from rayOrigin to the intersection point
-      for trianglesBuffer in object.triangleBuffersByType {
-        let numberOfTriangles = trianglesBuffer.value.count/18
-        for triangleIndex in 0..<numberOfTriangles {
-          let vertex0 = float3((trianglesBuffer.value[Int(18*triangleIndex)]-midCoordinates.x)/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+1)]-midCoordinates.y)/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+2)]-midCoordinates.z)/maxRange)
-          let vertex1 = float3((trianglesBuffer.value[Int(18*triangleIndex+6)]-midCoordinates.x)/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+7)]-midCoordinates.y)/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+8)]-midCoordinates.z)/maxRange)
-          let vertex2 = float3((trianglesBuffer.value[Int(18*triangleIndex+12)]-midCoordinates.x)/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+13)]-midCoordinates.y)/maxRange,
-                               (trianglesBuffer.value[Int(18*triangleIndex+14)]-midCoordinates.z)/maxRange)
-          let edge1 = vertex1 - vertex0
-          let edge2 = vertex2 - vertex0
-          let pvec = vector_cross(rayDirection, edge2)
-          let determinant = vector_dot(edge1, pvec)
-          if determinant > -epsilon && determinant < epsilon {
-            continue // if determinant is near zero  ray lies in plane of triangle
-          }
-          let inverseDeterminant = 1.0 / determinant
-          let tvec = rayOrigin - vertex0 // distance from vertex0 to rayOrigin
-          let u = vector_dot(tvec, pvec) * inverseDeterminant
-          if u < 0.0 || u > 1.0 {
-            continue
-          }
-          let qvec = vector_cross(tvec, edge1)
-          let v = vector_dot(rayDirection, qvec) * inverseDeterminant
-          if v < 0.0 || u + v > 1.0 {
-            continue
-          }
-          let t = vector_dot(edge2, qvec) * inverseDeterminant
-          if t > epsilon {
-            let intersectionPointInObjectCoordinates = (vertex0 * (1.0-u-v)) + (vertex1 * u) + (vertex2 * v)
-            let intersectionPointInCameraCoordinates = matrix_multiply(matrix_upper_left_3x3(matrix: objectToCamera), intersectionPointInObjectCoordinates)
-            let distance = intersectionPointInCameraCoordinates.z
-//            Swift.print("Hit \(object.id) at distance \(distance)")
-            if distance > hitDistance {
-              closestHit = object.id
-              hitDistance = distance
-            }
-          }
-        }
-      }
-    }
-    
-    // (De)select closest hit
-    if hitDistance > -1.0 {
-      let rowToSelect = dataStorage!.findObjectRow(with: closestHit)
-      if multipleSelection {
-        if controller!.outlineView.selectedRowIndexes.contains(rowToSelect) {
-          controller!.outlineView.deselectRow(rowToSelect)
-        } else {
-          let rowToSelectIndexes = IndexSet(integer: rowToSelect)
-          controller!.outlineView.selectRowIndexes(rowToSelectIndexes, byExtendingSelection: true)
-        }
-      } else {
-        let rowToSelectIndexes = IndexSet(integer: rowToSelect)
-        controller!.outlineView.selectRowIndexes(rowToSelectIndexes, byExtendingSelection: false)
-      }
-      controller!.outlineView.scrollRowToVisible(rowToSelect)
-    } else if !multipleSelection {
-      controller!.outlineView.deselectAll(self)
-    }
-    Swift.print("Click computed in \(CACurrentMediaTime()-startTime) seconds.")
-  }
-  
-  func doubleClick(with event: NSEvent) {
-    //    Swift.print("MetalView.doubleClick()")
-    //    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
-    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
-    //    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
-    
-    // Compute the current mouse position
-    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
-    //    Swift.print("currentX: \(currentX), currentY: \(currentY)")
-    
-    // Compute two points on the ray represented by the mouse position at the near and far planes
-    let mvpInverse = matrix_invert(matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix)))
-    let pointOnNearPlaneInProjectionCoordinates = float4(currentX, currentY, -1.0, 1.0)
-    let pointOnNearPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
-    let pointOnFarPlaneInProjectionCoordinates = float4(currentX, currentY, 1.0, 1.0)
-    let pointOnFarPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
-    
-    // Interpolate the points to obtain the intersection with the data plane z = 0
-    let alpha: Float = -(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)/((pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)-(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))
-    let clickedPointInObjectCoordinates = float4(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
-    
-    // Use the intersection to compute the shift in the view space
-    let objectToCamera = matrix_multiply(viewMatrix, modelMatrix)
-    let clickedPointInCameraCoordinates = matrix_multiply(objectToCamera, clickedPointInObjectCoordinates)
-    
-    // Compute shift in object space
-    let shiftInCameraCoordinates = float3(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
-    var cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: objectToCamera))
-    let shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates)
-    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: shiftInObjectCoordinates))
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    
-    // Correct shift so that the point of rotation remains at the same depth as the data
-    cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
-    let depthOffset = 1.0+depthAtCentre()
-    let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
-    let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
-    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    
-    // Put model matrix in arrays and render
-    constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    needsDisplay = true
-  }
-  
-  func outlineViewDoubleClick(_ sender: Any?) {
-//    Swift.print("outlineViewDoubleClick()")
-    
-    // Compute midCoordinates and maxRange
-    let minCoordinates = float3(dataStorage!.minCoordinates)
-    let maxCoordinates = float3(dataStorage!.maxCoordinates)
-    let range = maxCoordinates-minCoordinates
-    let midCoordinates = minCoordinates+0.5*range
-    var maxRange = range.x
-    if range.y > maxRange {
-      maxRange = range.y
-    }
-    if range.z > maxRange {
-      maxRange = range.z
-    }
-    
-    // Obtain object at that row
-    let rowObject: CityGMLObject
-    if let object = controller!.outlineView.item(atRow: controller!.outlineView!.clickedRow) as? CityGMLObject {
-      rowObject = object
-    } else {
-      return
-    }
-    
-    // Iterate through all parsed objects
-    for parsedObject in dataStorage!.objects {
-      
-      // Found
-      if parsedObject.id == rowObject.id {
-        
-        // Compute centroid
-        if parsedObject.triangleBuffersByType[""] == nil {
-          return
-        }
-        let numberOfVertices = parsedObject.triangleBuffersByType[""]!.count/6
-        var sumX: Float = 0.0
-        var sumY: Float = 0.0
-        var sumZ: Float = 0.0
-        for vertexIndex in 0..<numberOfVertices {
-          sumX = sumX + (parsedObject.triangleBuffersByType[""]![6*vertexIndex]-midCoordinates.x)/maxRange
-          sumY = sumY + (parsedObject.triangleBuffersByType[""]![6*vertexIndex+1]-midCoordinates.y)/maxRange
-          sumZ = sumZ + (parsedObject.triangleBuffersByType[""]![6*vertexIndex+2]-midCoordinates.z)/maxRange
-        }
-        let centroidInObjectCoordinates = float4(sumX/Float(numberOfVertices), sumY/Float(numberOfVertices), sumZ/Float(numberOfVertices), 1.0)
-        
-        // Use the centroid to compute the shift in the view space
-        let objectToCamera = matrix_multiply(viewMatrix, modelMatrix)
-        let centroidInCameraCoordinates = matrix_multiply(objectToCamera, centroidInObjectCoordinates)
-        
-        // Compute shift in object space
-        let shiftInCameraCoordinates = float3(-centroidInCameraCoordinates.x, -centroidInCameraCoordinates.y, 0.0)
-        var cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: objectToCamera))
-        let shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates)
-        modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: shiftInObjectCoordinates))
-        modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-        
-        // Correct shift so that the point of rotation remains at the same depth as the data
-        cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
-        let depthOffset = 1.0+depthAtCentre()
-        let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
-        let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
-        modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
-        modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-        
-        // Put model matrix in arrays and render
-        constants.modelMatrix = modelMatrix
-        constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-        constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-        needsDisplay = true
-      }
-    }
-  }
-  
-  override func scrollWheel(with event: NSEvent) {
-    //    Swift.print("MetalView.scrollWheel()")
-    //    Swift.print("Scrolled X: \(event.scrollingDeltaX) Y: \(event.scrollingDeltaY)")
-
-    // Motion according to trackpad
-    let scrollingSensitivity: Float = 0.003*(fieldOfView/(3.141519/4.0))
-    let motionInCameraCoordinates = float3(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
-    var cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
-    let motionInObjectCoordinates = matrix_multiply(cameraToObject, motionInCameraCoordinates)
-    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: motionInObjectCoordinates))
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-
-    // Correct motion so that the point of rotation remains at the same depth as the data
-    cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
-    let depthOffset = 1.0+depthAtCentre()
-//    Swift.print("Depth offset: \(depthOffset)")
-    let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
-    let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
-    modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    
-    // Put model matrix in arrays and render
-    constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    constants.viewMatrixInverse = matrix_invert(viewMatrix)
-    needsDisplay = true
-  }
-  
-  override func mouseDragged(with event: NSEvent) {
-//    Swift.print("mouseDragged()")
-    let viewFrameInWindowCoordinates = convert(bounds, to: nil)
-    
-    // Compute the current and last mouse positions and their depth on a sphere
-    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
-    let currentZ: Float = sqrt(1.0 - (currentX*currentX+currentY*currentY))
-    let currentPosition = vector_normalize(float3(currentX, currentY, currentZ))
-//    Swift.print("Current position \(currentPosition)")
-    let lastX: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x)-event.deltaX) / bounds.size.width)
-    let lastY: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y)+event.deltaY) / bounds.size.height)
-    let lastZ: Float = sqrt(1.0 - (lastX*lastX+lastY*lastY))
-    let lastPosition = vector_normalize(float3(lastX, lastY, lastZ))
-//    Swift.print("Last position \(lastPosition)")
-    if currentPosition.x == lastPosition.x && currentPosition.y == lastPosition.y && currentPosition.z == lastPosition.z {
-      return
-    }
-    
-    // Compute the angle between the two and use it to move in camera space
-    let angle = acos(vector_dot(lastPosition, currentPosition))
-    if !angle.isNaN && angle > 0.0 {
-      let axisInCameraCoordinates = vector_cross(lastPosition, currentPosition)
-      let cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
-      let axisInObjectCoordinates = matrix_multiply(cameraToObject, axisInCameraCoordinates)
-      modelRotationMatrix = matrix_multiply(modelRotationMatrix, matrix4x4_rotation(angle: angle, axis: axisInObjectCoordinates))
-      modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-      
-      constants.modelMatrix = modelMatrix
-      constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-      constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-      constants.viewMatrixInverse = matrix_invert(viewMatrix)
-      needsDisplay = true
-    } else {
-//      Swift.print("NaN!")
-    }
-  }
-  
-  override func rotate(with event: NSEvent) {
-//    Swift.print("MetalView.rotate()")
-//    Swift.print("Rotation angle: \(event.rotation)")
-    
-    let axisInCameraCoordinates = float3(0.0, 0.0, 1.0)
-    let cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)))
-    let axisInObjectCoordinates = matrix_multiply(cameraToObject, axisInCameraCoordinates)
-    modelRotationMatrix = matrix_multiply(modelRotationMatrix, matrix4x4_rotation(angle: 3.14159*event.rotation/180.0, axis: axisInObjectCoordinates))
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    
-    constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    constants.modelMatrixInverseTransposed = matrix_transpose(matrix_invert(matrix_upper_left_3x3(matrix: modelMatrix)))
-    constants.viewMatrixInverse = matrix_invert(viewMatrix)
-    needsDisplay = true
-  }
-  
-  override func rightMouseDragged(with event: NSEvent) {
-//    Swift.print("MetalView.rightMouseDragged()")
-//    Swift.print("Delta: (\(event.deltaX), \(event.deltaY))")
-    
-    let zoomSensitivity: Float = 0.005
-    let magnification: Float = 1.0+zoomSensitivity*Float(event.deltaY)
-    fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
-//    Swift.print("Field of view: \(fieldOfView)")
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
-    
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    needsDisplay = true
-  }
-  
-  override func magnify(with event: NSEvent) {
-//    Swift.print("MetalView.magnify()")
-//    Swift.print("Pinched: \(event.magnification)")
-    let magnification: Float = 1.0+Float(event.magnification)
-    fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
-//    Swift.print("Field of view: \(fieldOfView)")
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
-    
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    needsDisplay = true
-  }
-  
   override func keyDown(with event: NSEvent) {
-//    Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
+    //    Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
     
     switch event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!] {
     case "b":
       controller!.toggleViewBoundingBox(controller!.toggleViewBoundingBoxMenuItem)
+    case "c":
+      controller!.copyObjectId(controller!.copyObjectIdMenuItem)
     case "e":
       controller!.toggleViewEdges(controller!.toggleViewEdgesMenuItem)
-    case "g":
-      controller!.toggleGraphics(controller!.toggleGraphicsMenuItem)
+    case "f":
+      controller!.focusOnSearchBar(controller!.findMenuItem)
+    case "l":
+      controller!.loadViewParameters(controller!.loadViewParametersMenuItem)
     case "h":
       controller!.goHome(controller!.goHomeMenuItem)
     case "n":
-      controller?.new(controller!.newFileMenuItem)
+      controller!.new(controller!.newFileMenuItem)
     case "o":
       controller!.openFile(controller!.openFileMenuItem)
+    case "s":
+      controller!.saveViewParameters(controller!.saveViewParametersMenuItem)
     default:
       break
     }
@@ -668,358 +528,4 @@ class MetalView: MTKView {
       multipleSelection = false
     }
   }
-  
-  func depthAtCentre() -> GLfloat {
-    
-    // Compute midCoordinates and maxRange
-    let minCoordinates = float3(dataStorage!.minCoordinates)
-    let maxCoordinates = float3(dataStorage!.maxCoordinates)
-    let range = maxCoordinates-minCoordinates
-    let midCoordinates = minCoordinates+0.5*range
-    var maxRange = range.x
-    if range.y > maxRange {
-      maxRange = range.y
-    }
-    if range.z > maxRange {
-      maxRange = range.z
-    }
-    
-    // Create three points along the data plane
-    let leftUpPointInObjectCoordinates = float4((minCoordinates.x-midCoordinates.x)/maxRange, (maxCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
-    let rightUpPointInObjectCoordinates = float4((maxCoordinates.x-midCoordinates.x)/maxRange, (maxCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
-    let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
-    
-    // Obtain their coordinates in eye space
-    let modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix)
-    let leftUpPoint = matrix_multiply(modelViewMatrix, leftUpPointInObjectCoordinates)
-    let rightUpPoint = matrix_multiply(modelViewMatrix, rightUpPointInObjectCoordinates)
-    let centreDownPoint = matrix_multiply(modelViewMatrix, centreDownPointInObjectCoordinates)
-    
-    // Compute the plane passing through the points.
-    // In ax + by + cz + d = 0, abc are given by the cross product, d by evaluating a point in the equation.
-    let vector1 = float3(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z)
-    let vector2 = float3(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z)
-    let crossProduct = vector_cross(vector1, vector2)
-    let point3 = float3(centreDownPoint.x/centreDownPoint.w, centreDownPoint.y/centreDownPoint.w, centreDownPoint.z/centreDownPoint.w)
-    let d = -vector_dot(crossProduct, point3)
-    
-    // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
-//    Swift.print("Depth at centre: \(-d/crossProduct.z)")
-    return -d/crossProduct.z
-  }
-  
-  func pullData() {
-    Swift.print("MetalView.pullData()")
-    let startTime = CACurrentMediaTime()
-    
-    // Compute midCoordinates and maxRange
-    let minCoordinates = float3(dataStorage!.minCoordinates)
-    let maxCoordinates = float3(dataStorage!.maxCoordinates)
-    let range = maxCoordinates-minCoordinates
-    let midCoordinates = minCoordinates+0.5*range
-    var maxRange = range.x
-    if range.y > maxRange {
-      maxRange = range.y
-    }
-    if range.z > maxRange {
-      maxRange = range.z
-    }
-    
-    // Initialise arrays for buffers
-    let vertices = VertexWithNormalListsByTypeAndSubtype()
-    var edgeVertices = [Vertex]()
-    var selectionEdgeVertices = [Vertex]()
-    var selectionFaceVertices = [VertexWithNormal]()
-    faceBuffers.removeAll()
-    
-    // Create bounding box vertices
-    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 000 -> 001
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 000 -> 010
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 000 -> 100
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 001 -> 011
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 001 -> 101
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 010 -> 011
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 010 -> 110
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((minCoordinates.x-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 011 -> 111
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 100 -> 101
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 100 -> 110
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (minCoordinates.y-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),  // 101 -> 111
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange)),
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (minCoordinates.z-midCoordinates.z)/maxRange)),  // 110 -> 111
-                                         Vertex(position: float3((dataStorage!.maxCoordinates[0]-midCoordinates.x)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[1]-midCoordinates.y)/maxRange,
-                                                                 (dataStorage!.maxCoordinates[2]-midCoordinates.z)/maxRange))]
-    
-    // Create vertices of faces per type and subtype
-    for object in dataStorage!.objects {
-      if !vertices.vertexListOfType.keys.contains(object.type) {
-        vertices.vertexListOfType[object.type] = VertexWithNormalListsBySubtype()
-      }
-
-      // Selected edges and faces
-      if dataStorage!.selection.contains(object.id) {
-        let numberOfVertices = object.edgesBuffer.count/3
-        for vertexIndex in 0..<numberOfVertices {
-          selectionEdgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
-                                                               (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                               (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange)))
-        }
-        for triangleBufferType in object.triangleBuffersByType.keys {
-          let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
-          let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
-          for vertexIndex in 0..<numberOfVertices {
-            selectionFaceVertices.append(VertexWithNormal(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                           (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                           (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                          normal: float3(currentTriangleBuffer[6*vertexIndex+3],
-                                                                         currentTriangleBuffer[6*vertexIndex+4],
-                                                                         currentTriangleBuffer[6*vertexIndex+5])))
-          }
-        }
-        
-      }
-      
-      // Not selected edges and faces
-      else {
-        let numberOfVertices = object.edgesBuffer.count/3
-        for vertexIndex in 0..<numberOfVertices {
-          edgeVertices.append(Vertex(position: float3((object.edgesBuffer[3*vertexIndex]-midCoordinates.x)/maxRange,
-                                                      (object.edgesBuffer[3*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                      (object.edgesBuffer[3*vertexIndex+2]-midCoordinates.z)/maxRange)))
-        }
-        for triangleBufferType in object.triangleBuffersByType.keys {
-          if !vertices.vertexListOfType[object.type]!.vertexListOfSubtype.keys.contains(triangleBufferType) {
-            vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType] = VertexWithNormalList()
-          }
-          let numberOfVertices = object.triangleBuffersByType[triangleBufferType]!.count/6
-          var temporaryBuffer = [VertexWithNormal]()
-          temporaryBuffer.reserveCapacity(numberOfVertices)
-          let currentTriangleBuffer = object.triangleBuffersByType[triangleBufferType]!
-          for vertexIndex in 0..<numberOfVertices {
-            temporaryBuffer.append(VertexWithNormal(position: float3((currentTriangleBuffer[6*vertexIndex]-midCoordinates.x)/maxRange,
-                                                                     (currentTriangleBuffer[6*vertexIndex+1]-midCoordinates.y)/maxRange,
-                                                                     (currentTriangleBuffer[6*vertexIndex+2]-midCoordinates.z)/maxRange),
-                                                    normal: float3(currentTriangleBuffer[6*vertexIndex+3],
-                                                                   currentTriangleBuffer[6*vertexIndex+4],
-                                                                   currentTriangleBuffer[6*vertexIndex+5])))
-          }
-          vertices.vertexListOfType[object.type]!.vertexListOfSubtype[triangleBufferType]!.vertices.append(contentsOf: temporaryBuffer)
-        }
-      }
-    }
-    
-    // Make buffer for edges
-    if edgeVertices.count > 0 {
-      edgesBuffer = device!.makeBuffer(bytes: edgeVertices, length: MemoryLayout<Vertex>.size*edgeVertices.count, options: [])
-    } else {
-      edgesBuffer = nil
-    }
-    
-    // Make buffer for faces per type and subtype
-    if vertices.vertexListOfType.count > 0 {
-      for vertexType in vertices.vertexListOfType {
-        if !faceBuffers.keys.contains(vertexType.key) {
-          faceBuffers[vertexType.key] = [String: MTLBuffer]()
-        }
-        for vertexSubtype in vertexType.value.vertexListOfSubtype {
-          if vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count > 0 {
-            faceBuffers[vertexType.key]![vertexSubtype.key] = device!.makeBuffer(bytes: vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices, length: MemoryLayout<VertexWithNormal>.size*vertices.vertexListOfType[vertexType.key]!.vertexListOfSubtype[vertexSubtype.key]!.vertices.count, options: [])
-          } else {
-            faceBuffers[vertexType.key]!.removeValue(forKey: vertexSubtype.key)
-          }
-        }
-      }
-    }
-    
-    // Make buffer for bounding box
-    if edgeVertices.count > 0 {
-      boundingBoxBuffer = device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
-    } else {
-      boundingBoxBuffer = nil
-    }
-    
-    // Make buffer for selected edges
-    if selectionEdgeVertices.count > 0 {
-      selectedEdgesBuffer = device!.makeBuffer(bytes: selectionEdgeVertices, length: MemoryLayout<Vertex>.size*selectionEdgeVertices.count, options: [])
-    } else {
-      selectedEdgesBuffer = nil
-    }
-    
-    // Make buffer for selected faces
-    if selectionFaceVertices.count > 0 {
-      selectedFacesBuffer = device!.makeBuffer(bytes: selectionFaceVertices, length: MemoryLayout<VertexWithNormal>.size*selectionFaceVertices.count, options: [])
-    } else {
-      selectedFacesBuffer = nil
-    }
-    
-    // Print stats
-    Swift.print("Loaded triangles: ", separator: "", terminator: "")
-    for vertexType in vertices.vertexListOfType {
-      for vertexSubtype in vertexType.value.vertexListOfSubtype {
-        Swift.print("\(vertexSubtype.value.vertices.count/3) from \(vertexType.key) \(vertexSubtype.key)", separator: "", terminator: ", ")
-      }
-    }
-    Swift.print("and \(selectionFaceVertices.count/3) from selected objects.")
-    Swift.print("Loaded \(edgeVertices.count/2) edges, \(boundingBoxVertices.count/2) edges from the bounding box and \(selectionEdgeVertices.count/2) edges from the selection.")
-    Swift.print("\t3. Pulled data in \(CACurrentMediaTime()-startTime) seconds.")
-  }
-  
-  override func draw(_ dirtyRect: NSRect) {
-//    Swift.print("MetalView.draw(NSRect)")
-    
-    if dirtyRect.width == 0 {
-      return
-    }
-    
-    let commandBuffer = commandQueue!.makeCommandBuffer()
-    let renderPassDescriptor = currentRenderPassDescriptor!
-    let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-
-    renderEncoder.setFrontFacing(.counterClockwise)
-    renderEncoder.setDepthStencilState(depthStencilState)
-    renderEncoder.setRenderPipelineState(litRenderPipelineState!)
-    
-    for bufferType in faceBuffers {
-      if !renderedTypes.keys.contains(bufferType.key) {
-        Swift.print("Render type for \(bufferType.key) not set")
-        continue
-      }
-      for bufferSubtype in bufferType.value {
-        if !renderedTypes[bufferType.key]!.keys.contains(bufferSubtype.key) {
-          Swift.print("Render type for \(bufferType.key) \(bufferSubtype.key) not set")
-          continue
-        }
-        if faceBuffers[bufferType.key]![bufferSubtype.key]!.length > 0 {
-          if renderedTypes[bufferType.key]![bufferSubtype.key]!.w == 1.0 {
-            renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
-            constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
-            renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<VertexWithNormal>.size)
-          }
-        }
-      }
-    }
-    
-    for bufferType in faceBuffers {
-      if !renderedTypes.keys.contains(bufferType.key) {
-//        Swift.print("Render type for \(bufferType.key) not set")
-        continue
-      }
-      for bufferSubtype in bufferType.value {
-        if !renderedTypes[bufferType.key]!.keys.contains(bufferSubtype.key) {
-//          Swift.print("Render type for \(bufferType.key) \(bufferSubtype.key) not set")
-          continue
-        }
-        if faceBuffers[bufferType.key]![bufferSubtype.key]!.length > 0 {
-          if renderedTypes[bufferType.key]![bufferSubtype.key]!.w < 1.0 {
-            renderEncoder.setVertexBuffer(faceBuffers[bufferType.key]![bufferSubtype.key]!, offset:0, at:0)
-            constants.colour = renderedTypes[bufferType.key]![bufferSubtype.key]!
-            renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: faceBuffers[bufferType.key]![bufferSubtype.key]!.length/MemoryLayout<VertexWithNormal>.size)
-          }
-        }
-      }
-    }
-    
-    if selectedFacesBuffer != nil && selectedFacesBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(selectedFacesBuffer, offset:0, at:0)
-      constants.colour = float4(1.0, 1.0, 0.0, 1.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: selectedFacesBuffer!.length/MemoryLayout<VertexWithNormal>.size)
-    }
-    
-    renderEncoder.setRenderPipelineState(unlitRenderPipelineState!)
-    
-    if viewEdges && edgesBuffer != nil && edgesBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(edgesBuffer, offset:0, at:0)
-      constants.colour = float4(0.0, 0.0, 0.0, 1.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: edgesBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if viewBoundingBox && boundingBoxBuffer != nil && boundingBoxBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(boundingBoxBuffer, offset:0, at:0)
-      constants.colour = float4(0.0, 0.0, 0.0, 1.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: boundingBoxBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    if viewEdges && selectedEdgesBuffer != nil && selectedEdgesBuffer!.length > 0 {
-      renderEncoder.setVertexBuffer(selectedEdgesBuffer, offset:0, at:0)
-      constants.colour = float4(1.0, 0.0, 0.0, 1.0)
-      renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, at: 1)
-      renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: selectedEdgesBuffer!.length/MemoryLayout<Vertex>.size)
-    }
-    
-    renderEncoder.endEncoding()
-    let drawable = currentDrawable!
-    commandBuffer.present(drawable)
-    commandBuffer.commit()
-  }
-  
-  override func setFrameSize(_ newSize: NSSize) {
-//    Swift.print("setFrameSize(NSSize)")
-    super.setFrameSize(newSize)
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
-    
-    constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    needsDisplay = true
-  }
-  
 }
