@@ -631,26 +631,39 @@ bool DataManager::matchesSearch(AzulObject &object) {
 }
 
 bool DataManager::isExpandable(AzulObject &object) {
-  for (auto &child: object.children) {
-    if (matchesSearch(child)) return true;
-  } return false;
+  if (searchString.empty()) {
+    if (!object.children.empty()) return true;
+    return false;
+  } else {
+    for (auto &child: object.children) {
+      if (matchesSearch(child)) return true;
+    } return false;
+  }
 }
 
 int DataManager::numberOfChildren(AzulObject &object) {
-  int matchingChildren = 0;
-  for (auto &child: object.children) {
-    if (matchesSearch(child)) ++matchingChildren;
-  } return matchingChildren;
+  if (searchString.empty()) {
+    return (int)object.children.size();
+  } else {
+    int matchingChildren = 0;
+    for (auto &child: object.children) {
+      if (matchesSearch(child)) ++matchingChildren;
+    } return matchingChildren;
+  }
 }
 
 std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long index) {
-  int matchingChildren = 0;
-  for (std::vector<AzulObject>::iterator child = object.children.begin();
-       child != object.children.end();
-       ++child) {
-    if (matchesSearch(*child)) {
-      if (matchingChildren == index) return child;
-      ++matchingChildren;
-    }
-  } return object.children.begin();
+  if (searchString.empty()) {
+    return object.children.begin()+index;
+  } else {
+    int matchingChildren = 0;
+    for (std::vector<AzulObject>::iterator child = object.children.begin();
+         child != object.children.end();
+         ++child) {
+      if (matchesSearch(*child)) {
+        if (matchingChildren == index) return child;
+        ++matchingChildren;
+      }
+    } return object.children.begin();
+  }
 }
