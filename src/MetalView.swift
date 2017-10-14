@@ -17,6 +17,10 @@
 import Metal
 import MetalKit
 
+extension float4x4 {
+    static let identity = matrix_identity_float4x4
+}
+
 struct Constants {
   var modelMatrix = matrix_identity_float4x4
   var modelViewProjectionMatrix = matrix_identity_float4x4
@@ -24,6 +28,7 @@ struct Constants {
   var viewMatrixInverse = matrix_identity_float4x4
   var colour = float4(0.0, 0.0, 0.0, 1.0)
 }
+
 
 struct Vertex {
   var position: float3
@@ -306,7 +311,7 @@ struct BufferWithColour {
     let cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
     let axisInObjectCoordinates = matrix_multiply(cameraToObject, axisInCameraCoordinates)
     modelRotationMatrix = matrix_multiply(modelRotationMatrix, matrix4x4_rotation(angle: 3.14159*event.rotation/180.0, axis: axisInObjectCoordinates))
-    modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
+    modelMatrix = matrix_multiply(modelShiftBackMatrix, modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
@@ -439,8 +444,8 @@ struct BufferWithColour {
     
     fieldOfView = 1.047197551196598
     
-    modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-    modelRotationMatrix = matrix_identity_float4x4
+    modelTranslationToCentreOfRotationMatrix = .identity
+    modelRotationMatrix = .identity
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
     viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
@@ -460,8 +465,8 @@ struct BufferWithColour {
     
     fieldOfView = 1.047197551196598
     
-    modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-    modelRotationMatrix = matrix_identity_float4x4
+    modelTranslationToCentreOfRotationMatrix = .identity
+    modelRotationMatrix = .identity
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
     viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))

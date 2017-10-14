@@ -40,7 +40,7 @@ class SplitViewController: NSObject, NSSplitViewDelegate {
     let newFrame = splitView.frame
     
     leftRect.size.height = newFrame.size.height
-    leftRect.origin = CGPoint(x: 0, y: 0)
+    leftRect.origin = .zero
     rightRect.size.width = newFrame.size.width - leftRect.size.width - dividerThickness
     rightRect.size.height = newFrame.size.height
     rightRect.origin.x = leftRect.size.width + dividerThickness
@@ -68,7 +68,7 @@ class LeftSplitViewController: NSObject, NSSplitViewDelegate {
     let newFrame = splitView.frame
 
     searchRect.size.width = newFrame.size.width
-    searchRect.origin = CGPoint(x: 0, y: 0)
+    searchRect.origin = .zero
     
     objectsRect.size.width = newFrame.size.width
     objectsRect.size.height = newFrame.size.height - searchRect.size.height - dividerThickness - attributesRect.size.height - dividerThickness
@@ -379,7 +379,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           continue
         }
         
-        Swift.print("Loading " + url.path + "...")
+        Swift.print("Loading \(url.path) ...")
         DispatchQueue.main.async {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
@@ -685,7 +685,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   }
   
   @IBAction func copyObjectId(_ sender: NSMenuItem) {
-    let pasteboard = NSPasteboard.general
+    let pasteboard : NSPasteboard = .general
     pasteboard.clearContents()
     pasteboard.declareTypes([NSPasteboard.PasteboardType.string], owner: self)
     var selectionString = String()

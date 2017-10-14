@@ -41,7 +41,7 @@ func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4
 func matrix4x4_rotation(angle: Float, axis: float3) -> matrix_float4x4 {
   let normalisedAxis = normalize(axis)
   if normalisedAxis.x.isNaN || normalisedAxis.y.isNaN || normalisedAxis.z.isNaN {
-    return matrix_identity_float4x4
+    return .identity
   }
   let ct = cosf(angle)
   let st = sinf(angle)
