@@ -29,6 +29,11 @@ struct Constants {
   var colour = float4(0.0, 0.0, 0.0, 1.0)
 }
 
+extension CGSize {
+  var aspectRatio : CGFloat {
+    return width / height
+  }
+}
 
 struct Vertex {
   var position: float3
@@ -130,7 +135,7 @@ struct BufferWithColour {
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
     viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
@@ -213,7 +218,7 @@ struct BufferWithColour {
   override func setFrameSize(_ newSize: NSSize) {
 //    Swift.print("MetalView.setFrameSize(NSSize)")
     super.setFrameSize(newSize)
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
     needsDisplay = true
@@ -297,7 +302,7 @@ struct BufferWithColour {
     let magnification: Float = 1.0+Float(event.magnification)
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
     //    Swift.print("Field of view: \(fieldOfView)")
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
     needsDisplay = true
@@ -321,17 +326,18 @@ struct BufferWithColour {
   }
   
   override func mouseDragged(with event: NSEvent) {
+    let point = window!.mouseLocationOutsideOfEventStream
     //    Swift.print("mouseDragged()")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     
     // Compute the current and last mouse positions and their depth on a sphere
-    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
+    let currentX: Float = Float(-1.0 + 2.0*(point.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(point.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
     let currentZ: Float = sqrt(1.0 - (currentX*currentX+currentY*currentY))
     let currentPosition = normalize(float3(currentX, currentY, currentZ))
     //    Swift.print("Current position \(currentPosition)")
-    let lastX: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x)-event.deltaX) / bounds.size.width)
-    let lastY: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y)+event.deltaY) / bounds.size.height)
+    let lastX: Float = Float(-1.0 + 2.0*((point.x-viewFrameInWindowCoordinates.origin.x)-event.deltaX) / bounds.size.width)
+    let lastY: Float = Float(-1.0 + 2.0*((point.y-viewFrameInWindowCoordinates.origin.y)+event.deltaY) / bounds.size.height)
     let lastZ: Float = sqrt(1.0 - (lastX*lastX+lastY*lastY))
     let lastPosition = normalize(float3(lastX, lastY, lastZ))
     //    Swift.print("Last position \(lastPosition)")
@@ -366,7 +372,7 @@ struct BufferWithColour {
     let magnification: Float = 1.0+zoomSensitivity*Float(event.deltaY)
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
     //    Swift.print("Field of view: \(fieldOfView)")
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
     needsDisplay = true
@@ -394,13 +400,14 @@ struct BufferWithColour {
   
   func doubleClick(with event: NSEvent) {
         Swift.print("MetalView.doubleClick()")
+    let point = window!.mouseLocationOutsideOfEventStream
     //    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
     //    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
     
     // Compute the current mouse position
-    let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
-    let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
+    let currentX: Float = Float(-1.0 + 2.0*(point.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
+    let currentY: Float = Float(-1.0 + 2.0*(point.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
     //    Swift.print("currentX: \(currentX), currentY: \(currentY)")
     
     // Compute two points on the ray represented by the mouse position at the near and far planes
@@ -449,7 +456,7 @@ struct BufferWithColour {
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
     viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
@@ -470,7 +477,7 @@ struct BufferWithColour {
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
     viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
@@ -489,7 +496,7 @@ struct BufferWithColour {
         }
       }
     }
-    return [];
+    return []
   }
   
   override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {

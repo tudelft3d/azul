@@ -38,9 +38,16 @@ func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4
                        vector4(t.x, t.y, t.z, 1.0))
 }
 
+extension float3 {
+  var isNaN : Bool {
+    return x.isNaN || y.isNaN || z.isNaN
+  }
+}
+
 func matrix4x4_rotation(angle: Float, axis: float3) -> matrix_float4x4 {
   let normalisedAxis = normalize(axis)
-  if normalisedAxis.x.isNaN || normalisedAxis.y.isNaN || normalisedAxis.z.isNaN {
+
+  if normalisedAxis.isNaN {
     return .identity
   }
   let ct = cosf(angle)
