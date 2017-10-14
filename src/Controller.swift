@@ -39,11 +39,11 @@ class SplitViewController: NSObject, NSSplitViewDelegate {
     var rightRect = splitView.subviews[1].frame
     let newFrame = splitView.frame
     
-    leftRect.size.height = newFrame.size.height
+    leftRect.size.height = newFrame.height
     leftRect.origin = .zero
-    rightRect.size.width = newFrame.size.width - leftRect.size.width - dividerThickness
-    rightRect.size.height = newFrame.size.height
-    rightRect.origin.x = leftRect.size.width + dividerThickness
+    rightRect.size.width = newFrame.width - leftRect.width - dividerThickness
+    rightRect.size.height = newFrame.height
+    rightRect.origin.x = leftRect.width + dividerThickness
     
     splitView.subviews[0].frame = leftRect
     splitView.subviews[1].frame = rightRect
@@ -67,15 +67,15 @@ class LeftSplitViewController: NSObject, NSSplitViewDelegate {
     var attributesRect = splitView.subviews[2].frame
     let newFrame = splitView.frame
 
-    searchRect.size.width = newFrame.size.width
+    searchRect.size.width = newFrame.width
     searchRect.origin = .zero
     
-    objectsRect.size.width = newFrame.size.width
-    objectsRect.size.height = newFrame.size.height - searchRect.size.height - dividerThickness - attributesRect.size.height - dividerThickness
-    objectsRect.origin.y = searchRect.size.height + dividerThickness
+    objectsRect.size.width = newFrame.width
+    objectsRect.size.height = newFrame.height - searchRect.height - dividerThickness - attributesRect.size.height - dividerThickness
+    objectsRect.origin.y = searchRect.height + dividerThickness
     
-    attributesRect.size.width = newFrame.size.width
-    attributesRect.origin.y = searchRect.size.height + dividerThickness + objectsRect.size.height + dividerThickness
+    attributesRect.size.width = newFrame.width
+    attributesRect.origin.y = searchRect.height + dividerThickness + objectsRect.height + dividerThickness
 
     splitView.subviews[0].frame = searchRect
     splitView.subviews[1].frame = objectsRect
@@ -317,7 +317,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   }
   
   @IBAction func toggleSideBar(_ sender: NSMenuItem) {
-    if splitView!.subviews[0].bounds.size.width == 0 {
+    if splitView!.subviews[0].bounds.width == 0 {
       //      Swift.print("Open sidebar")
       NSAnimationContext.runAnimationGroup({ (context) -> Void in
         context.allowsImplicitAnimation = true

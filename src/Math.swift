@@ -70,9 +70,9 @@ func matrix4x4_translation(shift: float3) -> matrix_float4x4 {
 }
 
 func matrix_upper_left_3x3(matrix: matrix_float4x4) -> matrix_float3x3 {
-  return simd_float3x3(vector3(matrix.columns.0.x, matrix.columns.0.y, matrix.columns.0.z),
-                       vector3(matrix.columns.1.x, matrix.columns.1.y, matrix.columns.1.z),
-                       vector3(matrix.columns.2.x, matrix.columns.2.y, matrix.columns.2.z))
+  return simd_float3x3(matrix.columns.0.xyz,
+                       matrix.columns.1.xyz,
+                       matrix.columns.2.xyz)
 }
 
 func serialise(vector: float3) -> [Float] {

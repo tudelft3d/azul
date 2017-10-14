@@ -51,9 +51,13 @@ struct BufferWithColour {
 }
 
 extension float4 {
-    var xyz: float3 {
-        return .init(x: x, y: y, z: z)
+
+  var xyz: float3 {
+    @inline(__always)
+    get {
+      return .init(x: x, y: y, z: z)
     }
+  }
 }
 
 @objc class MetalView: MTKView {
