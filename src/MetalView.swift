@@ -138,7 +138,7 @@ struct BufferWithColour {
     constants.viewMatrixInverse = viewMatrix.inverse
     
     // Allow dragging
-    registerForDraggedTypes([NSPasteboard.PasteboardType.fileURL])
+    registerForDraggedTypes([.fileURL])
     
     self.isPaused = true
     self.enableSetNeedsDisplay = true

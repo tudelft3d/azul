@@ -687,7 +687,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   @IBAction func copyObjectId(_ sender: NSMenuItem) {
     let pasteboard : NSPasteboard = .general
     pasteboard.clearContents()
-    pasteboard.declareTypes([NSPasteboard.PasteboardType.string], owner: self)
+    pasteboard.declareTypes([.string], owner: self)
     var selectionString = String()
     for row in objectsSourceList!.selectedRowIndexes {
       if let view = objectsSourceList!.view(atColumn: 0, row: row, makeIfNecessary: false)! as? TableCellView {
@@ -698,7 +698,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
         selectionString.append(view.textField!.stringValue)
       }
     }
-    pasteboard.setString(selectionString, forType: NSPasteboard.PasteboardType.string)
+    pasteboard.setString(selectionString, forType: .string)
   }
   
   func loadViewParameters(url: URL) {
