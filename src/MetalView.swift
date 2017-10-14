@@ -50,6 +50,12 @@ struct BufferWithColour {
   var colour: float4
 }
 
+extension float4 {
+    var xyz: float3 {
+        return .init(x: x, y: y, z: z)
+    }
+}
+
 @objc class MetalView: MTKView {
   
   var controller: Controller?
@@ -256,8 +262,9 @@ struct BufferWithColour {
 
     // Compute the plane passing through the points.
     // In ax + by + cz + d = 0, abc are given by the cross product, d by evaluating a point in the equation.
-    let vector1 = float3(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z)
-    let vector2 = float3(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z)
+
+    let vector1 = leftUpPoint.xyz - centreDownPoint.xyz
+    let vector2 = rightUpPoint.xyz - centreDownPoint.xyz
     let crossProduct = cross(vector1, vector2)
     let point3 = float3(centreDownPoint.x/centreDownPoint.w, centreDownPoint.y/centreDownPoint.w, centreDownPoint.z/centreDownPoint.w)
     let d = -dot(crossProduct, point3)
@@ -273,7 +280,7 @@ struct BufferWithColour {
 
     // Motion according to trackpad
     let scrollingSensitivity: Float = 0.003*(fieldOfView/(3.141519/4.0))
-    let motionInCameraCoordinates = float3(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
+    let motionInCameraCoordinates = float3(Float(event.scrollingDeltaX), -Float(event.scrollingDeltaY), 0.0) * scrollingSensitivity
     var cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
     let motionInObjectCoordinates = matrix_multiply(cameraToObject, motionInCameraCoordinates)
     modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: motionInObjectCoordinates))
@@ -341,7 +348,7 @@ struct BufferWithColour {
     let lastZ: Float = sqrt(1.0 - (lastX*lastX+lastY*lastY))
     let lastPosition = normalize(float3(lastX, lastY, lastZ))
     //    Swift.print("Last position \(lastPosition)")
-    if currentPosition.x == lastPosition.x && currentPosition.y == lastPosition.y && currentPosition.z == lastPosition.z {
+    if currentPosition == lastPosition {
       return
     }
     
