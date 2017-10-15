@@ -270,7 +270,7 @@ extension float4 {
     let vector1 = leftUpPoint.xyz - centreDownPoint.xyz
     let vector2 = rightUpPoint.xyz - centreDownPoint.xyz
     let crossProduct = cross(vector1, vector2)
-    let point3 = float3(centreDownPoint.x/centreDownPoint.w, centreDownPoint.y/centreDownPoint.w, centreDownPoint.z/centreDownPoint.w)
+    let point3 = centreDownPoint.xyz/centreDownPoint.w
     let d = -dot(crossProduct, point3)
 
     // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
@@ -301,6 +301,7 @@ extension float4 {
 
     // Put model matrix in arrays and render
     constants.modelMatrix = modelMatrix
+    
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     constants.viewMatrixInverse = viewMatrix.inverse
