@@ -53,7 +53,7 @@ class SplitViewController: NSObject, NSSplitViewDelegate {
 class LeftSplitViewController: NSObject, NSSplitViewDelegate {
   func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
     if dividerIndex == 0 {
-      return NSZeroRect
+      return .zero
     } else {
       let effectiveRect = NSRect(x: 0, y: splitView.subviews[0].bounds.height+splitView.subviews[1].bounds.height-5, width: splitView.bounds.width, height: 10)
       return effectiveRect
@@ -251,7 +251,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     metalView!.new()
     objectsSourceList!.reloadData()
     attributesTableView!.reloadData()
-    openFiles = Set<URL>()
+    openFiles = []
     self.window.representedURL = nil
     self.window.title = "azul"
   }
