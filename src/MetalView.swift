@@ -239,19 +239,19 @@ extension float4 {
   
   @objc func depthAtCentre() -> Float {
     
-    let firstMinCoordinate = dataManager!.minCoordinates()
+    let firstMinCoordinate = dataManager!.minCoordinates
     let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
     let minCoordinatesArray = ContiguousArray(minCoordinatesBuffer)
     let minCoordinates = [Float](minCoordinatesArray)
-    let firstMidCoordinate = dataManager!.midCoordinates()
+    let firstMidCoordinate = dataManager!.midCoordinates
     let midCoordinatesBuffer = UnsafeBufferPointer(start: firstMidCoordinate, count: 3)
     let midCoordinatesArray = ContiguousArray(midCoordinatesBuffer)
     let midCoordinates = [Float](midCoordinatesArray)
-    let firstMaxCoordinate = dataManager!.maxCoordinates()
+    let firstMaxCoordinate = dataManager!.maxCoordinates
     let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
     let maxCoordinatesArray = ContiguousArray(maxCoordinatesBuffer)
     let maxCoordinates = [Float](maxCoordinatesArray)
-    let maxRange = dataManager!.maxRange()
+    let maxRange = dataManager!.maxRange
 
     // Create three points along the data plane
     let leftUpPointInObjectCoordinates = float4((minCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)

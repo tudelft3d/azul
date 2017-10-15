@@ -64,10 +64,10 @@ struct DataManagerWrapper;
 - (BOOL) edgeBufferIteratorEnded;
 
 // Bounds
-- (float *) minCoordinates;
-- (float *) midCoordinates;
-- (float *) maxCoordinates;
-- (float) maxRange;
+@property(nonatomic, readonly) float * minCoordinates;
+@property(nonatomic, readonly) float * midCoordinates;
+@property(nonatomic, readonly) float * maxCoordinates;
+@property(nonatomic, readonly) float maxRange;
 
 // Search
 - (void) setSearchString:(const char *)string;
