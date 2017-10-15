@@ -144,7 +144,7 @@ extension float4 {
     // Matrices
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
@@ -467,7 +467,7 @@ extension float4 {
     modelRotationMatrix = .identity
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
@@ -488,7 +488,7 @@ extension float4 {
     modelRotationMatrix = .identity
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = ((modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix)
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix

@@ -27,16 +27,29 @@ func matrix4x4_perspective(fieldOfView: Float, aspectRatio: Float, nearZ: Float,
                        vector4(0.0, 0.0, zs*nearZ, 0.0))
 }
 
-func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4x4 {
-  let z = normalize(eye-centre)
-  let x = normalize(cross(up, z))
-  let y = cross(z, x)
-  let t = vector3(-dot(x, eye), -dot(y, eye), -dot(z, eye))
-  return simd_float4x4(vector4(x.x, y.x, z.x, 0.0),
-                       vector4(x.y, y.y, z.y, 0.0),
-                       vector4(x.z, y.z, z.z, 0.0),
-                       vector4(t.x, t.y, t.z, 1.0))
+extension matrix_float4x4 {
+    init(eye : float3, center: float3, up: float3) {
+        let z = normalize(eye-center)
+        let x = normalize(cross(up, z))
+        let y = cross(z, x)
+        let t = vector3(-dot(x, eye), -dot(y, eye), -dot(z, eye))
+        self = simd_float4x4(vector4(x.x, y.x, z.x, 0.0),
+                             vector4(x.y, y.y, z.y, 0.0),
+                             vector4(x.z, y.z, z.z, 0.0),
+                             vector4(t.x, t.y, t.z, 1.0))
+    }
 }
+
+//func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4x4 {
+//  let z = normalize(eye-centre)
+//  let x = normalize(cross(up, z))
+//  let y = cross(z, x)
+//  let t = vector3(-dot(x, eye), -dot(y, eye), -dot(z, eye))
+//  return simd_float4x4(vector4(x.x, y.x, z.x, 0.0),
+//                       vector4(x.y, y.y, z.y, 0.0),
+//                       vector4(x.z, y.z, z.z, 0.0),
+//                       vector4(t.x, t.y, t.z, 1.0))
+//}
 
 extension float3 {
   var isNaN : Bool {
