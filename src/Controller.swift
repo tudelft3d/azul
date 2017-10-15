@@ -383,7 +383,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
         DispatchQueue.main.async {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
-          self.statusTextField?.stringValue = "Loading " + url.path + "..."
+          self.statusTextField?.stringValue = "Loading \(url.path) ..."
         }
         url.path.utf8CString.withUnsafeBufferPointer { pointer in
           self.dataManager.parse(pointer.baseAddress)
@@ -407,7 +407,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Updating bounds...")
         self.dataManager.updateBoundsWithLastFile()
         self.performanceHelper.printTimeSpent()
@@ -418,7 +418,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Triangulating...")
         self.dataManager.triangulateLastFile()
         self.performanceHelper.printTimeSpent()
@@ -429,7 +429,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Generating edges...")
         self.dataManager.generateEdgesForLastFile()
         self.performanceHelper.printTimeSpent()
@@ -440,7 +440,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Clearing polygons...")
         self.dataManager.clearPolygonsOfLastFile()
         self.performanceHelper.printTimeSpent()
@@ -451,7 +451,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Making triangle buffers...")
         self.dataManager.regenerateTriangleBuffers(withMaximumSize: 16*1024*1024)
         self.performanceHelper.printTimeSpent()
@@ -462,7 +462,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Making edge buffers...")
         self.dataManager.regenerateEdgeBuffers(withMaximumSize: 16*1024*1024)
         self.performanceHelper.printTimeSpent()
@@ -473,7 +473,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Loading triangle buffers...")
         while self.metalView == nil {
           Thread.sleep(forTimeInterval: 0.01)
@@ -487,7 +487,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Loading edge buffers...")
         self.reloadEdgeBuffers()
         self.performanceHelper.printTimeSpent()
@@ -498,7 +498,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         Swift.print("Regenerating bounding box buffer...")
         self.regenerateBoundingBoxBuffer()
         self.performanceHelper.printTimeSpent()
@@ -509,10 +509,10 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
           self.statusTextField?.isHidden = false
           self.progressIndicator?.isHidden = false
         }
-        
+
         self.openFiles.insert(url)
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
-        
+
         DispatchQueue.main.async {
           self.metalView!.needsDisplay = true
           self.objectsSourceList!.reloadData()
@@ -535,7 +535,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
       }
     }
   }
-  
+
   func regenerateBoundingBoxBuffer() {
     
     // Get bounds
@@ -552,7 +552,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     let maxCoordinatesArray = ContiguousArray(maxCoordinatesBuffer)
     let maxCoordinates = [Float](maxCoordinatesArray)
     let maxRange = dataManager.maxRange
-    
+
     // Create bounding box vertices
     let boundingBoxVertices: [Vertex] = [Vertex(position: float3(minCoordinates[0]-midCoordinates[0],
                                                                  minCoordinates[1]-midCoordinates[1],
@@ -628,7 +628,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
                                                                  maxCoordinates[2]-midCoordinates[2])/maxRange)]
     metalView!.boundingBoxBuffer = metalView!.device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
   }
-  
+
   @objc func reloadTriangleBuffers() {
     self.metalView!.triangleBuffers.removeAll()
     self.dataManager.initialiseTriangleBufferIterator()
@@ -651,7 +651,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
       self.dataManager.advanceTriangleBufferIterator()
     }
   }
-  
+
   @objc func reloadEdgeBuffers() {
     self.metalView!.edgeBuffers.removeAll()
     self.dataManager.initialiseEdgeBufferIterator()
@@ -679,7 +679,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     
     // Put model matrix in arrays and render
     metalView!.constants.modelMatrix = metalView!.modelMatrix
-    metalView!.constants.modelViewProjectionMatrix = matrix_multiply(metalView!.projectionMatrix, matrix_multiply(metalView!.viewMatrix, metalView!.modelMatrix))
+    metalView!.constants.modelViewProjectionMatrix = (metalView!.projectionMatrix * (metalView!.viewMatrix * metalView!.modelMatrix))
     metalView!.constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: metalView!.modelMatrix).inverse.transpose
     metalView!.needsDisplay = true
   }
@@ -719,7 +719,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
       self.metalView!.viewBoundingBox = viewParameters.viewBoundingBox
       
       self.metalView!.constants.modelMatrix = self.metalView!.modelMatrix
-      self.metalView!.constants.modelViewProjectionMatrix = matrix_multiply(self.metalView!.projectionMatrix, matrix_multiply(self.metalView!.viewMatrix, self.metalView!.modelMatrix))
+      self.metalView!.constants.modelViewProjectionMatrix = (self.metalView!.projectionMatrix * (self.metalView!.viewMatrix * self.metalView!.modelMatrix))
       self.metalView!.constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: self.metalView!.modelMatrix).inverse.transpose
       self.metalView!.needsDisplay = true
     } catch {

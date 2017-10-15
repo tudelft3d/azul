@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3739FA681F93CD5E000C3250 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA671F93CD5E000C3250 /* Extensions.swift */; };
+		37DF21EC1F92D7C6008780EF /* TableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DF21EB1F92D7C6008780EF /* TableCellView.swift */; };
 		BE5724631F78FAAD008F4D54 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BE5724621F78FAAD008F4D54 /* TableCellView.m */; };
 		BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7254F91F711D87006E5AC8 /* DataManager.cpp */; };
 		BE8C43CF1F8D1E6A0021CA0B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DACF1F705479002FBEF4 /* LICENSE */; };
@@ -37,6 +39,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3739FA671F93CD5E000C3250 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Extensions.swift; path = Icons/Extensions.swift; sourceTree = "<group>"; };
+		37DF21EB1F92D7C6008780EF /* TableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCellView.swift; sourceTree = "<group>"; };
 		BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = POLYParsingHelper.hpp; sourceTree = "<group>"; };
 		BE4236941F8BB249009AD5D7 /* OFFParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OFFParsingHelper.hpp; sourceTree = "<group>"; };
 		BE5182981F7D3812000A7066 /* OBJParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OBJParsingHelper.hpp; sourceTree = "<group>"; };
@@ -235,7 +239,9 @@
 				BE8C43CE1F8D1CB50021CA0B /* Icons */,
 				BED5AF601F6FC49D0002A79E /* DataManager */,
 				BEF69F401F6AA0520079531B /* Controller.swift */,
+				37DF21EB1F92D7C6008780EF /* TableCellView.swift */,
 				BEF69F501F6AA4C30079531B /* Shaders.metal */,
+				3739FA671F93CD5E000C3250 /* Extensions.swift */,
 				BEF69F4E1F6AA0EC0079531B /* MetalView.swift */,
 				BEF69F521F6AA9540079531B /* Math.swift */,
 				BED5AF611F6FC5950002A79E /* azul-Bridging-Header.h */,
@@ -334,7 +340,9 @@
 				BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */,
 				BEF69F4F1F6AA0EC0079531B /* MetalView.swift in Sources */,
 				BEF69F411F6AA0520079531B /* Controller.swift in Sources */,
+				3739FA681F93CD5E000C3250 /* Extensions.swift in Sources */,
 				BE5724631F78FAAD008F4D54 /* TableCellView.m in Sources */,
+				37DF21EC1F92D7C6008780EF /* TableCellView.swift in Sources */,
 				BED5AF751F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm in Sources */,
 				BEF69F531F6AA9540079531B /* Math.swift in Sources */,
 			);
@@ -471,7 +479,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = UD3V83TPY7;
+				DEVELOPMENT_TEAM = JL8K7LH7KS;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = src/Info.plist;
@@ -496,7 +504,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = UD3V83TPY7;
+				DEVELOPMENT_TEAM = JL8K7LH7KS;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

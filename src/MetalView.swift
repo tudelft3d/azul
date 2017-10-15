@@ -60,12 +60,14 @@ extension float4 {
   }
 }
 
+
+
 @objc class MetalView: MTKView {
   
   var controller: Controller?
   var dataManager: DataManagerWrapperWrapper?
   
-  var commandQueue: MTLCommandQueue?
+  let commandQueue: MTLCommandQueue
   var litRenderPipelineState: MTLRenderPipelineState?
   var unlitRenderPipelineState: MTLRenderPipelineState?
   var depthStencilState: MTLDepthStencilState?
@@ -95,6 +97,7 @@ extension float4 {
   
   override init(frame frameRect: CGRect, device: MTLDevice?) {
     Swift.print("MetalView.init(CGRect, MTLDevice)")
+    commandQueue = device!.makeCommandQueue()!
     super.init(frame: frameRect, device: device)
     
     // View
@@ -103,7 +106,7 @@ extension float4 {
     depthStencilPixelFormat = .depth32Float
     
     // Command queue
-    commandQueue = device!.makeCommandQueue()
+
     
     // Render pipeline
     let library = device!.makeDefaultLibrary()!
@@ -142,7 +145,7 @@ extension float4 {
     depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)
     
     // Matrices
-    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
+    modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
@@ -175,7 +178,7 @@ extension float4 {
       return
     }
     
-    let commandBuffer = commandQueue!.makeCommandBuffer()!
+    let commandBuffer = commandQueue.makeCommandBuffer()!
     let renderPassDescriptor = currentRenderPassDescriptor!
     let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
     
@@ -285,9 +288,9 @@ extension float4 {
     // Motion according to trackpad
     let scrollingSensitivity: Float = 0.003*(fieldOfView/(3.141519/4.0))
     let motionInCameraCoordinates = float3(Float(event.scrollingDeltaX), -Float(event.scrollingDeltaY), 0.0) * scrollingSensitivity
-    var cameraToObject = matrix_upper_left_3x3(matrix: (viewMatrix * modelMatrix)).inverse
+    var cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
     let motionInObjectCoordinates = (cameraToObject * motionInCameraCoordinates)
-    modelTranslationToCentreOfRotationMatrix = (modelTranslationToCentreOfRotationMatrix * matrix4x4_translation(shift: motionInObjectCoordinates))
+    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + motionInObjectCoordinates
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
 
     // Correct motion so that the point of rotation remains at the same depth as the data
@@ -296,7 +299,7 @@ extension float4 {
     //    Swift.print("Depth offset: \(depthOffset)")
     let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates = cameraToObject * depthOffsetInCameraCoordinates
-    modelTranslationToCentreOfRotationMatrix = (modelTranslationToCentreOfRotationMatrix * matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
+    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + depthOffsetInObjectCoordinates
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
 
     // Put model matrix in arrays and render
@@ -413,15 +416,21 @@ extension float4 {
   func doubleClick(with event: NSEvent) {
         Swift.print("MetalView.doubleClick()")
     let point = window!.mouseLocationOutsideOfEventStream
+
+
+    let b = convert(event.locationInWindow, to: nil)
+
     //    Swift.print("Mouse location X: \(window!.mouseLocationOutsideOfEventStream.x), Y: \(window!.mouseLocationOutsideOfEventStream.y)")
     let viewFrameInWindowCoordinates = convert(bounds, to: nil)
+
     //    Swift.print("View X: \(viewFrameInWindowCoordinates.origin.x), Y: \(viewFrameInWindowCoordinates.origin.y)")
-    
+    let translated = b - viewFrameInWindowCoordinates.origin
+    Swift.print(viewFrameInWindowCoordinates, b, translated)
     // Compute the current mouse position
     let currentX: Float = Float(-1.0 + 2.0*(point.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
     let currentY: Float = Float(-1.0 + 2.0*(point.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
-    //    Swift.print("currentX: \(currentX), currentY: \(currentY)")
-    
+        Swift.print("currentX: \(currentX), currentY: \(currentY)")
+
     // Compute two points on the ray represented by the mouse position at the near and far planes
     let mvpInverse = (projectionMatrix * (viewMatrix * modelMatrix)).inverse
     let pointOnNearPlaneInProjectionCoordinates = float4(currentX, currentY, -1.0, 1.0)
@@ -431,7 +440,9 @@ extension float4 {
     
     // Interpolate the points to obtain the intersection with the data plane z = 0
     let alpha: Float = -(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)/((pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)-(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))
-    let clickedPointInObjectCoordinates = float4(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
+    let clickedPointInObjectCoordinates = float4(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w),
+                                                 alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w),
+                                                 0.0, 1.0)
     
     // Use the intersection to compute the shift in the view space
     let objectToCamera = viewMatrix * modelMatrix
@@ -441,20 +452,20 @@ extension float4 {
     let shiftInCameraCoordinates = float3(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
     var cameraToObject = matrix_upper_left_3x3(matrix: objectToCamera).inverse
     let shiftInObjectCoordinates = cameraToObject * shiftInCameraCoordinates
-    modelTranslationToCentreOfRotationMatrix = (modelTranslationToCentreOfRotationMatrix * matrix4x4_translation(shift: shiftInObjectCoordinates))
-    modelMatrix = ((modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix)
+    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + shiftInObjectCoordinates
+    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     
     // Correct shift so that the point of rotation remains at the same depth as the data
     cameraToObject = matrix_upper_left_3x3(matrix: (viewMatrix * modelMatrix)).inverse
     let depthOffset = 1.0+depthAtCentre()
     let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates = cameraToObject * depthOffsetInCameraCoordinates
-    modelTranslationToCentreOfRotationMatrix = (modelTranslationToCentreOfRotationMatrix * matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
-    modelMatrix = ((modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix)
+    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + depthOffsetInObjectCoordinates
+    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     
     // Put model matrix in arrays and render
     constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = (projectionMatrix * (viewMatrix * modelMatrix))
+    constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     needsDisplay = true
   }
@@ -465,13 +476,13 @@ extension float4 {
     
     modelTranslationToCentreOfRotationMatrix = .identity
     modelRotationMatrix = .identity
-    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
+    modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = (projectionMatrix * (viewMatrix * modelMatrix))
+    constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     constants.viewMatrixInverse = viewMatrix.inverse
     needsDisplay = true
@@ -486,13 +497,13 @@ extension float4 {
     
     modelTranslationToCentreOfRotationMatrix = .identity
     modelRotationMatrix = .identity
-    modelShiftBackMatrix = matrix4x4_translation(shift: centre)
-    modelMatrix = ((modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix)
+    modelShiftBackMatrix = .init(translation: centre)
+    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
-    constants.modelViewProjectionMatrix = (projectionMatrix * (viewMatrix * modelMatrix))
+    constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     constants.viewMatrixInverse = viewMatrix.inverse
     

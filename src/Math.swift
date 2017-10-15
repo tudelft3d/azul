@@ -38,6 +38,17 @@ extension matrix_float4x4 {
                              vector4(x.z, y.z, z.z, 0.0),
                              vector4(t.x, t.y, t.z, 1.0))
     }
+
+    init(translation t: float3) {
+        self = .init(vector4(1.0, 0.0, 0.0, 0.0),
+                     vector4(0.0, 1.0, 0.0, 0.0),
+                     vector4(0.0, 0.0, 1.0, 0.0),
+                     vector4(t.x, t.y, t.z, 1.0))
+    }
+
+    static func +(lhs: matrix_float4x4, rhs: float3) -> matrix_float4x4 {
+        return lhs * .init(translation: rhs)
+    }
 }
 
 //func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4x4 {
