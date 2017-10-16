@@ -16,3 +16,4 @@
 
 #import "PerformanceHelperWrapperWrapper.h"
 #import "DataManagerWrapperWrapper.h"
+#import "SharedTypes.h"
