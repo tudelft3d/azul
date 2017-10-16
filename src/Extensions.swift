@@ -7,6 +7,7 @@
 //
 
 import MetalKit
+import Cocoa
 
 extension float2 {
     init(cgPoint : CGPoint) {
@@ -35,5 +36,16 @@ extension NSPoint {
 //
 //    }
 //}
+extension Sequence where Iterator.Element == URL {
+    func first(for types : Set<String>) -> URL? {
+        return first { types.contains($0.pathExtension) }
+    }
+}
 
 
+
+extension NSDraggingInfo {
+    func urls() -> [URL]? {
+        return draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL]
+    }
+}

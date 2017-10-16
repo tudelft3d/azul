@@ -50,21 +50,7 @@ struct BufferWithColour {
   var colour: float4
 }
 
-extension Sequence where Iterator.Element == URL {
-    func first(for types : Set<String>) -> URL? {
-        return first { types.contains($0.pathExtension) }
-    }
-}
 
-extension NSDraggingInfo {
-    func action(for types : Set<String>) -> NSDragOperation {
-        guard let urls = draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL],
-            let _ = urls.first(for: types) else {
-            return []
-        }
-        return .copy
-    }
-}
 
 extension float4 {
 
@@ -531,20 +517,20 @@ extension float4 {
     needsDisplay = true
   }
   
-  override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-    let acceptedFileTypes: Set = ["gml", "xml", "json", "obj", "off", "poly"]
-    if let urls = sender.draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
-      for url in urls {
-        if acceptedFileTypes.contains(url.pathExtension) {
-          return .copy
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        let acceptedFileTypes: Set = ["gml", "xml", "json", "obj", "off", "poly"]
+        if let urls = sender.urls() {
+            for url in urls {
+                if acceptedFileTypes.contains(url.pathExtension) {
+                    return .copy
+                }
+            }
         }
-      }
+        return []
     }
-    return []
-  }
   
   override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-    if let urls = sender.draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
+    if let urls = sender.urls() {
       controller!.loadData(from: urls)
     }
     return true
