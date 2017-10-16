@@ -107,7 +107,7 @@ extension float4 {
   @objc var modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
   @objc var modelRotationMatrix = matrix_identity_float4x4
   @objc var modelShiftBackMatrix = matrix_identity_float4x4
-  
+
   @objc var modelMatrix = matrix_identity_float4x4
   @objc var viewMatrix = matrix_identity_float4x4
   @objc var projectionMatrix = matrix_identity_float4x4
@@ -167,12 +167,8 @@ extension float4 {
     colorPixelFormat = .bgra8Unorm
     depthStencilPixelFormat = .depth32Float
     
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
 
-
-    
-
-    
     // Allow dragging
     registerForDraggedTypes([.fileURL])
     
@@ -251,7 +247,7 @@ extension float4 {
   override func setFrameSize(_ newSize: NSSize) {
 //    Swift.print("MetalView.setFrameSize(NSSize)")
     super.setFrameSize(newSize)
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
     
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     needsDisplay = true
@@ -342,7 +338,7 @@ extension float4 {
     let magnification: Float = 1.0+Float(event.magnification)
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
     //    Swift.print("Field of view: \(fieldOfView)")
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
     
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     needsDisplay = true
@@ -412,7 +408,7 @@ extension float4 {
     let magnification: Float = 1.0+zoomSensitivity*Float(event.deltaY)
     fieldOfView = 2.0*atanf(tanf(0.5*fieldOfView)/magnification)
     //    Swift.print("Field of view: \(fieldOfView)")
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
     
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     needsDisplay = true
@@ -504,8 +500,8 @@ extension float4 {
     modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
-    
+    projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
+
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
@@ -525,7 +521,7 @@ extension float4 {
     modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
+    projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)

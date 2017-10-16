@@ -17,15 +17,15 @@
 import Metal
 import MetalKit
 
-func matrix4x4_perspective(fieldOfView: Float, aspectRatio: Float, nearZ: Float, farZ: Float) -> matrix_float4x4 {
-  let ys: Float = 1.0 / tanf(fieldOfView*0.5)
-  let xs: Float = ys / aspectRatio
-  let zs: Float = farZ / (nearZ-farZ)
-  return simd_float4x4(vector4(xs, 0.0, 0.0, 0.0),
-                       vector4(0.0, ys, 0.0, 0.0),
-                       vector4(0.0, 0.0, zs, -1.0),
-                       vector4(0.0, 0.0, zs*nearZ, 0.0))
-}
+//func matrix4x4_perspective(fieldOfView: Float, aspectRatio: Float, nearZ: Float, farZ: Float) -> matrix_float4x4 {
+//  let ys: Float = 1.0 / tanf(fieldOfView*0.5)
+//  let xs: Float = ys / aspectRatio
+//  let zs: Float = farZ / (nearZ-farZ)
+//  return simd_float4x4(vector4(xs, 0.0, 0.0, 0.0),
+//                       vector4(0.0, ys, 0.0, 0.0),
+//                       vector4(0.0, 0.0, zs, -1.0),
+//                       vector4(0.0, 0.0, zs*nearZ, 0.0))
+//}
 
 extension matrix_float4x4 {
     init(eye : float3, center: float3, up: float3) {
@@ -44,6 +44,23 @@ extension matrix_float4x4 {
                      vector4(0.0, 1.0, 0.0, 0.0),
                      vector4(0.0, 0.0, 1.0, 0.0),
                      vector4(t.x, t.y, t.z, 1.0))
+    }
+
+    init(fov : Float, aspectRatio : Float, nearZ: Float = 0.001, farZ: Float = 100) {
+        let ys: Float = 1.0 / tanf(fov*0.5)
+        let xs: Float = ys / aspectRatio
+        let zs: Float = farZ / (nearZ-farZ)
+        self.init(vector4(xs, 0.0, 0.0, 0.0),
+                  vector4(0.0, ys, 0.0, 0.0),
+                  vector4(0.0, 0.0, zs, -1.0),
+                  vector4(0.0, 0.0, zs*nearZ, 0.0))
+    }
+
+    init(fov : Float, size : CGSize, nearZ: Float = 0.001, farZ: Float = 100) {
+        self.init(fov: fov,
+                  aspectRatio: Float(size.aspectRatio),
+                  nearZ: nearZ,
+                  farZ: farZ)
     }
 
     static func +(lhs: matrix_float4x4, rhs: float3) -> matrix_float4x4 {

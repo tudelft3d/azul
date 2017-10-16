@@ -35,12 +35,28 @@ import MetalKit
 //
 //}
 
+class AzulRenderPipelineDescriptor : MTLRenderPipelineDescriptor {
+    init(vert: String, frag : String) {
+        super.init()
+        vertexFunction = GPU.shared.makeFunction(name: vert)
+        fragmentFunction = GPU.shared.makeFunction(name: frag)
+        colorAttachments[0].pixelFormat = .bgra8Unorm
+        colorAttachments[0].isBlendingEnabled = true
+        colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+        colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
+        colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        depthAttachmentPixelFormat = .depth32Float
+
+    }
+}
+
 
 class Renderer : NSObject, MTKViewDelegate {
 //    let state : MTLRenderPipelineState
 
     override init() {
-        GPU.shared
+
 
     }
     func draw(in view: MTKView) {

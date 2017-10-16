@@ -8,4 +8,12 @@
 
 import MetalKit
 
+extension Constants {
+//    init(center : float3) {
+//
+//    }
+    func magnify(with mag : Float) {
+
+    }
+}
 
