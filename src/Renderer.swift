@@ -8,21 +8,41 @@
 
 import MetalKit
 
-class GPU {
-    let device : MTLDevice
-    let queue : MTLCommandQueue
-    let library : MTLLibrary
 
-    static let shared = GPU()
 
-    private init() {
-        device = MTLCreateSystemDefaultDevice()!
-        queue = device.makeCommandQueue()!
-        library = device.makeDefaultLibrary()!
+
+
+//protocol Renderable {
+////    associatedtype Descriptor : MTLRenderPipelineDescriptor
+//
+//}
+//
+//class Renderer<R : Renderable> : NSObject, MTKViewDelegate {
+//
+//    override init() {
+//
+//    }
+//    func draw(in view: MTKView) {
+//
+//    }
+//
+//    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+//
+//    }
+//}
+
+//class AzulRenderer : Renderer {
+//
+//}
+
+
+class Renderer : NSObject, MTKViewDelegate {
+//    let state : MTLRenderPipelineState
+
+    override init() {
+        GPU.shared
+
     }
-}
-
-final class Renderer : NSObject, MTKViewDelegate {
     func draw(in view: MTKView) {
 
     }
@@ -31,3 +51,4 @@ final class Renderer : NSObject, MTKViewDelegate {
 
     }
 }
+
