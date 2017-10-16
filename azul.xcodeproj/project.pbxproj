@@ -10,6 +10,8 @@
 		3739FA6B1F952221000C3250 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA6A1F952221000C3250 /* Extensions.swift */; };
 		3739FA6D1F9522A9000C3250 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA6C1F9522A9000C3250 /* Renderer.swift */; };
 		3739FA6F1F9524B5000C3250 /* GPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA6E1F9524B5000C3250 /* GPU.swift */; };
+		3739FA711F95281C000C3250 /* SharedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA701F95281C000C3250 /* SharedTypes.swift */; };
+		3739FA731F9528EA000C3250 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA721F9528EA000C3250 /* DataManager.swift */; };
 		37DF21EC1F92D7C6008780EF /* TableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DF21EB1F92D7C6008780EF /* TableCellView.swift */; };
 		BE5724631F78FAAD008F4D54 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BE5724621F78FAAD008F4D54 /* TableCellView.m */; };
 		BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7254F91F711D87006E5AC8 /* DataManager.cpp */; };
@@ -45,6 +47,8 @@
 		3739FA6A1F952221000C3250 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		3739FA6C1F9522A9000C3250 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		3739FA6E1F9524B5000C3250 /* GPU.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPU.swift; sourceTree = "<group>"; };
+		3739FA701F95281C000C3250 /* SharedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTypes.swift; sourceTree = "<group>"; };
+		3739FA721F9528EA000C3250 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		37DF21EB1F92D7C6008780EF /* TableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCellView.swift; sourceTree = "<group>"; };
 		BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = POLYParsingHelper.hpp; sourceTree = "<group>"; };
 		BE4236941F8BB249009AD5D7 /* OFFParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OFFParsingHelper.hpp; sourceTree = "<group>"; };
@@ -245,6 +249,8 @@
 				BED5AF601F6FC49D0002A79E /* DataManager */,
 				BEF69F401F6AA0520079531B /* Controller.swift */,
 				3739FA691F93FF8C000C3250 /* SharedTypes.h */,
+				3739FA701F95281C000C3250 /* SharedTypes.swift */,
+				3739FA721F9528EA000C3250 /* DataManager.swift */,
 				37DF21EB1F92D7C6008780EF /* TableCellView.swift */,
 				3739FA6A1F952221000C3250 /* Extensions.swift */,
 				BEF69F501F6AA4C30079531B /* Shaders.metal */,
@@ -346,7 +352,9 @@
 				BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */,
 				BEF69F511F6AA4C30079531B /* Shaders.metal in Sources */,
 				BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */,
+				3739FA731F9528EA000C3250 /* DataManager.swift in Sources */,
 				BEF69F4F1F6AA0EC0079531B /* MetalView.swift in Sources */,
+				3739FA711F95281C000C3250 /* SharedTypes.swift in Sources */,
 				3739FA6D1F9522A9000C3250 /* Renderer.swift in Sources */,
 				BEF69F411F6AA0520079531B /* Controller.swift in Sources */,
 				3739FA6B1F952221000C3250 /* Extensions.swift in Sources */,
