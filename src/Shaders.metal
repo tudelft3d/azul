@@ -24,10 +24,10 @@ constant float3 diffuseLightIntensity(0.2, 0.2, 0.2);
 constant float3 specularLightIntensity(0.2, 0.2, 0.2);
 constant float3 lightPosition(0.5, 0.5, -1.0);
 
-struct VertexWithNormalIn {
-  float3 position;
-  float3 normal;
-};
+//struct VertexWithNormalIn {
+//  float3 position;
+//  float3 normal;
+//};
 
 struct VertexIn {
   float3 position;
@@ -38,7 +38,7 @@ struct VertexOut {
   float4 colour;
 };
 
-vertex VertexOut vertexLit(device VertexWithNormalIn *vertices [[buffer(0)]],
+vertex VertexOut vertexLit(device VertexWithNormal *vertices [[buffer(0)]],
                            constant Constants &uniforms [[buffer(1)]],
                            uint VertexId [[vertex_id]]) {
   

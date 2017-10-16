@@ -115,7 +115,8 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   var statusTextField: NSTextField?
   
   @objc var metalView: MetalView?
-  var openFiles = Set<URL>()
+    var openFiles : Set<URL> = []
+
   
   @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
   @IBOutlet weak var toggleViewBoundingBoxMenuItem: NSMenuItem!
@@ -709,12 +710,12 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
       self.metalView!.eye = deserialiseToFloat3(vector: viewParameters.eye)
       self.metalView!.centre = deserialiseToFloat3(vector: viewParameters.centre)
       self.metalView!.fieldOfView = viewParameters.fieldOfView
-      self.metalView!.modelTranslationToCentreOfRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelTranslationToCentreOfRotationMatrix)
-      self.metalView!.modelRotationMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelRotationMatrix)
-      self.metalView!.modelShiftBackMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelShiftBackMatrix)
-      self.metalView!.modelMatrix = deserialiseToMatrix4x4(matrix: viewParameters.modelMatrix)
-      self.metalView!.viewMatrix = deserialiseToMatrix4x4(matrix: viewParameters.viewMatrix)
-      self.metalView!.projectionMatrix = deserialiseToMatrix4x4(matrix: viewParameters.projectionMatrix)
+      self.metalView!.modelTranslationToCentreOfRotationMatrix = .init(array: viewParameters.modelTranslationToCentreOfRotationMatrix)
+      self.metalView!.modelRotationMatrix = .init(array: viewParameters.modelRotationMatrix)
+      self.metalView!.modelShiftBackMatrix = .init(array: viewParameters.modelShiftBackMatrix)
+      self.metalView!.modelMatrix = .init(array: viewParameters.modelMatrix)
+      self.metalView!.viewMatrix = .init(array: viewParameters.viewMatrix)
+      self.metalView!.projectionMatrix = .init(array: viewParameters.projectionMatrix)
       self.metalView!.viewEdges = viewParameters.viewEdges
       self.metalView!.viewBoundingBox = viewParameters.viewBoundingBox
       

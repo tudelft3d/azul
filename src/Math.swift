@@ -28,23 +28,28 @@ import MetalKit
 //}
 
 extension matrix_float4x4 {
-    init(eye : float3, center: float3, up: float3) {
+    init(eye : float3, center: float3, up: float3 = float3(0.0, 1.0, 0.0)) {
         let z = normalize(eye-center)
         let x = normalize(cross(up, z))
         let y = cross(z, x)
         let t = vector3(-dot(x, eye), -dot(y, eye), -dot(z, eye))
-        self = simd_float4x4(vector4(x.x, y.x, z.x, 0.0),
-                             vector4(x.y, y.y, z.y, 0.0),
-                             vector4(x.z, y.z, z.z, 0.0),
-                             vector4(t.x, t.y, t.z, 1.0))
+        self.init(vector4(x.x, y.x, z.x, 0.0),
+                  vector4(x.y, y.y, z.y, 0.0),
+                  vector4(x.z, y.z, z.z, 0.0),
+                  vector4(t.x, t.y, t.z, 1.0))
     }
 
     init(translation t: float3) {
-        self = .init(vector4(1.0, 0.0, 0.0, 0.0),
-                     vector4(0.0, 1.0, 0.0, 0.0),
-                     vector4(0.0, 0.0, 1.0, 0.0),
-                     vector4(t.x, t.y, t.z, 1.0))
+        self.init(vector4(1.0, 0.0, 0.0, 0.0),
+                  vector4(0.0, 1.0, 0.0, 0.0),
+                  vector4(0.0, 0.0, 1.0, 0.0),
+                  vector4(t.x, t.y, t.z, 1.0))
     }
+
+//    var fieldOfView : Float {
+//        columns.
+//        fatalError()
+//    }
 
     init(fov : Float, aspectRatio : Float, nearZ: Float = 0.001, farZ: Float = 100) {
         let ys: Float = 1.0 / tanf(fov*0.5)
@@ -66,6 +71,38 @@ extension matrix_float4x4 {
     static func +(lhs: matrix_float4x4, rhs: float3) -> matrix_float4x4 {
         return lhs * .init(translation: rhs)
     }
+
+    init(rotate axis: float3, angle: Float) {
+        let normalisedAxis = normalize(axis)
+
+        if normalisedAxis.isNaN {
+            fatalError()
+
+        }
+        let ct = cosf(angle)
+        let st = sinf(angle)
+        let ci = 1 - ct
+        let x = normalisedAxis.x
+        let y = normalisedAxis.y
+        let z = normalisedAxis.z
+        self.init(vector4(ct + x * x * ci, y * x * ci + z * st, z * x * ci - y * st, 0),
+                  vector4(x * y * ci - z * st, ct + y * y * ci, z * y * ci + x * st, 0),
+                  vector4(x * z * ci + y * st, y * z * ci - x * st, ct + z * z * ci, 0),
+                  vector4(0.0, 0.0, 0.0, 1.0))
+    }
+
+    func rotate(around axis: float3, angle: Float) -> float4x4 {
+        return self * .init(rotate: axis, angle: angle)
+    }
+
+    init(array : [Float]) {
+        assert(array.count == 16)
+        self.init(float4(array[0], array[1], array[2], array[3]),
+                  float4(array[4], array[5],array[6], array[7]),
+                  float4(array[8], array[9], array[10], array[11]),
+                  float4(array[12], array[13], array[14], array[15]))
+    }
+    
 }
 
 //func matrix4x4_look_at(eye: float3, centre: float3, up: float3) -> matrix_float4x4 {
@@ -85,22 +122,9 @@ extension float3 {
   }
 }
 
-func matrix4x4_rotation(angle: Float, axis: float3) -> matrix_float4x4 {
-  let normalisedAxis = normalize(axis)
 
-  if normalisedAxis.isNaN {
-    return .identity
-  }
-  let ct = cosf(angle)
-  let st = sinf(angle)
-  let ci = 1 - ct
-  let x = normalisedAxis.x
-  let y = normalisedAxis.y
-  let z = normalisedAxis.z
-  return simd_float4x4(vector4(ct + x * x * ci, y * x * ci + z * st, z * x * ci - y * st, 0),
-                       vector4(x * y * ci - z * st, ct + y * y * ci, z * y * ci + x * st, 0),
-                       vector4(x * z * ci + y * st, y * z * ci - x * st, ct + z * z * ci, 0),
-                       vector4(0.0, 0.0, 0.0, 1.0))
+func matrix4x4_rotation(angle: Float, axis: float3) -> matrix_float4x4 {
+    return .init(rotate: axis, angle: angle)
 }
 
 func matrix4x4_translation(shift: float3) -> matrix_float4x4 {
@@ -131,9 +155,10 @@ func serialise(matrix: matrix_float4x4) -> [Float] {
           matrix.columns.3.x, matrix.columns.3.y, matrix.columns.3.z, matrix.columns.3.w]
 }
 
-func deserialiseToMatrix4x4(matrix: [Float]) -> matrix_float4x4 {
-  return simd_float4x4(float4(matrix[0], matrix[1], matrix[2], matrix[3]),
-                       float4(matrix[4], matrix[5], matrix[6], matrix[7]),
-                       float4(matrix[8], matrix[9], matrix[10], matrix[11]),
-                       float4(matrix[12], matrix[13], matrix[14], matrix[15]))
-}
+//func deserialiseToMatrix4x4(matrix: [Float]) -> matrix_float4x4 {
+//  return simd_float4x4(float4(matrix[0], matrix[1], matrix[2], matrix[3]),
+//                       float4(matrix[4], matrix[5], matrix[6], matrix[7]),
+//                       float4(matrix[8], matrix[9], matrix[10], matrix[11]),
+//                       float4(matrix[12], matrix[13], matrix[14], matrix[15]))
+//}
+

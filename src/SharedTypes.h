@@ -17,6 +17,7 @@
 //#ifdef Metal
     typedef vector_int2 int2;
     typedef vector_float4 float4;
+    typedef vector_float3 float3;
     typedef matrix_float4x4 float4x4;
     typedef matrix_float3x3 float3x3;
 //#endif
@@ -34,11 +35,17 @@
 //#endif
 
 
+
 struct Constants {
     float4x4 modelMatrix;
     float4x4 modelViewProjectionMatrix;
     float3x3 modelMatrixInverseTransposed;
     float4x4 viewMatrixInverse;
     float4 colour;
+};
+
+struct VertexWithNormal {
+  float3 position;
+  float3 normal;
 };
 

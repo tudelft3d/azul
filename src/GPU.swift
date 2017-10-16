@@ -20,8 +20,12 @@ class GPU {
 
     static let shared = GPU()
 
-    private init() {
-        device = MTLCreateSystemDefaultDevice()!
+    private convenience init() {
+        self.init(device: MTLCreateSystemDefaultDevice()!)
+    }
+
+    init(device: MTLDevice) {
+        self.device = device
         queue = device.makeCommandQueue()!
         library = device.makeDefaultLibrary()!
     }

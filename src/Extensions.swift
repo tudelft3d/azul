@@ -36,6 +36,10 @@ extension NSPoint {
 //
 //    }
 //}
+extension MTKView {
+//    func drag() -> (
+}
+
 extension Sequence where Iterator.Element == URL {
     func first(for types : Set<String>) -> URL? {
         return first { types.contains($0.pathExtension) }

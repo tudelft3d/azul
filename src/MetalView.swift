@@ -39,10 +39,10 @@ struct Vertex {
   var position: float3
 }
 
-struct VertexWithNormal {
-  var position: float3
-  var normal: float3
-}
+//struct VertexWithNormal {
+//  var position: float3
+//  var normal: float3
+//}
 
 struct BufferWithColour {
   var buffer: MTLBuffer
@@ -61,8 +61,6 @@ extension float4 {
     }
   }
 }
-
-
 
 
 @objc class MetalView: MTKView {
@@ -140,7 +138,7 @@ extension float4 {
     // Matrices
     modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
-    viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = .init(eye: eye, center: centre)
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
@@ -171,6 +169,10 @@ extension float4 {
   override var acceptsFirstResponder: Bool {
     return true
   }
+
+    var objectToCamera : float4x4 {
+        return viewMatrix * modelMatrix
+    }
   
   override func draw(_ dirtyRect: NSRect) {
 //    Swift.print("MetalView.draw(NSRect)")
@@ -294,7 +296,10 @@ extension float4 {
 
     // Motion according to trackpad
     let scrollingSensitivity: Float = 0.003*(fieldOfView/(3.141519/4.0))
-    let motionInCameraCoordinates = float3(Float(event.scrollingDeltaX), -Float(event.scrollingDeltaY), 0.0) * scrollingSensitivity
+    let motionInCameraCoordinates = float3(Float(event.scrollingDeltaX),
+                                           -Float(event.scrollingDeltaY),
+                                           0.0) * scrollingSensitivity
+
     var cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
     let motionInObjectCoordinates = (cameraToObject * motionInCameraCoordinates)
     modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + motionInObjectCoordinates
@@ -337,7 +342,9 @@ extension float4 {
     let axisInCameraCoordinates = float3(0.0, 0.0, 1.0)
     let cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
     let axisInObjectCoordinates = cameraToObject * axisInCameraCoordinates
-    modelRotationMatrix = modelRotationMatrix * matrix4x4_rotation(angle: 3.14159*event.rotation/180.0, axis: axisInObjectCoordinates)
+    modelRotationMatrix = modelRotationMatrix.rotate(around: axisInObjectCoordinates,
+                                                     angle: 3.14159*event.rotation/180.0)
+
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     
     constants.modelMatrix = modelMatrix
@@ -373,7 +380,9 @@ extension float4 {
       let axisInCameraCoordinates = cross(lastPosition, currentPosition)
       let cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
       let axisInObjectCoordinates = cameraToObject * axisInCameraCoordinates
-      modelRotationMatrix = modelRotationMatrix * matrix4x4_rotation(angle: angle, axis: axisInObjectCoordinates)
+        modelRotationMatrix = modelRotationMatrix.rotate(around: axisInObjectCoordinates,
+                                                         angle: angle)
+
       modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
       
       constants.modelMatrix = modelMatrix
@@ -485,7 +494,7 @@ extension float4 {
     modelRotationMatrix = .identity
     modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
-    viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = .init(eye: eye, center: centre)
     projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
 
     constants.modelMatrix = modelMatrix
@@ -506,7 +515,7 @@ extension float4 {
     modelRotationMatrix = .identity
     modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
-    viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = .init(eye: eye, center: centre)
     projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
     
     constants.modelMatrix = modelMatrix
