@@ -21,13 +21,13 @@ extension float4x4 {
     static let identity = matrix_identity_float4x4
 }
 
-struct Constants {
-  var modelMatrix = matrix_identity_float4x4
-  var modelViewProjectionMatrix = matrix_identity_float4x4
-  var modelMatrixInverseTransposed = matrix_identity_float3x3
-  var viewMatrixInverse = matrix_identity_float4x4
-  var colour = float4(0.0, 0.0, 0.0, 1.0)
-}
+//struct Constants {
+//  var modelMatrix = matrix_identity_float4x4
+//  var modelViewProjectionMatrix = matrix_identity_float4x4
+//  var modelMatrixInverseTransposed = matrix_identity_float3x3
+//  var viewMatrixInverse = matrix_identity_float4x4
+//  var colour = float4(0.0, 0.0, 0.0, 1.0)
+//}
 
 extension CGSize {
   var aspectRatio : CGFloat {
@@ -50,6 +50,22 @@ struct BufferWithColour {
   var colour: float4
 }
 
+extension Sequence where Iterator.Element == URL {
+    func first(for types : Set<String>) -> URL? {
+        return first { types.contains($0.pathExtension) }
+    }
+}
+
+extension NSDraggingInfo {
+    func action(for types : Set<String>) -> NSDragOperation {
+        guard let urls = draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL],
+            let _ = urls.first(for: types) else {
+            return []
+        }
+        return .copy
+    }
+}
+
 extension float4 {
 
   var xyz: float3 {
@@ -62,15 +78,16 @@ extension float4 {
 
 
 
+
 @objc class MetalView: MTKView {
   
   var controller: Controller?
   var dataManager: DataManagerWrapperWrapper?
   
   let commandQueue: MTLCommandQueue
-  var litRenderPipelineState: MTLRenderPipelineState?
-  var unlitRenderPipelineState: MTLRenderPipelineState?
-  var depthStencilState: MTLDepthStencilState?
+  let litRenderPipelineState: MTLRenderPipelineState
+  let unlitRenderPipelineState: MTLRenderPipelineState
+  let depthStencilState: MTLDepthStencilState
   
   var triangleBuffers = [BufferWithColour]()
   var edgeBuffers = [BufferWithColour]()
@@ -97,17 +114,9 @@ extension float4 {
   
   override init(frame frameRect: CGRect, device: MTLDevice?) {
     Swift.print("MetalView.init(CGRect, MTLDevice)")
-    commandQueue = device!.makeCommandQueue()!
-    super.init(frame: frameRect, device: device)
-    
-    // View
-    clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1.0)
-    colorPixelFormat = .bgra8Unorm
-    depthStencilPixelFormat = .depth32Float
-    
     // Command queue
+    commandQueue = device!.makeCommandQueue()!
 
-    
     // Render pipeline
     let library = device!.makeDefaultLibrary()!
     let litVertexFunction = library.makeFunction(name: "vertexLit")
@@ -116,44 +125,53 @@ extension float4 {
     let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
     renderPipelineDescriptor.vertexFunction = litVertexFunction
     renderPipelineDescriptor.fragmentFunction = fragmentFunction
-    renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
+    renderPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
     renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
     renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
     renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
     renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
     renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
-    renderPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    renderPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
     do {
-      litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+        litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
     } catch {
-      Swift.print("Unable to compile lit render pipeline state")
-      return
+        fatalError("Unable to compile lit render pipeline state")
     }
     renderPipelineDescriptor.vertexFunction = unlitVertexFunction
     renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = false
     do {
-      unlitRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+        unlitRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
     } catch {
-      Swift.print("Unable to compile unlit render pipeline state")
-      return
+        fatalError("Unable to compile unlit render pipeline state")
     }
-    
+
     // Depth stencil
     let depthSencilDescriptor = MTLDepthStencilDescriptor()
     depthSencilDescriptor.depthCompareFunction = .less
     depthSencilDescriptor.isDepthWriteEnabled = true
-    depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)
-    
+    depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)!
+
     // Matrices
     modelShiftBackMatrix = .init(translation: centre)
     modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
     viewMatrix = .init(eye: eye, center: centre, up: float3(0.0, 1.0, 0.0))
-    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
-    
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     constants.viewMatrixInverse = viewMatrix.inverse
+
+    super.init(frame: frameRect, device: device)
+    
+    // View
+    clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1.0)
+    colorPixelFormat = .bgra8Unorm
+    depthStencilPixelFormat = .depth32Float
+    
+    projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.aspectRatio), nearZ: 0.001, farZ: 100.0)
+
+
+    
+
     
     // Allow dragging
     registerForDraggedTypes([.fileURL])
@@ -164,7 +182,8 @@ extension float4 {
   
   required init(coder: NSCoder) {
     Swift.print("MetalView.init(NSCoder)")
-    super.init(coder: coder)
+//    super.init(coder: coder)
+    fatalError()
   }
   
   override var acceptsFirstResponder: Bool {
@@ -184,7 +203,7 @@ extension float4 {
     
     renderEncoder.setFrontFacing(.counterClockwise)
     renderEncoder.setDepthStencilState(depthStencilState)
-    renderEncoder.setRenderPipelineState(litRenderPipelineState!)
+    renderEncoder.setRenderPipelineState(litRenderPipelineState)
 
     for triangleBuffer in triangleBuffers {
       if triangleBuffer.colour.w == 1.0 {
@@ -194,6 +213,7 @@ extension float4 {
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
       }
     }
+
     
     for triangleBuffer in triangleBuffers {
       if triangleBuffer.colour.w != 1.0 {
@@ -204,7 +224,7 @@ extension float4 {
       }
     }
     
-    renderEncoder.setRenderPipelineState(unlitRenderPipelineState!)
+    renderEncoder.setRenderPipelineState(unlitRenderPipelineState)
     
     if viewEdges {
       for edgeBuffer in edgeBuffers {

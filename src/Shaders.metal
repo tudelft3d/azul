@@ -15,15 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <metal_stdlib>
+#include "SharedTypes.h"
 using namespace metal;
 
-struct Constants {
-  float4x4 modelMatrix;
-  float4x4 modelViewProjectionMatrix;
-  float3x3 modelMatrixInverseTransposed;
-  float4x4 viewMatrixInverse;
-  float4 colour;
-};
 
 constant float3 ambientLightIntensity(0.8, 0.8, 0.8);
 constant float3 diffuseLightIntensity(0.2, 0.2, 0.2);
