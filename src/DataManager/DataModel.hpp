@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DataModel_hpp
-#define DataModel_hpp
+#pragma once
 
 #include <vector>
 #include <map>
@@ -78,4 +77,3 @@ struct CentroidComputation {
   std::size_t points;
 };
 
-#endif /* DataModel_hpp */

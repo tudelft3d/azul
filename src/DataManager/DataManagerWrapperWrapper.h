@@ -14,11 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DataManagerWrapperWrapper_h
-#define DataManagerWrapperWrapper_h
+#pragma once
 
 #import <Cocoa/Cocoa.h>
-#import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 
 #import "TableCellView.h"
@@ -90,4 +88,3 @@ struct DataManagerWrapper;
 
 @end
 
-#endif /* DataManagerWrapperWrapper_h */

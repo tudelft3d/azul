@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef POLYParsingHelper_hpp
-#define POLYParsingHelper_hpp
+#pragma once
 
 #include <boost/spirit/home/x3.hpp>
 #include "DataModel.hpp"
@@ -186,4 +185,4 @@ public:
   }
 };
 
-#endif /* POLYParsingHelper_hpp */
+

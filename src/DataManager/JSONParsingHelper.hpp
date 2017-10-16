@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef JSONParsingHelper_hpp
-#define JSONParsingHelper_hpp
+#pragma once
 
 #include "DataModel.hpp"
 #include "json.hpp"
@@ -159,4 +158,3 @@ public:
   }
 };
 
-#endif /* JSONParsingHelper_hpp */

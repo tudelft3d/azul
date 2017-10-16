@@ -14,9 +14,7 @@
   // You should have received a copy of the GNU General Public License
   // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef OFFParsingHelper_hpp
-#define OFFParsingHelper_hpp
-
+#pragma once
 #include <boost/spirit/home/x3.hpp>
 #include "DataModel.hpp"
 
@@ -157,4 +155,4 @@ public:
   }
 };
 
-#endif /* OFFParsingHelper_hpp */
+

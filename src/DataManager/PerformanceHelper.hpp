@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef PerformanceHelper_hpp
-#define PerformanceHelper_hpp
+#pragma once
 
 #include <mach/mach.h>
 #include <iostream>
@@ -69,4 +68,3 @@ public:
   }
 };
 
-#endif /* PerformanceHelper_hpp */

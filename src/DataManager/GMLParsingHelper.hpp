@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef GMLParsingHelper_hpp
-#define GMLParsingHelper_hpp
+#pragma once
 
 #include "DataModel.hpp"
 
@@ -277,4 +276,3 @@ public:
   }
 };
 
-#endif /* GMLParsingHelper_hpp */

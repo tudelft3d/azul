@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef PerformanceHelperWrapperWrapper_hpp
-#define PerformanceHelperWrapperWrapper_hpp
-
+#pragma once
 #import <Foundation/Foundation.h>
 
 struct PerformanceHelperWrapper;
@@ -33,4 +31,3 @@ struct PerformanceHelperWrapper;
 
 @end
 
-#endif /* PerformanceHelperWrapperWrapper_h */

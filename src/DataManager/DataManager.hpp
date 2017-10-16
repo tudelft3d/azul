@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DataManager_hpp
-#define DataManager_hpp
+#pragma once
 
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
@@ -121,4 +120,3 @@ public:
   void printParsedFiles();
 };
 
-#endif /* DataManager_hpp */
