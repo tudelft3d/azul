@@ -51,7 +51,8 @@
 - (void) initialiseTriangleBufferIterator;
 - (const float *) currentTriangleBufferWithSize:(long *)bytes;
 - (const char *) currentTriangleBufferTypeWithLength:(long *)length;
-- (const float *) currentTriangleBufferColour;
+
+@property(nonatomic, readonly) vector_float4 currentTriangleBufferColour;
 - (void) advanceTriangleBufferIterator;
 - (BOOL) triangleBufferIteratorEnded;
 

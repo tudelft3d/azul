@@ -552,10 +552,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
       let bufferTypeData = Data(bytes: firstCharacterOfBufferType!, count: bufferTypeLength*MemoryLayout<Int8>.size)
       let bufferType = String(data: bufferTypeData, encoding: .utf8)!
       
-      let firstBufferColourComponent = self.dataManager.currentTriangleBufferColour()
-      let bufferColourBuffer = UnsafeBufferPointer(start: firstBufferColourComponent, count: 4)
-      var bufferColourArray = ContiguousArray(bufferColourBuffer)
-      let bufferColour = float4(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
+      let bufferColour = self.dataManager.currentTriangleBufferColour
       
       var bufferSize: Int = 0
       let buffer = self.dataManager.currentTriangleBuffer(withSize: &bufferSize)

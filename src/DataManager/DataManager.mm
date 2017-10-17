@@ -115,8 +115,9 @@
   return impl->currentTriangleBuffer->type.c_str();
 }
 
-- (const float *) currentTriangleBufferColour {
-  return impl->currentTriangleBuffer->colour;
+- (vector_float4) currentTriangleBufferColour {
+    auto c = impl->currentTriangleBuffer->colour;
+    return {c[0], c[1], c[2], c[4]};
 }
 
 - (void) advanceTriangleBufferIterator {
