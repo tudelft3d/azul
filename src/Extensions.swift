@@ -51,3 +51,8 @@ extension NSDraggingInfo {
         return draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL]
     }
 }
+
+
+extension Controller {
+
+}

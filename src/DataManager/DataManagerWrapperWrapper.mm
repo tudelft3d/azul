@@ -22,7 +22,7 @@ struct DataManagerWrapper {
   DataManager *dataManager;
 };
 
-@interface AzulObjectIterator: NSObject {
+@interface AzulObjectIterator() {
     @public
     std::vector<AzulObject>::iterator iterator;
 }
