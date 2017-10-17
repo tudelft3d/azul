@@ -14,8 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import "PerformanceHelper.h"
-#import "DataManager.h"
-#import "BasicTypes.h"
-#import "SharedTypes.h"
 
+#pragma once
+
+
+typedef struct {
+    float coordinates[3];
+} AzulPoint;
+
+typedef struct {
+    float components[3];
+} AzulVector;
+
+typedef struct {
+    AzulPoint points[3];
+    AzulVector normals[3];
+} AzulTriangle;
+
+typedef struct {
+    AzulPoint points[2];
+} AzulEdge;

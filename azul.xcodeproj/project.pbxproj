@@ -53,6 +53,7 @@
 		3739FA721F9528EA000C3250 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		3739FA741F95393E000C3250 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		3739FA781F966594000C3250 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		3739FA7A1F96A79E000C3250 /* BasicTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicTypes.h; path = src/DataManager/BasicTypes.h; sourceTree = "<group>"; };
 		37DF21EB1F92D7C6008780EF /* TableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCellView.swift; sourceTree = "<group>"; };
 		BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = POLYParsingHelper.hpp; sourceTree = "<group>"; };
 		BE4236941F8BB249009AD5D7 /* OFFParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OFFParsingHelper.hpp; sourceTree = "<group>"; };
@@ -227,6 +228,7 @@
 		BEF69F341F6AA0520079531B = {
 			isa = PBXGroup;
 			children = (
+				3739FA7A1F96A79E000C3250 /* BasicTypes.h */,
 				BEF69F481F6AA0520079531B /* azul.entitlements */,
 				BEA2DACF1F705479002FBEF4 /* LICENSE */,
 				BEA2DAD01F705482002FBEF4 /* README.md */,

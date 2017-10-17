@@ -18,14 +18,7 @@
 
 #include <vector>
 #include <map>
-
-struct AzulPoint {
-  float coordinates[3];
-};
-
-struct AzulVector {
-  float components[3];
-};
+#include "BasicTypes.h"
 
 struct AzulRing {
   std::vector<AzulPoint> points;
@@ -36,14 +29,7 @@ struct AzulPolygon {
   std::vector<AzulRing> interiorRings;
 };
 
-struct AzulTriangle {
-  AzulPoint points[3];
-  AzulVector normals[3];
-};
 
-struct AzulEdge {
-  AzulPoint points[2];
-};
 
 struct AzulObject {
   std::string type;
