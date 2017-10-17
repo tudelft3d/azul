@@ -22,18 +22,19 @@ struct DataManagerWrapper {
   DataManager *dataManager;
 };
 
-@interface AzulObjectIterator: NSObject
-@property std::vector<AzulObject>::iterator iterator;
+@interface AzulObjectIterator: NSObject {
+    @public
+    std::vector<AzulObject>::iterator iterator;
+}
 @end
 
 @implementation AzulObjectIterator
-@synthesize iterator;
 
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
   if (![other isKindOfClass:[AzulObjectIterator class]]) {
     return NO;
-  } return [(AzulObjectIterator *)other iterator] == iterator;
+  } return ((AzulObjectIterator *)other)->iterator == iterator;
 }
 
 - (NSUInteger)hash {
@@ -163,7 +164,7 @@ struct DataManagerWrapper {
     NSLog(@"Uh-oh!");
     return NO;
   } AzulObjectIterator *currentItem = item;
-  return dataManagerWrapper->dataManager->isExpandable(*[currentItem iterator]);
+  return dataManagerWrapper->dataManager->isExpandable(*currentItem->iterator);
 }
 
 - (NSInteger) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
@@ -173,21 +174,21 @@ struct DataManagerWrapper {
     NSLog(@"Uh-oh!");
     return 0;
   } AzulObjectIterator *currentItem = item;
-  return dataManagerWrapper->dataManager->numberOfChildren(*[currentItem iterator]);
+  return dataManagerWrapper->dataManager->numberOfChildren(*currentItem->iterator);
 }
 
 - (id) outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
 //  NSLog(@"child:%ld ofItem:%@", (long)index, item);
   if (item == nil) {
     AzulObjectIterator *child = [[AzulObjectIterator alloc] init];
-    [child setIterator:dataManagerWrapper->dataManager->parsedFiles.begin()+index];
+    child->iterator = dataManagerWrapper->dataManager->parsedFiles.begin()+index;
     return child;
   } if (![item isKindOfClass:[AzulObjectIterator class]]) {
     NSLog(@"Uh-oh!");
     return 0;
   } AzulObjectIterator *currentItem = item;
   AzulObjectIterator *child = [[AzulObjectIterator alloc] init];
-  [child setIterator:dataManagerWrapper->dataManager->child(*[currentItem iterator], index)];
+  child->iterator = dataManagerWrapper->dataManager->child(*currentItem->iterator, index);
   return child;
 }
 
@@ -200,7 +201,7 @@ struct DataManagerWrapper {
   
   // Files
   if ([outlineView parentForItem:item] == nil) {
-    NSString *filePath = [NSString stringWithUTF8String:[currentItem iterator]->id.c_str()];
+    NSString *filePath = [NSString stringWithUTF8String:currentItem->iterator->id.c_str()];
     NSString *filename = [[filePath lastPathComponent] stringByDeletingPathExtension];
     NSString *fileExtension = [[filePath lastPathComponent] pathExtension];
     NSImage *fileIcon = [[NSWorkspace sharedWorkspace] iconForFileType:fileExtension];
@@ -211,10 +212,10 @@ struct DataManagerWrapper {
   }
   
   // Objects
-  NSString *objectType = [NSString stringWithUTF8String:[currentItem iterator]->type.c_str()];
+  NSString *objectType = [NSString stringWithUTF8String:currentItem->iterator->type.c_str()];
   NSMutableString *stringToPut = [NSMutableString stringWithString:objectType];
-  if ([currentItem iterator]->id.size() > 0) {
-  NSString *objectId = [NSString stringWithUTF8String:[currentItem iterator]->id.c_str()];
+  if (currentItem->iterator->id.size() > 0) {
+  NSString *objectId = [NSString stringWithUTF8String:currentItem->iterator->id.c_str()];
     [stringToPut appendString:@" ("];
     [stringToPut appendString:objectId];
     [stringToPut appendString:@")"];
@@ -236,7 +237,7 @@ struct DataManagerWrapper {
     if (![[outlineView itemAtRow:idx] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [outlineView itemAtRow:idx];
-      dataManagerWrapper->dataManager->setSelection(*[currentItem iterator], true);
+      dataManagerWrapper->dataManager->setSelection(*currentItem->iterator, true);
     }
   }];
 
@@ -283,7 +284,7 @@ struct DataManagerWrapper {
     if (![[[controller objectsSourceList] itemAtRow:row] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [[controller objectsSourceList] itemAtRow:row];
-      if ([currentItem iterator] == dataManagerWrapper->dataManager->bestHitFile) {
+      if (currentItem->iterator == dataManagerWrapper->dataManager->bestHitFile) {
         if (dataManagerWrapper->dataManager->bestHitFile->children.empty()) {
           return row;
         } else {
@@ -301,7 +302,7 @@ struct DataManagerWrapper {
     if (![[[controller objectsSourceList] itemAtRow:row] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [[controller objectsSourceList] itemAtRow:row];
-      if ([currentItem iterator] == dataManagerWrapper->dataManager->bestHitObject) {
+      if (currentItem->iterator == dataManagerWrapper->dataManager->bestHitObject) {
         return row;
       }
     } ++row;
@@ -322,7 +323,7 @@ struct DataManagerWrapper {
   CentroidComputation centroidComputation;
   for (int coordinate = 0; coordinate < 3; ++coordinate) centroidComputation.sum[coordinate] = 0;
   centroidComputation.points = 0;
-  dataManagerWrapper->dataManager->addAzulObjectAndItsChildrenToCentroidComputation(*[currentItem iterator], centroidComputation);
+  dataManagerWrapper->dataManager->addAzulObjectAndItsChildrenToCentroidComputation(*currentItem->iterator, centroidComputation);
   simd_float4 centroidInObjectCoordinates = simd_make_float4((((centroidComputation.sum[0]/(float)centroidComputation.points)-dataManagerWrapper->dataManager->midCoordinates[0])/dataManagerWrapper->dataManager->maxRange),
                                                              (((centroidComputation.sum[1]/(float)centroidComputation.points)-dataManagerWrapper->dataManager->midCoordinates[1])/dataManagerWrapper->dataManager->maxRange),
                                                              (((centroidComputation.sum[2]/(float)centroidComputation.points)-dataManagerWrapper->dataManager->midCoordinates[2])/dataManagerWrapper->dataManager->maxRange),
@@ -359,7 +360,7 @@ struct DataManagerWrapper {
   NSInteger objectsRow = [[controller objectsSourceList] selectedRow];
   if (objectsRow == -1) return 0;
   AzulObjectIterator *currentItem = [[controller objectsSourceList] itemAtRow:objectsRow];
-  return [currentItem iterator]->attributes.size();
+  return currentItem->iterator->attributes.size();
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
@@ -367,8 +368,8 @@ struct DataManagerWrapper {
   if (objectsRow == -1) return 0;
   AzulObjectIterator *currentItem = [[controller objectsSourceList] itemAtRow:objectsRow];
   NSString *cellString;
-  if ([[tableColumn identifier] isEqualToString:@"A"]) cellString = [NSString stringWithUTF8String:[currentItem iterator]->attributes[row].first.c_str()];
-  else cellString = [NSString stringWithUTF8String:[currentItem iterator]->attributes[row].second.c_str()];
+  if ([[tableColumn identifier] isEqualToString:@"A"]) cellString = [NSString stringWithUTF8String:currentItem->iterator->attributes[row].first.c_str()];
+  else cellString = [NSString stringWithUTF8String:currentItem->iterator->attributes[row].second.c_str()];
   NSCell *cell = [[NSCell alloc] initTextCell:cellString];
   return cell;
 }
