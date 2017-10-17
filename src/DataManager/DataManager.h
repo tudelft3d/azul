@@ -34,9 +34,8 @@
 @property Controller *controller;
 
 // Life cycle
-//- (instancetype) init;
+
 - (void) clear;
-- (void) dealloc;
 
 // Tasks in order
 - (void) parse:(const char *)filePath;

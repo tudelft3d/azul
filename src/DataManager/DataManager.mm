@@ -19,7 +19,7 @@
 #import "azul-Swift.h"
 
 //struct DataManagerWrapper {
-//  DataManager *dataManager;
+//  DataManager *impl;
 //};
 
 @interface AzulObjectIterator() {
@@ -50,7 +50,7 @@
 @end
 
 @interface DataManager() {
-    DataManagerImpl *dataManager;
+    DataManagerImpl *impl;
 }
 @end
 
@@ -61,117 +61,117 @@
 - (instancetype) init {
   if (self = [super init]) {
 
-    dataManager = new DataManagerImpl();
+    impl = new DataManagerImpl();
   } return self;
 }
 
 - (void) parse:(const char *)filePath {
-  dataManager->parse(filePath);
+  impl->parse(filePath);
 }
 
 - (void) clearHelpers {
-  dataManager->clearHelpers();
+  impl->clearHelpers();
 }
 
 - (void) clear {
-  dataManager->clear();
+  impl->clear();
 }
 
 - (void) updateBoundsWithLastFile {
-  dataManager->updateBoundsWithLastFile();
+  impl->updateBoundsWithLastFile();
 }
 
 - (void) triangulateLastFile {
-  dataManager->triangulateLastFile();
+  impl->triangulateLastFile();
 }
 
 - (void) generateEdgesForLastFile {
-  dataManager->generateEdgesForLastFile();
+  impl->generateEdgesForLastFile();
 }
 
 - (void) clearPolygonsOfLastFile {
-  dataManager->clearPolygonsOfLastFile();
+  impl->clearPolygonsOfLastFile();
 }
 
 - (void) regenerateTriangleBuffersWithMaximumSize:(long)maxBufferSize {
-  dataManager->regenerateTriangleBuffers(maxBufferSize);
+  impl->regenerateTriangleBuffers(maxBufferSize);
 }
 
 - (void) regenerateEdgeBuffersWithMaximumSize:(long)maxBufferSize {
-  dataManager->regenerateEdgeBuffers(maxBufferSize);
+  impl->regenerateEdgeBuffers(maxBufferSize);
 }
 
 - (void) initialiseTriangleBufferIterator {
-  dataManager->currentTriangleBuffer = dataManager->triangleBuffers.begin();
+  impl->currentTriangleBuffer = impl->triangleBuffers.begin();
 }
 
 - (const float *) currentTriangleBufferWithSize:(long *)bytes {
-  *bytes = dataManager->currentTriangleBuffer->triangles.size()*sizeof(float);
-  return &dataManager->currentTriangleBuffer->triangles.front();
+  *bytes = impl->currentTriangleBuffer->triangles.size()*sizeof(float);
+  return &impl->currentTriangleBuffer->triangles.front();
 }
 
 - (const char *) currentTriangleBufferTypeWithLength:(long *)length {
-  *length = dataManager->currentTriangleBuffer->type.size();
-  return dataManager->currentTriangleBuffer->type.c_str();
+  *length = impl->currentTriangleBuffer->type.size();
+  return impl->currentTriangleBuffer->type.c_str();
 }
 
 - (const float *) currentTriangleBufferColour {
-  return dataManager->currentTriangleBuffer->colour;
+  return impl->currentTriangleBuffer->colour;
 }
 
 - (void) advanceTriangleBufferIterator {
-  ++dataManager->currentTriangleBuffer;
+  ++impl->currentTriangleBuffer;
 }
 
 - (BOOL) triangleBufferIteratorEnded {
-  return dataManager->currentTriangleBuffer == dataManager->triangleBuffers.end();
+  return impl->currentTriangleBuffer == impl->triangleBuffers.end();
 }
 
 - (void) initialiseEdgeBufferIterator {
-  dataManager->currentEdgeBuffer = dataManager->edgeBuffers.begin();
+  impl->currentEdgeBuffer = impl->edgeBuffers.begin();
 }
 
 - (const float *) currentEdgeBufferWithSize:(long *)bytes {
-  *bytes = dataManager->currentEdgeBuffer->edges.size()*sizeof(float);
-  return &dataManager->currentEdgeBuffer->edges.front();
+  *bytes = impl->currentEdgeBuffer->edges.size()*sizeof(float);
+  return &impl->currentEdgeBuffer->edges.front();
 }
 
 - (const float *) currentEdgeBufferColour {
-  return dataManager->currentEdgeBuffer->colour;
+  return impl->currentEdgeBuffer->colour;
 }
 
 - (void) advanceEdgeBufferIterator {
-  ++dataManager->currentEdgeBuffer;
+  ++impl->currentEdgeBuffer;
 }
 
 - (BOOL) edgeBufferIteratorEnded {
-  return dataManager->currentEdgeBuffer == dataManager->edgeBuffers.end();
+  return impl->currentEdgeBuffer == impl->edgeBuffers.end();
 }
 
 - (vector_float3) minCoordinates {
-//  return dataManager->minCoordinates;
-    auto c = dataManager->minCoordinates;
+//  return impl->minCoordinates;
+    auto c = impl->minCoordinates;
     return {c[0], c[1], c[2]};
 }
 
 - (vector_float3) midCoordinates {
-    auto c = dataManager->midCoordinates;
+    auto c = impl->midCoordinates;
     return {c[0], c[1], c[2]};
 }
 
 - (vector_float3) maxCoordinates {
-    auto c = dataManager->maxCoordinates;
+    auto c = impl->maxCoordinates;
 
     return {c[0], c[1], c[2]};
 
 }
 
 - (float) maxRange {
-  return dataManager->maxRange;
+  return impl->maxRange;
 }
 
 - (void) dealloc {
-  delete dataManager;
+  delete impl;
 //  delete dataManagerWrapper;
 }
 
@@ -181,31 +181,31 @@
     NSLog(@"Uh-oh!");
     return NO;
   } AzulObjectIterator *currentItem = item;
-  return dataManager->isExpandable(*currentItem->iterator);
+  return impl->isExpandable(*currentItem->iterator);
 }
 
 - (NSInteger) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
 //  NSLog(@"numberOfChildrenOfItem:%@", item);
-  if (item == nil) return dataManager->parsedFiles.size();
+  if (item == nil) return impl->parsedFiles.size();
   if (![item isKindOfClass:[AzulObjectIterator class]]) {
     NSLog(@"Uh-oh!");
     return 0;
   } AzulObjectIterator *currentItem = item;
-  return dataManager->numberOfChildren(*currentItem->iterator);
+  return impl->numberOfChildren(*currentItem->iterator);
 }
 
 - (id) outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
 //  NSLog(@"child:%ld ofItem:%@", (long)index, item);
   if (item == nil) {
     AzulObjectIterator *child = [[AzulObjectIterator alloc] init];
-    child->iterator = dataManager->parsedFiles.begin()+index;
+    child->iterator = impl->parsedFiles.begin()+index;
     return child;
   } if (![item isKindOfClass:[AzulObjectIterator class]]) {
     NSLog(@"Uh-oh!");
     return 0;
   } AzulObjectIterator *currentItem = item;
   AzulObjectIterator *child = [[AzulObjectIterator alloc] init];
-  child->iterator = dataManager->child(*currentItem->iterator, index);
+  child->iterator = impl->child(*currentItem->iterator, index);
   return child;
 }
 
@@ -246,7 +246,7 @@
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
 //  NSLog(@"outlineViewSelectionDidChange");
   
-  for (auto &currentFile: dataManager->parsedFiles) dataManager->setSelection(currentFile, false);
+  for (auto &currentFile: impl->parsedFiles) impl->setSelection(currentFile, false);
   
   NSOutlineView *outlineView = [notification object];
   NSIndexSet *rows = [outlineView selectedRowIndexes];
@@ -254,13 +254,13 @@
     if (![[outlineView itemAtRow:idx] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [outlineView itemAtRow:idx];
-      dataManager->setSelection(*currentItem->iterator, true);
+      impl->setSelection(*currentItem->iterator, true);
     }
   }];
 
-  dataManager->regenerateTriangleBuffers(16*1024*1024);
+  impl->regenerateTriangleBuffers(16*1024*1024);
   [controller reloadTriangleBuffers];
-  dataManager->regenerateEdgeBuffers(16*1024*1024);
+  impl->regenerateEdgeBuffers(16*1024*1024);
   [controller reloadEdgeBuffers];
   [[controller metalView] setNeedsDisplay:YES];
   
@@ -274,7 +274,7 @@
   float currentX = -1.0 + 2.0*([[controller window] mouseLocationOutsideOfEventStream].x-viewFrameInWindowCoordinates.origin.x) / [[controller metalView] bounds].size.width;
   float currentY = -1.0 + 2.0*([[controller window] mouseLocationOutsideOfEventStream].y-viewFrameInWindowCoordinates.origin.y) / [[controller metalView] bounds].size.height;
 
-  float bestHit = dataManager->click(currentX, currentY, [[controller metalView] modelMatrix], [[controller metalView] viewMatrix], [[controller metalView] projectionMatrix]);
+  float bestHit = impl->click(currentX, currentY, [[controller metalView] modelMatrix], [[controller metalView] viewMatrix], [[controller metalView] projectionMatrix]);
 
   // (De)select closest hit
   if (bestHit > -1.0) {
@@ -301,8 +301,8 @@
     if (![[[controller objectsSourceList] itemAtRow:row] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [[controller objectsSourceList] itemAtRow:row];
-      if (currentItem->iterator == dataManager->bestHitFile) {
-        if (dataManager->bestHitFile->children.empty()) {
+      if (currentItem->iterator == impl->bestHitFile) {
+        if (impl->bestHitFile->children.empty()) {
           return row;
         } else {
           [[controller objectsSourceList] expandItem:[[controller objectsSourceList] itemAtRow:row]];
@@ -319,7 +319,7 @@
     if (![[[controller objectsSourceList] itemAtRow:row] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [[controller objectsSourceList] itemAtRow:row];
-      if (currentItem->iterator == dataManager->bestHitObject) {
+      if (currentItem->iterator == impl->bestHitObject) {
         return row;
       }
     } ++row;
@@ -340,10 +340,10 @@
   CentroidComputation centroidComputation;
   for (int coordinate = 0; coordinate < 3; ++coordinate) centroidComputation.sum[coordinate] = 0;
   centroidComputation.points = 0;
-  dataManager->addAzulObjectAndItsChildrenToCentroidComputation(*currentItem->iterator, centroidComputation);
-  simd_float4 centroidInObjectCoordinates = simd_make_float4((((centroidComputation.sum[0]/(float)centroidComputation.points)-dataManager->midCoordinates[0])/dataManager->maxRange),
-                                                             (((centroidComputation.sum[1]/(float)centroidComputation.points)-dataManager->midCoordinates[1])/dataManager->maxRange),
-                                                             (((centroidComputation.sum[2]/(float)centroidComputation.points)-dataManager->midCoordinates[2])/dataManager->maxRange),
+  impl->addAzulObjectAndItsChildrenToCentroidComputation(*currentItem->iterator, centroidComputation);
+  simd_float4 centroidInObjectCoordinates = simd_make_float4((((centroidComputation.sum[0]/(float)centroidComputation.points)-impl->midCoordinates[0])/impl->maxRange),
+                                                             (((centroidComputation.sum[1]/(float)centroidComputation.points)-impl->midCoordinates[1])/impl->maxRange),
+                                                             (((centroidComputation.sum[2]/(float)centroidComputation.points)-impl->midCoordinates[2])/impl->maxRange),
                                                              1.0);
 //  NSLog(@"Centroid: %f, %f, %f", centroidInObjectCoordinates[0], centroidInObjectCoordinates[1], centroidInObjectCoordinates[2]);
   
@@ -353,23 +353,23 @@
   
   // Compute shift in object space
   simd_float3 shiftInCameraCoordinates = simd_make_float3(-centroidInCameraCoordinates.x, -centroidInCameraCoordinates.y, 0.0);
-  simd_float3x3 cameraToObject = matrix_invert(dataManager->matrix_upper_left_3x3(objectToCamera));
+  simd_float3x3 cameraToObject = matrix_invert(impl->matrix_upper_left_3x3(objectToCamera));
   simd_float3 shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates);
-  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], dataManager->matrix4x4_translation(shiftInObjectCoordinates))];
+  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], impl->matrix4x4_translation(shiftInObjectCoordinates))];
   [[controller metalView] setModelMatrix:matrix_multiply(matrix_multiply([[controller metalView] translation], [[controller metalView] rotation]), [[controller metalView] scaling])];
   
   // Correct shift so that the point of rotation remains at the same depth as the data
-  cameraToObject = matrix_invert(dataManager->matrix_upper_left_3x3(matrix_multiply([[controller metalView] viewMatrix], [[controller metalView] modelMatrix])));
+  cameraToObject = matrix_invert(impl->matrix_upper_left_3x3(matrix_multiply([[controller metalView] viewMatrix], [[controller metalView] modelMatrix])));
   float depthOffset = 1.0+[[controller metalView] depthAtCentre];
   simd_float3 depthOffsetInCameraCoordinates = simd_make_float3(0.0, 0.0, -depthOffset);
   simd_float3 depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates);
-  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], dataManager->matrix4x4_translation(depthOffsetInObjectCoordinates))];
+  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], impl->matrix4x4_translation(depthOffsetInObjectCoordinates))];
   [[controller metalView] setModelMatrix:matrix_multiply(matrix_multiply([[controller metalView] translation], [[controller metalView] rotation]), [[controller metalView] scaling])];
 }
 
 - (void) setSearchString:(const char *)string {
-  dataManager->clearSearch();
-  dataManager->searchString = std::string(string);
+  impl->clearSearch();
+  impl->searchString = std::string(string);
   NSLog(@"Searching: %s", string);
 }
 
