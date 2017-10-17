@@ -131,7 +131,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   @IBOutlet weak var toggleFullScreenMenuItem: NSMenuItem!
   
   let dataManager = DataManager()
-  let performanceHelper = PerformanceHelperWrapperWrapper()
+  let performanceHelper = PerformanceHelper()
   let splitViewController = SplitViewController()
   let leftSplitViewController = LeftSplitViewController()
   let searchFieldDelegate = SearchFieldDelegate()

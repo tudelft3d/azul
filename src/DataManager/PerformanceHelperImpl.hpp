@@ -20,7 +20,7 @@
 #include <iostream>
 #include <string>
 
-class PerformanceHelper {
+class PerformanceHelperImpl {
   clock_t startTime;
   
 public:

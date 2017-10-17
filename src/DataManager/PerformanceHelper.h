@@ -19,7 +19,7 @@
 
 
 
-@interface PerformanceHelperWrapperWrapper: NSObject
+@interface PerformanceHelper: NSObject
 
 - (void) startTimer;
 - (void) printTimeSpent;

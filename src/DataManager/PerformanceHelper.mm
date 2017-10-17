@@ -14,42 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import "PerformanceHelperWrapperWrapper.h"
+#import "PerformanceHelper.h"
 #import "PerformanceHelperImpl.hpp"
 
-struct PerformanceHelperWrapper {
-  PerformanceHelper *performanceHelper;
-};
-
-@interface PerformanceHelperWrapperWrapper() {
-    struct PerformanceHelperWrapper *performanceHelperWrapper;
+@interface PerformanceHelper() {
+    struct PerformanceHelperImpl *performanceHelper;
 }
 @end
 
-@implementation PerformanceHelperWrapperWrapper
+@implementation PerformanceHelper
 
 - (instancetype) init {
   if (self = [super init]) {
-    performanceHelperWrapper = new PerformanceHelperWrapper();
-    performanceHelperWrapper->performanceHelper = new PerformanceHelper();
+    performanceHelper = new PerformanceHelperImpl();
   } return self;
 }
 
 - (void) startTimer {
-  performanceHelperWrapper->performanceHelper->startTimer();
+  performanceHelper->startTimer();
 }
 
 - (void) printTimeSpent {
-  performanceHelperWrapper->performanceHelper->printTimer();
+  performanceHelper->printTimer();
 }
 
 - (void) printMemoryUsage {
-  performanceHelperWrapper->performanceHelper->printMemoryUsage();
+  performanceHelper->printMemoryUsage();
 }
 
 - (void) dealloc {
-  delete performanceHelperWrapper->performanceHelper;
-  delete performanceHelperWrapper;
+    delete performanceHelper;
 }
 
 @end

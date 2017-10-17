@@ -60,6 +60,10 @@ struct AzulObject {
     matchesSearch = 'U';
   }
 };
+//template<typename T>
+//struct ColoredBuffer : std::vector<T> {
+//
+//};
 
 struct TriangleBuffer {
   std::string type;
