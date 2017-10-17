@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "DataManagerWrapperWrapper.h"
-#import "DataManager.hpp"
+#import "DataManagerImpl.hpp"
 #import "azul-Swift.h"
 
 //struct DataManagerWrapper {
@@ -46,8 +46,6 @@
 - (NSUInteger)hash {
   return (NSUInteger)&*iterator;
 }
-
-
 
 @end
 

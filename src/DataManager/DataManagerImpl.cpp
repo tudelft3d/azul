@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "DataManager.hpp"
+#include "DataManagerImpl.hpp"
 
 void DataManager::printAzulObject(const AzulObject &object, unsigned int tabs) {
   for (unsigned int tab = 0; tab < tabs; ++tab) std::cout << "\t";

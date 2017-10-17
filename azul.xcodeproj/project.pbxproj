@@ -16,7 +16,7 @@
 		3739FA791F966594000C3250 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA781F966594000C3250 /* Camera.swift */; };
 		37DF21EC1F92D7C6008780EF /* TableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DF21EB1F92D7C6008780EF /* TableCellView.swift */; };
 		BE5724631F78FAAD008F4D54 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BE5724621F78FAAD008F4D54 /* TableCellView.m */; };
-		BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7254F91F711D87006E5AC8 /* DataManager.cpp */; };
+		BE7254FA1F711D87006E5AC8 /* DataManagerImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7254F91F711D87006E5AC8 /* DataManagerImpl.cpp */; };
 		BE8C43CF1F8D1E6A0021CA0B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DACF1F705479002FBEF4 /* LICENSE */; };
 		BE8C43D01F8D1E700021CA0B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD01F705482002FBEF4 /* README.md */; };
 		BE8C43D21F8D1E830021CA0B /* gml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CB1F8D1CAD0021CA0B /* gml.icns */; };
@@ -59,7 +59,7 @@
 		BE5182981F7D3812000A7066 /* OBJParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OBJParsingHelper.hpp; sourceTree = "<group>"; };
 		BE5724621F78FAAD008F4D54 /* TableCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TableCellView.m; sourceTree = "<group>"; };
 		BE5724641F78FAC7008F4D54 /* TableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableCellView.h; sourceTree = "<group>"; };
-		BE7254F91F711D87006E5AC8 /* DataManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DataManager.cpp; sourceTree = "<group>"; };
+		BE7254F91F711D87006E5AC8 /* DataManagerImpl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DataManagerImpl.cpp; sourceTree = "<group>"; };
 		BE834FB81F8EF86D00C49914 /* lod2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lod2.png; sourceTree = "<group>"; };
 		BE834FB91F8EF86D00C49914 /* random.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = random.png; sourceTree = "<group>"; };
 		BE834FBA1F8EF86D00C49914 /* denhaag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = denhaag.png; sourceTree = "<group>"; };
@@ -93,7 +93,7 @@
 		BEC4DC131F77D17100540A63 /* libCGAL.13.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.13.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.11/lib/libCGAL.13.0.1.dylib; sourceTree = "<group>"; };
 		BEC4DC141F77D17100540A63 /* libCGAL_Core.13.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.13.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.11/lib/libCGAL_Core.13.0.1.dylib; sourceTree = "<group>"; };
 		BECCEE4B1F7058B500527DC1 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
-		BED5AF5C1F6FC4960002A79E /* DataManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataManager.hpp; sourceTree = "<group>"; };
+		BED5AF5C1F6FC4960002A79E /* DataManagerImpl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataManagerImpl.hpp; sourceTree = "<group>"; };
 		BED5AF5D1F6FC4960002A79E /* DataModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataModel.hpp; sourceTree = "<group>"; };
 		BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GMLParsingHelper.hpp; sourceTree = "<group>"; };
 		BED5AF5F1F6FC4970002A79E /* PerformanceHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PerformanceHelper.hpp; sourceTree = "<group>"; };
@@ -192,8 +192,8 @@
 				BE5182981F7D3812000A7066 /* OBJParsingHelper.hpp */,
 				BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */,
 				BE4236941F8BB249009AD5D7 /* OFFParsingHelper.hpp */,
-				BED5AF5C1F6FC4960002A79E /* DataManager.hpp */,
-				BE7254F91F711D87006E5AC8 /* DataManager.cpp */,
+				BED5AF5C1F6FC4960002A79E /* DataManagerImpl.hpp */,
+				BE7254F91F711D87006E5AC8 /* DataManagerImpl.cpp */,
 				BE5724641F78FAC7008F4D54 /* TableCellView.h */,
 				BE5724621F78FAAD008F4D54 /* TableCellView.m */,
 				BED5AF641F6FC5BB0002A79E /* DataManagerWrapperWrapper.h */,
@@ -359,7 +359,7 @@
 				3739FA751F95393E000C3250 /* Protocols.swift in Sources */,
 				BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */,
 				BEF69F511F6AA4C30079531B /* Shaders.metal in Sources */,
-				BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */,
+				BE7254FA1F711D87006E5AC8 /* DataManagerImpl.cpp in Sources */,
 				3739FA731F9528EA000C3250 /* DataManager.swift in Sources */,
 				BEF69F4F1F6AA0EC0079531B /* MetalView.swift in Sources */,
 				3739FA711F95281C000C3250 /* SharedTypes.swift in Sources */,
