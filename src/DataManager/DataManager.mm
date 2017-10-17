@@ -49,6 +49,18 @@
 
 @end
 
+@implementation EdgeCollection
+-(NSInteger)startIndex {
+    return 0;
+}
+-(NSInteger)endIndex {
+    return 0;
+}
+- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx {
+    return AzulEdge();
+}
+@end
+
 @interface DataManager() {
     DataManagerImpl *impl;
 }
@@ -163,9 +175,7 @@
 
 - (vector_float3) maxCoordinates {
     auto c = impl->maxCoordinates;
-
     return {c[0], c[1], c[2]};
-
 }
 
 - (float) maxRange {
@@ -177,7 +187,8 @@
 //  delete dataManagerWrapper;
 }
 
-- (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
+- (BOOL) outlineView:(NSOutlineView *)outlineView
+    isItemExpandable:(id)item {
 //  NSLog(@"isItemExpandable:%@", item);
   if (![item isKindOfClass:[AzulObjectIterator class]]) {
     NSLog(@"Uh-oh!");
@@ -186,7 +197,8 @@
   return impl->isExpandable(*currentItem->iterator);
 }
 
-- (NSInteger) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
+- (NSInteger) outlineView:(NSOutlineView *)outlineView
+   numberOfChildrenOfItem:(id)item {
 //  NSLog(@"numberOfChildrenOfItem:%@", item);
   if (item == nil) return impl->parsedFiles.size();
   if (![item isKindOfClass:[AzulObjectIterator class]]) {
@@ -196,7 +208,9 @@
   return impl->numberOfChildren(*currentItem->iterator);
 }
 
-- (id) outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
+- (id) outlineView:(NSOutlineView *)outlineView
+             child:(NSInteger)index
+            ofItem:(id)item {
 //  NSLog(@"child:%ld ofItem:%@", (long)index, item);
   if (item == nil) {
     AzulObjectIterator *child = [[AzulObjectIterator alloc] init];
@@ -211,7 +225,9 @@
   return child;
 }
 
-- (NSView *) outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
+- (NSView *) outlineView:(NSOutlineView *)outlineView
+      viewForTableColumn:(NSTableColumn *)tableColumn
+                    item:(id)item {
 //  NSLog(@"viewForTableColumn:%@ item:%@", tableColumn, item);
   if (![item isKindOfClass:[AzulObjectIterator class]]) {
     NSLog(@"Uh-oh!");
@@ -275,6 +291,8 @@
   // Compute the current mouse position
   float currentX = -1.0 + 2.0*([[controller window] mouseLocationOutsideOfEventStream].x-viewFrameInWindowCoordinates.origin.x) / [[controller metalView] bounds].size.width;
   float currentY = -1.0 + 2.0*([[controller window] mouseLocationOutsideOfEventStream].y-viewFrameInWindowCoordinates.origin.y) / [[controller metalView] bounds].size.height;
+
+
 
   float bestHit = impl->click(currentX, currentY, [[controller metalView] modelMatrix], [[controller metalView] viewMatrix], [[controller metalView] projectionMatrix]);
 

@@ -18,6 +18,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <MetalKit/MetalKit.h>
+#import "BasicTypes.h"
 
 #import "TableCellView.h"
 
@@ -28,6 +29,15 @@
 //-(const )
 
 @end
+
+@interface EdgeCollection : NSObject
+@property(readonly) NSInteger startIndex;
+@property(readonly) NSInteger endIndex;
+
+
+- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx;
+@end
+
 
 @interface DataManager: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>
 

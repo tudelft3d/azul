@@ -25,6 +25,11 @@ extension NSPoint {
     }
 }
 
+extension EdgeCollection : Collection {
+    public func index(after i: Int) -> Int {
+        return i + 1
+    }
+}
 
 //extension MTKView {
 //    func location(for event : NSEvent) -> float2 {
@@ -42,7 +47,7 @@ extension NSPoint {
 //}
 
 extension MTKView {
-    var currentMouseLocation : float2 {
+    @objc public var currentMouseLocation : float2 {
         let bounds = self.bounds
         let frame = self.convert(bounds, to: nil) // is this the same as .frame?
 
