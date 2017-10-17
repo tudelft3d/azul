@@ -34,7 +34,7 @@
 		BEB3C35D1F8E5D1200F14F1A /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C3561F8E5CFC00F14F1A /* libpugixml.a */; };
 		BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */; };
 		BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */; };
-		BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF621F6FC5950002A79E /* DataManagerWrapperWrapper.mm */; };
+		BED5AF631F6FC5950002A79E /* DataManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF621F6FC5950002A79E /* DataManager.mm */; };
 		BED5AF751F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */; };
 		BEF69F411F6AA0520079531B /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F401F6AA0520079531B /* Controller.swift */; };
 		BEF69F431F6AA0520079531B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEF69F421F6AA0520079531B /* Assets.xcassets */; };
@@ -98,8 +98,8 @@
 		BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GMLParsingHelper.hpp; sourceTree = "<group>"; };
 		BED5AF5F1F6FC4970002A79E /* PerformanceHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PerformanceHelper.hpp; sourceTree = "<group>"; };
 		BED5AF611F6FC5950002A79E /* azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "azul-Bridging-Header.h"; sourceTree = "<group>"; };
-		BED5AF621F6FC5950002A79E /* DataManagerWrapperWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DataManagerWrapperWrapper.mm; sourceTree = "<group>"; };
-		BED5AF641F6FC5BB0002A79E /* DataManagerWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataManagerWrapperWrapper.h; sourceTree = "<group>"; };
+		BED5AF621F6FC5950002A79E /* DataManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DataManager.mm; sourceTree = "<group>"; };
+		BED5AF641F6FC5BB0002A79E /* DataManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
 		BED5AF661F6FC8470002A79E /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = "../../../../../usr/local/Cellar/pugixml/1.8.1/lib/pugixml-1.8/libpugixml.a"; sourceTree = "<group>"; };
 		BED5AF681F6FC88E0002A79E /* libCGAL.13.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.13.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.10.1/lib/libCGAL.13.0.0.dylib; sourceTree = "<group>"; };
 		BED5AF691F6FC88E0002A79E /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.1.2/lib/libgmp.10.dylib; sourceTree = "<group>"; };
@@ -196,8 +196,8 @@
 				BE7254F91F711D87006E5AC8 /* DataManagerImpl.cpp */,
 				BE5724641F78FAC7008F4D54 /* TableCellView.h */,
 				BE5724621F78FAAD008F4D54 /* TableCellView.m */,
-				BED5AF641F6FC5BB0002A79E /* DataManagerWrapperWrapper.h */,
-				BED5AF621F6FC5950002A79E /* DataManagerWrapperWrapper.mm */,
+				BED5AF641F6FC5BB0002A79E /* DataManager.h */,
+				BED5AF621F6FC5950002A79E /* DataManager.mm */,
 			);
 			path = DataManager;
 			sourceTree = "<group>";
@@ -357,7 +357,7 @@
 			files = (
 				3739FA791F966594000C3250 /* Camera.swift in Sources */,
 				3739FA751F95393E000C3250 /* Protocols.swift in Sources */,
-				BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */,
+				BED5AF631F6FC5950002A79E /* DataManager.mm in Sources */,
 				BEF69F511F6AA4C30079531B /* Shaders.metal in Sources */,
 				BE7254FA1F711D87006E5AC8 /* DataManagerImpl.cpp in Sources */,
 				3739FA731F9528EA000C3250 /* DataManager.swift in Sources */,

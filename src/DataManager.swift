@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension DataManagerWrapperWrapper {
+extension DataManager {
     func depthAtCentre(viewMatrix : float4x4, modelMatrix: float4x4) -> Float {
 
         let firstMinCoordinate = self.minCoordinates

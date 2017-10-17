@@ -15,5 +15,5 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "PerformanceHelperWrapperWrapper.h"
-#import "DataManagerWrapperWrapper.h"
+#import "DataManager.h"
 #import "SharedTypes.h"

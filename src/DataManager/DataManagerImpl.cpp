@@ -16,7 +16,7 @@
 
 #include "DataManagerImpl.hpp"
 
-void DataManager::printAzulObject(const AzulObject &object, unsigned int tabs) {
+void DataManagerImpl::printAzulObject(const AzulObject &object, unsigned int tabs) {
   for (unsigned int tab = 0; tab < tabs; ++tab) std::cout << "\t";
   std::cout << object.type << " " << object.id << std::endl;
   for (auto const &attribute: object.attributes) {
@@ -28,7 +28,7 @@ void DataManager::printAzulObject(const AzulObject &object, unsigned int tabs) {
   } for (auto const &child: object.children) printAzulObject(child, tabs+1);
 }
 
-void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
+void DataManagerImpl::triangulateAzulObjectAndItsChildren(AzulObject &object) {
   for (auto &child: object.children) triangulateAzulObjectAndItsChildren(child);
   
   std::vector<AzulTriangle> triangles;
@@ -203,7 +203,7 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
   object.triangles = triangles;
 }
 
-void DataManager::generateEdgesForAzulObjectAndItsChildren(AzulObject &object) {
+void DataManagerImpl::generateEdgesForAzulObjectAndItsChildren(AzulObject &object) {
   for (auto &child: object.children) generateEdgesForAzulObjectAndItsChildren(child);
   
   std::vector<AzulEdge> edges;
@@ -226,7 +226,7 @@ void DataManager::generateEdgesForAzulObjectAndItsChildren(AzulObject &object) {
   } object.edges = edges;
 }
 
-void DataManager::updateBoundsWithAzulObjectAndItsChildren(const AzulObject &object) {
+void DataManagerImpl::updateBoundsWithAzulObjectAndItsChildren(const AzulObject &object) {
   for (const auto &child: object.children) updateBoundsWithAzulObjectAndItsChildren(child);
   for (const auto &polygon: object.polygons) {
     for (const auto &point: polygon.exteriorRing.points) {
@@ -238,12 +238,12 @@ void DataManager::updateBoundsWithAzulObjectAndItsChildren(const AzulObject &obj
   }
 }
 
-void DataManager::clearPolygonsOfAzulObjectAndItsChildren(AzulObject &object) {
+void DataManagerImpl::clearPolygonsOfAzulObjectAndItsChildren(AzulObject &object) {
   for (auto &child: object.children) clearPolygonsOfAzulObjectAndItsChildren(child);
   object.polygons.clear();
 }
 
-void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize) {
+void DataManagerImpl::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize) {
   //    std::cout << "makeTriangleBuffersContainingAzulObjectAndItsChildren with type " << typeWithColour << std::endl;
   for (auto &child: object.children) {
     //      std::cout << "\tchild type " << child.type << std::endl;
@@ -304,7 +304,7 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
   }
 }
 
-void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize) {
+void DataManagerImpl::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize) {
   for (auto &child: object.children) putAzulObjectAndItsChildrenIntoEdgeBuffers(child, maxBufferSize);
   
   if (object.edges.empty()) return;
@@ -352,7 +352,7 @@ void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &o
   }
 }
 
-DataManager::DataManager() {
+DataManagerImpl::DataManagerImpl() {
   for (int coordinate = 0; coordinate < 3; ++coordinate) {
     minCoordinates[coordinate] = std::numeric_limits<float>::max();
     maxCoordinates[coordinate] = std::numeric_limits<float>::lowest();
@@ -393,7 +393,7 @@ DataManager::DataManager() {
   selectedEdgesColour = std::tuple<float, float, float, float>(1.0, 0.0, 0.0, 1.0);
 }
 
-void DataManager::parse(const char *filePath) {
+void DataManagerImpl::parse(const char *filePath) {
   //    std::cout << "Parsing " << filePath << "..." << std::endl;
   parsedFiles.push_back(AzulObject());
   if (boost::algorithm::ends_with(filePath, ".gml") ||
@@ -412,7 +412,7 @@ void DataManager::parse(const char *filePath) {
   }
 }
 
-void DataManager::updateBoundsWithLastFile() {
+void DataManagerImpl::updateBoundsWithLastFile() {
   updateBoundsWithAzulObjectAndItsChildren(parsedFiles.back());
   float range[3];
   for (int coordinate = 0; coordinate < 3; ++coordinate) {
@@ -424,19 +424,19 @@ void DataManager::updateBoundsWithLastFile() {
   std::cout << "Bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;
 }
 
-void DataManager::triangulateLastFile() {
+void DataManagerImpl::triangulateLastFile() {
   triangulateAzulObjectAndItsChildren(parsedFiles.back());
 }
 
-void DataManager::generateEdgesForLastFile() {
+void DataManagerImpl::generateEdgesForLastFile() {
   generateEdgesForAzulObjectAndItsChildren(parsedFiles.back());
 }
 
-void DataManager::clearPolygonsOfLastFile() {
+void DataManagerImpl::clearPolygonsOfLastFile() {
   clearPolygonsOfAzulObjectAndItsChildren(parsedFiles.back());
 }
 
-void DataManager::regenerateTriangleBuffers(long maxBufferSize) {
+void DataManagerImpl::regenerateTriangleBuffers(long maxBufferSize) {
   std::string defaultType = "";
   triangleBuffers.clear();
   lastTriangleBufferOfType.clear();
@@ -446,7 +446,7 @@ void DataManager::regenerateTriangleBuffers(long maxBufferSize) {
   std::cout << "Created " << triangleBuffers.size() << " triangle buffers" << std::endl;
 }
 
-void DataManager::regenerateEdgeBuffers(long maxBufferSize) {
+void DataManagerImpl::regenerateEdgeBuffers(long maxBufferSize) {
   edgeBuffers.clear();
   lastEdgeBufferBySelection.clear();
   
@@ -454,12 +454,12 @@ void DataManager::regenerateEdgeBuffers(long maxBufferSize) {
   std::cout << "Created " << edgeBuffers.size() << " edge buffers" << std::endl;
 }
 
-void DataManager::clearHelpers() {
+void DataManagerImpl::clearHelpers() {
   gmlParsingHelper.clearDOM();
   jsonParsingHelper.clearDOM();
 }
 
-void DataManager::clear() {
+void DataManagerImpl::clear() {
   clearHelpers();
   parsedFiles.clear();
   triangleBuffers.clear();
@@ -474,16 +474,16 @@ void DataManager::clear() {
   }
 }
 
-void DataManager::printParsedFiles() {
+void DataManagerImpl::printParsedFiles() {
   for (auto const &file: parsedFiles) printAzulObject(file, 0);
 }
 
-void DataManager::setSelection(AzulObject &object, bool selected) {
+void DataManagerImpl::setSelection(AzulObject &object, bool selected) {
   for (auto &child: object.children) setSelection(child, selected);
   object.selected = selected;
 }
 
-float DataManager::click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix) {
+float DataManagerImpl::click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix) {
   
   // Compute two points on the ray represented by the mouse position at the near and far planes
   simd_float4x4 mvpInverse = matrix_invert(matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix)));
@@ -525,7 +525,7 @@ float DataManager::click(const float currentX, const float currentY, const simd_
   return bestHit;
 }
 
-float DataManager::hit(const AzulObject &object, const simd_float3 &rayOrigin, const simd_float3 &rayDirection, const simd_float4x4 &objectToCamera) {
+float DataManagerImpl::hit(const AzulObject &object, const simd_float3 &rayOrigin, const simd_float3 &rayDirection, const simd_float4x4 &objectToCamera) {
   float bestHit = -1.0;
   for (auto &child: object.children) {
     float thisHit = hit(child, rayOrigin, rayDirection, objectToCamera);
@@ -568,20 +568,20 @@ float DataManager::hit(const AzulObject &object, const simd_float3 &rayOrigin, c
   return bestHit;
 }
 
-simd_float3x3 DataManager::matrix_upper_left_3x3(const simd_float4x4 &matrix) {
+simd_float3x3 DataManagerImpl::matrix_upper_left_3x3(const simd_float4x4 &matrix) {
   return simd_matrix(simd_make_float3(matrix.columns[0].x, matrix.columns[0].y, matrix.columns[0].z),
                      simd_make_float3(matrix.columns[1].x, matrix.columns[1].y, matrix.columns[1].z),
                      simd_make_float3(matrix.columns[2].x, matrix.columns[2].y, matrix.columns[2].z));
 }
 
-simd_float4x4 DataManager::matrix4x4_translation(const simd_float3 &shift) {
+simd_float4x4 DataManagerImpl::matrix4x4_translation(const simd_float3 &shift) {
   return simd_matrix(simd_make_float4(1.0, 0.0, 0.0, 0.0),
                      simd_make_float4(0.0, 1.0, 0.0, 0.0),
                      simd_make_float4(0.0, 0.0, 1.0, 0.0),
                      simd_make_float4(shift.x, shift.y, shift.z, 1.0));
 }
 
-void DataManager::addAzulObjectAndItsChildrenToCentroidComputation(const AzulObject &object, CentroidComputation &centroidComputation) {
+void DataManagerImpl::addAzulObjectAndItsChildrenToCentroidComputation(const AzulObject &object, CentroidComputation &centroidComputation) {
   for (auto const &child: object.children) addAzulObjectAndItsChildrenToCentroidComputation(child, centroidComputation);
   for (auto const &triangle: object.triangles) {
     for (auto const &point: triangle.points) {
@@ -591,16 +591,16 @@ void DataManager::addAzulObjectAndItsChildrenToCentroidComputation(const AzulObj
   }
 }
 
-void DataManager::clearSearch() {
+void DataManagerImpl::clearSearch() {
   for (auto &file: parsedFiles) setMatchesSearch(file, 'U');
 }
 
-void DataManager::setMatchesSearch(AzulObject &object, char matches) {
+void DataManagerImpl::setMatchesSearch(AzulObject &object, char matches) {
   for (auto &child: object.children) setMatchesSearch(child, matches);
   object.matchesSearch = matches;
 }
 
-bool DataManager::matchesSearch(AzulObject &object) {
+bool DataManagerImpl::matchesSearch(AzulObject &object) {
   
   // Empty
   if (searchString.empty()) {
@@ -636,7 +636,7 @@ bool DataManager::matchesSearch(AzulObject &object) {
   return false;
 }
 
-bool DataManager::isExpandable(AzulObject &object) {
+bool DataManagerImpl::isExpandable(AzulObject &object) {
   if (searchString.empty()) {
     if (!object.children.empty()) return true;
     return false;
@@ -647,7 +647,7 @@ bool DataManager::isExpandable(AzulObject &object) {
   }
 }
 
-int DataManager::numberOfChildren(AzulObject &object) {
+int DataManagerImpl::numberOfChildren(AzulObject &object) {
   if (searchString.empty()) {
     return (int)object.children.size();
   } else {
@@ -658,7 +658,7 @@ int DataManager::numberOfChildren(AzulObject &object) {
   }
 }
 
-std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long index) {
+std::vector<AzulObject>::iterator DataManagerImpl::child(AzulObject &object, long index) {
   if (searchString.empty()) {
     return object.children.begin()+index;
   } else {

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import "DataManagerWrapperWrapper.h"
+#import "DataManager.h"
 #import "DataManagerImpl.hpp"
 #import "azul-Swift.h"
 
@@ -49,19 +49,19 @@
 
 @end
 
-@interface DataManagerWrapperWrapper() {
-    DataManager *dataManager;
+@interface DataManager() {
+    DataManagerImpl *dataManager;
 }
 @end
 
-@implementation DataManagerWrapperWrapper
+@implementation DataManager
 
 @synthesize controller;
 
 - (id) init {
   if (self = [super init]) {
 
-    dataManager = new DataManager();
+    dataManager = new DataManagerImpl();
   } return self;
 }
 

@@ -39,7 +39,7 @@ typedef CGAL::Triangulation_face_base_with_info_2<std::pair<bool, bool>, Kernel,
 typedef CGAL::Triangulation_data_structure_2<VertexBase, FaceBaseWithInfo> TriangulationDataStructure;
 typedef CGAL::Constrained_Delaunay_triangulation_2<Kernel, TriangulationDataStructure, Tag> Triangulation;
 
-class DataManager {
+class DataManagerImpl {
 private:
   void triangulateAzulObjectAndItsChildren(AzulObject &object);
   void generateEdgesForAzulObjectAndItsChildren(AzulObject &object);
@@ -87,7 +87,7 @@ public:
   float maxRange;
   
   // Life cycle
-  DataManager();
+  DataManagerImpl();
   void clear();
   
   // Tasks in order

@@ -66,7 +66,7 @@ extension float4 {
 @objc class MetalView: MTKView {
   
   var controller: Controller?
-  var dataManager: DataManagerWrapperWrapper?
+  var dataManager: DataManager?
   
   let commandQueue: MTLCommandQueue
   let litRenderPipelineState: MTLRenderPipelineState

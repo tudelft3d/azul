@@ -30,7 +30,7 @@ struct DataManagerWrapper;
 
 @end
 
-@interface DataManagerWrapperWrapper: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>
+@interface DataManager: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>
 
 @property Controller *controller;
 
