@@ -13,6 +13,10 @@ extension float2 {
     init(cgPoint : CGPoint) {
         self.init(x: Float(cgPoint.x), y: Float(cgPoint.y))
     }
+
+    init(cgSize : CGSize) {
+        self.init(x: Float(cgSize.width), y: Float(cgSize.height))
+    }
 }
 
 extension NSPoint {
@@ -36,8 +40,17 @@ extension NSPoint {
 //
 //    }
 //}
+
 extension MTKView {
-//    func drag() -> (
+    var currentMouseLocation : float2 {
+        let bounds = self.bounds
+        let frame = self.convert(bounds, to: nil) // is this the same as .frame?
+
+        let mouse = float2(cgPoint: window!.mouseLocationOutsideOfEventStream)
+        let origin = float2(cgPoint: frame.origin)
+        let point = mouse - origin
+        return float2(-1,-1) + 2 * (point / float2(cgSize: bounds.size))
+    }
 }
 
 extension Sequence where Iterator.Element == URL {

@@ -244,7 +244,7 @@ extension float4 {
     controller!.statusTextField!.setFrameOrigin(NSPoint(x: self.frame.width/4, y: 0))
     controller!.statusTextField!.setFrameSize(NSSize(width: 3*self.frame.width/4, height: 16))
   }
- 
+
     @objc func depthAtCentre() -> Float {
         return dataManager!.depthAtCentre(viewMatrix: viewMatrix,
                                           modelMatrix: modelMatrix)

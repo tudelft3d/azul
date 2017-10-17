@@ -94,6 +94,8 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   }
 }
 
+
+
 @NSApplicationMain
 @objc class Controller: NSObject, NSApplicationDelegate {
 
