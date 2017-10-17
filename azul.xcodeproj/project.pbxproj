@@ -12,6 +12,8 @@
 		3739FA6F1F9524B5000C3250 /* GPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA6E1F9524B5000C3250 /* GPU.swift */; };
 		3739FA711F95281C000C3250 /* SharedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA701F95281C000C3250 /* SharedTypes.swift */; };
 		3739FA731F9528EA000C3250 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA721F9528EA000C3250 /* DataManager.swift */; };
+		3739FA751F95393E000C3250 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA741F95393E000C3250 /* Protocols.swift */; };
+		3739FA791F966594000C3250 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3739FA781F966594000C3250 /* Camera.swift */; };
 		37DF21EC1F92D7C6008780EF /* TableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DF21EB1F92D7C6008780EF /* TableCellView.swift */; };
 		BE5724631F78FAAD008F4D54 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BE5724621F78FAAD008F4D54 /* TableCellView.m */; };
 		BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7254F91F711D87006E5AC8 /* DataManager.cpp */; };
@@ -49,6 +51,8 @@
 		3739FA6E1F9524B5000C3250 /* GPU.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPU.swift; sourceTree = "<group>"; };
 		3739FA701F95281C000C3250 /* SharedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTypes.swift; sourceTree = "<group>"; };
 		3739FA721F9528EA000C3250 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
+		3739FA741F95393E000C3250 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+		3739FA781F966594000C3250 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		37DF21EB1F92D7C6008780EF /* TableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCellView.swift; sourceTree = "<group>"; };
 		BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = POLYParsingHelper.hpp; sourceTree = "<group>"; };
 		BE4236941F8BB249009AD5D7 /* OFFParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OFFParsingHelper.hpp; sourceTree = "<group>"; };
@@ -248,9 +252,11 @@
 				BE8C43CE1F8D1CB50021CA0B /* Icons */,
 				BED5AF601F6FC49D0002A79E /* DataManager */,
 				BEF69F401F6AA0520079531B /* Controller.swift */,
+				3739FA781F966594000C3250 /* Camera.swift */,
 				3739FA691F93FF8C000C3250 /* SharedTypes.h */,
 				3739FA701F95281C000C3250 /* SharedTypes.swift */,
 				3739FA721F9528EA000C3250 /* DataManager.swift */,
+				3739FA741F95393E000C3250 /* Protocols.swift */,
 				37DF21EB1F92D7C6008780EF /* TableCellView.swift */,
 				3739FA6A1F952221000C3250 /* Extensions.swift */,
 				BEF69F501F6AA4C30079531B /* Shaders.metal */,
@@ -349,6 +355,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3739FA791F966594000C3250 /* Camera.swift in Sources */,
+				3739FA751F95393E000C3250 /* Protocols.swift in Sources */,
 				BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */,
 				BEF69F511F6AA4C30079531B /* Shaders.metal in Sources */,
 				BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */,

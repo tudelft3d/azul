@@ -13,21 +13,24 @@ extension DataManagerWrapperWrapper {
 
         let firstMinCoordinate = self.minCoordinates
         let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
-        let minCoordinatesArray = ContiguousArray(minCoordinatesBuffer)
-        let minCoordinates = [Float](minCoordinatesArray)
+        let minCoordinates = ContiguousArray(minCoordinatesBuffer)
+        //let minCoordinates = [Float](minCoordinatesArray)
+
         let firstMidCoordinate = self.midCoordinates
         let midCoordinatesBuffer = UnsafeBufferPointer(start: firstMidCoordinate, count: 3)
-        let midCoordinatesArray = ContiguousArray(midCoordinatesBuffer)
-        let midCoordinates = [Float](midCoordinatesArray)
+        let midCoordinates = ContiguousArray(midCoordinatesBuffer)
+        //let midCoordinates = [Float](midCoordinatesArray)
+
         let firstMaxCoordinate = self.maxCoordinates
         let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
-        let maxCoordinatesArray = ContiguousArray(maxCoordinatesBuffer)
-        let maxCoordinates = [Float](maxCoordinatesArray)
+        let maxCoordinates = ContiguousArray(maxCoordinatesBuffer)
+//        let maxCoordinates = [Float](maxCoordinatesArray)
         let maxRange = self.maxRange
 
         // Create three points along the data plane
-        let leftUpPointInObjectCoordinates = float4((minCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
-        let rightUpPointInObjectCoordinates = float4((maxCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+        let y = (maxCoordinates[1]-midCoordinates[1])/maxRange
+        let leftUpPointInObjectCoordinates = float4((minCoordinates[0]-midCoordinates[0])/maxRange, y, 0.0, 1.0)
+        let rightUpPointInObjectCoordinates = float4((maxCoordinates[0]-midCoordinates[0])/maxRange, y, 0.0, 1.0)
         let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
 
         // Obtain their coordinates in eye space
@@ -49,4 +52,12 @@ extension DataManagerWrapperWrapper {
         //    Swift.print("Depth at centre: \(-d/crossProduct.z)")
         return -d/crossProduct.z
     }
+
+//    func numberOfRows1(in tableView: NSTableView) -> Int {
+//        guard let s = controller.objectsSourceList?.selectedRow else { return 0 }
+//    }
+//
+//    func tableView1(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
+//        fatalError()
+//    }
 }

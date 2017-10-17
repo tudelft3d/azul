@@ -46,8 +46,6 @@ extension Sequence where Iterator.Element == URL {
     }
 }
 
-
-
 extension NSDraggingInfo {
     func urls() -> [URL]? {
         return draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL]

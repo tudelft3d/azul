@@ -68,8 +68,14 @@ extension matrix_float4x4 {
                   farZ: farZ)
     }
 
+    @inline(__always)
     static func +(lhs: matrix_float4x4, rhs: float3) -> matrix_float4x4 {
         return lhs * .init(translation: rhs)
+    }
+
+    @inline(__always)
+    static func +=(lhs: inout matrix_float4x4, rhs: float3) {
+        lhs = lhs + rhs
     }
 
     init(rotate axis: float3, angle: Float) {

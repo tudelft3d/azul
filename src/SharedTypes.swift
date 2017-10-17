@@ -15,5 +15,11 @@ extension Constants {
     func magnify(with mag : Float) {
 
     }
+
+//    mutating
+//    func setFrameSize(size : CGSize) {
+//
+//        self.modelViewProjectionMatrix =
+//    }
 }
 
