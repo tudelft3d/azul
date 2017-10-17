@@ -21,12 +21,11 @@
 
 #import "TableCellView.h"
 
-struct DataManagerWrapper;
-
 @class Controller;
 
 @interface AzulObjectIterator : NSObject
 //-(instancetype)initWithDataManager:(DataManagerWrapperWrapper*)manager;
+//-(const )
 
 @end
 
@@ -35,7 +34,7 @@ struct DataManagerWrapper;
 @property Controller *controller;
 
 // Life cycle
-- (id) init;
+//- (instancetype) init;
 - (void) clear;
 - (void) dealloc;
 

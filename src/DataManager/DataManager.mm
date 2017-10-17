@@ -58,7 +58,7 @@
 
 @synthesize controller;
 
-- (id) init {
+- (instancetype) init {
   if (self = [super init]) {
 
     dataManager = new DataManagerImpl();
