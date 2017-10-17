@@ -29,7 +29,13 @@ struct DataManagerWrapper {
 @end
 
 @implementation AzulObjectIterator
-
+//
+//-(instancetype)initWithDataManager:(DataManagerWrapperWrapper*)manager {
+//    if (self = [super init]) {
+//
+//    }
+//    return self;
+//}
 - (BOOL)isEqual:(id)other {
   if (other == self) return YES;
   if (![other isKindOfClass:[AzulObjectIterator class]]) {
@@ -41,6 +47,13 @@ struct DataManagerWrapper {
   return (NSUInteger)&*iterator;
 }
 
+
+
+@end
+
+@interface DataManagerWrapperWrapper() {
+    struct DataManagerWrapper *dataManagerWrapper;
+}
 @end
 
 @implementation DataManagerWrapperWrapper

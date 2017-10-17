@@ -53,6 +53,6 @@ extension NSDraggingInfo {
 }
 
 
-extension Controller {
+extension AzulObjectIterator {
 
 }

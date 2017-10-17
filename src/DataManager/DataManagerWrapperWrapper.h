@@ -26,11 +26,11 @@ struct DataManagerWrapper;
 @class Controller;
 
 @interface AzulObjectIterator : NSObject
+//-(instancetype)initWithDataManager:(DataManagerWrapperWrapper*)manager;
+
 @end
 
-@interface DataManagerWrapperWrapper: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource> {
-  struct DataManagerWrapper *dataManagerWrapper;
-}
+@interface DataManagerWrapperWrapper: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>
 
 @property Controller *controller;
 
