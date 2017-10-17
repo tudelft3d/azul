@@ -11,27 +11,16 @@ import Foundation
 extension DataManager {
     func depthAtCentre(viewMatrix : float4x4, modelMatrix: float4x4) -> Float {
 
-        let firstMinCoordinate = self.minCoordinates
-        let minCoordinatesBuffer = UnsafeBufferPointer(start: firstMinCoordinate, count: 3)
-        let minCoordinates = ContiguousArray(minCoordinatesBuffer)
-        //let minCoordinates = [Float](minCoordinatesArray)
-
-        let firstMidCoordinate = self.midCoordinates
-        let midCoordinatesBuffer = UnsafeBufferPointer(start: firstMidCoordinate, count: 3)
-        let midCoordinates = ContiguousArray(midCoordinatesBuffer)
-        //let midCoordinates = [Float](midCoordinatesArray)
-
-        let firstMaxCoordinate = self.maxCoordinates
-        let maxCoordinatesBuffer = UnsafeBufferPointer(start: firstMaxCoordinate, count: 3)
-        let maxCoordinates = ContiguousArray(maxCoordinatesBuffer)
-//        let maxCoordinates = [Float](maxCoordinatesArray)
+        let minCoordinates = self.minCoordinates
+        let midCoordinates = self.midCoordinates
+        let maxCoordinates = self.maxCoordinates
         let maxRange = self.maxRange
 
         // Create three points along the data plane
-        let y = (maxCoordinates[1]-midCoordinates[1])/maxRange
-        let leftUpPointInObjectCoordinates = float4((minCoordinates[0]-midCoordinates[0])/maxRange, y, 0.0, 1.0)
-        let rightUpPointInObjectCoordinates = float4((maxCoordinates[0]-midCoordinates[0])/maxRange, y, 0.0, 1.0)
-        let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+        let y = (maxCoordinates.y-midCoordinates.y)/maxRange
+        let leftUpPointInObjectCoordinates = float4((minCoordinates.x-midCoordinates.x)/maxRange, y, 0.0, 1.0)
+        let rightUpPointInObjectCoordinates = float4((maxCoordinates.x-midCoordinates.x)/maxRange, y, 0.0, 1.0)
+        let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates.y-midCoordinates.y)/maxRange, 0.0, 1.0)
 
         // Obtain their coordinates in eye space
         let modelViewMatrix = viewMatrix * modelMatrix

@@ -148,16 +148,22 @@
   return dataManager->currentEdgeBuffer == dataManager->edgeBuffers.end();
 }
 
-- (float *) minCoordinates {
-  return dataManager->minCoordinates;
+- (vector_float3) minCoordinates {
+//  return dataManager->minCoordinates;
+    auto c = dataManager->minCoordinates;
+    return {c[0], c[1], c[2]};
 }
 
-- (float *) midCoordinates {
-  return dataManager->midCoordinates;
+- (vector_float3) midCoordinates {
+    auto c = dataManager->midCoordinates;
+    return {c[0], c[1], c[2]};
 }
 
-- (float *) maxCoordinates {
-  return dataManager->maxCoordinates;
+- (vector_float3) maxCoordinates {
+    auto c = dataManager->maxCoordinates;
+
+    return {c[0], c[1], c[2]};
+
 }
 
 - (float) maxRange {

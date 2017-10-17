@@ -64,9 +64,9 @@
 - (BOOL) edgeBufferIteratorEnded;
 
 // Bounds
-@property(nonatomic, readonly) float * minCoordinates;
-@property(nonatomic, readonly) float * midCoordinates;
-@property(nonatomic, readonly) float * maxCoordinates;
+@property(nonatomic, readonly) vector_float3 minCoordinates;
+@property(nonatomic, readonly) vector_float3 midCoordinates;
+@property(nonatomic, readonly) vector_float3 maxCoordinates;
 @property(nonatomic, readonly) float maxRange;
 
 // Search
