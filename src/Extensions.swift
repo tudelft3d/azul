@@ -31,6 +31,15 @@ extension EdgeCollection : Collection {
     }
 }
 
+//extension TriangleCollection : Collection {
+//    public func index(after i: Int) -> Int {
+//        return i + 1
+//    }
+//}
+//
+
+
+
 //extension MTKView {
 //    func location(for event : NSEvent) -> float2 {
 //        let point = convert(event.locationInWindow, to: nil)

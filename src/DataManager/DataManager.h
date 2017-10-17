@@ -38,6 +38,14 @@
 - (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx;
 @end
 
+@interface TriangleCollection : NSObject
+@property(readonly) NSInteger startIndex;
+@property(readonly) NSInteger endIndex;
+
+
+- (AzulTriangle)objectAtIndexedSubscript:(NSInteger)idx;
+@end
+
 
 @interface DataManager: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>
 
