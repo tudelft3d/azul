@@ -17,17 +17,13 @@
 #pragma once
 #import <Foundation/Foundation.h>
 
-struct PerformanceHelperWrapper;
 
-@interface PerformanceHelperWrapperWrapper: NSObject {
-  struct PerformanceHelperWrapper *performanceHelperWrapper;
-}
 
-- (id) init;
+@interface PerformanceHelperWrapperWrapper: NSObject
+
 - (void) startTimer;
 - (void) printTimeSpent;
 - (void) printMemoryUsage;
-- (void) dealloc;
 
 @end
 

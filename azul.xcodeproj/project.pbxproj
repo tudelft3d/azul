@@ -96,7 +96,7 @@
 		BED5AF5C1F6FC4960002A79E /* DataManagerImpl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataManagerImpl.hpp; sourceTree = "<group>"; };
 		BED5AF5D1F6FC4960002A79E /* DataModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataModel.hpp; sourceTree = "<group>"; };
 		BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GMLParsingHelper.hpp; sourceTree = "<group>"; };
-		BED5AF5F1F6FC4970002A79E /* PerformanceHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PerformanceHelper.hpp; sourceTree = "<group>"; };
+		BED5AF5F1F6FC4970002A79E /* PerformanceHelperImpl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PerformanceHelperImpl.hpp; sourceTree = "<group>"; };
 		BED5AF611F6FC5950002A79E /* azul-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "azul-Bridging-Header.h"; sourceTree = "<group>"; };
 		BED5AF621F6FC5950002A79E /* DataManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DataManager.mm; sourceTree = "<group>"; };
 		BED5AF641F6FC5BB0002A79E /* DataManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
@@ -182,7 +182,7 @@
 		BED5AF601F6FC49D0002A79E /* DataManager */ = {
 			isa = PBXGroup;
 			children = (
-				BED5AF5F1F6FC4970002A79E /* PerformanceHelper.hpp */,
+				BED5AF5F1F6FC4970002A79E /* PerformanceHelperImpl.hpp */,
 				BED5AF761F6FD2800002A79E /* PerformanceHelperWrapperWrapper.h */,
 				BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */,
 				BED5AF5D1F6FC4960002A79E /* DataModel.hpp */,

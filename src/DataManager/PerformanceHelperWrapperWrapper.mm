@@ -15,15 +15,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "PerformanceHelperWrapperWrapper.h"
-#import "PerformanceHelper.hpp"
+#import "PerformanceHelperImpl.hpp"
 
 struct PerformanceHelperWrapper {
   PerformanceHelper *performanceHelper;
 };
 
+@interface PerformanceHelperWrapperWrapper() {
+    struct PerformanceHelperWrapper *performanceHelperWrapper;
+}
+@end
+
 @implementation PerformanceHelperWrapperWrapper
 
-- (id) init {
+- (instancetype) init {
   if (self = [super init]) {
     performanceHelperWrapper = new PerformanceHelperWrapper();
     performanceHelperWrapper->performanceHelper = new PerformanceHelper();
