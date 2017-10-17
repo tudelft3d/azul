@@ -58,7 +58,7 @@
 // Edge buffers
 - (void) initialiseEdgeBufferIterator;
 - (const float *) currentEdgeBufferWithSize:(long *)bytes;
-- (const float *) currentEdgeBufferColour;
+@property(nonatomic, readonly) vector_float4 currentEdgeBufferColour;
 - (void) advanceEdgeBufferIterator;
 - (BOOL) edgeBufferIteratorEnded;
 

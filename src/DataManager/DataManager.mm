@@ -136,8 +136,9 @@
   return &impl->currentEdgeBuffer->edges.front();
 }
 
-- (const float *) currentEdgeBufferColour {
-  return impl->currentEdgeBuffer->colour;
+- (vector_float4) currentEdgeBufferColour {
+    auto c = impl->currentEdgeBuffer->colour;
+    return {c[0], c[1], c[2], c[4]};
 }
 
 - (void) advanceEdgeBufferIterator {

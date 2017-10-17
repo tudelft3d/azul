@@ -570,10 +570,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     self.metalView!.edgeBuffers.removeAll()
     self.dataManager.initialiseEdgeBufferIterator()
     while !self.dataManager.edgeBufferIteratorEnded() {
-      let firstBufferColourComponent = self.dataManager.currentEdgeBufferColour()
-      let bufferColourBuffer = UnsafeBufferPointer(start: firstBufferColourComponent, count: 4)
-      var bufferColourArray = ContiguousArray(bufferColourBuffer)
-      let bufferColour = float4(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
+      let bufferColour = self.dataManager.currentEdgeBufferColour
       
       var bufferSize: Int = 0
       let buffer = self.dataManager.currentEdgeBuffer(withSize: &bufferSize)
