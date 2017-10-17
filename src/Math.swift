@@ -27,6 +27,33 @@ import MetalKit
 //                       vector4(0.0, 0.0, zs*nearZ, 0.0))
 //}
 
+
+extension vector_float4 : Codable {
+    public init(from decoder : Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        let vec = try container.decode(vector_float4.self)
+        self = vec
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        try container.encode(self)
+    }
+}
+
+extension matrix_float4x4 : Codable {
+    public init(from decoder : Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        let vec = try container.decode(matrix_float4x4.self)
+        self = vec
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        try container.encode(self)
+    }
+}
+
 extension matrix_float4x4 {
     init(eye : float3, center: float3, up: float3 = float3(0.0, 1.0, 0.0)) {
         let z = normalize(eye-center)
