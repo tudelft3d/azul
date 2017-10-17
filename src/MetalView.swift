@@ -88,9 +88,9 @@ extension float4 {
   var centre = float3(0.0, 0.0, -1.0)
   var fieldOfView: Float = 1.047197551196598
   
-  @objc var modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
-  @objc var modelRotationMatrix = matrix_identity_float4x4
-  @objc var modelShiftBackMatrix = matrix_identity_float4x4
+  @objc var scaling = matrix_identity_float4x4
+  @objc var rotation = matrix_identity_float4x4
+  @objc var translation = matrix_identity_float4x4
 
   @objc var modelMatrix = matrix_identity_float4x4
   @objc var viewMatrix = matrix_identity_float4x4
@@ -136,8 +136,9 @@ extension float4 {
     depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)!
 
     // Matrices
-    modelShiftBackMatrix = .init(translation: centre)
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    translation = .init(translation: centre)
+    // translation rotation scaling
+    modelMatrix = (translation * rotation) * scaling
     viewMatrix = .init(eye: eye, center: centre)
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
@@ -302,8 +303,8 @@ extension float4 {
 
     var cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
     let motionInObjectCoordinates = (cameraToObject * motionInCameraCoordinates)
-    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + motionInObjectCoordinates
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    scaling = scaling + motionInObjectCoordinates
+    modelMatrix = (translation * rotation) * scaling
 
     // Correct motion so that the point of rotation remains at the same depth as the data
     cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
@@ -311,8 +312,8 @@ extension float4 {
     //    Swift.print("Depth offset: \(depthOffset)")
     let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates = cameraToObject * depthOffsetInCameraCoordinates
-    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + depthOffsetInObjectCoordinates
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    scaling = scaling + depthOffsetInObjectCoordinates
+    modelMatrix = (translation * rotation) * scaling
 
     // Put model matrix in arrays and render
     constants.modelMatrix = modelMatrix
@@ -342,10 +343,10 @@ extension float4 {
     let axisInCameraCoordinates = float3(0.0, 0.0, 1.0)
     let cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
     let axisInObjectCoordinates = cameraToObject * axisInCameraCoordinates
-    modelRotationMatrix = modelRotationMatrix.rotate(around: axisInObjectCoordinates,
+    rotation = rotation.rotate(around: axisInObjectCoordinates,
                                                      angle: 3.14159*event.rotation/180.0)
 
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    modelMatrix = (translation * rotation) * scaling
     
     constants.modelMatrix = modelMatrix
     constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
@@ -380,10 +381,10 @@ extension float4 {
       let axisInCameraCoordinates = cross(lastPosition, currentPosition)
       let cameraToObject = matrix_upper_left_3x3(matrix: viewMatrix * modelMatrix).inverse
       let axisInObjectCoordinates = cameraToObject * axisInCameraCoordinates
-        modelRotationMatrix = modelRotationMatrix.rotate(around: axisInObjectCoordinates,
+        rotation = rotation.rotate(around: axisInObjectCoordinates,
                                                          angle: angle)
 
-      modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+      modelMatrix = (translation * rotation) * scaling
       
       constants.modelMatrix = modelMatrix
       constants.modelViewProjectionMatrix = projectionMatrix * (viewMatrix * modelMatrix)
@@ -468,16 +469,16 @@ extension float4 {
     let shiftInCameraCoordinates = float3(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
     var cameraToObject = matrix_upper_left_3x3(matrix: objectToCamera).inverse
     let shiftInObjectCoordinates = cameraToObject * shiftInCameraCoordinates
-    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + shiftInObjectCoordinates
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    scaling = scaling + shiftInObjectCoordinates
+    modelMatrix = (translation * rotation) * scaling
     
     // Correct shift so that the point of rotation remains at the same depth as the data
     cameraToObject = matrix_upper_left_3x3(matrix: (viewMatrix * modelMatrix)).inverse
     let depthOffset = 1.0+depthAtCentre()
     let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates = cameraToObject * depthOffsetInCameraCoordinates
-    modelTranslationToCentreOfRotationMatrix = modelTranslationToCentreOfRotationMatrix + depthOffsetInObjectCoordinates
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    scaling = scaling + depthOffsetInObjectCoordinates
+    modelMatrix = (translation * rotation) * scaling
     
     // Put model matrix in arrays and render
     constants.modelMatrix = modelMatrix
@@ -490,10 +491,10 @@ extension float4 {
     
     fieldOfView = 1.047197551196598
     
-    modelTranslationToCentreOfRotationMatrix = .identity
-    modelRotationMatrix = .identity
-    modelShiftBackMatrix = .init(translation: centre)
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    scaling = .identity
+    rotation = .identity
+    translation = .init(translation: centre)
+    modelMatrix = (translation * rotation) * scaling
     viewMatrix = .init(eye: eye, center: centre)
     projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
 
@@ -511,10 +512,10 @@ extension float4 {
     
     fieldOfView = 1.047197551196598
     
-    modelTranslationToCentreOfRotationMatrix = .identity
-    modelRotationMatrix = .identity
-    modelShiftBackMatrix = .init(translation: centre)
-    modelMatrix = (modelShiftBackMatrix * modelRotationMatrix) * modelTranslationToCentreOfRotationMatrix
+    scaling = .identity
+    rotation = .identity
+    translation = .init(translation: centre)
+    modelMatrix = (translation * rotation) * scaling
     viewMatrix = .init(eye: eye, center: centre)
     projectionMatrix = .init(fov: fieldOfView, size: bounds.size)
     

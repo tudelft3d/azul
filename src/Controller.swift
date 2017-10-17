@@ -22,9 +22,9 @@ struct ViewParameters: Codable {
   var eye: [Float]
   var centre: [Float]
   var fieldOfView: Float
-  var modelTranslationToCentreOfRotationMatrix: [Float]
-  var modelRotationMatrix: [Float]
-  var modelShiftBackMatrix: [Float]
+  var scaling: [Float]
+  var rotation: [Float]
+  var translation: [Float]
   var modelMatrix: [Float]
   var viewMatrix: [Float]
   var projectionMatrix: [Float]
@@ -710,9 +710,9 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
       self.metalView!.eye = deserialiseToFloat3(vector: viewParameters.eye)
       self.metalView!.centre = deserialiseToFloat3(vector: viewParameters.centre)
       self.metalView!.fieldOfView = viewParameters.fieldOfView
-      self.metalView!.modelTranslationToCentreOfRotationMatrix = .init(array: viewParameters.modelTranslationToCentreOfRotationMatrix)
-      self.metalView!.modelRotationMatrix = .init(array: viewParameters.modelRotationMatrix)
-      self.metalView!.modelShiftBackMatrix = .init(array: viewParameters.modelShiftBackMatrix)
+      self.metalView!.scaling = .init(array: viewParameters.scaling)
+      self.metalView!.rotation = .init(array: viewParameters.rotation)
+      self.metalView!.translation = .init(array: viewParameters.translation)
       self.metalView!.modelMatrix = .init(array: viewParameters.modelMatrix)
       self.metalView!.viewMatrix = .init(array: viewParameters.viewMatrix)
       self.metalView!.projectionMatrix = .init(array: viewParameters.projectionMatrix)
@@ -746,9 +746,9 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     let viewParameters = ViewParameters(eye: serialise(vector: metalView!.eye),
                                         centre: serialise(vector: metalView!.centre),
                                         fieldOfView: metalView!.fieldOfView,
-                                        modelTranslationToCentreOfRotationMatrix: serialise(matrix: metalView!.modelTranslationToCentreOfRotationMatrix),
-                                        modelRotationMatrix: serialise(matrix: metalView!.modelRotationMatrix),
-                                        modelShiftBackMatrix: serialise(matrix: metalView!.modelShiftBackMatrix),
+                                        scaling: serialise(matrix: metalView!.scaling),
+                                        rotation: serialise(matrix: metalView!.rotation),
+                                        translation: serialise(matrix: metalView!.translation),
                                         modelMatrix: serialise(matrix: metalView!.modelMatrix),
                                         viewMatrix: serialise(matrix: metalView!.viewMatrix),
                                         projectionMatrix: serialise(matrix: metalView!.projectionMatrix),
