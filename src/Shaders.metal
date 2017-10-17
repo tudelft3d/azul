@@ -24,11 +24,6 @@ constant float3 diffuseLightIntensity(0.2, 0.2, 0.2);
 constant float3 specularLightIntensity(0.2, 0.2, 0.2);
 constant float3 lightPosition(0.5, 0.5, -1.0);
 
-//struct VertexWithNormalIn {
-//  float3 position;
-//  float3 normal;
-//};
-
 struct VertexIn {
   float3 position;
 };
@@ -46,9 +41,9 @@ vertex VertexOut vertexLit(device VertexWithNormal *vertices [[buffer(0)]],
   float3 viewDirection = normalize(float3(uniforms.viewMatrixInverse * float4(0.0, 0.0, 0.0, 1.0) - uniforms.modelMatrix * float4(vertices[VertexId].position, 1.0)));
   float3 lightDirection = normalize(lightPosition);
   
-  float3 ambient = ambientLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b);
-  float3 diffuse = diffuseLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(normalDirection, lightDirection));
-  float3 specular = specularLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection));
+  float3 ambient = ambientLightIntensity * uniforms.colour.rgb;
+  float3 diffuse = diffuseLightIntensity * uniforms.colour.rgb * max(0.0, dot(normalDirection, lightDirection));
+  float3 specular = specularLightIntensity * uniforms.colour.rgb * max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection));
   
   VertexOut out;
   out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
