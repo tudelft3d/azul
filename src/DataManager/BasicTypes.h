@@ -19,22 +19,22 @@
 
 #import <simd/simd.h>
 
-typedef struct {
-    float coordinates[3];
-} AzulPoint;
+struct AzulPoint {
+    vector_float3 coordinates;
+};
 
-typedef struct {
+struct AzulVector {
     float components[3];
-} AzulVector;
+};
 
-typedef struct {
-    AzulPoint points[3];
-    AzulVector normals[3];
-} AzulTriangle;
+struct AzulTriangle{
+    struct AzulPoint points[3];
+    struct AzulVector normals[3];
+};
 
-typedef struct {
-    AzulPoint points[2];
-} AzulEdge;
+struct AzulEdge {
+    struct AzulPoint points[2];
+};
 
 struct EdgeBufferRef {
     vector_float4 colour;
