@@ -299,17 +299,17 @@
   
   // Compute shift in object space
   simd_float3 shiftInCameraCoordinates = simd_make_float3(-centroidInCameraCoordinates.x, -centroidInCameraCoordinates.y, 0.0);
-  simd_float3x3 cameraToObject = matrix_invert(impl->matrix_upper_left_3x3(objectToCamera));
+  simd_float3x3 cameraToObject = matrix_invert(matrix_upper_left_3x3(objectToCamera));
   simd_float3 shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates);
-  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], impl->matrix4x4_translation(shiftInObjectCoordinates))];
+  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], matrix4x4_translation(shiftInObjectCoordinates))];
   [[controller metalView] setModelMatrix:matrix_multiply(matrix_multiply([[controller metalView] translation], [[controller metalView] rotation]), [[controller metalView] scaling])];
   
   // Correct shift so that the point of rotation remains at the same depth as the data
-  cameraToObject = matrix_invert(impl->matrix_upper_left_3x3(matrix_multiply([[controller metalView] viewMatrix], [[controller metalView] modelMatrix])));
+  cameraToObject = matrix_invert(matrix_upper_left_3x3(matrix_multiply([[controller metalView] viewMatrix], [[controller metalView] modelMatrix])));
   float depthOffset = 1.0+[[controller metalView] depthAtCentre];
   simd_float3 depthOffsetInCameraCoordinates = simd_make_float3(0.0, 0.0, -depthOffset);
   simd_float3 depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates);
-  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], impl->matrix4x4_translation(depthOffsetInObjectCoordinates))];
+  [[controller metalView] setScaling:matrix_multiply([[controller metalView] scaling], matrix4x4_translation(depthOffsetInObjectCoordinates))];
   [[controller metalView] setModelMatrix:matrix_multiply(matrix_multiply([[controller metalView] translation], [[controller metalView] rotation]), [[controller metalView] scaling])];
 }
 

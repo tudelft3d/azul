@@ -20,6 +20,19 @@ float max(vector_float3 v) {
     return std::max(std::max(v.x, v.y), v.z);
 }
 
+simd_float3x3 matrix_upper_left_3x3(const simd_float4x4 &matrix) {
+
+    return simd_matrix(matrix.columns[0].xyz,
+                       matrix.columns[1].xyz,
+                       matrix.columns[2].xyz);
+}
+
+simd_float4x4 matrix4x4_translation(const simd_float3 &shift) {
+    return simd_matrix(simd_make_float4(1.0, 0.0, 0.0, 0.0),
+                       simd_make_float4(0.0, 1.0, 0.0, 0.0),
+                       simd_make_float4(0.0, 0.0, 1.0, 0.0),
+                       simd_make_float4(shift.xyz, 1.0));
+}
 
 void DataManagerImpl::printAzulObject(const AzulObject &object, unsigned int tabs) {
   for (unsigned int tab = 0; tab < tabs; ++tab) std::cout << "\t";
@@ -483,12 +496,8 @@ float DataManagerImpl::click(const float currentX, const float currentY, const s
   simd_float4 pointOnFarPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnFarPlaneInProjectionCoordinates);
   
   // Compute ray
-  simd_float3 rayOrigin = simd_make_float3(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w,
-                                           pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w,
-                                           pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w);
-  simd_float3 rayDestination = simd_make_float3(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w,
-                                                pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w,
-                                                pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w);
+  simd_float3 rayOrigin = pointOnNearPlaneInObjectCoordinates.xyz/pointOnNearPlaneInObjectCoordinates.w;
+  simd_float3 rayDestination = pointOnFarPlaneInObjectCoordinates.xyz/pointOnFarPlaneInObjectCoordinates.w;
   simd_float3 rayDirection = rayDestination - rayOrigin;
   
   simd_float4x4 objectToCamera = matrix_multiply(viewMatrix, modelMatrix);
@@ -530,9 +539,10 @@ float DataManagerImpl::hit(const AzulObject &object, const simd_float3 &rayOrigi
   for (auto const &triangle: object.triangles) {
     simd_float3 vertex[3];
     for (int point = 0; point < 3; ++point) {
-    vertex[point] = simd_make_float3((triangle.points[point].coordinates[0]-midCoordinates[0])/maxRange,
-                                     (triangle.points[point].coordinates[1]-midCoordinates[1])/maxRange,
-                                     (triangle.points[point].coordinates[2]-midCoordinates[2])/maxRange);
+
+    vertex[point] = (simd_make_float3(triangle.points[point].coordinates[0],
+                                      triangle.points[point].coordinates[1],
+                                      triangle.points[point].coordinates[2]) - midCoordinates)/maxRange;
     } simd_float3 edge1 = vertex[1] - vertex[0];
     simd_float3 edge2 = vertex[2] - vertex[0];
     simd_float3 pvec = simd_cross(rayDirection, edge2);
@@ -558,18 +568,7 @@ float DataManagerImpl::hit(const AzulObject &object, const simd_float3 &rayOrigi
   return bestHit;
 }
 
-simd_float3x3 DataManagerImpl::matrix_upper_left_3x3(const simd_float4x4 &matrix) {
-  return simd_matrix(simd_make_float3(matrix.columns[0].x, matrix.columns[0].y, matrix.columns[0].z),
-                     simd_make_float3(matrix.columns[1].x, matrix.columns[1].y, matrix.columns[1].z),
-                     simd_make_float3(matrix.columns[2].x, matrix.columns[2].y, matrix.columns[2].z));
-}
 
-simd_float4x4 DataManagerImpl::matrix4x4_translation(const simd_float3 &shift) {
-  return simd_matrix(simd_make_float4(1.0, 0.0, 0.0, 0.0),
-                     simd_make_float4(0.0, 1.0, 0.0, 0.0),
-                     simd_make_float4(0.0, 0.0, 1.0, 0.0),
-                     simd_make_float4(shift.x, shift.y, shift.z, 1.0));
-}
 
 void DataManagerImpl::addAzulObjectAndItsChildrenToCentroidComputation(const AzulObject &object, CentroidComputation &centroidComputation) {
   for (auto const &child: object.children) addAzulObjectAndItsChildrenToCentroidComputation(child, centroidComputation);

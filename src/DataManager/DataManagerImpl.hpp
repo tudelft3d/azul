@@ -49,6 +49,9 @@ namespace std {
     };
 }
 
+simd_float3x3 matrix_upper_left_3x3(const simd_float4x4 &matrix);
+simd_float4x4 matrix4x4_translation(const simd_float3 &shift);
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Exact_predicates_tag Tag;
 typedef CGAL::Triangulation_vertex_base_2<Kernel> VertexBase;
@@ -100,9 +103,9 @@ public:
   
   // Bounds
 
-    vector_float3 minCoordinates;
-    vector_float3 midCoordinates;
-    vector_float3 maxCoordinates;
+  vector_float3 minCoordinates;
+  vector_float3 midCoordinates;
+  vector_float3 maxCoordinates;
   float maxRange;
   
   // Life cycle
@@ -131,8 +134,6 @@ public:
   std::vector<AzulObject>::iterator child(AzulObject &object, long index);
   
   // Math
-  simd_float3x3 matrix_upper_left_3x3(const simd_float4x4 &matrix);
-  simd_float4x4 matrix4x4_translation(const simd_float3 &shift);
   void addAzulObjectAndItsChildrenToCentroidComputation(const AzulObject &object, CentroidComputation &centroidComputation);
   
   // Debug
