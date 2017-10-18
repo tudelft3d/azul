@@ -58,7 +58,7 @@ struct EdgeBuffer {
 };
 
 struct CentroidComputation {
-  float sum[3];
+  vector_float3 sum;
   std::size_t points;
 };
 

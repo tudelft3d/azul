@@ -236,8 +236,10 @@ void DataManagerImpl::updateBoundsWithAzulObjectAndItsChildren(const AzulObject 
   for (const auto &polygon: object.polygons) {
     for (const auto &point: polygon.exteriorRing.points) {
       for (int coordinate = 0; coordinate < 3; ++coordinate) {
-        if (point.coordinates[coordinate] < minCoordinates[coordinate]) minCoordinates[coordinate] = point.coordinates[coordinate];
-        if (point.coordinates[coordinate] > maxCoordinates[coordinate]) maxCoordinates[coordinate] = point.coordinates[coordinate];
+        if (point.coordinates[coordinate] < minCoordinates[coordinate])
+            minCoordinates[coordinate] = point.coordinates[coordinate];
+        if (point.coordinates[coordinate] > maxCoordinates[coordinate])
+            maxCoordinates[coordinate] = point.coordinates[coordinate];
       }
     }
   }
@@ -573,7 +575,9 @@ void DataManagerImpl::addAzulObjectAndItsChildrenToCentroidComputation(const Azu
   for (auto const &child: object.children) addAzulObjectAndItsChildrenToCentroidComputation(child, centroidComputation);
   for (auto const &triangle: object.triangles) {
     for (auto const &point: triangle.points) {
-      for (int coordinate = 0; coordinate < 3; ++coordinate) centroidComputation.sum[coordinate] += point.coordinates[coordinate];
+
+        vector_float3 vec = {point.coordinates[0], point.coordinates[1], point.coordinates[2]};
+        centroidComputation.sum += vec;
       ++centroidComputation.points;
     }
   }

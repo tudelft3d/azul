@@ -20,7 +20,7 @@
 #import <simd/simd.h>
 
 struct AzulPoint {
-    vector_float3 coordinates;
+    float coordinates[3];
 };
 
 struct AzulVector {
