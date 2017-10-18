@@ -310,7 +310,8 @@ void DataManagerImpl::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulO
     for (int pointIndex = 0; pointIndex < 3; ++pointIndex) {
       //        std::cout << "\tPoint[" << pointIndex << "](" << triangle.points[pointIndex].coordinates[0] << ", " << triangle.points[pointIndex].coordinates[1] << ", " << triangle.points[pointIndex].coordinates[2] << ")" << std::endl;
       //        std::cout << "\tNormal[" << pointIndex << "](" << triangle.normals[pointIndex].components[0] << ", " << triangle.normals[pointIndex].components[1] << ", " << triangle.normals[pointIndex].components[2] << ")" << std::endl;
-      for (int coordinate = 0; coordinate < 3; ++coordinate) currentBuffer->triangles.push_back((triangle.points[pointIndex].coordinates[coordinate]-midCoordinates[coordinate])/maxRange);
+      for (int coordinate = 0; coordinate < 3; ++coordinate)
+          currentBuffer->triangles.push_back((triangle.points[pointIndex].coordinates[coordinate]-midCoordinates[coordinate])/maxRange);
       currentBuffer->triangles.push_back(0.0); // to match Metal float3 16 byte size
       for (int component = 0; component < 3; ++component) currentBuffer->triangles.push_back(triangle.normals[pointIndex].components[component]);
       currentBuffer->triangles.push_back(0.0); // to match Metal float3 16 byte size

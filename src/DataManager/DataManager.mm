@@ -374,6 +374,7 @@
 
 @interface TriangleBufferIterator() {
     std::list<TriangleBuffer>::const_iterator it, end;
+    std::string type;
     TriangleBufferRef current;
 }
 @end
@@ -397,9 +398,9 @@
     TriangleBuffer cur = *it;
 
     auto triangles = cur.triangles;
-    const char* str = cur.type.c_str();
+    type = cur.type;
 
-    current = {cur.colour, str, (int)triangles.size(), &triangles.front()};
+    current = {cur.colour, type.c_str(), (int)triangles.size(), &triangles.front()};
     it++;
     return &current;
 }
