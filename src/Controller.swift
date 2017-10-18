@@ -545,40 +545,24 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     metalView!.boundingBoxBuffer = metalView!.device!.makeBuffer(bytes: vertices, length: MemoryLayout<Vertex>.size*vertices.count, options: [])
   }
 
-  @objc func reloadTriangleBuffers() {
-    self.metalView!.triangleBuffers.removeAll()
-    self.dataManager.initialiseTriangleBufferIterator()
-    while !self.dataManager.triangleBufferIteratorEnded() {
-      var bufferTypeLength: Int = 0
-      let firstCharacterOfBufferType = UnsafeRawPointer(self.dataManager.currentTriangleBufferType(withLength: &bufferTypeLength))
-      let bufferTypeData = Data(bytes: firstCharacterOfBufferType!, count: bufferTypeLength*MemoryLayout<Int8>.size)
-      let bufferType = String(data: bufferTypeData, encoding: .utf8)!
-      
-      let bufferColour = self.dataManager.currentTriangleBufferColour
-      
-      var bufferSize: Int = 0
-      let buffer = self.dataManager.currentTriangleBuffer(withSize: &bufferSize)
-      if buffer != nil {
-        self.metalView!.triangleBuffers.append(BufferWithColour(buffer: self.metalView!.device!.makeBuffer(bytes: buffer!, length: bufferSize, options: [])!, type: bufferType, colour: bufferColour))
-      }
-      self.dataManager.advanceTriangleBufferIterator()
-    }
-  }
+    @objc func reloadTriangleBuffers() {
 
-  @objc func reloadEdgeBuffers() {
-    self.metalView!.edgeBuffers.removeAll()
-    self.dataManager.initialiseEdgeBufferIterator()
-    while !self.dataManager.edgeBufferIteratorEnded() {
-      let bufferColour = self.dataManager.currentEdgeBufferColour
-      
-      var bufferSize: Int = 0
-      let buffer = self.dataManager.currentEdgeBuffer(withSize: &bufferSize)
-      if buffer != nil {
-        self.metalView!.edgeBuffers.append(BufferWithColour(buffer: self.metalView!.device!.makeBuffer(bytes: buffer!, length: bufferSize, options: [])!, type: "", colour: bufferColour))
-      }
-      self.dataManager.advanceEdgeBufferIterator()
+        let device = self.metalView!.device!
+        self.metalView!.triangleBuffers = AnySequence {
+            TriangleBufferIterator(manager: self.dataManager)
+        }.map {
+            GPUTriangleBuffer(ref: $0, device: device)
+        }
     }
-  }
+
+    @objc func reloadEdgeBuffers() {
+        let device = self.metalView!.device!
+        self.metalView!.edgeBuffers = AnySequence {
+            EdgeBufferIterator(manager: self.dataManager)
+        }.map {
+            GPUEdgeBuffer(ref: $0, device: device)
+        }
+    }
 
   func applicationWillTerminate(_ aNotification: Notification) {
     Swift.print("Controller.applicationWillTerminate(Notification)")

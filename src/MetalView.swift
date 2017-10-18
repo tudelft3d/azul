@@ -36,21 +36,41 @@ extension CGSize {
 }
 
 struct Vertex {
-  var position: float3
-}
-
-//struct VertexWithNormal {
-//  var position: float3
-//  var normal: float3
-//}
-
-struct BufferWithColour {
-  var buffer: MTLBuffer
-  var type: String
-  var colour: float4
+  let position: float3
 }
 
 
+struct GPUEdgeBuffer {
+    let colour: float4
+    let buffer: MTLBuffer
+
+    init(ref : UnsafePointer<EdgeBufferRef>, device: MTLDevice) {
+        colour = ref.pointee.colour
+        let len = Int(ref.pointee.count) * MemoryLayout<Float>.size
+        buffer = device.makeBuffer(bytes: ref.pointee.content,
+                                   length: len,
+                                   options: [])!
+    }
+}
+
+struct GPUTriangleBuffer {
+    let colour: float4
+    let type : String
+    let buffer: MTLBuffer
+
+    init(ref : UnsafePointer<TriangleBufferRef>, device: MTLDevice) {
+        print("here")
+        colour = ref.pointee.colour
+
+        type = String(cString: ref.pointee.type)
+        let len = Int(ref.pointee.count) * MemoryLayout<Float>.size
+        buffer = device.makeBuffer(bytes: ref.pointee.content,
+                                   length: len,
+                                   options: [])!
+
+
+    }
+}
 
 extension float4 {
 
@@ -73,8 +93,8 @@ extension float4 {
   let unlitRenderPipelineState: MTLRenderPipelineState
   let depthStencilState: MTLDepthStencilState
   
-  var triangleBuffers = [BufferWithColour]()
-  var edgeBuffers = [BufferWithColour]()
+    var triangleBuffers: [GPUTriangleBuffer] = []
+    var edgeBuffers: [GPUEdgeBuffer] = []
   var boundingBoxBuffer: MTLBuffer?
   
   var viewEdges: Bool = false

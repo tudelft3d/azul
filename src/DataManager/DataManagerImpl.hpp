@@ -74,8 +74,8 @@ public:
   std::vector<AzulObject>::iterator bestHitFile, bestHitObject;
 
   // Colours
-  std::tuple<float, float, float, float> black, selectedTrianglesColour, selectedEdgesColour;
-  std::map<std::string, std::tuple<float, float, float, float>> colourForType;
+  vector_float4 black, selectedTrianglesColour, selectedEdgesColour;
+  std::map<std::string, vector_float4> colourForType;
   
   // Search
   std::string searchString;

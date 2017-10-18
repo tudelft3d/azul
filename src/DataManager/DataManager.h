@@ -31,27 +31,18 @@
 
 @class DataManager;
 
-//@interface TriangleCollection : NSObject
-//@property(readonly) NSInteger startIndex;
-//@property(readonly) NSInteger endIndex;
-//- (AzulTriangle)objectAtIndexedSubscript:(NSInteger)idx;
-//@end
-//
-@interface EdgeIterator : NSObject
+
+@interface EdgeBufferIterator : NSObject
 -(instancetype _Nonnull)initWithManager:(DataManager* _Nonnull)manager;
--(const AzulEdge * _Nullable)next;
-@property(readonly, nonatomic) const AzulEdge * _Nullable current;
+-(const struct EdgeBufferRef * _Nullable)next;
+//@property(readonly, nonatomic) const EdgeBufferRef * _Nullable current;
 @end
-//
-//@interface EdgeCollection : NSObject
-//@property(readonly) NSInteger startIndex;
-//@property(readonly) NSInteger endIndex;
-//
-//
-//- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx;
-//@end
 
-
+@interface TriangleBufferIterator : NSObject
+-(instancetype _Nonnull)initWithManager:(DataManager* _Nonnull)manager;
+-(const struct TriangleBufferRef * _Nullable)next;
+//@property(readonly, nonatomic) const EdgeBufferRef * _Nullable current;
+@end
 
 
 @interface DataManager: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>
@@ -71,22 +62,6 @@
 - (void) clearPolygonsOfLastFile;
 - (void) regenerateTriangleBuffersWithMaximumSize:(long)maxBufferSize;
 - (void) regenerateEdgeBuffersWithMaximumSize:(long)maxBufferSize;
-
-// Triangle buffers
-- (void) initialiseTriangleBufferIterator;
-- (const float *) currentTriangleBufferWithSize:(long *)bytes;
-- (const char *) currentTriangleBufferTypeWithLength:(long *)length;
-
-@property(nonatomic, readonly) vector_float4 currentTriangleBufferColour;
-- (void) advanceTriangleBufferIterator;
-- (BOOL) triangleBufferIteratorEnded;
-
-// Edge buffers
-- (void) initialiseEdgeBufferIterator;
-- (const float *) currentEdgeBufferWithSize:(long *)bytes;
-@property(nonatomic, readonly) vector_float4 currentEdgeBufferColour;
-- (void) advanceEdgeBufferIterator;
-- (BOOL) edgeBufferIteratorEnded;
 
 // Bounds
 @property(nonatomic, readonly) vector_float3 minCoordinates;

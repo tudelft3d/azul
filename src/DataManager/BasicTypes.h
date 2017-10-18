@@ -17,6 +17,7 @@
 
 #pragma once
 
+#import <simd/simd.h>
 
 typedef struct {
     float coordinates[3];
@@ -34,3 +35,17 @@ typedef struct {
 typedef struct {
     AzulPoint points[2];
 } AzulEdge;
+
+struct EdgeBufferRef {
+    vector_float4 colour;
+    int count;
+    float * _Nonnull content;
+};
+
+struct TriangleBufferRef {
+    vector_float4 colour;
+    const char * _Nonnull type;
+    int count;
+    float * _Nonnull content;
+};
+

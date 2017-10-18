@@ -19,6 +19,7 @@
 #include <vector>
 #include <map>
 #include "BasicTypes.h"
+#import <simd/simd.h>
 
 struct AzulRing {
   std::vector<AzulPoint> points;
@@ -28,8 +29,6 @@ struct AzulPolygon {
   AzulRing exteriorRing;
   std::vector<AzulRing> interiorRings;
 };
-
-
 
 struct AzulObject {
   std::string type;
@@ -46,19 +45,15 @@ struct AzulObject {
     matchesSearch = 'U';
   }
 };
-//template<typename T>
-//struct ColoredBuffer : std::vector<T> {
-//
-//};
 
 struct TriangleBuffer {
   std::string type;
-  float colour[4];
+  vector_float4 colour;
   std::vector<float> triangles;
 };
 
 struct EdgeBuffer {
-  float colour[4];
+  vector_float4 colour;
   std::vector<float> edges;
 };
 

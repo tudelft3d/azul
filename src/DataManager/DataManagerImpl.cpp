@@ -260,10 +260,7 @@ void DataManagerImpl::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulO
     if (lastTriangleBufferBySelection.count(true) == 0 ||
         (lastTriangleBufferBySelection[true]->triangles.size()+object.triangles.size()) * sizeof(float) > maxBufferSize) {
       TriangleBuffer newBuffer;
-      newBuffer.colour[0] = std::get<0>(selectedTrianglesColour);
-      newBuffer.colour[1] = std::get<1>(selectedTrianglesColour);
-      newBuffer.colour[2] = std::get<2>(selectedTrianglesColour);
-      newBuffer.colour[3] = std::get<3>(selectedTrianglesColour);
+      newBuffer.colour = selectedTrianglesColour;
       triangleBuffers.push_front(newBuffer);
       lastTriangleBufferBySelection[true] = triangleBuffers.begin();
       currentBuffer = triangleBuffers.begin();
@@ -279,10 +276,7 @@ void DataManagerImpl::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulO
       //      std::cout << "Making new buffer for " << typeWithColour << "..." << std::endl;
       TriangleBuffer newBuffer;
       newBuffer.type = typeWithColour;
-      newBuffer.colour[0] = std::get<0>(colourForType[typeWithColour]);
-      newBuffer.colour[1] = std::get<1>(colourForType[typeWithColour]);
-      newBuffer.colour[2] = std::get<2>(colourForType[typeWithColour]);
-      newBuffer.colour[3] = std::get<3>(colourForType[typeWithColour]);
+      newBuffer.colour = colourForType[typeWithColour];
       triangleBuffers.push_front(newBuffer);
       lastTriangleBufferOfType[typeWithColour] = triangleBuffers.begin();
       currentBuffer = triangleBuffers.begin();
@@ -315,10 +309,7 @@ void DataManagerImpl::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObjec
     if (lastEdgeBufferBySelection.count(true) == 0 ||
         (lastEdgeBufferBySelection[true]->edges.size()+object.edges.size())*sizeof(float) > maxBufferSize) {
       EdgeBuffer newBuffer;
-      newBuffer.colour[0] = std::get<0>(selectedEdgesColour);
-      newBuffer.colour[1] = std::get<1>(selectedEdgesColour);
-      newBuffer.colour[2] = std::get<2>(selectedEdgesColour);
-      newBuffer.colour[3] = std::get<3>(selectedEdgesColour);
+        newBuffer.colour = selectedEdgesColour;
       edgeBuffers.push_front(newBuffer);
       lastEdgeBufferBySelection[true] = edgeBuffers.begin();
       currentBuffer = edgeBuffers.begin();
@@ -332,10 +323,7 @@ void DataManagerImpl::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObjec
     if (lastEdgeBufferBySelection.count(false) == 0 ||
         (lastEdgeBufferBySelection[false]->edges.size()+object.edges.size())*sizeof(float) > maxBufferSize) {
       EdgeBuffer newBuffer;
-      newBuffer.colour[0] = std::get<0>(black);
-      newBuffer.colour[1] = std::get<1>(black);
-      newBuffer.colour[2] = std::get<2>(black);
-      newBuffer.colour[3] = std::get<3>(black);
+        newBuffer.colour = black;
       edgeBuffers.push_front(newBuffer);
       lastEdgeBufferBySelection[false] = edgeBuffers.begin();
       currentBuffer = edgeBuffers.begin();
@@ -359,38 +347,38 @@ DataManagerImpl::DataManagerImpl() {
   } // std::cout << "Min: " << minCoordinates[0] << " max: " << maxCoordinates[0];
   
   // Default
-  colourForType[""] = std::tuple<float, float, float, float>(0.75, 0.75, 0.75, 1.0);
+    colourForType[""] = {0.75, 0.75, 0.75, 1.0};
   
   // CityGML types
-  colourForType["AuxiliaryTrafficArea"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["Bridge"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
-  colourForType["Building"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
-  colourForType["BuildingInstallation"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
-  colourForType["BuildingPart"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
-  colourForType["CityFurniture"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["Door"] = std::tuple<float, float, float, float>(0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0);
-  colourForType["GenericCityObject"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["GroundSurface"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["LandUse"] = std::tuple<float, float, float, float>(0.3, 0.3, 0.3, 1.0);
-  colourForType["PlantCover"] = std::tuple<float, float, float, float>(0.02, 0.65, 0.16, 1.0);
-  colourForType["Railway"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["ReliefFeature"] = std::tuple<float, float, float, float>(0.85, 0.92, 0.48, 1.0);
-  colourForType["Road"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
-  colourForType["RoofSurface"] = std::tuple<float, float, float, float>(1.0, 0.2, 0.2, 1.0);
-  colourForType["SolitaryVegetationObject"] = std::tuple<float, float, float, float>(0.4, 0.882352941176471, 0.333333333333333, 1.0);
-  colourForType["Track"] = std::tuple<float, float, float, float>(0.66, 0.49, 0.3, 1.0);
-  colourForType["TrafficArea"] = std::tuple<float, float, float, float>(0.7, 0.7, 0.7, 1.0);
-  colourForType["Tunnel"] = std::tuple<float, float, float, float>(0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0);
-  colourForType["WallSurface"] = std::tuple<float, float, float, float>(1.0, 1.0, 1.0, 1.0);
-  colourForType["WaterBody"] = std::tuple<float, float, float, float>(0.36, 0.78, 1.0, 1.0);
-  colourForType["Window"] = std::tuple<float, float, float, float>(0.584313725490196, 0.917647058823529, 1.0, 0.3);
+    colourForType["AuxiliaryTrafficArea"] = {0.7, 0.7, 0.7, 1.0};
+    colourForType["Bridge"] = {0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0};
+    colourForType["Building"] = {1.0, 1.0, 1.0, 1.0};
+    colourForType["BuildingInstallation"] = {1.0, 1.0, 1.0, 1.0};
+    colourForType["BuildingPart"] = {1.0, 1.0, 1.0, 1.0};
+    colourForType["CityFurniture"] = {0.7, 0.7, 0.7, 1.0};
+    colourForType["Door"] = {0.482352941176471, 0.376470588235294, 0.231372549019608, 1.0};
+    colourForType["GenericCityObject"] = {0.7, 0.7, 0.7, 1.0};
+    colourForType["GroundSurface"] = {0.7, 0.7, 0.7, 1.0};
+    colourForType["LandUse"] = {0.3, 0.3, 0.3, 1.0};
+    colourForType["PlantCover"] = {0.02, 0.65, 0.16, 1.0};
+    colourForType["Railway"] = {0.7, 0.7, 0.7, 1.0};
+    colourForType["ReliefFeature"] = {0.85, 0.92, 0.48, 1.0};
+    colourForType["Road"] = {0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0};
+    colourForType["RoofSurface"] = {1.0, 0.2, 0.2, 1.0};
+    colourForType["SolitaryVegetationObject"] = {0.4, 0.882352941176471, 0.333333333333333, 1.0};
+    colourForType["Track"] = {0.66, 0.49, 0.3, 1.0};
+    colourForType["TrafficArea"] = {0.7, 0.7, 0.7, 1.0};
+    colourForType["Tunnel"] = {0.458823529411765, 0.458823529411765, 0.458823529411765, 1.0};
+    colourForType["WallSurface"] = {1.0, 1.0, 1.0, 1.0};
+    colourForType["WaterBody"] = {0.36, 0.78, 1.0, 1.0};
+    colourForType["Window"] = {0.584313725490196, 0.917647058823529, 1.0, 0.3};
   
   // CityJSON
-  colourForType["TINRelief"] = std::tuple<float, float, float, float>(0.85, 0.92, 0.48, 1.0);
+  colourForType["TINRelief"] = {0.85, 0.92, 0.48, 1.0};
   
-  black = std::tuple<float, float, float, float>(0.0, 0.0, 0.0, 1.0);
-  selectedTrianglesColour = std::tuple<float, float, float, float>(1.0, 1.0, 0.0, 1.0);
-  selectedEdgesColour = std::tuple<float, float, float, float>(1.0, 0.0, 0.0, 1.0);
+    black = {0.0, 0.0, 0.0, 1.0};
+    selectedTrianglesColour = {1.0, 1.0, 0.0, 1.0};
+    selectedEdgesColour = {1.0, 0.0, 0.0, 1.0};
 }
 
 void DataManagerImpl::parse(const char *filePath) {
@@ -418,7 +406,8 @@ void DataManagerImpl::updateBoundsWithLastFile() {
   for (int coordinate = 0; coordinate < 3; ++coordinate) {
     midCoordinates[coordinate] = (minCoordinates[coordinate]+maxCoordinates[coordinate])/2.0;
     range[coordinate] = maxCoordinates[coordinate]-minCoordinates[coordinate];
-  } maxRange = range[0];
+  }
+    maxRange = range[0];
   if (range[1] > maxRange) maxRange = range[1];
   if (range[2] > maxRange) maxRange = range[2];
   std::cout << "Bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;

@@ -46,27 +46,6 @@
 @end
 
 
-
-//@interface EdgeCollection() {
-//    std::list<AzulEdge> * list;
-//}
-//@end
-//
-//@implementation EdgeCollection
-//-(NSInteger)startIndex {
-//    return 0;
-//}
-//-(NSInteger)endIndex {
-//    return list->size();
-//}
-//
-//- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx {
-//    list->begin()
-//    return *(list->begin() + idx);
-//
-//}
-//@end
-
 @interface DataManager() {
 @public
     DataManagerImpl *impl;
@@ -118,55 +97,6 @@
 
 - (void) regenerateEdgeBuffersWithMaximumSize:(long)maxBufferSize {
   impl->regenerateEdgeBuffers(maxBufferSize);
-}
-
-- (void) initialiseTriangleBufferIterator {
-  impl->currentTriangleBuffer = impl->triangleBuffers.begin();
-}
-
-- (const float *) currentTriangleBufferWithSize:(long *)bytes {
-  *bytes = impl->currentTriangleBuffer->triangles.size()*sizeof(float);
-  return &impl->currentTriangleBuffer->triangles.front();
-}
-
-- (const char *) currentTriangleBufferTypeWithLength:(long *)length {
-  *length = impl->currentTriangleBuffer->type.size();
-  return impl->currentTriangleBuffer->type.c_str();
-}
-
-- (vector_float4) currentTriangleBufferColour {
-    auto c = impl->currentTriangleBuffer->colour;
-    return {c[0], c[1], c[2], c[3]};
-}
-
-- (void) advanceTriangleBufferIterator {
-  ++impl->currentTriangleBuffer;
-}
-
-- (BOOL) triangleBufferIteratorEnded {
-  return impl->currentTriangleBuffer == impl->triangleBuffers.end();
-}
-
-- (void) initialiseEdgeBufferIterator {
-  impl->currentEdgeBuffer = impl->edgeBuffers.begin();
-}
-
-- (const float *) currentEdgeBufferWithSize:(long *)bytes {
-  *bytes = impl->currentEdgeBuffer->edges.size()*sizeof(float);
-  return &impl->currentEdgeBuffer->edges.front();
-}
-
-- (vector_float4) currentEdgeBufferColour {
-    auto c = impl->currentEdgeBuffer->colour;
-    return {c[0], c[1], c[2], c[3]};
-}
-
-- (void) advanceEdgeBufferIterator {
-  ++impl->currentEdgeBuffer;
-}
-
-- (BOOL) edgeBufferIteratorEnded {
-  return impl->currentEdgeBuffer == impl->edgeBuffers.end();
 }
 
 - (vector_float3) minCoordinates {
@@ -419,49 +349,69 @@
 @end
 
 
-//@interface EdgeIterator() {
-//    std::list<EdgeBuffer>::const_iterator it;
-//}
-//@end
-//
-//@implementation EdgeIterator
-//-(instancetype)initWithManager:(DataManager*)manager {
-//    if (self = [super init]) {
-//        auto iqq = manager->impl->edgeBuffers.begin();
-//
-////        it = manager->impl->edgeBuffers.begin();
-//    }
-//    return self;
-//}
-//-(const AzulEdge *)next {
-//    //    if (it->begin() == it->end()) {
-//    //        return NULL;
-//    //    }
-//    return NULL;
-//    //    return &AzulEdge();
-//}
-//@end
-
-@interface EdgeIterator() {
-    std::list<EdgeBuffer>::const_iterator it;
+@interface EdgeBufferIterator() {
+    std::list<EdgeBuffer>::const_iterator it, end;
+    EdgeBufferRef current;
 }
 @end
 
-
-@implementation EdgeIterator
+@implementation EdgeBufferIterator
 -(instancetype)initWithManager:(DataManager* _Nonnull)manager {
     if (self = [super init]) {
         it = manager->impl->edgeBuffers.begin();
+        end = manager->impl->edgeBuffers.end();
+
+        current = {0};
+
     }
     return self;
 }
 
--(const AzulEdge *)current {
-    return NULL;
-}
+-(const EdgeBufferRef *)next {
+    if (it == end) {
+        return NULL;
+    }
+    EdgeBuffer cur = *it;
 
--(const AzulEdge *)next {
-    return NULL;
+    auto edges = cur.edges;
+
+    current = {cur.colour, (int)edges.size(), &edges.front()};
+    it++;
+    return &current;
 }
 @end
 
+
+
+@interface TriangleBufferIterator() {
+    std::list<TriangleBuffer>::const_iterator it, end;
+    TriangleBufferRef current;
+}
+@end
+
+@implementation TriangleBufferIterator
+-(instancetype)initWithManager:(DataManager* _Nonnull)manager {
+    if (self = [super init]) {
+        it = manager->impl->triangleBuffers.begin();
+        end = manager->impl->triangleBuffers.end();
+
+        current = {0};
+
+    }
+    return self;
+}
+
+-(const TriangleBufferRef *)next {
+    if (it == end) {
+        return NULL;
+    }
+    TriangleBuffer cur = *it;
+
+    auto triangles = cur.triangles;
+    const char* str = cur.type.c_str();
+
+    current = {cur.colour, str, (int)triangles.size(), &triangles.front()};
+    it++;
+    return &current;
+}
+@end
