@@ -21,14 +21,6 @@ extension float4x4 {
     static let identity = matrix_identity_float4x4
 }
 
-//struct Constants {
-//  var modelMatrix = matrix_identity_float4x4
-//  var modelViewProjectionMatrix = matrix_identity_float4x4
-//  var modelMatrixInverseTransposed = matrix_identity_float3x3
-//  var viewMatrixInverse = matrix_identity_float4x4
-//  var colour = float4(0.0, 0.0, 0.0, 1.0)
-//}
-
 extension CGSize {
   var aspectRatio : CGFloat {
     return width / height
@@ -38,7 +30,6 @@ extension CGSize {
 struct Vertex {
   let position: float3
 }
-
 
 struct GPUEdgeBuffer {
     let colour: float4
@@ -67,8 +58,6 @@ struct GPUTriangleBuffer {
         buffer = device.makeBuffer(bytes: ref.pointee.content,
                                    length: len,
                                    options: [])!
-
-
     }
 }
 

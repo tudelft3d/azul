@@ -16,6 +16,11 @@
 
 #include "DataManagerImpl.hpp"
 
+float max(vector_float3 v) {
+    return std::max(std::max(v.x, v.y), v.z);
+}
+
+
 void DataManagerImpl::printAzulObject(const AzulObject &object, unsigned int tabs) {
   for (unsigned int tab = 0; tab < tabs; ++tab) std::cout << "\t";
   std::cout << object.type << " " << object.id << std::endl;
@@ -341,11 +346,9 @@ void DataManagerImpl::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObjec
 }
 
 DataManagerImpl::DataManagerImpl() {
-  for (int coordinate = 0; coordinate < 3; ++coordinate) {
-    minCoordinates[coordinate] = std::numeric_limits<float>::max();
-    maxCoordinates[coordinate] = std::numeric_limits<float>::lowest();
-  } // std::cout << "Min: " << minCoordinates[0] << " max: " << maxCoordinates[0];
-  
+    minCoordinates = std::numeric_limits<vector_float3>::max();
+    maxCoordinates = std::numeric_limits<vector_float3>::lowest();
+
   // Default
     colourForType[""] = {0.75, 0.75, 0.75, 1.0};
   
@@ -401,16 +404,13 @@ void DataManagerImpl::parse(const char *filePath) {
 }
 
 void DataManagerImpl::updateBoundsWithLastFile() {
-  updateBoundsWithAzulObjectAndItsChildren(parsedFiles.back());
-  float range[3];
-  for (int coordinate = 0; coordinate < 3; ++coordinate) {
-    midCoordinates[coordinate] = (minCoordinates[coordinate]+maxCoordinates[coordinate])/2.0;
-    range[coordinate] = maxCoordinates[coordinate]-minCoordinates[coordinate];
-  }
-    maxRange = range[0];
-  if (range[1] > maxRange) maxRange = range[1];
-  if (range[2] > maxRange) maxRange = range[2];
-  std::cout << "Bounds: min = (" << minCoordinates[0] << ", " << minCoordinates[1] << ", " << minCoordinates[2] << ") max = (" << maxCoordinates[0] << ", " << maxCoordinates[1] << ", " << maxCoordinates[2] << ")" << std::endl;
+    updateBoundsWithAzulObjectAndItsChildren(parsedFiles.back());
+
+    midCoordinates = (minCoordinates + maxCoordinates)/2.0;
+    maxRange = max(maxCoordinates - minCoordinates);
+
+
+    std::cout << "Bounds: min = (" << minCoordinates.x << ", " << minCoordinates.y << ", " << minCoordinates.z << ") max = (" << maxCoordinates.x << ", " << maxCoordinates.y << ", " << maxCoordinates.z << ")" << std::endl;
 }
 
 void DataManagerImpl::triangulateLastFile() {
@@ -456,11 +456,10 @@ void DataManagerImpl::clear() {
   lastTriangleBufferBySelection.clear();
   edgeBuffers.clear();
   lastEdgeBufferBySelection.clear();
-  
-  for (int coordinate = 0; coordinate < 3; ++coordinate) {
-    minCoordinates[coordinate] = std::numeric_limits<float>::max();
-    maxCoordinates[coordinate] = std::numeric_limits<float>::lowest();
-  }
+
+
+    minCoordinates = std::numeric_limits<vector_float3>::max();
+    maxCoordinates = std::numeric_limits<vector_float3>::lowest();
 }
 
 void DataManagerImpl::printParsedFiles() {

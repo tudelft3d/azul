@@ -31,6 +31,24 @@
 #include "POLYParsingHelper.hpp"
 #include "OFFParsingHelper.hpp"
 
+
+namespace std {
+    template<>
+    class numeric_limits<vector_float3> {
+
+    public:
+        static vector_float3 max() {
+            auto v = std::numeric_limits<float>::max();
+            return vector_float3(v);
+        };
+
+        static vector_float3 lowest() {
+            auto v = std::numeric_limits<float>::lowest();
+            return vector_float3(v);
+        };
+    };
+}
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Exact_predicates_tag Tag;
 typedef CGAL::Triangulation_vertex_base_2<Kernel> VertexBase;
@@ -81,9 +99,10 @@ public:
   std::string searchString;
   
   // Bounds
-  float minCoordinates[3];
-  float midCoordinates[3];
-  float maxCoordinates[3];
+
+    vector_float3 minCoordinates;
+    vector_float3 midCoordinates;
+    vector_float3 maxCoordinates;
   float maxRange;
   
   // Life cycle
