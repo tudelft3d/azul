@@ -31,23 +31,20 @@
 #include "POLYParsingHelper.hpp"
 #include "OFFParsingHelper.hpp"
 
-
-namespace std {
-    template<>
-    class numeric_limits<vector_float3> {
-
-    public:
-        static vector_float3 max() {
-            auto v = std::numeric_limits<float>::max();
-            return vector_float3(v);
-        };
-
-        static vector_float3 lowest() {
-            auto v = std::numeric_limits<float>::lowest();
-            return vector_float3(v);
-        };
+template<>
+class std::numeric_limits<vector_float3> {
+public:
+    static vector_float3 max() {
+        auto v = std::numeric_limits<float>::max();
+        return vector_float3(v);
     };
-}
+
+    static vector_float3 lowest() {
+        auto v = std::numeric_limits<float>::lowest();
+        return vector_float3(v);
+    };
+};
+
 
 simd_float3x3 matrix_upper_left_3x3(const simd_float4x4 &matrix);
 simd_float4x4 matrix4x4_translation(const simd_float3 &shift);
