@@ -90,8 +90,6 @@ public:
   std::map<bool, std::list<EdgeBuffer>::iterator> lastEdgeBufferBySelection;
   
   // Iterators for access from Swift
-  std::list<TriangleBuffer>::const_iterator currentTriangleBuffer;
-  std::list<EdgeBuffer>::const_iterator currentEdgeBuffer;
   std::vector<AzulObject>::iterator bestHitFile, bestHitObject;
 
   // Colours

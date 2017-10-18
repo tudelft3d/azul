@@ -372,8 +372,6 @@
 }
 @end
 
-
-
 @interface TriangleBufferIterator() {
     std::list<TriangleBuffer>::const_iterator it, end;
     TriangleBufferRef current;
