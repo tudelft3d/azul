@@ -37,10 +37,7 @@ struct GPUEdgeBuffer {
 
     init(ref : UnsafePointer<EdgeBufferRef>, device: MTLDevice) {
         colour = ref.pointee.colour
-        let len = Int(ref.pointee.count) * MemoryLayout<Float>.size
-        buffer = device.makeBuffer(bytes: ref.pointee.content,
-                                   length: len,
-                                   options: [])!
+        buffer = device.makeBuffer(ref: ref)
     }
 }
 
@@ -50,14 +47,9 @@ struct GPUTriangleBuffer {
     let buffer: MTLBuffer
 
     init(ref : UnsafePointer<TriangleBufferRef>, device: MTLDevice) {
-        print("here")
         colour = ref.pointee.colour
-
         type = String(cString: ref.pointee.type)
-        let len = Int(ref.pointee.count) * MemoryLayout<Float>.size
-        buffer = device.makeBuffer(bytes: ref.pointee.content,
-                                   length: len,
-                                   options: [])!
+        buffer = device.makeBuffer(ref: ref)
     }
 }
 

@@ -100,18 +100,15 @@
 }
 
 - (vector_float3) minCoordinates {
-    auto c = impl->minCoordinates;
-    return {c[0], c[1], c[2]};
+    return impl->minCoordinates;
 }
 
 - (vector_float3) midCoordinates {
-    auto c = impl->midCoordinates;
-    return {c[0], c[1], c[2]};
+    return impl->midCoordinates;
 }
 
 - (vector_float3) maxCoordinates {
-    auto c = impl->maxCoordinates;
-    return {c[0], c[1], c[2]};
+    return impl->maxCoordinates;
 }
 
 - (float) maxRange {

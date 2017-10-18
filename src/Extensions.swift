@@ -33,6 +33,19 @@ extension EdgeBufferIterator : IteratorProtocol { }
 extension TriangleBufferIterator : IteratorProtocol { }
 
 
+extension MTLDevice {
+    func makeBuffer(ref: UnsafePointer<TriangleBufferRef>) -> MTLBuffer {
+        let len = Int(ref.pointee.count) * MemoryLayout<Float>.size
+        return makeBuffer(bytes: ref.pointee.content, length: len, options: [])!
+    }
+}
+
+extension MTLDevice {
+    func makeBuffer(ref: UnsafePointer<EdgeBufferRef>) -> MTLBuffer {
+        let len = Int(ref.pointee.count) * MemoryLayout<Float>.size
+        return makeBuffer(bytes: ref.pointee.content, length: len, options: [])!
+    }
+}
 
 //extension MTKView {
 //    func location(for event : NSEvent) -> float2 {
