@@ -139,7 +139,7 @@
 
 - (vector_float4) currentTriangleBufferColour {
     auto c = impl->currentTriangleBuffer->colour;
-    return {c[0], c[1], c[2], c[4]};
+    return {c[0], c[1], c[2], c[3]};
 }
 
 - (void) advanceTriangleBufferIterator {
@@ -161,7 +161,7 @@
 
 - (vector_float4) currentEdgeBufferColour {
     auto c = impl->currentEdgeBuffer->colour;
-    return {c[0], c[1], c[2], c[4]};
+    return {c[0], c[1], c[2], c[3]};
 }
 
 - (void) advanceEdgeBufferIterator {
