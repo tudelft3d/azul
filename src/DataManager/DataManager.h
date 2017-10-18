@@ -27,8 +27,8 @@
 @interface AzulObjectIterator : NSObject
 //-(instancetype)initWithDataManager:(DataManagerWrapperWrapper*)manager;
 //-(const )
-
 @end
+
 @class DataManager;
 
 //@interface TriangleCollection : NSObject
@@ -37,10 +37,11 @@
 //- (AzulTriangle)objectAtIndexedSubscript:(NSInteger)idx;
 //@end
 //
-//@interface EdgeIterator : NSObject
-//-(const AzulEdge *)next;
-//-(instancetype)initWithManager:(DataManager*)manager;
-//@end
+@interface EdgeIterator : NSObject
+-(instancetype _Nonnull)initWithManager:(DataManager* _Nonnull)manager;
+-(const AzulEdge * _Nullable)next;
+@property(readonly, nonatomic) const AzulEdge * _Nullable current;
+@end
 //
 //@interface EdgeCollection : NSObject
 //@property(readonly) NSInteger startIndex;

@@ -25,6 +25,12 @@ extension NSPoint {
     }
 }
 
+protocol CachingIterator : IteratorProtocol {
+    var current : Element? { get }
+}
+
+extension EdgeIterator : IteratorProtocol { }
+
 
 //extension EdgeCollection : Collection {
 //    public func index(after i: Int) -> Int {

@@ -18,10 +18,6 @@
 #import "DataManagerImpl.hpp"
 #import "azul-Swift.h"
 
-//struct DataManagerWrapper {
-//  DataManager *impl;
-//};
-
 @interface AzulObjectIterator() {
     @public
     std::vector<AzulObject>::iterator iterator;
@@ -48,6 +44,7 @@
 }
 
 @end
+
 
 
 //@interface EdgeCollection() {
@@ -173,7 +170,6 @@
 }
 
 - (vector_float3) minCoordinates {
-//  return impl->minCoordinates;
     auto c = impl->minCoordinates;
     return {c[0], c[1], c[2]};
 }
@@ -445,4 +441,27 @@
 //    //    return &AzulEdge();
 //}
 //@end
+
+@interface EdgeIterator() {
+    std::list<EdgeBuffer>::const_iterator it;
+}
+@end
+
+
+@implementation EdgeIterator
+-(instancetype)initWithManager:(DataManager* _Nonnull)manager {
+    if (self = [super init]) {
+        it = manager->impl->edgeBuffers.begin();
+    }
+    return self;
+}
+
+-(const AzulEdge *)current {
+    return NULL;
+}
+
+-(const AzulEdge *)next {
+    return NULL;
+}
+@end
 
