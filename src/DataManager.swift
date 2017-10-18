@@ -50,43 +50,130 @@ extension DataManager {
 //        fatalError()
 //    }
 
+//    func boundingBoxBuffer() -> [Vertex] {
+//
+//        // Get bounds
+//        let minCoordinates = self.minCoordinates
+//        let maxCoordinates = self.maxCoordinates
+//
+//        // Create bounding box vertices
+//        let v: [float3] = [
+//            minCoordinates,  // 000 -> 001
+//            float3(minCoordinates.x, minCoordinates.y, maxCoordinates.z),
+//            minCoordinates,  // 000 -> 010
+//            float3(minCoordinates.x, maxCoordinates.y, minCoordinates.z),
+//            minCoordinates,  // 000 -> 100
+//            float3(maxCoordinates.x, minCoordinates.y, minCoordinates.z),
+//            float3(minCoordinates.x, minCoordinates.y, maxCoordinates.z),  // 001 -> 011
+//            float3(minCoordinates.x, maxCoordinates.y, maxCoordinates.z),
+//            float3(minCoordinates.x, minCoordinates.y, maxCoordinates.z),  // 001 -> 101
+//            float3(maxCoordinates.x, minCoordinates.y, maxCoordinates.z),
+//            float3(minCoordinates.x, maxCoordinates.y, minCoordinates.z),  // 010 -> 011
+//            float3(minCoordinates.x, maxCoordinates.y, maxCoordinates.z),
+//            float3(minCoordinates.x, maxCoordinates.y, minCoordinates.z),  // 010 -> 110
+//            float3(maxCoordinates.x, maxCoordinates.y, minCoordinates.z),
+//            float3(minCoordinates.x, maxCoordinates.y, maxCoordinates.z),  // 011 -> 111
+//            maxCoordinates,
+//            float3(maxCoordinates.x, minCoordinates.y, minCoordinates.z),  // 100 -> 101
+//            float3(maxCoordinates.x, minCoordinates.y, maxCoordinates.z),
+//            float3(maxCoordinates.x, minCoordinates.y, minCoordinates.z),  // 100 -> 110
+//            float3(maxCoordinates.x, maxCoordinates.y, minCoordinates.z),
+//            float3(maxCoordinates.x, minCoordinates.y, maxCoordinates.z),  // 101 -> 111
+//            maxCoordinates,
+//            float3(maxCoordinates.x, maxCoordinates.y, minCoordinates.z),  // 110 -> 111
+//            maxCoordinates
+//        ]
+//
+//        let midCoordinates = self.midCoordinates
+//        let maxRange = self.maxRange
+//
+//        return v.map { Vertex(position: ($0 - midCoordinates)/maxRange) }
+//    }
+//}
     func boundingBoxBuffer() -> [Vertex] {
 
         // Get bounds
         let minCoordinates = self.minCoordinates
+        let midCoordinates = self.midCoordinates
         let maxCoordinates = self.maxCoordinates
+        let maxRange = self.maxRange
 
         // Create bounding box vertices
         let v: [float3] = [
-            minCoordinates,  // 000 -> 001
-            float3(minCoordinates.x, minCoordinates.y, maxCoordinates.z),
-            minCoordinates,  // 000 -> 010
-            float3(minCoordinates.x, maxCoordinates.y, minCoordinates.z),
-            minCoordinates,  // 000 -> 100
-            float3(maxCoordinates.x, minCoordinates.y, minCoordinates.z),
-            float3(minCoordinates.x, minCoordinates.y, maxCoordinates.z),  // 001 -> 011
-            float3(minCoordinates.x, maxCoordinates.y, maxCoordinates.z),
-            float3(minCoordinates.x, minCoordinates.y, maxCoordinates.z),  // 001 -> 101
-            float3(maxCoordinates.x, minCoordinates.y, maxCoordinates.z),
-            float3(minCoordinates.x, maxCoordinates.y, minCoordinates.z),  // 010 -> 011
-            float3(minCoordinates.x, maxCoordinates.y, maxCoordinates.z),
-            float3(minCoordinates.x, maxCoordinates.y, minCoordinates.z),  // 010 -> 110
-            float3(maxCoordinates.x, maxCoordinates.y, minCoordinates.z),
-            float3(minCoordinates.x, maxCoordinates.y, maxCoordinates.z),  // 011 -> 111
-            maxCoordinates,
-            float3(maxCoordinates.x, minCoordinates.y, minCoordinates.z),  // 100 -> 101
-            float3(maxCoordinates.x, minCoordinates.y, maxCoordinates.z),
-            float3(maxCoordinates.x, minCoordinates.y, minCoordinates.z),  // 100 -> 110
-            float3(maxCoordinates.x, maxCoordinates.y, minCoordinates.z),
-            float3(maxCoordinates.x, minCoordinates.y, maxCoordinates.z),  // 101 -> 111
-            maxCoordinates,
-            float3(maxCoordinates.x, maxCoordinates.y, minCoordinates.z),  // 110 -> 111
-            maxCoordinates
-        ]
-
-        let midCoordinates = self.midCoordinates
-        let maxRange = self.maxRange
-
-        return v.map { Vertex(position: ($0 - midCoordinates)/maxRange) }
+            float3(minCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 000 -> 001
+            float3(minCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 000 -> 010
+            float3(minCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 000 -> 100
+            float3(maxCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),  // 001 -> 011
+            float3(minCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),  // 001 -> 101
+            float3(maxCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 010 -> 011
+            float3(minCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 010 -> 110
+            float3(maxCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),
+            float3(minCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),  // 011 -> 111
+            float3(maxCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(maxCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 100 -> 101
+            float3(maxCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(maxCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 100 -> 110
+            float3(maxCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),
+            float3(maxCoordinates.x-midCoordinates.x,
+                   minCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),  // 101 -> 111
+            float3(maxCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z),
+            float3(maxCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   minCoordinates.z-midCoordinates.z),  // 110 -> 111
+            float3(maxCoordinates.x-midCoordinates.x,
+                   maxCoordinates.y-midCoordinates.y,
+                   maxCoordinates.z-midCoordinates.z)]
+        return v.map { Vertex(position: $0/maxRange) }
     }
 }
+
+

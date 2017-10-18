@@ -29,22 +29,28 @@
 //-(const )
 
 @end
+@class DataManager;
 
-@interface EdgeCollection : NSObject
-@property(readonly) NSInteger startIndex;
-@property(readonly) NSInteger endIndex;
+//@interface TriangleCollection : NSObject
+//@property(readonly) NSInteger startIndex;
+//@property(readonly) NSInteger endIndex;
+//- (AzulTriangle)objectAtIndexedSubscript:(NSInteger)idx;
+//@end
+//
+//@interface EdgeIterator : NSObject
+//-(const AzulEdge *)next;
+//-(instancetype)initWithManager:(DataManager*)manager;
+//@end
+//
+//@interface EdgeCollection : NSObject
+//@property(readonly) NSInteger startIndex;
+//@property(readonly) NSInteger endIndex;
+//
+//
+//- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx;
+//@end
 
 
-- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx;
-@end
-
-@interface TriangleCollection : NSObject
-@property(readonly) NSInteger startIndex;
-@property(readonly) NSInteger endIndex;
-
-
-- (AzulTriangle)objectAtIndexedSubscript:(NSInteger)idx;
-@end
 
 
 @interface DataManager: NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate, NSTableViewDataSource>

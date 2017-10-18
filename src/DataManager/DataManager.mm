@@ -49,19 +49,29 @@
 
 @end
 
-@implementation EdgeCollection
--(NSInteger)startIndex {
-    return 0;
-}
--(NSInteger)endIndex {
-    return 0;
-}
-- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx {
-    return AzulEdge();
-}
-@end
+
+//@interface EdgeCollection() {
+//    std::list<AzulEdge> * list;
+//}
+//@end
+//
+//@implementation EdgeCollection
+//-(NSInteger)startIndex {
+//    return 0;
+//}
+//-(NSInteger)endIndex {
+//    return list->size();
+//}
+//
+//- (AzulEdge)objectAtIndexedSubscript:(NSInteger)idx {
+//    list->begin()
+//    return *(list->begin() + idx);
+//
+//}
+//@end
 
 @interface DataManager() {
+@public
     DataManagerImpl *impl;
 }
 @end
@@ -184,7 +194,6 @@
 
 - (void) dealloc {
   delete impl;
-//  delete dataManagerWrapper;
 }
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView
@@ -412,3 +421,28 @@
 }
 
 @end
+
+
+//@interface EdgeIterator() {
+//    std::list<EdgeBuffer>::const_iterator it;
+//}
+//@end
+//
+//@implementation EdgeIterator
+//-(instancetype)initWithManager:(DataManager*)manager {
+//    if (self = [super init]) {
+//        auto iqq = manager->impl->edgeBuffers.begin();
+//
+////        it = manager->impl->edgeBuffers.begin();
+//    }
+//    return self;
+//}
+//-(const AzulEdge *)next {
+//    //    if (it->begin() == it->end()) {
+//    //        return NULL;
+//    //    }
+//    return NULL;
+//    //    return &AzulEdge();
+//}
+//@end
+

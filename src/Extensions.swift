@@ -21,22 +21,22 @@ extension float2 {
 
 extension NSPoint {
     static func -(lhs: NSPoint, rhs: NSPoint) -> NSPoint {
-        return .init(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+        return .init(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 }
 
-extension EdgeCollection : Collection {
-    public func index(after i: Int) -> Int {
-        return i + 1
-    }
-}
+
+//extension EdgeCollection : Collection {
+//    public func index(after i: Int) -> Int {
+//        return i + 1
+//    }
+//}
 
 //extension TriangleCollection : Collection {
 //    public func index(after i: Int) -> Int {
 //        return i + 1
 //    }
 //}
-//
 
 
 
