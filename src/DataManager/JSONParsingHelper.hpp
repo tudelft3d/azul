@@ -34,43 +34,19 @@ class JSONParsingHelper {
 //      std::cout << "Geometry: " << geometry.dump(2) << std::endl;
       
       if (geometry["type"] == "MultiSurface" || geometry["type"] == "CompositeSurface") {
-        //        std::cout << "Surfaces: " << geometry["geometry"].dump() << std::endl;
-        for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["geometry"].size(); ++surfaceIndex) {
-          //          std::cout << "Surface: " << geometry["geometry"][surfaceIndex].dump() << std::endl;
-          std::vector<std::vector<std::size_t>> surface = geometry["geometry"][surfaceIndex];
+//        std::cout << "Surfaces: " << geometry["boundaries"].dump() << std::endl;
+        for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"].size(); ++surfaceIndex) {
+//          std::cout << "Surface: " << geometry["boundaries"][surfaceIndex].dump() << std::endl;
+          std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][surfaceIndex];
           std::string surfaceType;
           if (geometry.count("semantics")) {
-            auto const &surfaceSemantics = geometry["semantics"][surfaceIndex];
-            //          std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
-            surfaceType = surfaceSemantics["type"];
-            //          std::cout << "Surface type: " << surfaceType << std::endl;
-            AzulObject newChild;
-            newChild.type = surfaceType;
-            AzulPolygon newPolygon;
-            parseCityJSONPolygon(surface, newPolygon, vertices);
-            newChild.polygons.push_back(newPolygon);
-            object.children.push_back(newChild);
-          } else {
-            AzulPolygon newPolygon;
-            parseCityJSONPolygon(surface, newPolygon, vertices);
-            object.polygons.push_back(newPolygon);
-          }
-        }
-      }
-      
-      else if (geometry["type"] == "Solid") {
-        //      std::cout << "Shells: " << geometry["geometry"].dump() << std::endl;
-        for (unsigned int shellIndex = 0; shellIndex < geometry["geometry"].size(); ++shellIndex) {
-          //        std::cout << "Shell: " << geometry["geometry"][shellIndex].dump() << std::endl;
-          for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["geometry"][shellIndex].size(); ++surfaceIndex) {
-            //          std::cout << "Surface: " << geometry["geometry"][shellIndex][surfaceIndex].dump() << std::endl;
-            std::vector<std::vector<std::size_t>> surface = geometry["geometry"][shellIndex][surfaceIndex];
-            std::string surfaceType;
-            if (geometry.count("semantics")) {
-              auto const &surfaceSemantics = geometry["semantics"][shellIndex][surfaceIndex];
-              //            std::cout << "Surface semantics: " << surfaceSemantics.dump() << std::endl;
+//            std::cout << "Surface semantics: " << geometry["semantics"] << std::endl;
+            if (geometry["semantics"]["values"].size() > surfaceIndex &&
+                !geometry["semantics"]["values"][surfaceIndex].is_null()) {
+              std::size_t semanticSurfaceIndex = geometry["semantics"]["values"][surfaceIndex];
+              auto const &surfaceSemantics = geometry["semantics"]["surfaces"][semanticSurfaceIndex];
               surfaceType = surfaceSemantics["type"];
-              //            std::cout << "Surface type: " << surfaceType << std::endl;
+              std::cout << "Surface type: " << surfaceType << std::endl;
               AzulObject newChild;
               newChild.type = surfaceType;
               AzulPolygon newPolygon;
@@ -82,25 +58,100 @@ class JSONParsingHelper {
               parseCityJSONPolygon(surface, newPolygon, vertices);
               object.polygons.push_back(newPolygon);
             }
+          } else {
+            AzulPolygon newPolygon;
+            parseCityJSONPolygon(surface, newPolygon, vertices);
+            object.polygons.push_back(newPolygon);
+          }
+        }
+      }
+      
+      else if (geometry["type"] == "Solid") {
+//        std::cout << "Shells: " << geometry["boundaries"].dump() << std::endl;
+        for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"].size(); ++shellIndex) {
+//          std::cout << "Shell: " << geometry["boundaries"][shellIndex].dump() << std::endl;
+          for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][shellIndex].size(); ++surfaceIndex) {
+//            std::cout << "Surface: " << geometry["boundaries"][shellIndex][surfaceIndex].dump() << std::endl;
+            std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][shellIndex][surfaceIndex];
+            std::string surfaceType;
+            if (geometry.count("semantics")) {
+//              std::cout << "Surface semantics: " << geometry["semantics"] << std::endl;
+              if (geometry["semantics"]["values"].size() > shellIndex &&
+                  !geometry["semantics"]["values"][shellIndex].is_null()) {
+                if (geometry["semantics"]["values"][shellIndex].size() > surfaceIndex &&
+                    !geometry["semantics"]["values"][shellIndex][surfaceIndex].is_null()) {
+                  std::size_t semanticSurfaceIndex = geometry["semantics"]["values"][shellIndex][surfaceIndex];
+                  auto const &surfaceSemantics = geometry["semantics"]["surfaces"][semanticSurfaceIndex];
+                  surfaceType = surfaceSemantics["type"];
+                  std::cout << "Surface type: " << surfaceType << std::endl;
+                  AzulObject newChild;
+                  newChild.type = surfaceType;
+                  AzulPolygon newPolygon;
+                  parseCityJSONPolygon(surface, newPolygon, vertices);
+                  newChild.polygons.push_back(newPolygon);
+                  object.children.push_back(newChild);
+                } else {
+                  AzulPolygon newPolygon;
+                  parseCityJSONPolygon(surface, newPolygon, vertices);
+                  object.polygons.push_back(newPolygon);
+                }
+              } else {
+                AzulPolygon newPolygon;
+                parseCityJSONPolygon(surface, newPolygon, vertices);
+                object.polygons.push_back(newPolygon);
+              }
+            } else {
+              AzulPolygon newPolygon;
+              parseCityJSONPolygon(surface, newPolygon, vertices);
+              object.polygons.push_back(newPolygon);
+            }
           }
         }
       }
       
       else if (geometry["type"] == "MultiSolid" || geometry["type"] == "CompositeSolid") {
-        for (unsigned int solidIndex = 0; solidIndex < geometry["geometry"].size(); ++solidIndex) {
-          for (unsigned int shellIndex = 0; shellIndex < geometry["geometry"][solidIndex].size(); ++shellIndex) {
-            for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["geometry"][solidIndex][shellIndex].size(); ++surfaceIndex) {
-              std::vector<std::vector<std::size_t>> surface = geometry["geometry"][solidIndex][shellIndex][surfaceIndex];
+//        std::cout << "Solids: " << geometry["boundaries"].dump() << std::endl;
+        for (unsigned int solidIndex = 0; solidIndex < geometry["boundaries"].size(); ++solidIndex) {
+//          std::cout << "Shells: " << geometry["boundaries"][solidIndex].dump() << std::endl;
+          for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"][solidIndex].size(); ++shellIndex) {
+//            std::cout << "Shell: " << geometry["boundaries"][solidIndex][shellIndex].dump() << std::endl;
+            for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][solidIndex][shellIndex].size(); ++surfaceIndex) {
+//              std::cout << "Surface: " << geometry["boundaries"][solidIndex][shellIndex][surfaceIndex].dump() << std::endl;
+              std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][solidIndex][shellIndex][surfaceIndex];
               std::string surfaceType;
               if (geometry.count("semantics")) {
-                auto const &surfaceSemantics = geometry["semantics"][solidIndex][shellIndex][surfaceIndex];
-                surfaceType = surfaceSemantics["type"];
-                AzulObject newChild;
-                newChild.type = surfaceType;
-                AzulPolygon newPolygon;
-                parseCityJSONPolygon(surface, newPolygon, vertices);
-                newChild.polygons.push_back(newPolygon);
-                object.children.push_back(newChild);
+//                std::cout << "Surface semantics: " << geometry["semantics"] << std::endl;
+                if (geometry["semantics"]["values"].size() > solidIndex &&
+                    !geometry["semantics"]["values"][solidIndex].is_null()) {
+                  if (geometry["semantics"]["values"].size() > shellIndex &&
+                      !geometry["semantics"]["values"][solidIndex][shellIndex].is_null()) {
+                    if (geometry["semantics"]["values"][solidIndex][shellIndex].size() > surfaceIndex &&
+                        !geometry["semantics"]["values"][solidIndex][shellIndex][surfaceIndex].is_null()) {
+                      std::size_t semanticSurfaceIndex = geometry["semantics"]["values"][solidIndex][shellIndex][surfaceIndex];
+                      auto const &surfaceSemantics = geometry["semantics"]["surfaces"][semanticSurfaceIndex];
+                      surfaceType = surfaceSemantics["type"];
+                      std::cout << "Surface type: " << surfaceType << std::endl;
+                      AzulObject newChild;
+                      newChild.type = surfaceType;
+                      AzulPolygon newPolygon;
+                      parseCityJSONPolygon(surface, newPolygon, vertices);
+                      newChild.polygons.push_back(newPolygon);
+                      object.children.push_back(newChild);
+                    } else {
+                      AzulPolygon newPolygon;
+                      parseCityJSONPolygon(surface, newPolygon, vertices);
+                      object.polygons.push_back(newPolygon);
+                    }
+                  } else {
+                    AzulPolygon newPolygon;
+                    parseCityJSONPolygon(surface, newPolygon, vertices);
+                    object.polygons.push_back(newPolygon);
+                  }
+                } else {
+                  AzulPolygon newPolygon;
+                  parseCityJSONPolygon(surface, newPolygon, vertices);
+                  object.polygons.push_back(newPolygon);
+                }
               } else {
                 AzulPolygon newPolygon;
                 parseCityJSONPolygon(surface, newPolygon, vertices);
