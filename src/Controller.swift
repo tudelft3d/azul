@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2017 Ken Arroyo Ohori
+// Copyright © 2016-2019 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ class LeftSplitViewController: NSObject, NSSplitViewDelegate {
 
 class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   var controller: Controller?
-  override func controlTextDidChange(_ obj: Notification) {
+  func controlTextDidChange(_ obj: Notification) {
     let searchField = obj.object as! NSSearchField
     searchField.stringValue.withCString { pointer in
       controller!.dataManager.setSearchString(pointer)

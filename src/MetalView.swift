@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2017 Ken Arroyo Ohori
+// Copyright © 2016-2019 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -477,7 +477,7 @@ struct BufferWithColour {
   
   override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
     let acceptedFileTypes: Set = ["gml", "xml", "json", "obj", "off", "poly"]
-    if let urls = sender.draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
+    if let urls = sender.draggingPasteboard.readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
       for url in urls {
         if acceptedFileTypes.contains(url.pathExtension) {
           return .copy
@@ -488,7 +488,7 @@ struct BufferWithColour {
   }
   
   override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-    if let urls = sender.draggingPasteboard().readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
+    if let urls = sender.draggingPasteboard.readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
       controller!.loadData(from: urls)
     }
     return true

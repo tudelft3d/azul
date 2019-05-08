@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2017 Ken Arroyo Ohori
+// Copyright © 2016-2019 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "DataModel.hpp"
 
 #include <boost/spirit/home/x3.hpp>
-#include <pugixml-1.8/pugixml.hpp>
+#include <pugixml-1.9/pugixml.hpp>
 
 class GMLParsingHelper {
   pugi::xml_document doc;
