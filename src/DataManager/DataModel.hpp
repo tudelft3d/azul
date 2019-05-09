@@ -50,6 +50,7 @@ struct AzulObject {
   std::string type;
   std::string id;
   bool selected;
+  char visible; // 'Y'es, 'N'o, 'P'artly
   char matchesSearch; // 'Y'es, 'N'o, 'U'nknown
   std::vector<std::pair<std::string, std::string>> attributes;
   std::vector<AzulObject> children;
@@ -58,6 +59,7 @@ struct AzulObject {
   std::vector<AzulEdge> edges;
   AzulObject() {
     selected = false;
+    visible = 'Y';
     matchesSearch = 'U';
   }
 };
