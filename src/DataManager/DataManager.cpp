@@ -63,15 +63,15 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
     
     // Triangle: no need to triangulate
     else if (polygon.exteriorRing.points.size() == 4 && polygon.interiorRings.size() == 0) {
-      ExactKernel::Plane_3 plane(ExactKernel::Point_3(polygon.exteriorRing.points[0].coordinates[0],
-                                                      polygon.exteriorRing.points[0].coordinates[1],
-                                                      polygon.exteriorRing.points[0].coordinates[2]),
-                            ExactKernel::Point_3(polygon.exteriorRing.points[1].coordinates[0],
-                                                 polygon.exteriorRing.points[1].coordinates[1],
-                                                 polygon.exteriorRing.points[1].coordinates[2]),
-                            ExactKernel::Point_3(polygon.exteriorRing.points[2].coordinates[0],
-                                                 polygon.exteriorRing.points[2].coordinates[1],
-                                                 polygon.exteriorRing.points[2].coordinates[2]));
+      Kernel::Plane_3 plane(Kernel::Point_3(polygon.exteriorRing.points[0].coordinates[0],
+                                            polygon.exteriorRing.points[0].coordinates[1],
+                                            polygon.exteriorRing.points[0].coordinates[2]),
+                            Kernel::Point_3(polygon.exteriorRing.points[1].coordinates[0],
+                                            polygon.exteriorRing.points[1].coordinates[1],
+                                            polygon.exteriorRing.points[1].coordinates[2]),
+                            Kernel::Point_3(polygon.exteriorRing.points[2].coordinates[0],
+                                            polygon.exteriorRing.points[2].coordinates[1],
+                                            polygon.exteriorRing.points[2].coordinates[2]));
       triangles.push_back(AzulTriangle());
       for (unsigned int currentPoint = 0; currentPoint < 3; ++currentPoint) {
         for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
@@ -113,33 +113,29 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
 //      Kernel::Plane_3 bestPlane(pointInPlane, normalVector);
       
       // Find the best fitting plane (least squares)
-      std::list<InexactKernel::Point_3> pointsInPolygon;
+      std::list<Kernel::Point_3> pointsInPolygon;
       for (auto const &point: polygon.exteriorRing.points) {
-        pointsInPolygon.push_back(InexactKernel::Point_3(point.coordinates[0], point.coordinates[1], point.coordinates[2]));
+        pointsInPolygon.push_back(Kernel::Point_3(point.coordinates[0], point.coordinates[1], point.coordinates[2]));
       } for (auto const &ring: polygon.interiorRings) {
         for (auto const &point: ring.points) {
-          pointsInPolygon.push_back(InexactKernel::Point_3(point.coordinates[0], point.coordinates[1], point.coordinates[2]));
+          pointsInPolygon.push_back(Kernel::Point_3(point.coordinates[0], point.coordinates[1], point.coordinates[2]));
         }
-      } InexactKernel::Plane_3 inexactBestPlane;
-      linear_least_squares_fitting_3(pointsInPolygon.begin(), pointsInPolygon.end(), inexactBestPlane, CGAL::Dimension_tag<0>());
-      ExactKernel::Plane_3 bestPlane(inexactBestPlane.a(), inexactBestPlane.b(), inexactBestPlane.c(), inexactBestPlane.d());
+      } Kernel::Plane_3 bestPlane;
+      linear_least_squares_fitting_3(pointsInPolygon.begin(), pointsInPolygon.end(), bestPlane, CGAL::Dimension_tag<0>());
       
       //        std::cout << "\tBest: Plane_3(" << bestPlane << ")" << std::endl;
       
       // Triangulate the projection of the edges to the plane
       Triangulation triangulation;
       std::vector<AzulPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
-      ExactKernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
+      Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
       Triangulation::Vertex_handle currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
-//      std::cout << "Info: " << currentVertex->info().hx() << " " << currentVertex->info().hy() << " " << currentVertex->info().hz() << " " << currentVertex->info().hw() << std::endl;
-//      ExactKernel::Point_3 comparisonPoint;
-//      std::cout << "Info uninitialised: " << (currentVertex->info().exact()==comparisonPoint.exact()) << std::endl;
       currentVertex->info() = newPoint;
       ++currentPoint;
       Triangulation::Vertex_handle previousVertex;
       while (currentPoint != polygon.exteriorRing.points.end()) {
         previousVertex = currentVertex;
-        ExactKernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
+        Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
         currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
         currentVertex->info() = newPoint;
         if (previousVertex != currentVertex) triangulation.odd_even_insert_constraint(previousVertex, currentVertex);
@@ -149,12 +145,12 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
           std::cout << "\tRing with < 4 points! Skipping..." << std::endl;
           continue;
         } currentPoint = ring.points.begin();
-        ExactKernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
+        Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
         currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
         currentVertex->info() = newPoint;
         while (currentPoint != ring.points.end()) {
           previousVertex = currentVertex;
-          ExactKernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
+          Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
           currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
           currentVertex->info() = newPoint;
           if (previousVertex != currentVertex) triangulation.odd_even_insert_constraint(previousVertex, currentVertex);
@@ -195,15 +191,14 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
       }
       
       // Project the triangles back to 3D (if necessary) and add
-      ExactKernel::Point_3 comparisonPoint;
       for (Triangulation::Finite_faces_iterator currentFace = triangulation.finite_faces_begin(); currentFace != triangulation.finite_faces_end(); ++currentFace) {
         if (currentFace->info().second) {
           //        std::cout << "\tCreated triangle with points:" << std::endl;
           triangles.push_back(AzulTriangle());
           for (unsigned int currentVertexIndex = 0; currentVertexIndex < 3; ++currentVertexIndex) {
 //            std::cout << "Point_2: " << currentFace->vertex(currentVertexIndex)->point() << " info: " << currentFace->vertex(currentVertexIndex)->info() << std::endl;
-            ExactKernel::Point_3 point3;
-            if (currentFace->vertex(currentVertexIndex)->info().exact() != comparisonPoint.exact()) {
+            Kernel::Point_3 point3;
+            if (currentFace->vertex(currentVertexIndex)->info() != CGAL::ORIGIN) {
 //              std::cout << "Reused " << currentFace->vertex(currentVertexIndex)->info() << std::endl;
               point3 = currentFace->vertex(currentVertexIndex)->info();
             } else {
