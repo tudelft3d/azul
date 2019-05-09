@@ -130,14 +130,16 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
       std::vector<AzulPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
       Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
       Triangulation::Vertex_handle currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
-      currentVertex->info() = newPoint;
+      currentVertex->info().hasPoint = true;
+      currentVertex->info().point = newPoint;
       ++currentPoint;
       Triangulation::Vertex_handle previousVertex;
       while (currentPoint != polygon.exteriorRing.points.end()) {
         previousVertex = currentVertex;
         Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
         currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
-        currentVertex->info() = newPoint;
+        currentVertex->info().hasPoint = true;
+        currentVertex->info().point = newPoint;
         if (previousVertex != currentVertex) triangulation.odd_even_insert_constraint(previousVertex, currentVertex);
         ++currentPoint;
       } for (auto const &ring: polygon.interiorRings) {
@@ -147,12 +149,14 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
         } currentPoint = ring.points.begin();
         Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
         currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
-        currentVertex->info() = newPoint;
+        currentVertex->info().hasPoint = true;
+        currentVertex->info().point = newPoint;
         while (currentPoint != ring.points.end()) {
           previousVertex = currentVertex;
           Kernel::Point_3 newPoint(currentPoint->coordinates[0], currentPoint->coordinates[1], currentPoint->coordinates[2]);
           currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
-          currentVertex->info() = newPoint;
+          currentVertex->info().hasPoint = true;
+          currentVertex->info().point = newPoint;
           if (previousVertex != currentVertex) triangulation.odd_even_insert_constraint(previousVertex, currentVertex);
           ++currentPoint;
         }
@@ -162,28 +166,26 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
       if (triangulation.number_of_faces() == 0) {
         //      std::cout << "Degenerate face produced no triangles. Skipping..." << std::endl;
         continue;
-      } for (Triangulation::All_faces_iterator currentFace = triangulation.all_faces_begin(); currentFace != triangulation.all_faces_end(); ++currentFace) {
-        currentFace->info() = std::pair<bool, bool>(false, false);
       } std::list<Triangulation::Face_handle> toCheck;
-      triangulation.infinite_face()->info() = std::pair<bool, bool>(true, false);
-      CGAL_assertion(triangulation.infinite_face()->info().first == true);
-      CGAL_assertion(triangulation.infinite_face()->info().second == false);
+      triangulation.infinite_face()->info().processed = true;
+      CGAL_assertion(triangulation.infinite_face()->info().processed == true);
+      CGAL_assertion(triangulation.infinite_face()->info().interior == false);
       toCheck.push_back(triangulation.infinite_face());
       while (!toCheck.empty()) {
-        CGAL_assertion(toCheck.front()->info().first);
+        CGAL_assertion(toCheck.front()->info().processed == true);
         for (int neighbour = 0; neighbour < 3; ++neighbour) {
-          if (toCheck.front()->neighbor(neighbour)->info().first) {
-            // Note: validation code. But here we assume that some triangulations will be invalid anyway.
-//            if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second != toCheck.front()->info().second);
-//            else CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().second == toCheck.front()->info().second);
+          if (toCheck.front()->neighbor(neighbour)->info().processed == true) {
+            // Note: validation code.
+//            if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().interior != toCheck.front()->info().interior);
+//            else CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().interior == toCheck.front()->info().interior);
           } else {
-            toCheck.front()->neighbor(neighbour)->info().first = true;
-            CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().first == true);
+            toCheck.front()->neighbor(neighbour)->info().processed = true;
+            CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().processed == true);
             if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) {
-              toCheck.front()->neighbor(neighbour)->info().second = !toCheck.front()->info().second;
+              toCheck.front()->neighbor(neighbour)->info().interior = !toCheck.front()->info().interior;
               toCheck.push_back(toCheck.front()->neighbor(neighbour));
             } else {
-              toCheck.front()->neighbor(neighbour)->info().second = toCheck.front()->info().second;
+              toCheck.front()->neighbor(neighbour)->info().interior = toCheck.front()->info().interior;
               toCheck.push_back(toCheck.front()->neighbor(neighbour));
             }
           }
@@ -192,15 +194,15 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
       
       // Project the triangles back to 3D (if necessary) and add
       for (Triangulation::Finite_faces_iterator currentFace = triangulation.finite_faces_begin(); currentFace != triangulation.finite_faces_end(); ++currentFace) {
-        if (currentFace->info().second) {
+        if (currentFace->info().interior == true) {
           //        std::cout << "\tCreated triangle with points:" << std::endl;
           triangles.push_back(AzulTriangle());
           for (unsigned int currentVertexIndex = 0; currentVertexIndex < 3; ++currentVertexIndex) {
 //            std::cout << "Point_2: " << currentFace->vertex(currentVertexIndex)->point() << " info: " << currentFace->vertex(currentVertexIndex)->info() << std::endl;
             Kernel::Point_3 point3;
-            if (currentFace->vertex(currentVertexIndex)->info() != CGAL::ORIGIN) {
-//              std::cout << "Reused " << currentFace->vertex(currentVertexIndex)->info() << std::endl;
-              point3 = currentFace->vertex(currentVertexIndex)->info();
+            if (currentFace->vertex(currentVertexIndex)->info().hasPoint == true) {
+//              std::cout << "Reused " << currentFace->vertex(currentVertexIndex)->info().point << std::endl;
+              point3 = currentFace->vertex(currentVertexIndex)->info().point;
             } else {
 //              std::cout << "New " << bestPlane.to_3d(currentFace->vertex(currentVertexIndex)->point()) << std::endl;
               point3 = bestPlane.to_3d(currentFace->vertex(currentVertexIndex)->point());
