@@ -90,11 +90,17 @@ class GMLParsingHelper {
           } else if (strcmp(attribute.value(), "http://www.opengis.net/citygml/2.0") == 0) {
             docType = "CityGML";
             docVersion = "2.0";
+          } else if (strcmp(attribute.value(), "http://www.opengis.net/citygml/3.0") == 0) {
+            docType = "CityGML";
+            docVersion = "3.0";
           }
         }
       } if (docType == "CityGML") {
         std::cout << docType << " " << docVersion << " detected" << std::endl;
-        for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
+        if (strcmp(docVersion.c_str(), "1.0") == 0 ||
+            strcmp(docVersion.c_str(), "2.0") == 0) {
+          for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
+        }
       }
     }
     
@@ -111,21 +117,22 @@ class GMLParsingHelper {
       }
     } if (docType == "IndoorGML") {
       std::cout << docType << " " << docVersion << " detected" << std::endl;
-      for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
+      if (strcmp(docVersion.c_str(), "1.0") == 0) {
+        for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
+      }
     }
     
-    // Geometry -> plain GML
-    if (strcmp(nodeType, "Polygon") == 0 ||
-        strcmp(nodeType, "Triangle") == 0) {
-      AzulPolygon polygon;
-      parsePolygon(node, polygon);
-      parsedObject.polygons.push_back(polygon);
-    }
-    
-    // Unknown still
-    if (docType.empty()) {
-      for (auto const &child: node.children()) parseGML(child, parsedObject);
-    }
+    // Unknown -> try plain GML?
+//    if (docType.empty()) {
+//      if (strcmp(nodeType, "Polygon") == 0 ||
+//          strcmp(nodeType, "Triangle") == 0) {
+//        AzulPolygon polygon;
+//        parsePolygon(node, polygon);
+//        parsedObject.polygons.push_back(polygon);
+//      } else {
+//        for (auto const &child: node.children()) parseGML(child, parsedObject);
+//      }
+//    }
   }
   
   void parseIndoorGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {
