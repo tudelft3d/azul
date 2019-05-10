@@ -206,6 +206,9 @@ struct DataManagerWrapper {
     NSImage *fileIcon = [[NSWorkspace sharedWorkspace] iconForFileType:fileExtension];
     TableCellView *result = [[TableCellView alloc] init];
     [[result imageView] setImage:fileIcon];
+    if ([currentItem iterator]->visible == 'Y') [[result checkBox] setState:NSControlStateValueOn];
+    else if ([currentItem iterator]->visible == 'N') [[result checkBox] setState:NSControlStateValueOff];
+    else [[result checkBox] setState:NSControlStateValueMixed];
     [[result textField] setStringValue:filename];
     return result;
   }
@@ -221,6 +224,9 @@ struct DataManagerWrapper {
   } NSImage *objectIcon = [NSImage imageNamed:objectType];
   TableCellView *result = [[TableCellView alloc] init];
   if (objectIcon != nil) [[result imageView] setImage:objectIcon];
+  if ([currentItem iterator]->visible == 'Y') [[result checkBox] setState:NSControlStateValueOn];
+  else if ([currentItem iterator]->visible == 'N') [[result checkBox] setState:NSControlStateValueOff];
+  else [[result checkBox] setState:NSControlStateValueMixed];
   [[result textField] setStringValue:stringToPut];
   return result;
 }

@@ -82,7 +82,7 @@ class GMLParsingHelper {
     // CityModel -> CityGML
     if (strcmp(nodeType, "CityModel") == 0) {
       for (auto const &attribute: node.attributes()) {
-//        for (auto const &attribute: node.attributes()) std::cout << attribute.name() << ": " << attribute.value() << std::endl;
+        std::cout << attribute.name() << ": " << attribute.value() << std::endl;
         if (strncmp(attribute.name(), "xmlns", 5) == 0) {
           if (strcmp(attribute.value(), "http://www.opengis.net/citygml/1.0") == 0) {
             docType = "CityGML";
@@ -95,12 +95,12 @@ class GMLParsingHelper {
             docVersion = "3.0";
           }
         }
-      } if (docType == "CityGML") {
-        std::cout << docType << " " << docVersion << " detected" << std::endl;
-        if (strcmp(docVersion.c_str(), "1.0") == 0 ||
-            strcmp(docVersion.c_str(), "2.0") == 0) {
-          for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
-        }
+      }
+    } if (strcmp(docType.c_str(), "CityGML") == 0) {
+      std::cout << docType << " " << docVersion << " detected" << std::endl;
+      if (strcmp(docVersion.c_str(), "1.0") == 0 ||
+          strcmp(docVersion.c_str(), "2.0") == 0) {
+        for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
       }
     }
     
@@ -115,24 +115,24 @@ class GMLParsingHelper {
           }
         }
       }
-    } if (docType == "IndoorGML") {
+    } if (strcmp(docType.c_str(), "IndoorGML") == 0) {
       std::cout << docType << " " << docVersion << " detected" << std::endl;
       if (strcmp(docVersion.c_str(), "1.0") == 0) {
         for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
       }
     }
     
-    // Unknown -> try plain GML?
-//    if (docType.empty()) {
-//      if (strcmp(nodeType, "Polygon") == 0 ||
-//          strcmp(nodeType, "Triangle") == 0) {
-//        AzulPolygon polygon;
-//        parsePolygon(node, polygon);
-//        parsedObject.polygons.push_back(polygon);
-//      } else {
-//        for (auto const &child: node.children()) parseGML(child, parsedObject);
-//      }
-//    }
+    // Unknown -> try plain GML or continue with children
+    if (docType.empty()) {
+      if (strcmp(nodeType, "Polygon") == 0 ||
+          strcmp(nodeType, "Triangle") == 0) {
+        AzulPolygon polygon;
+        parsePolygon(node, polygon);
+        parsedObject.polygons.push_back(polygon);
+      } else {
+        for (auto const &child: node.children()) parseGML(child, parsedObject);
+      }
+    }
   }
   
   void parseIndoorGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {

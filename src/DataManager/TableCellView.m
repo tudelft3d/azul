@@ -18,15 +18,20 @@
 
 @implementation TableCellView
 
+@synthesize checkBox;
+
 - (TableCellView *)initWithFrame:(NSRect)frameRect {
 //  NSLog(@"[TableCellView initWithFrame]");
   if (self = [super initWithFrame:frameRect]) {
     
-    image = [[NSImageView alloc] initWithFrame:NSMakeRect(0, 3, 16, 16)];
+    checkBox = [[NSButton alloc] initWithFrame:NSMakeRect(0, 4, 14, 14)];
+    [checkBox setButtonType:NSButtonTypeSwitch];
+    
+    image = [[NSImageView alloc] initWithFrame:NSMakeRect(17, 2, 16, 16)];
     [image setImageScaling:NSImageScaleProportionallyUpOrDown];
     [image setImageAlignment:NSImageAlignCenter];
     
-    text = [[NSTextField alloc] initWithFrame:NSMakeRect(21, 3, 30000, 14)];
+    text = [[NSTextField alloc] initWithFrame:NSMakeRect(36, 3, 30000, 14)];
     [text setDrawsBackground:false];
     [text setBordered:false];
     [text setEditable:false];
@@ -36,6 +41,7 @@
     [self setImageView:image];
     [self setTextField:text];
     [self addSubview:[self imageView]];
+    [self addSubview:checkBox];
     [self addSubview:[self textField]];
     
   } return self;
