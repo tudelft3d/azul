@@ -24,6 +24,8 @@
 
 class GMLParsingHelper {
   pugi::xml_document doc;
+  std::string docType;
+  std::string docVersion;
   
   void parseRing(const pugi::xml_node &node, AzulRing &parsedRing) {
     for (auto const &child: node.first_child().children()) {
@@ -79,30 +81,49 @@ class GMLParsingHelper {
     
     // CityModel -> CityGML
     if (strcmp(nodeType, "CityModel") == 0) {
-      std::cout << "CityGML detected" << std::endl;
-//      AzulObject newChild;
-//      newChild.type = node.name();
-//      newChild.id = node.attribute("gml:id").as_string();
-//      for (auto const &attribute: node.attributes()) std::cout << attribute.name() << ": " << attribute.value() << std::endl;
-      for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
-//      parsedObject.children.push_back(newChild);
+      for (auto const &attribute: node.attributes()) {
+//        for (auto const &attribute: node.attributes()) std::cout << attribute.name() << ": " << attribute.value() << std::endl;
+        if (strncmp(attribute.name(), "xmlns", 5) == 0) {
+          if (strcmp(attribute.value(), "http://www.opengis.net/citygml/1.0") == 0) {
+            docType = "CityGML";
+            docVersion = "1.0";
+          } else if (strcmp(attribute.value(), "http://www.opengis.net/citygml/2.0") == 0) {
+            docType = "CityGML";
+            docVersion = "2.0";
+          }
+        }
+      } if (docType == "CityGML") {
+        std::cout << docType << " " << docVersion << " detected" << std::endl;
+        for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
+      }
     }
     
-    else if (strcmp(nodeType, "IndoorFeatures") == 0) {
-      std::cout << "IndoorGML detected" << std::endl;
+    // IndoorFeatures -> IndoorGML
+    if (docType.empty() && strcmp(nodeType, "IndoorFeatures") == 0) {
+      for (auto const &attribute: node.attributes()) {
+//        std::cout << attribute.name() << ": " << attribute.value() << std::endl;
+        if (strncmp(attribute.name(), "xmlns", 5) == 0) {
+          if (strcmp(attribute.value(), "http://www.opengis.net/indoorgml/1.0/core") == 0) {
+            docType = "IndoorGML";
+            docVersion = "1.0";
+          }
+        }
+      }
+    } if (docType == "IndoorGML") {
+      std::cout << docType << " " << docVersion << " detected" << std::endl;
       for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
     }
     
     // Geometry -> plain GML
-    else if (strcmp(nodeType, "Polygon") == 0 ||
-             strcmp(nodeType, "Triangle") == 0) {
+    if (strcmp(nodeType, "Polygon") == 0 ||
+        strcmp(nodeType, "Triangle") == 0) {
       AzulPolygon polygon;
       parsePolygon(node, polygon);
       parsedObject.polygons.push_back(polygon);
     }
     
     // Unknown still
-    else {
+    if (docType.empty()) {
       for (auto const &child: node.children()) parseGML(child, parsedObject);
     }
   }
@@ -264,8 +285,12 @@ class GMLParsingHelper {
   }
   
 public:
+  GMLParsingHelper() {
+    docType = "";
+    docVersion = "";
+  }
+  
   void parse(const char *filePath, AzulObject &parsedFile) {
-    
     parsedFile.type = "File";
     parsedFile.id = filePath;
     doc.load_file(filePath);
