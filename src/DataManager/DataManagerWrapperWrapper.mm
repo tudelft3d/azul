@@ -387,7 +387,7 @@ struct DataManagerWrapper {
 
 - (void) toggleVisibility:(id)sender {
   if (![sender isKindOfClass:[NSButton class]]) {
-    NSLog(@"Uh-oh!");
+    NSLog(@"Uh-oh (not an NSButton)!");
     return;
   } NSButton *checkBox = sender;
   TableCellView *toggledTableCellView = (TableCellView *)[checkBox superview];
@@ -395,9 +395,8 @@ struct DataManagerWrapper {
   
   NSInteger toggledItemRow = [outlineView rowForView:toggledTableCellView];
   AzulObjectIterator *toggledItem = [outlineView itemAtRow:toggledItemRow];
-  if ([checkBox state] == NSControlStateValueOn) self->dataManagerWrapper->dataManager->setVisible(*[toggledItem iterator], 'Y');
-  else if ([checkBox state] == NSControlStateValueOff) self->dataManagerWrapper->dataManager->setVisible(*[toggledItem iterator], 'N');
-  else NSLog(@"Uh-oh!");
+  if ([checkBox state] == NSControlStateValueOff) self->dataManagerWrapper->dataManager->setVisible(*[toggledItem iterator], 'N');
+  else self->dataManagerWrapper->dataManager->setVisible(*[toggledItem iterator], 'Y');
   [outlineView reloadItem:toggledItem reloadChildren:YES];
   
   AzulObjectIterator *currentItem = [outlineView parentForItem:toggledItem];

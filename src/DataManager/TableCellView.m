@@ -26,6 +26,7 @@
     
     checkBox = [[NSButton alloc] initWithFrame:NSMakeRect(0, 4, 14, 14)];
     [checkBox setButtonType:NSButtonTypeSwitch];
+    [checkBox setAllowsMixedState:YES];
     
     image = [[NSImageView alloc] initWithFrame:NSMakeRect(17, 2, 16, 16)];
     [image setImageScaling:NSImageScaleProportionallyUpOrDown];

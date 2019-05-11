@@ -522,7 +522,7 @@ void DataManager::checkVisibility(AzulObject &object) {
   } if (hasVisibleStuff && hasInvisibleStuff) object.visible = 'P';
   else if (hasVisibleStuff) object.visible = 'Y';
   else object.visible = 'N';
-//  std::cout << "Visibility: " << object.visible << std::endl;
+  std::cout << object.type << " visibility: " << object.visible << std::endl;
 }
 
 float DataManager::click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix) {
