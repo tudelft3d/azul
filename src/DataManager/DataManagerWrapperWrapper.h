@@ -88,6 +88,9 @@ struct DataManagerWrapper;
 - (int) findObjectRow;
 - (void) sourceListDoubleClick;
 
+// Toggling visibility
+- (void) toggleVisibility:(id)sender;
+
 @end
 
 #endif /* DataManagerWrapperWrapper_h */

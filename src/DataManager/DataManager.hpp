@@ -125,6 +125,10 @@ public:
   float click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix);
   float hit(const AzulObject &object, const simd_float3 &rayOrigin, const simd_float3 &rayDirection, const simd_float4x4 &objectToCamera);
   
+  // Visibility
+  void setVisible(AzulObject &object, char visible);
+  void checkVisibility(AzulObject &object);
+  
   // Search
   void clearSearch();
   bool isExpandable(AzulObject &object);

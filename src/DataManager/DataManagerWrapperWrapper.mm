@@ -209,7 +209,10 @@ struct DataManagerWrapper {
     if ([currentItem iterator]->visible == 'Y') [[result checkBox] setState:NSControlStateValueOn];
     else if ([currentItem iterator]->visible == 'N') [[result checkBox] setState:NSControlStateValueOff];
     else [[result checkBox] setState:NSControlStateValueMixed];
+//    std::cout << "Visibility: " << [currentItem iterator]->visible << std::endl;
     [[result textField] setStringValue:filename];
+    [[result checkBox] setAction:@selector(toggleVisibility:)];
+    [[result checkBox] setTarget:self];
     return result;
   }
   
@@ -227,7 +230,10 @@ struct DataManagerWrapper {
   if ([currentItem iterator]->visible == 'Y') [[result checkBox] setState:NSControlStateValueOn];
   else if ([currentItem iterator]->visible == 'N') [[result checkBox] setState:NSControlStateValueOff];
   else [[result checkBox] setState:NSControlStateValueMixed];
+//  std::cout << "Visibility: " << [currentItem iterator]->visible << std::endl;
   [[result textField] setStringValue:stringToPut];
+  [[result checkBox] setAction:@selector(toggleVisibility:)];
+  [[result checkBox] setTarget:self];
   return result;
 }
 
@@ -242,7 +248,7 @@ struct DataManagerWrapper {
     if (![[outlineView itemAtRow:idx] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
     else {
       AzulObjectIterator *currentItem = [outlineView itemAtRow:idx];
-      dataManagerWrapper->dataManager->setSelection(*[currentItem iterator], true);
+      self->dataManagerWrapper->dataManager->setSelection(*[currentItem iterator], true);
     }
   }];
 
@@ -377,6 +383,30 @@ struct DataManagerWrapper {
   else cellString = [NSString stringWithUTF8String:[currentItem iterator]->attributes[row].second.c_str()];
   NSCell *cell = [[NSCell alloc] initTextCell:cellString];
   return cell;
+}
+
+- (void) toggleVisibility:(id)sender {
+  if (![sender isKindOfClass:[NSButton class]]) {
+    NSLog(@"Uh-oh!");
+    return;
+  } NSButton *checkBox = sender;
+  TableCellView *toggledTableCellView = (TableCellView *)[checkBox superview];
+  NSOutlineView *outlineView = (NSOutlineView *)[[toggledTableCellView superview] superview];
+  
+  NSInteger toggledItemRow = [outlineView rowForView:toggledTableCellView];
+  AzulObjectIterator *toggledItem = [outlineView itemAtRow:toggledItemRow];
+  if ([checkBox state] == NSControlStateValueOn) self->dataManagerWrapper->dataManager->setVisible(*[toggledItem iterator], 'Y');
+  else if ([checkBox state] == NSControlStateValueOff) self->dataManagerWrapper->dataManager->setVisible(*[toggledItem iterator], 'N');
+  else NSLog(@"Uh-oh!");
+  [outlineView reloadItem:toggledItem reloadChildren:YES];
+  
+  AzulObjectIterator *currentItem = [outlineView parentForItem:toggledItem];
+  while (currentItem != nil) {
+    NSLog(@"Checking %@", currentItem);
+    self->dataManagerWrapper->dataManager->checkVisibility(*[currentItem iterator]);
+    [outlineView reloadItem:currentItem reloadChildren:NO];
+    currentItem = [outlineView parentForItem:currentItem];
+  }
 }
 
 @end

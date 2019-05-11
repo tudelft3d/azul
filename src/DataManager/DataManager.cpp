@@ -272,6 +272,8 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
   if (object.triangles.empty()) return;
   std::list<TriangleBuffer>::iterator currentBuffer;
   
+  if (object.visible == 'N') return;
+  
   // Make new buffer if necessary (selected)
   if (object.selected) {
 //    std::cout << "AzulObject<" << &object << "> selected" << std::endl;
@@ -327,6 +329,8 @@ void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &o
   
   if (object.edges.empty()) return;
   std::list<EdgeBuffer>::iterator currentBuffer;
+  
+  if (object.visible == 'N') return;
   
   // Make new buffer if necessary (selected)
   if (object.selected) {
@@ -499,6 +503,26 @@ void DataManager::printParsedFiles() {
 void DataManager::setSelection(AzulObject &object, bool selected) {
   for (auto &child: object.children) setSelection(child, selected);
   object.selected = selected;
+}
+
+void DataManager::setVisible(AzulObject &object, char visible) {
+  for (auto &child: object.children) setVisible(child, visible);
+  object.visible = visible;
+}
+
+void DataManager::checkVisibility(AzulObject &object) {
+  bool hasVisibleStuff = false;
+  bool hasInvisibleStuff = false;
+  if (!object.triangles.empty()) {
+    if (object.visible == 'Y') hasVisibleStuff = true;
+    if (object.visible == 'N') hasInvisibleStuff = true;
+  } for (auto &child: object.children) {
+    if (child.visible == 'Y') hasVisibleStuff = true;
+    if (child.visible == 'N') hasInvisibleStuff = true;
+  } if (hasVisibleStuff && hasInvisibleStuff) object.visible = 'P';
+  else if (hasVisibleStuff) object.visible = 'Y';
+  else object.visible = 'N';
+//  std::cout << "Visibility: " << object.visible << std::endl;
 }
 
 float DataManager::click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix) {
