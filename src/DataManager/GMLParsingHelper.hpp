@@ -31,7 +31,7 @@ class GMLParsingHelper {
     for (auto const &child: node.first_child().children()) {
       if (strcmp(child.name(), "gml:pos") == 0 ||
           strcmp(child.name(), "gml:posList") == 0) {
-        
+
         const char *coordinates = child.child_value();
         while (isspace(*coordinates)) ++coordinates;
         unsigned int currentCoordinate = 0;
@@ -82,7 +82,7 @@ class GMLParsingHelper {
     // CityModel -> CityGML
     if (strcmp(nodeType, "CityModel") == 0) {
       for (auto const &attribute: node.attributes()) {
-        std::cout << attribute.name() << ": " << attribute.value() << std::endl;
+//        std::cout << attribute.name() << ": " << attribute.value() << std::endl;
         if (strncmp(attribute.name(), "xmlns", 5) == 0) {
           if (strcmp(attribute.value(), "http://www.opengis.net/citygml/1.0") == 0) {
             docType = "CityGML";
@@ -137,14 +137,14 @@ class GMLParsingHelper {
   
   void parseIndoorGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {
     //    std::cout << "Node: \"" << node.name() << "\"" << std::endl;
-    
+
     // Get rid of namespaces
     const char *nodeType = node.name();
     const char *namespaceSeparator = strchr(nodeType, ':');
     if (namespaceSeparator != NULL) {
       nodeType = namespaceSeparator+1;
     }
-    
+
     // Objects: create in hierachy and parse attributes
     if (strcmp(nodeType, "CellSpace") == 0) {
       AzulObject newChild;
@@ -154,7 +154,7 @@ class GMLParsingHelper {
         parseIndoorGMLObject(child, newChild);
       } parsedObject.children.push_back(newChild);
     }
-    
+
     // Geometry
     else if (strcmp(nodeType, "Polygon") == 0 ||
              strcmp(nodeType, "Triangle") == 0) {
@@ -162,7 +162,7 @@ class GMLParsingHelper {
       parsePolygon(node, polygon);
       parsedObject.polygons.push_back(polygon);
     }
-    
+
     // Objects to flatten
     else {
       for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
@@ -170,8 +170,7 @@ class GMLParsingHelper {
   }
   
   void parseCityGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {
-//    std::cout << "Node: \"" << node.name() << "\"" << std::endl;
-    
+
     // Get rid of namespaces
     const char *nodeType = node.name();
     const char *namespaceSeparator = strchr(nodeType, ':');
@@ -179,97 +178,156 @@ class GMLParsingHelper {
       nodeType = namespaceSeparator+1;
     }
     
-    // Objects: create in hierachy and parse attributes
-    if (strcmp(nodeType, "AuxiliaryTrafficArea") == 0 ||
-        strcmp(nodeType, "Bridge") == 0 ||
-        strcmp(nodeType, "Building") == 0 ||
-        strcmp(nodeType, "BuildingPart") == 0 ||
-        strcmp(nodeType, "BuildingInstallation") == 0 ||
-        strcmp(nodeType, "CityFurniture") == 0 ||
-        strcmp(nodeType, "GenericCityObject") == 0 ||
-        strcmp(nodeType, "LandUse") == 0 ||
-        strcmp(nodeType, "PlantCover") == 0 ||
-        strcmp(nodeType, "Railway") == 0 ||
-        strcmp(nodeType, "ReliefFeature") == 0 ||
-        strcmp(nodeType, "Road") == 0 ||
-        strcmp(nodeType, "SolitaryVegetationObject") == 0 ||
-        strcmp(nodeType, "Square") == 0 ||
-        strcmp(nodeType, "Track") == 0 ||
-        strcmp(nodeType, "TrafficArea") == 0 ||
-        strcmp(nodeType, "Tunnel") == 0 ||
-        strcmp(nodeType, "WaterBody") == 0 ||
-        
-        strcmp(nodeType, "lod1Geometry") == 0 ||
-        strcmp(nodeType, "lod2Geometry") == 0 ||
-        strcmp(nodeType, "lod3Geometry") == 0 ||
-        strcmp(nodeType, "lod4Geometry") == 0 ||
-        strcmp(nodeType, "lod1MultiCurve") == 0 ||
-        strcmp(nodeType, "lod2MultiCurve") == 0 ||
-        strcmp(nodeType, "lod3MultiCurve") == 0 ||
-        strcmp(nodeType, "lod4MultiCurve") == 0 ||
-        strcmp(nodeType, "lod1MultiSurface") == 0 ||
-        strcmp(nodeType, "lod2MultiSurface") == 0 ||
-        strcmp(nodeType, "lod3MultiSurface") == 0 ||
-        strcmp(nodeType, "lod4MultiSurface") == 0 ||
-        strcmp(nodeType, "lod1Solid") == 0 ||
-        strcmp(nodeType, "lod2Solid") == 0 ||
-        strcmp(nodeType, "lod3Solid") == 0 ||
-        strcmp(nodeType, "lod4Solid") == 0 ||
-        strcmp(nodeType, "lod1TerrainIntersection") == 0 ||
-        strcmp(nodeType, "lod2TerrainIntersection") == 0 ||
-        strcmp(nodeType, "lod3TerrainIntersection") == 0 ||
-        strcmp(nodeType, "lod4TerrainIntersection") == 0 ||
-        
-        strcmp(nodeType, "Door") == 0 ||
-        strcmp(nodeType, "GroundSurface") == 0 ||
-        strcmp(nodeType, "RoofSurface") == 0 ||
-        strcmp(nodeType, "WallSurface") == 0 ||
-        strcmp(nodeType, "Window") == 0) {
+    // Objects to ignore
+    if (strcmp(nodeType, "boundedBy") == 0 || // not useful
+        strcmp(nodeType, "appearanceMember") == 0) { // unsupported
+    }
+    
+    // Objects to flatten
+    else if (strcmp(nodeType, "cityObjectMember") == 0) {
+      for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
+    }
+    
+    // Objects to put in hierarchy
+    else if (strcmp(nodeType, "BreaklineRelief") == 0 || // Relief
+             strcmp(nodeType, "MassPointRelief") == 0 ||
+             strcmp(nodeType, "RasterRelief") == 0 ||
+             strcmp(nodeType, "ReliefFeature") == 0 ||
+             strcmp(nodeType, "TINRelief") == 0 ||
+             
+             strcmp(nodeType, "Building") == 0 || // Building
+             strcmp(nodeType, "BuildingFurniture") == 0 ||
+             strcmp(nodeType, "BuildingInstallation") == 0 ||
+             strcmp(nodeType, "BuildingPart") == 0 ||
+             strcmp(nodeType, "IntBuildingInstallation") == 0 ||
+             strcmp(nodeType, "Room") == 0 ||
+             
+             strcmp(nodeType, "HollowSpace") == 0 || // Tunnel
+             strcmp(nodeType, "IntTunnelInstallation") == 0 ||
+             strcmp(nodeType, "RoofSurface") == 0 ||
+             strcmp(nodeType, "Tunnel") == 0 ||
+             strcmp(nodeType, "TunnelInstallation") == 0 ||
+             strcmp(nodeType, "TunnelFurniture") == 0 ||
+             strcmp(nodeType, "TunnelPart") == 0 ||
+             
+             strcmp(nodeType, "Bridge") == 0 || // Bridge
+             strcmp(nodeType, "BridgeConstructionElement") == 0 ||
+             strcmp(nodeType, "BridgeFurniture") == 0 ||
+             strcmp(nodeType, "BridgeInstallation") == 0 ||
+             strcmp(nodeType, "BridgePart") == 0 ||
+             strcmp(nodeType, "BridgeRoom") == 0 ||
+             strcmp(nodeType, "IntBridgeInstallation") == 0 ||
+             
+             strcmp(nodeType, "WaterBody") == 0 || // WaterBody
+             strcmp(nodeType, "WaterClosureSurface") == 0 ||
+             strcmp(nodeType, "WaterGroundSurface") == 0 ||
+             strcmp(nodeType, "WaterSurface") == 0 ||
+             
+             strcmp(nodeType, "AuxiliaryTrafficArea") == 0 || // Transportation
+             strcmp(nodeType, "Railway") == 0 ||
+             strcmp(nodeType, "Road") == 0 ||
+             strcmp(nodeType, "Square") == 0 ||
+             strcmp(nodeType, "Track") == 0 ||
+             strcmp(nodeType, "TrafficArea") == 0 ||
+             strcmp(nodeType, "TransportationComplex") == 0 ||
+             
+             strcmp(nodeType, "PlantCover") == 0 || // Vegetation
+             strcmp(nodeType, "SolitaryVegetationObject") == 0 ||
+             
+             strcmp(nodeType, "CityFurniture") == 0 || // CityFurniture
+             
+             strcmp(nodeType, "LandUse") == 0 || // LandUse
+             
+             strcmp(nodeType, "CityObjectGroup") == 0 || // CityObjectGroup
+             
+             strcmp(nodeType, "GenericCityObject") == 0 || // GenericCityObject
+             
+             strcmp(nodeType, "CeilingSurface") == 0 || // Surface types for Building, Bridge and Tunnel
+             strcmp(nodeType, "ClosureSurface") == 0 ||
+             strcmp(nodeType, "Door") == 0 ||
+             strcmp(nodeType, "FloorSurface") == 0 ||
+             strcmp(nodeType, "GroundSurface") == 0 ||
+             strcmp(nodeType, "InteriorWallSurface") == 0 ||
+             strcmp(nodeType, "RoofSurface") == 0 ||
+             strcmp(nodeType, "OuterCeilingSurface") == 0 ||
+             strcmp(nodeType, "OuterFloorSurface") == 0 ||
+             strcmp(nodeType, "WallSurface") == 0 ||
+             strcmp(nodeType, "Window") == 0) {
+
       AzulObject newChild;
       newChild.type = nodeType;
       newChild.id = node.attribute("gml:id").as_string();
+      
       for (auto const &child: node.children()) {
         const char *childType = child.name();
         namespaceSeparator = strchr(childType, ':');
         if (namespaceSeparator != NULL) {
           childType = namespaceSeparator+1;
-        } if (strcmp(childType, "address") == 0 ||
-              strcmp(childType, "averageHeight") == 0 ||
-              strcmp(childType, "class") == 0 ||
-              strcmp(childType, "crownDiameter") == 0 ||
-              strcmp(childType, "function") == 0 ||
-              strcmp(childType, "height") == 0 ||
-              strcmp(childType, "isMovable") == 0 ||
-              strcmp(childType, "measuredHeight") == 0 ||
-              strcmp(childType, "name") == 0 ||
-              strcmp(childType, "roofType") == 0 ||
-              strcmp(childType, "species") == 0 ||
-              strcmp(childType, "storeysAboveGround") == 0 ||
-              strcmp(childType, "storeysBelowGround") == 0 ||
-              strcmp(childType, "storeysHeightsAboveGround") == 0 ||
-              strcmp(childType, "storeysHeightsBelowGround") == 0 ||
-              strcmp(childType, "trunkDiameter") == 0 ||
-              strcmp(childType, "usage") == 0 ||
-              strcmp(childType, "yearOfConstruction") == 0 ||
-              strcmp(childType, "yearOfDemolition") == 0) {
-          std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
-          if (numberOfChildren != 1) {
-            std::cout << "Attribute " << childType << " has " << numberOfChildren << " children. Skipping..." << std::endl;
-            continue;
-          } else {
-            numberOfChildren = std::distance(child.first_child().children().begin(), child.first_child().children().end());
-            if (numberOfChildren != 0) {
-              std::cout << "Attribute " << childType << " is not a simple type (" << numberOfChildren << " children). Skipping..." << std::endl;
-              continue;
-            }
-          } if (strlen(child.first_child().value()) > 0) {
-            newChild.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
-          }
-//          std::cout << newChild.attributes.back().first << ": " << newChild.attributes.back().second << std::endl;
-          
-        } else parseCityGMLObject(child, newChild);
-      } parsedObject.children.push_back(newChild);
+        }
+        
+//        if (strcmp(childType, "address") == 0 ||
+//            strcmp(childType, "averageHeight") == 0 ||
+//            strcmp(childType, "class") == 0 ||
+//            strcmp(childType, "crownDiameter") == 0 ||
+//            strcmp(childType, "function") == 0 ||
+//            strcmp(childType, "height") == 0 ||
+//            strcmp(childType, "isMovable") == 0 ||
+//            strcmp(childType, "measuredHeight") == 0 ||
+//            strcmp(childType, "name") == 0 ||
+//            strcmp(childType, "roofType") == 0 ||
+//            strcmp(childType, "species") == 0 ||
+//            strcmp(childType, "storeysAboveGround") == 0 ||
+//            strcmp(childType, "storeysBelowGround") == 0 ||
+//            strcmp(childType, "storeysHeightsAboveGround") == 0 ||
+//            strcmp(childType, "storeysHeightsBelowGround") == 0 ||
+//            strcmp(childType, "trunkDiameter") == 0 ||
+//            strcmp(childType, "usage") == 0 ||
+//            strcmp(childType, "yearOfConstruction") == 0 ||
+//            strcmp(childType, "yearOfDemolition") == 0) {
+//          std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
+//          if (numberOfChildren != 1) {
+//            std::cout << "Attribute " << childType << " has " << numberOfChildren << " children. Skipping..." << std::endl;
+//            continue;
+//          } else {
+//            numberOfChildren = std::distance(child.first_child().children().begin(), child.first_child().children().end());
+//            if (numberOfChildren != 0) {
+//              std::cout << "Attribute " << childType << " is not a simple type (" << numberOfChildren << " children). Skipping..." << std::endl;
+//              continue;
+//            }
+//          } if (strlen(child.first_child().value()) > 0) {
+//            newChild.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
+//          }
+//          //          std::cout << newChild.attributes.back().first << ": " << newChild.attributes.back().second << std::endl;
+//
+//        }
+//
+//        else parseCityGMLObject(child, newChild);
+//      }
+        parsedObject.children.push_back(newChild);
+      }
     }
+    
+//        strcmp(nodeType, "lod1Geometry") == 0 ||
+//        strcmp(nodeType, "lod2Geometry") == 0 ||
+//        strcmp(nodeType, "lod3Geometry") == 0 ||
+//        strcmp(nodeType, "lod4Geometry") == 0 ||
+//        strcmp(nodeType, "lod1MultiCurve") == 0 ||
+//        strcmp(nodeType, "lod2MultiCurve") == 0 ||
+//        strcmp(nodeType, "lod3MultiCurve") == 0 ||
+//        strcmp(nodeType, "lod4MultiCurve") == 0 ||
+//        strcmp(nodeType, "lod1MultiSurface") == 0 ||
+//        strcmp(nodeType, "lod2MultiSurface") == 0 ||
+//        strcmp(nodeType, "lod3MultiSurface") == 0 ||
+//        strcmp(nodeType, "lod4MultiSurface") == 0 ||
+//        strcmp(nodeType, "lod1Solid") == 0 ||
+//        strcmp(nodeType, "lod2Solid") == 0 ||
+//        strcmp(nodeType, "lod3Solid") == 0 ||
+//        strcmp(nodeType, "lod4Solid") == 0 ||
+//        strcmp(nodeType, "lod1TerrainIntersection") == 0 ||
+//        strcmp(nodeType, "lod2TerrainIntersection") == 0 ||
+//        strcmp(nodeType, "lod3TerrainIntersection") == 0 ||
+//        strcmp(nodeType, "lod4TerrainIntersection") == 0 ||
+
     
     // Geometry
     else if (strcmp(nodeType, "Polygon") == 0 ||
@@ -279,15 +337,14 @@ class GMLParsingHelper {
       parsedObject.polygons.push_back(polygon);
     }
     
-    // Objects to flatten
     else {
-      for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
+      std::cout << "Node: \"" << nodeType << "\"" << std::endl;
     }
 
 //    if (strlen(nodeToCheck.value()) > 0) std::cout << " -> (" << nodeToCheck.value() << ")";
 //    std::cout << std::endl;
 //    for (auto const &attribute: nodeToCheck.attributes()) std::cout << "\t" << attribute.name() << ": " << attribute.as_string() << std::endl;
-    
+
 //    for (auto const &child: nodeToCheck.children()) checkNode(child, parsedObject);
   }
   
