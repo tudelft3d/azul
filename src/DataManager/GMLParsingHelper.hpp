@@ -178,13 +178,19 @@ class GMLParsingHelper {
       nodeType = namespaceSeparator+1;
     }
     
-    // Objects to ignore
-    if (strcmp(nodeType, "boundedBy") == 0 || // not useful
-        strcmp(nodeType, "appearanceMember") == 0) { // unsupported
+    // Unsupported types
+    if (strcmp(nodeType, "appearanceMember") == 0 ||
+        strcmp(nodeType, "Envelope") == 0) {
     }
     
-    // Objects to flatten
-    else if (strcmp(nodeType, "cityObjectMember") == 0) {
+    // Objects to flatten (not useful in hierarchy)
+    else if (strcmp(nodeType, "boundedBy") == 0 ||
+             strcmp(nodeType, "cityObjectMember") == 0 ||
+             strcmp(nodeType, "groupMember") == 0 ||
+             strcmp(nodeType, "reliefComponent") == 0 ||
+             strcmp(nodeType, "surfaceMember") == 0 ||
+             strcmp(nodeType, "tin") == 0 ||
+             strcmp(nodeType, "trianglePatches") == 0) {
       for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
     }
     
@@ -252,7 +258,14 @@ class GMLParsingHelper {
              strcmp(nodeType, "OuterCeilingSurface") == 0 ||
              strcmp(nodeType, "OuterFloorSurface") == 0 ||
              strcmp(nodeType, "WallSurface") == 0 ||
-             strcmp(nodeType, "Window") == 0) {
+             strcmp(nodeType, "Window") == 0 ||
+             
+             strcmp(nodeType, "CompositeSurface") == 0 ||
+             strcmp(nodeType, "TriangulatedSurface") == 0 ||
+             
+             strcmp(nodeType, "lod2Surface") == 0 ||
+             strcmp(nodeType, "lod3Surface") == 0 ||
+             strcmp(nodeType, "lod4Surface") == 0) {
 
       AzulObject newChild;
       newChild.type = nodeType;
@@ -263,71 +276,20 @@ class GMLParsingHelper {
         namespaceSeparator = strchr(childType, ':');
         if (namespaceSeparator != NULL) {
           childType = namespaceSeparator+1;
-        }
+        } std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
         
-//        if (strcmp(childType, "address") == 0 ||
-//            strcmp(childType, "averageHeight") == 0 ||
-//            strcmp(childType, "class") == 0 ||
-//            strcmp(childType, "crownDiameter") == 0 ||
-//            strcmp(childType, "function") == 0 ||
-//            strcmp(childType, "height") == 0 ||
-//            strcmp(childType, "isMovable") == 0 ||
-//            strcmp(childType, "measuredHeight") == 0 ||
-//            strcmp(childType, "name") == 0 ||
-//            strcmp(childType, "roofType") == 0 ||
-//            strcmp(childType, "species") == 0 ||
-//            strcmp(childType, "storeysAboveGround") == 0 ||
-//            strcmp(childType, "storeysBelowGround") == 0 ||
-//            strcmp(childType, "storeysHeightsAboveGround") == 0 ||
-//            strcmp(childType, "storeysHeightsBelowGround") == 0 ||
-//            strcmp(childType, "trunkDiameter") == 0 ||
-//            strcmp(childType, "usage") == 0 ||
-//            strcmp(childType, "yearOfConstruction") == 0 ||
-//            strcmp(childType, "yearOfDemolition") == 0) {
-//          std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
-//          if (numberOfChildren != 1) {
-//            std::cout << "Attribute " << childType << " has " << numberOfChildren << " children. Skipping..." << std::endl;
-//            continue;
-//          } else {
-//            numberOfChildren = std::distance(child.first_child().children().begin(), child.first_child().children().end());
-//            if (numberOfChildren != 0) {
-//              std::cout << "Attribute " << childType << " is not a simple type (" << numberOfChildren << " children). Skipping..." << std::endl;
-//              continue;
-//            }
-//          } if (strlen(child.first_child().value()) > 0) {
-//            newChild.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
-//          }
-//          //          std::cout << newChild.attributes.back().first << ": " << newChild.attributes.back().second << std::endl;
-//
-//        }
-//
-//        else parseCityGMLObject(child, newChild);
-//      }
-        parsedObject.children.push_back(newChild);
+        if (numberOfChildren == 1) {
+          std::size_t numberOfGrandChildren = std::distance(child.first_child().children().begin(), child.first_child().children().end());
+          if (numberOfGrandChildren == 0) {
+            if (strlen(child.first_child().value()) > 0) {
+              newChild.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
+            }
+          } else parseCityGMLObject(child, newChild);
+        } else parseCityGMLObject(child, newChild);
       }
+      
+      parsedObject.children.push_back(newChild);
     }
-    
-//        strcmp(nodeType, "lod1Geometry") == 0 ||
-//        strcmp(nodeType, "lod2Geometry") == 0 ||
-//        strcmp(nodeType, "lod3Geometry") == 0 ||
-//        strcmp(nodeType, "lod4Geometry") == 0 ||
-//        strcmp(nodeType, "lod1MultiCurve") == 0 ||
-//        strcmp(nodeType, "lod2MultiCurve") == 0 ||
-//        strcmp(nodeType, "lod3MultiCurve") == 0 ||
-//        strcmp(nodeType, "lod4MultiCurve") == 0 ||
-//        strcmp(nodeType, "lod1MultiSurface") == 0 ||
-//        strcmp(nodeType, "lod2MultiSurface") == 0 ||
-//        strcmp(nodeType, "lod3MultiSurface") == 0 ||
-//        strcmp(nodeType, "lod4MultiSurface") == 0 ||
-//        strcmp(nodeType, "lod1Solid") == 0 ||
-//        strcmp(nodeType, "lod2Solid") == 0 ||
-//        strcmp(nodeType, "lod3Solid") == 0 ||
-//        strcmp(nodeType, "lod4Solid") == 0 ||
-//        strcmp(nodeType, "lod1TerrainIntersection") == 0 ||
-//        strcmp(nodeType, "lod2TerrainIntersection") == 0 ||
-//        strcmp(nodeType, "lod3TerrainIntersection") == 0 ||
-//        strcmp(nodeType, "lod4TerrainIntersection") == 0 ||
-
     
     // Geometry
     else if (strcmp(nodeType, "Polygon") == 0 ||
@@ -338,14 +300,8 @@ class GMLParsingHelper {
     }
     
     else {
-      std::cout << "Node: \"" << nodeType << "\"" << std::endl;
+      std::cout << "Unknown node: \"" << nodeType << "\"" << std::endl;
     }
-
-//    if (strlen(nodeToCheck.value()) > 0) std::cout << " -> (" << nodeToCheck.value() << ")";
-//    std::cout << std::endl;
-//    for (auto const &attribute: nodeToCheck.attributes()) std::cout << "\t" << attribute.name() << ": " << attribute.as_string() << std::endl;
-
-//    for (auto const &child: nodeToCheck.children()) checkNode(child, parsedObject);
   }
   
 public:
