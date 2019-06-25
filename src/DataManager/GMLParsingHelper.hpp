@@ -303,12 +303,97 @@ class GMLParsingHelper {
       parsedObject.children.push_back(newChild);
     }
     
-    // Geometry
+    // Explicit geometry
     else if (strcmp(nodeType, "Polygon") == 0 ||
              strcmp(nodeType, "Triangle") == 0) {
       AzulPolygon polygon;
       parsePolygon(node, polygon);
       parsedObject.polygons.push_back(polygon);
+    }
+    
+    // Implicit geometry
+    else if (strcmp(nodeType, "ImplicitGeometry") == 0) {
+      std::cout << "Implicit geometry" << std::endl;
+      std::vector<float> transformationMatrix;
+      AzulObject transformedChild;
+      for (auto const &child: node.children()) {
+        const char *childType = child.name();
+        namespaceSeparator = strchr(childType, ':');
+        if (namespaceSeparator != NULL) {
+          childType = namespaceSeparator+1;
+        }
+        
+        if (strcmp(childType, "transformationMatrix") == 0) {
+          const char *values = child.child_value();
+          while (isspace(*values)) ++values;
+          while (strlen(values) > 0) {
+            const char *last = values;
+            while (!isspace(*last) && *last != '\0') ++last;
+            float parsedValue;
+            if (!boost::spirit::x3::parse(values, last, boost::spirit::x3::float_, parsedValue)) {
+              std::cout << "Invalid value: " << values << ". Skipping..." << std::endl;
+            } else {
+              transformationMatrix.push_back(parsedValue);
+            }
+            values = last;
+            while (isspace(*values)) ++values;
+          }
+        }
+        
+        else if (strcmp(childType, "relativeGMLGeometry") == 0) {
+          for (auto const &grandchild: child.children()) parseCityGMLObject(grandchild, transformedChild);
+//          std::string xlink = child.attribute("xlink:href").as_string();
+//          std::cout << "Geometry with xlink: " << xlink << std::endl;
+        }
+      }
+      
+      if (transformationMatrix.size() == 16) {
+        std::cout << "Transformation matrix:";
+        for (auto const &value: transformationMatrix) std::cout << " " << value;
+        std::cout << std::endl;
+        for (auto const &polygon: transformedChild.polygons) {
+          parsedObject.polygons.push_back(AzulPolygon());
+          for (auto const &point: polygon.exteriorRing.points) {
+            std::cout << "Point: " << point.coordinates[0] << " " << point.coordinates[1] << " " << point.coordinates[2] << std::endl;
+            float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
+                                           transformationMatrix[13]*point.coordinates[1] +
+                                           transformationMatrix[14]*point.coordinates[2] +
+                                           transformationMatrix[15]);
+            parsedObject.polygons.back().exteriorRing.points.back().coordinates[0] = (transformationMatrix[0]*point.coordinates[0] +
+                                                                                      transformationMatrix[1]*point.coordinates[1] +
+                                                                                      transformationMatrix[2]*point.coordinates[2] +
+                                                                                      transformationMatrix[3])/homogeneousCoordinate;
+            parsedObject.polygons.back().exteriorRing.points.back().coordinates[1] = (transformationMatrix[4]*point.coordinates[0] +
+                                                                                      transformationMatrix[5]*point.coordinates[1] +
+                                                                                      transformationMatrix[6]*point.coordinates[2] +
+                                                                                      transformationMatrix[7])/homogeneousCoordinate;
+            parsedObject.polygons.back().exteriorRing.points.back().coordinates[2] = (transformationMatrix[8]*point.coordinates[0] +
+                                                                                      transformationMatrix[9]*point.coordinates[1] +
+                                                                                      transformationMatrix[10]*point.coordinates[2] +
+                                                                                      transformationMatrix[11])/homogeneousCoordinate;
+          } for (auto const &ring: polygon.interiorRings) {
+            parsedObject.polygons.back().interiorRings.push_back(AzulRing());
+            for (auto const &point: ring.points) {
+              float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
+                                             transformationMatrix[13]*point.coordinates[1] +
+                                             transformationMatrix[14]*point.coordinates[2] +
+                                             transformationMatrix[15]);
+              parsedObject.polygons.back().interiorRings.back().points.back().coordinates[0] = (transformationMatrix[0]*point.coordinates[0] +
+                                                                                                transformationMatrix[1]*point.coordinates[1] +
+                                                                                                transformationMatrix[2]*point.coordinates[2] +
+                                                                                                transformationMatrix[3])/homogeneousCoordinate;
+              parsedObject.polygons.back().interiorRings.back().points.back().coordinates[1] = (transformationMatrix[4]*point.coordinates[0] +
+                                                                                                transformationMatrix[5]*point.coordinates[1] +
+                                                                                                transformationMatrix[6]*point.coordinates[2] +
+                                                                                                transformationMatrix[7])/homogeneousCoordinate;
+              parsedObject.polygons.back().interiorRings.back().points.back().coordinates[2] = (transformationMatrix[8]*point.coordinates[0] +
+                                                                                                transformationMatrix[9]*point.coordinates[1] +
+                                                                                                transformationMatrix[10]*point.coordinates[2] +
+                                                                                                transformationMatrix[11])/homogeneousCoordinate;
+            }
+          }
+        }
+      } else std::cout << "Wrong size of transformation matrix: not 4x4" << std::endl;
     }
     
     else {
