@@ -495,7 +495,7 @@ struct BufferWithColour {
   }
   
   override func keyDown(with event: NSEvent) {
-    //    Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
+//    Swift.print(event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!])
     
     switch event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!] {
     case "b":
