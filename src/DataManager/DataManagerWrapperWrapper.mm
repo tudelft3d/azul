@@ -406,6 +406,14 @@ struct DataManagerWrapper {
     [outlineView reloadItem:currentItem reloadChildren:NO];
     currentItem = [outlineView parentForItem:currentItem];
   }
+  
+  dataManagerWrapper->dataManager->regenerateTriangleBuffers(16*1024*1024);
+  [controller reloadTriangleBuffers];
+  dataManagerWrapper->dataManager->regenerateEdgeBuffers(16*1024*1024);
+  [controller reloadEdgeBuffers];
+  [[controller metalView] setNeedsDisplay:YES];
+  
+  [[controller attributesTableView] reloadData];
 }
 
 @end
