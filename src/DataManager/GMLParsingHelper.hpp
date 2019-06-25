@@ -348,13 +348,14 @@ class GMLParsingHelper {
       }
       
       if (transformationMatrix.size() == 16) {
-        std::cout << "Transformation matrix:";
-        for (auto const &value: transformationMatrix) std::cout << " " << value;
-        std::cout << std::endl;
+//        std::cout << "Transformation matrix:";
+//        for (auto const &value: transformationMatrix) std::cout << " " << value;
+//        std::cout << std::endl;
         for (auto const &polygon: transformedChild.polygons) {
           parsedObject.polygons.push_back(AzulPolygon());
           for (auto const &point: polygon.exteriorRing.points) {
-            std::cout << "Point: " << point.coordinates[0] << " " << point.coordinates[1] << " " << point.coordinates[2] << std::endl;
+            parsedObject.polygons.back().exteriorRing.points.push_back(AzulPoint());
+//            std::cout << "Point: " << point.coordinates[0] << " " << point.coordinates[1] << " " << point.coordinates[2] << std::endl;
             float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
                                            transformationMatrix[13]*point.coordinates[1] +
                                            transformationMatrix[14]*point.coordinates[2] +
@@ -374,6 +375,7 @@ class GMLParsingHelper {
           } for (auto const &ring: polygon.interiorRings) {
             parsedObject.polygons.back().interiorRings.push_back(AzulRing());
             for (auto const &point: ring.points) {
+              parsedObject.polygons.back().interiorRings.back().points.push_back(AzulPoint());
               float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
                                              transformationMatrix[13]*point.coordinates[1] +
                                              transformationMatrix[14]*point.coordinates[2] +
