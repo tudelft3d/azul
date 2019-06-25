@@ -184,13 +184,19 @@ class GMLParsingHelper {
     }
     
     // Objects to flatten (not useful in hierarchy)
-    else if (strcmp(nodeType, "boundedBy") == 0 ||
+    else if (strcmp(nodeType, "CityModel") == 0 ||
+             
+             strcmp(nodeType, "boundedBy") == 0 ||
              strcmp(nodeType, "cityObjectMember") == 0 ||
              strcmp(nodeType, "groupMember") == 0 ||
              strcmp(nodeType, "reliefComponent") == 0 ||
              strcmp(nodeType, "surfaceMember") == 0 ||
              strcmp(nodeType, "tin") == 0 ||
-             strcmp(nodeType, "trianglePatches") == 0) {
+             strcmp(nodeType, "trianglePatches") == 0||
+             
+             strcmp(nodeType, "CompositeSurface") == 0 ||
+             strcmp(nodeType, "MultiSurface") == 0 ||
+             strcmp(nodeType, "TriangulatedSurface") == 0) {
       for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
     }
     
@@ -260,9 +266,15 @@ class GMLParsingHelper {
              strcmp(nodeType, "WallSurface") == 0 ||
              strcmp(nodeType, "Window") == 0 ||
              
-             strcmp(nodeType, "CompositeSurface") == 0 ||
-             strcmp(nodeType, "TriangulatedSurface") == 0 ||
-             
+             strcmp(nodeType, "lod1ImplicitRepresentation") == 0 ||
+             strcmp(nodeType, "lod2ImplicitRepresentation") == 0 ||
+             strcmp(nodeType, "lod3ImplicitRepresentation") == 0 ||
+             strcmp(nodeType, "lod4ImplicitRepresentation") == 0 ||
+             strcmp(nodeType, "lod1MultiSurface") == 0 ||
+             strcmp(nodeType, "lod2MultiSurface") == 0 ||
+             strcmp(nodeType, "lod3MultiSurface") == 0 ||
+             strcmp(nodeType, "lod4MultiSurface") == 0 ||
+             strcmp(nodeType, "lod1Surface") == 0 ||
              strcmp(nodeType, "lod2Surface") == 0 ||
              strcmp(nodeType, "lod3Surface") == 0 ||
              strcmp(nodeType, "lod4Surface") == 0) {
