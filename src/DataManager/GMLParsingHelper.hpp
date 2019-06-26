@@ -318,6 +318,8 @@ class GMLParsingHelper {
     else if (strcmp(nodeType, "ImplicitGeometry") == 0) {
 //      std::cout << "Implicit geometry" << std::endl;
       std::vector<float> transformationMatrix;
+      std::vector<float> anchorPointCoordinates;
+      
       AzulObject transformedChild;
       for (auto const &child: node.children()) {
         const char *childType = typeWithoutNamespace(child.name());
@@ -357,9 +359,33 @@ class GMLParsingHelper {
             }
           }
         }
+        
+        else if (strcmp(childType, "referencePoint") == 0) {
+          for (auto const &point: child.children()) {
+            const char *pointType = typeWithoutNamespace(point.name());
+            if (strcmp(pointType, "Point") == 0) {
+              for (auto const &pos: point.children()) {
+                const char *posType = typeWithoutNamespace(pos.name());
+                if (strcmp(posType, "pos") == 0) {
+                  const char *coordinates = pos.child_value();
+                  while (isspace(*coordinates)) ++coordinates;
+                  while (strlen(coordinates) > 0) {
+                    const char *last = coordinates;
+                    while (!isspace(*last) && *last != '\0') ++last;
+                    anchorPointCoordinates.push_back(0.0);
+                    if (!boost::spirit::x3::parse(coordinates, last, boost::spirit::x3::float_, anchorPointCoordinates.back())) {
+                      std::cout << "Invalid coordinates: " << coordinates << ". Skipping..." << std::endl;
+                    } coordinates = last;
+                    while (isspace(*coordinates)) ++coordinates;
+                  } 
+                }
+              }
+            }
+          }
+        }
       }
       
-      if (transformationMatrix.size() == 16) {
+      if (transformationMatrix.size() == 16 && anchorPointCoordinates.size() == 3) {
 //        std::cout << "Transformation matrix:";
 //        for (auto const &value: transformationMatrix) std::cout << " " << value;
 //        std::cout << std::endl;
@@ -375,15 +401,15 @@ class GMLParsingHelper {
             parsedObject.polygons.back().exteriorRing.points.back().coordinates[0] = (transformationMatrix[0]*point.coordinates[0] +
                                                                                       transformationMatrix[1]*point.coordinates[1] +
                                                                                       transformationMatrix[2]*point.coordinates[2] +
-                                                                                      transformationMatrix[3])/homogeneousCoordinate;
+                                                                                      transformationMatrix[3])/homogeneousCoordinate + anchorPointCoordinates[0];
             parsedObject.polygons.back().exteriorRing.points.back().coordinates[1] = (transformationMatrix[4]*point.coordinates[0] +
                                                                                       transformationMatrix[5]*point.coordinates[1] +
                                                                                       transformationMatrix[6]*point.coordinates[2] +
-                                                                                      transformationMatrix[7])/homogeneousCoordinate;
+                                                                                      transformationMatrix[7])/homogeneousCoordinate + anchorPointCoordinates[1];
             parsedObject.polygons.back().exteriorRing.points.back().coordinates[2] = (transformationMatrix[8]*point.coordinates[0] +
                                                                                       transformationMatrix[9]*point.coordinates[1] +
                                                                                       transformationMatrix[10]*point.coordinates[2] +
-                                                                                      transformationMatrix[11])/homogeneousCoordinate;
+                                                                                      transformationMatrix[11])/homogeneousCoordinate + anchorPointCoordinates[2];
           } for (auto const &ring: polygon.interiorRings) {
             parsedObject.polygons.back().interiorRings.push_back(AzulRing());
             for (auto const &point: ring.points) {
