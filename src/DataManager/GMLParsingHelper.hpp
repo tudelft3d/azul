@@ -21,6 +21,7 @@
 
 #include <boost/spirit/home/x3.hpp>
 #include <pugixml-1.9/pugixml.hpp>
+#include <unordered_map>
 
 class GMLParsingHelper {
   pugi::xml_document doc;
@@ -29,6 +30,13 @@ class GMLParsingHelper {
     const char *namespaceSeparator = strchr(type, ':');
     if (namespaceSeparator != NULL) return namespaceSeparator+1;
     else return type;
+  }
+  
+  void buildNodesIndex(const pugi::xml_node &node, std::unordered_map<std::string, pugi::xml_node> &nodesById) {
+    for (auto const &attribute: node.attributes()) {
+      const char *attributeType = typeWithoutNamespace(attribute.name());
+      if (strcmp(attributeType, "id") == 0) nodesById[attribute.value()] = node;
+    } for (auto const &child: node.children()) buildNodesIndex(child, nodesById);
   }
   
   void parseRing(const pugi::xml_node &node, AzulRing &parsedRing) {
@@ -97,17 +105,21 @@ class GMLParsingHelper {
             docVersion = "3.0";
           }
         }
+      } if (strcmp(docType.c_str(), "CityGML") == 0) {
+        std::cout << docType << " " << docVersion << " detected" << std::endl;
+        if (strcmp(docVersion.c_str(), "1.0") == 0 ||
+            strcmp(docVersion.c_str(), "2.0") == 0) {
+          std::unordered_map<std::string, pugi::xml_node> nodesById;
+          std::cout << "Building nodes index...";
+          buildNodesIndex(node, nodesById);
+          std::cout << " done." << std::endl;
+          parseCityGMLObject(node, parsedObject, nodesById);
+        }
       }
-    } if (strcmp(docType.c_str(), "CityGML") == 0) {
-      std::cout << docType << " " << docVersion << " detected" << std::endl;
-      if (strcmp(docVersion.c_str(), "1.0") == 0 ||
-          strcmp(docVersion.c_str(), "2.0") == 0) {
-        for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
-      }
-    }
+    } 
     
-    // IndoorFeatures -> IndoorGML
-    if (docType.empty() && strcmp(nodeType, "IndoorFeatures") == 0) {
+    // IndoorGML
+    else if (strcmp(nodeType, "IndoorFeatures") == 0) {
       for (auto const &attribute: node.attributes()) {
 //        std::cout << attribute.name() << ": " << attribute.value() << std::endl;
         if (strncmp(attribute.name(), "xmlns", 5) == 0) {
@@ -116,28 +128,23 @@ class GMLParsingHelper {
             docVersion = "1.0";
           }
         }
-      }
-    } if (strcmp(docType.c_str(), "IndoorGML") == 0) {
-      std::cout << docType << " " << docVersion << " detected" << std::endl;
-      if (strcmp(docVersion.c_str(), "1.0") == 0) {
-        for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
+      } if (strcmp(docType.c_str(), "IndoorGML") == 0) {
+        std::cout << docType << " " << docVersion << " detected" << std::endl;
+        if (strcmp(docVersion.c_str(), "1.0") == 0) {
+          std::unordered_map<std::string, pugi::xml_node> nodesById;
+          std::cout << "Building nodes index...";
+          buildNodesIndex(node, nodesById);
+          std::cout << " done." << std::endl;
+          parseIndoorGMLObject(node, parsedObject, nodesById);
+        }
       }
     }
     
-    // Unknown -> try plain GML or continue with children
-    if (docType.empty()) {
-      if (strcmp(nodeType, "Polygon") == 0 ||
-          strcmp(nodeType, "Triangle") == 0) {
-        AzulPolygon polygon;
-        parsePolygon(node, polygon);
-        parsedObject.polygons.push_back(polygon);
-      } else {
-        for (auto const &child: node.children()) parseGML(child, parsedObject);
-      }
-    }
+    // Unknown yet -> continue with children
+    else for (auto const &child: node.children()) parseGML(child, parsedObject);
   }
   
-  void parseIndoorGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {
+  void parseIndoorGMLObject(const pugi::xml_node &node, AzulObject &parsedObject, std::unordered_map<std::string, pugi::xml_node> &nodesById) {
     //    std::cout << "Node: \"" << node.name() << "\"" << std::endl;
 
     // Get rid of namespaces
@@ -165,18 +172,18 @@ class GMLParsingHelper {
 
     // Objects to flatten
     else {
-      for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject);
+      for (auto const &child: node.children()) parseIndoorGMLObject(child, parsedObject, nodesById);
     }
   }
   
-  void parseCityGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {
+  void parseCityGMLObject(const pugi::xml_node &node, AzulObject &parsedObject, std::unordered_map<std::string, pugi::xml_node> &nodesById) {
 
     // Get rid of namespaces
     const char *nodeType = typeWithoutNamespace(node.name());
     
-    // Unsupported types
-    if (strcmp(nodeType, "appearanceMember") == 0 ||
-        strcmp(nodeType, "Envelope") == 0) {
+    // Ignored types
+    if (strcmp(nodeType, "appearanceMember") == 0 ||  // Unsupported
+        strcmp(nodeType, "Envelope") == 0) {  // Would cover other geometries, maybe render as edges later?
     }
     
     // Objects to flatten (not useful in hierarchy)
@@ -193,7 +200,7 @@ class GMLParsingHelper {
              strcmp(nodeType, "CompositeSurface") == 0 ||
              strcmp(nodeType, "MultiSurface") == 0 ||
              strcmp(nodeType, "TriangulatedSurface") == 0) {
-      for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject);
+      for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject, nodesById);
     }
     
     // Objects to put in hierarchy
@@ -292,8 +299,8 @@ class GMLParsingHelper {
             if (strlen(child.first_child().value()) > 0) {
               newChild.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
             }
-          } else parseCityGMLObject(child, newChild);
-        } else parseCityGMLObject(child, newChild);
+          } else parseCityGMLObject(child, newChild, nodesById);
+        } else parseCityGMLObject(child, newChild, nodesById);
       }
       
       parsedObject.children.push_back(newChild);
@@ -333,9 +340,22 @@ class GMLParsingHelper {
         }
         
         else if (strcmp(childType, "relativeGMLGeometry") == 0) {
-          for (auto const &grandchild: child.children()) parseCityGMLObject(grandchild, transformedChild);
-//          std::string xlink = child.attribute("xlink:href").as_string();
-//          std::cout << "Geometry with xlink: " << xlink << std::endl;
+          for (auto const &grandchild: child.children()) parseCityGMLObject(grandchild, transformedChild, nodesById);
+          std::string xlink;
+          for (auto const &attribute: child.attributes()) {
+            const char *attributeType = typeWithoutNamespace(attribute.name());
+            if (strcmp(attributeType, "href") == 0) xlink = attribute.value();
+          } if (!xlink.empty()) {
+            const char *xlinkId = xlink.c_str();
+            if (xlinkId[0] == '#') ++xlinkId;
+            std::cout << "Geometry with xlink: " << xlinkId << std::endl;
+            std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlinkId);
+            if (xlinkNode != nodesById.end()) {
+              std::cout << "Found" << std::endl;
+            } else {
+              std::cout << "Not found" << std::endl;
+            }
+          }
         }
       }
       
