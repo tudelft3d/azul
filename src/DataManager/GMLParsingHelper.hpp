@@ -25,10 +25,17 @@
 class GMLParsingHelper {
   pugi::xml_document doc;
   
+  const char *typeWithoutNamespace(const char *type) {
+    const char *namespaceSeparator = strchr(type, ':');
+    if (namespaceSeparator != NULL) return namespaceSeparator+1;
+    else return type;
+  }
+  
   void parseRing(const pugi::xml_node &node, AzulRing &parsedRing) {
     for (auto const &child: node.first_child().children()) {
-      if (strcmp(child.name(), "gml:pos") == 0 ||
-          strcmp(child.name(), "gml:posList") == 0) {
+      const char *childType = typeWithoutNamespace(child.name());
+      if (strcmp(childType, "pos") == 0 ||
+          strcmp(childType, "posList") == 0) {
 
         const char *coordinates = child.child_value();
         while (isspace(*coordinates)) ++coordinates;
@@ -57,9 +64,10 @@ class GMLParsingHelper {
   
   void parsePolygon(const pugi::xml_node &node, AzulPolygon &parsedPolygon) {
     for (auto const &child: node.children()) {
-      if (strcmp(child.name(), "gml:exterior") == 0) {
+      const char *childType = typeWithoutNamespace(child.name());
+      if (strcmp(childType, "exterior") == 0) {
         parseRing(child, parsedPolygon.exteriorRing);
-      } else if (strcmp(child.name(), "gml:interior") == 0) {
+      } else if (strcmp(childType, "interior") == 0) {
         AzulRing ring;
         parseRing(child, ring);
         parsedPolygon.interiorRings.push_back(ring);
@@ -69,17 +77,11 @@ class GMLParsingHelper {
   
   void parseGML(const pugi::xml_node &node, AzulObject &parsedObject) {
 //    std::cout << "Node: \"" << node.name() << "\"" << std::endl;
+    const char *nodeType = typeWithoutNamespace(node.name());
     std::string docType;
     std::string docVersion;
     
-    // Get rid of namespaces
-    const char *nodeType = node.name();
-    const char *namespaceSeparator = strchr(nodeType, ':');
-    if (namespaceSeparator != NULL) {
-      nodeType = namespaceSeparator+1;
-    }
-    
-    // CityModel -> CityGML
+    // CityGML
     if (strcmp(nodeType, "CityModel") == 0) {
       for (auto const &attribute: node.attributes()) {
 //        std::cout << attribute.name() << ": " << attribute.value() << std::endl;
@@ -139,19 +141,17 @@ class GMLParsingHelper {
     //    std::cout << "Node: \"" << node.name() << "\"" << std::endl;
 
     // Get rid of namespaces
-    const char *nodeType = node.name();
-    const char *namespaceSeparator = strchr(nodeType, ':');
-    if (namespaceSeparator != NULL) {
-      nodeType = namespaceSeparator+1;
-    }
+    const char *nodeType = typeWithoutNamespace(node.name());
 
     // Objects: create in hierachy and parse attributes
     if (strcmp(nodeType, "CellSpace") == 0) {
       AzulObject newChild;
       newChild.type = nodeType;
-      newChild.id = node.attribute("gml:id").as_string();
-      for (auto const &child: node.children()) {
-        parseIndoorGMLObject(child, newChild);
+      for (auto const &attribute: node.attributes()) {
+        const char *attributeType = typeWithoutNamespace(attribute.name());
+        if (strcmp(attributeType, "id") == 0) newChild.id = attribute.value();
+      } for (auto const &child: node.children()) {
+        parseIndoorGMLObject(child, newChild, nodesById);
       } parsedObject.children.push_back(newChild);
     }
 
@@ -172,11 +172,7 @@ class GMLParsingHelper {
   void parseCityGMLObject(const pugi::xml_node &node, AzulObject &parsedObject) {
 
     // Get rid of namespaces
-    const char *nodeType = node.name();
-    const char *namespaceSeparator = strchr(nodeType, ':');
-    if (namespaceSeparator != NULL) {
-      nodeType = namespaceSeparator+1;
-    }
+    const char *nodeType = typeWithoutNamespace(node.name());
     
     // Unsupported types
     if (strcmp(nodeType, "appearanceMember") == 0 ||
@@ -281,14 +277,14 @@ class GMLParsingHelper {
 
       AzulObject newChild;
       newChild.type = nodeType;
-      newChild.id = node.attribute("gml:id").as_string();
+      for (auto const &attribute: node.attributes()) {
+        const char *attributeType = typeWithoutNamespace(attribute.name());
+        if (strcmp(attributeType, "id") == 0) newChild.id = attribute.value();
+      }
       
       for (auto const &child: node.children()) {
-        const char *childType = child.name();
-        namespaceSeparator = strchr(childType, ':');
-        if (namespaceSeparator != NULL) {
-          childType = namespaceSeparator+1;
-        } std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
+        const char *childType = typeWithoutNamespace(child.name());
+        std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
         
         if (numberOfChildren == 1) {
           std::size_t numberOfGrandChildren = std::distance(child.first_child().children().begin(), child.first_child().children().end());
@@ -317,11 +313,7 @@ class GMLParsingHelper {
       std::vector<float> transformationMatrix;
       AzulObject transformedChild;
       for (auto const &child: node.children()) {
-        const char *childType = child.name();
-        namespaceSeparator = strchr(childType, ':');
-        if (namespaceSeparator != NULL) {
-          childType = namespaceSeparator+1;
-        }
+        const char *childType = typeWithoutNamespace(child.name());
         
         if (strcmp(childType, "transformationMatrix") == 0) {
           const char *values = child.child_value();
