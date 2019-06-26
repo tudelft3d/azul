@@ -183,18 +183,45 @@ class GMLParsingHelper {
     
     // Ignored types
     if (strcmp(nodeType, "appearanceMember") == 0 ||  // Unsupported
+        strcmp(nodeType, "extent") == 0 ||  // Would cover other geometries, maybe render as edges later?
+        strcmp(nodeType, "generalizesTo") == 0 || // Circular reference
+        strcmp(nodeType, "parent") == 0 || // Circular reference
         strcmp(nodeType, "Envelope") == 0) {  // Would cover other geometries, maybe render as edges later?
     }
     
     // Objects to flatten (not useful in hierarchy)
     else if (strcmp(nodeType, "CityModel") == 0 ||
              
+             strcmp(nodeType, "auxiliaryTrafficArea") == 0 ||
              strcmp(nodeType, "boundedBy") == 0 ||
+             strcmp(nodeType, "breaklines") == 0 ||
+             strcmp(nodeType, "bridgeRoomInstallation") == 0 ||
              strcmp(nodeType, "cityObjectMember") == 0 ||
+             strcmp(nodeType, "consistsOfBridgePart") == 0 ||
+             strcmp(nodeType, "consistsOfBuildingPart") == 0 ||
+             strcmp(nodeType, "consistsOfTunnelPart") == 0 ||
+             strcmp(nodeType, "grid") == 0 ||
              strcmp(nodeType, "groupMember") == 0 ||
+             strcmp(nodeType, "hollowSpaceInstallation") == 0 ||
+             strcmp(nodeType, "interiorBridgeInstallation") == 0 ||
+             strcmp(nodeType, "interiorBridgeRoom") == 0 ||
+             strcmp(nodeType, "interiorBuildingInstallation") == 0 ||
+             strcmp(nodeType, "interiorFurniture") == 0 ||
+             strcmp(nodeType, "interiorHollowSpace") == 0 ||
+             strcmp(nodeType, "interiorRoom") == 0 ||
+             strcmp(nodeType, "interiorTunnelInstallation") == 0 ||
+             strcmp(nodeType, "opening") == 0 ||
+             strcmp(nodeType, "outerBridgeConstruction") == 0 ||
+             strcmp(nodeType, "outerBridgeInstallation") == 0 ||
+             strcmp(nodeType, "outerBuildingInstallation") == 0 ||
+             strcmp(nodeType, "outerTunnelInstallation") == 0 ||
              strcmp(nodeType, "reliefComponent") == 0 ||
+             strcmp(nodeType, "reliefPoints") == 0 ||
+             strcmp(nodeType, "ridgeOrValleyLines") == 0 ||
+             strcmp(nodeType, "roomInstallation") == 0 ||
              strcmp(nodeType, "surfaceMember") == 0 ||
              strcmp(nodeType, "tin") == 0 ||
+             strcmp(nodeType, "trafficArea") == 0 ||
              strcmp(nodeType, "trianglePatches") == 0||
              
              strcmp(nodeType, "CompositeSurface") == 0 ||
@@ -269,14 +296,58 @@ class GMLParsingHelper {
              strcmp(nodeType, "WallSurface") == 0 ||
              strcmp(nodeType, "Window") == 0 ||
              
+             strcmp(nodeType, "geometry") == 0 ||
+             strcmp(nodeType, "lod0FootPrint") == 0 ||
+             strcmp(nodeType, "lod1FootPrint") == 0 ||
+             strcmp(nodeType, "lod2FootPrint") == 0 ||
+             strcmp(nodeType, "lod3FootPrint") == 0 ||
+             strcmp(nodeType, "lod4FootPrint") == 0 ||
+             strcmp(nodeType, "lod0Geometry") == 0 ||
+             strcmp(nodeType, "lod1Geometry") == 0 ||
+             strcmp(nodeType, "lod2Geometry") == 0 ||
+             strcmp(nodeType, "lod3Geometry") == 0 ||
+             strcmp(nodeType, "lod4Geometry") == 0 ||
+             strcmp(nodeType, "lod0ImplicitRepresentation") == 0 ||
              strcmp(nodeType, "lod1ImplicitRepresentation") == 0 ||
              strcmp(nodeType, "lod2ImplicitRepresentation") == 0 ||
              strcmp(nodeType, "lod3ImplicitRepresentation") == 0 ||
              strcmp(nodeType, "lod4ImplicitRepresentation") == 0 ||
+             strcmp(nodeType, "lod0MultiCurve") == 0 ||
+             strcmp(nodeType, "lod1MultiCurve") == 0 ||
+             strcmp(nodeType, "lod2MultiCurve") == 0 ||
+             strcmp(nodeType, "lod3MultiCurve") == 0 ||
+             strcmp(nodeType, "lod4MultiCurve") == 0 ||
+             strcmp(nodeType, "lod0MultiSolid") == 0 ||
+             strcmp(nodeType, "lod1MultiSolid") == 0 ||
+             strcmp(nodeType, "lod2MultiSolid") == 0 ||
+             strcmp(nodeType, "lod3MultiSolid") == 0 ||
+             strcmp(nodeType, "lod4MultiSolid") == 0 ||
+             strcmp(nodeType, "lod0MultiSurface") == 0 ||
              strcmp(nodeType, "lod1MultiSurface") == 0 ||
              strcmp(nodeType, "lod2MultiSurface") == 0 ||
              strcmp(nodeType, "lod3MultiSurface") == 0 ||
              strcmp(nodeType, "lod4MultiSurface") == 0 ||
+             strcmp(nodeType, "lod0Network") == 0 ||
+             strcmp(nodeType, "lod1Network") == 0 ||
+             strcmp(nodeType, "lod2Network") == 0 ||
+             strcmp(nodeType, "lod3Network") == 0 ||
+             strcmp(nodeType, "lod4Network") == 0 ||
+             strcmp(nodeType, "lod0TerrainIntersection") == 0 ||
+             strcmp(nodeType, "lod1TerrainIntersection") == 0 ||
+             strcmp(nodeType, "lod2TerrainIntersection") == 0 ||
+             strcmp(nodeType, "lod3TerrainIntersection") == 0 ||
+             strcmp(nodeType, "lod4TerrainIntersection") == 0 ||
+             strcmp(nodeType, "lod0RoofEdge") == 0 ||
+             strcmp(nodeType, "lod1RoofEdge") == 0 ||
+             strcmp(nodeType, "lod2RoofEdge") == 0 ||
+             strcmp(nodeType, "lod3RoofEdge") == 0 ||
+             strcmp(nodeType, "lod4RoofEdge") == 0 ||
+             strcmp(nodeType, "lod0Solid") == 0 ||
+             strcmp(nodeType, "lod1Solid") == 0 ||
+             strcmp(nodeType, "lod2Solid") == 0 ||
+             strcmp(nodeType, "lod3Solid") == 0 ||
+             strcmp(nodeType, "lod4Solid") == 0 ||
+             strcmp(nodeType, "lod0Surface") == 0 ||
              strcmp(nodeType, "lod1Surface") == 0 ||
              strcmp(nodeType, "lod2Surface") == 0 ||
              strcmp(nodeType, "lod3Surface") == 0 ||
