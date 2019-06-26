@@ -180,6 +180,7 @@ class GMLParsingHelper {
 
     // Get rid of namespaces
     const char *nodeType = typeWithoutNamespace(node.name());
+//    std::cout << "Node: \"" << nodeType << "\"" << std::endl;
     
     // Ignored types
     if (strcmp(nodeType, "appearanceMember") == 0 ||  // Unsupported
@@ -187,6 +188,23 @@ class GMLParsingHelper {
         strcmp(nodeType, "generalizesTo") == 0 || // Circular reference
         strcmp(nodeType, "parent") == 0 || // Circular reference
         strcmp(nodeType, "Envelope") == 0) {  // Would cover other geometries, maybe render as edges later?
+    }
+    
+    // Put attributes in same object and parse children
+    else if (strcmp(nodeType, "CityModel") == 0) {
+      for (auto const &child: node.children()) {
+        const char *childType = typeWithoutNamespace(child.name());
+        std::size_t numberOfChildren = std::distance(child.children().begin(), child.children().end());
+        
+        if (numberOfChildren == 1) {
+          std::size_t numberOfGrandChildren = std::distance(child.first_child().children().begin(), child.first_child().children().end());
+          if (numberOfGrandChildren == 0) {
+            if (strlen(child.first_child().value()) > 0) {
+              parsedObject.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
+            }
+          } else parseCityGMLObject(child, parsedObject, nodesById);
+        } else parseCityGMLObject(child, parsedObject, nodesById);
+      }
     }
     
     // Objects to flatten (not useful in hierarchy)
