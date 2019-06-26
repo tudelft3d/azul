@@ -24,8 +24,6 @@
 
 class GMLParsingHelper {
   pugi::xml_document doc;
-  std::string docType;
-  std::string docVersion;
   
   void parseRing(const pugi::xml_node &node, AzulRing &parsedRing) {
     for (auto const &child: node.first_child().children()) {
@@ -71,6 +69,8 @@ class GMLParsingHelper {
   
   void parseGML(const pugi::xml_node &node, AzulObject &parsedObject) {
 //    std::cout << "Node: \"" << node.name() << "\"" << std::endl;
+    std::string docType;
+    std::string docVersion;
     
     // Get rid of namespaces
     const char *nodeType = node.name();
@@ -404,11 +404,6 @@ class GMLParsingHelper {
   }
   
 public:
-  GMLParsingHelper() {
-    docType = "";
-    docVersion = "";
-  }
-  
   void parse(const char *filePath, AzulObject &parsedFile) {
     parsedFile.type = "File";
     parsedFile.id = filePath;
