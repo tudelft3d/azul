@@ -316,7 +316,7 @@ class GMLParsingHelper {
     
     // Implicit geometry
     else if (strcmp(nodeType, "ImplicitGeometry") == 0) {
-      std::cout << "Implicit geometry" << std::endl;
+//      std::cout << "Implicit geometry" << std::endl;
       std::vector<float> transformationMatrix;
       AzulObject transformedChild;
       for (auto const &child: node.children()) {
@@ -348,12 +348,12 @@ class GMLParsingHelper {
           } if (!xlink.empty()) {
             const char *xlinkId = xlink.c_str();
             if (xlinkId[0] == '#') ++xlinkId;
-            std::cout << "Geometry with xlink: " << xlinkId << std::endl;
+            
             std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlinkId);
             if (xlinkNode != nodesById.end()) {
-              std::cout << "Found" << std::endl;
+              parseCityGMLObject(xlinkNode->second, transformedChild, nodesById);
             } else {
-              std::cout << "Not found" << std::endl;
+              std::cout << "Geometry with xlink " << xlinkId << " not found" << std::endl;
             }
           }
         }
