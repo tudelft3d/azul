@@ -207,6 +207,16 @@ class GMLParsingHelper {
       }
     }
     
+    else if (strcmp(nodeType, "stringAttribute") == 0 ||
+             strcmp(nodeType, "intAttribute") == 0 ||
+             strcmp(nodeType, "doubleAttribute") == 0 ||
+             strcmp(nodeType, "dateAttribute") == 0 ||
+             strcmp(nodeType, "uriAttribute") == 0) {
+      const char *name = node.attribute("name").value();
+      const char *value = node.first_child().child_value();
+      parsedObject.attributes.push_back(std::pair<std::string, std::string>(name, value));
+    }
+    
     // Objects to flatten (not useful in hierarchy)
     else if (strcmp(nodeType, "auxiliaryTrafficArea") == 0 ||
              strcmp(nodeType, "boundedBy") == 0 ||
