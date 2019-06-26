@@ -208,9 +208,7 @@ class GMLParsingHelper {
     }
     
     // Objects to flatten (not useful in hierarchy)
-    else if (strcmp(nodeType, "CityModel") == 0 ||
-             
-             strcmp(nodeType, "auxiliaryTrafficArea") == 0 ||
+    else if (strcmp(nodeType, "auxiliaryTrafficArea") == 0 ||
              strcmp(nodeType, "boundedBy") == 0 ||
              strcmp(nodeType, "breaklines") == 0 ||
              strcmp(nodeType, "bridgeRoomInstallation") == 0 ||
@@ -237,13 +235,22 @@ class GMLParsingHelper {
              strcmp(nodeType, "reliefPoints") == 0 ||
              strcmp(nodeType, "ridgeOrValleyLines") == 0 ||
              strcmp(nodeType, "roomInstallation") == 0 ||
-             strcmp(nodeType, "surfaceMember") == 0 ||
              strcmp(nodeType, "tin") == 0 ||
              strcmp(nodeType, "trafficArea") == 0 ||
              strcmp(nodeType, "trianglePatches") == 0||
              
+             strcmp(nodeType, "exterior") == 0 ||
+             strcmp(nodeType, "interior") == 0 ||
+             strcmp(nodeType, "solidMember") == 0 ||
+             strcmp(nodeType, "solidMembers") == 0 ||
+             strcmp(nodeType, "surfaceMember") == 0 ||
+             strcmp(nodeType, "surfaceMembers") == 0 ||
+             
              strcmp(nodeType, "CompositeSurface") == 0 ||
+             strcmp(nodeType, "MultiSolid") == 0 ||
              strcmp(nodeType, "MultiSurface") == 0 ||
+             strcmp(nodeType, "Shell") == 0 ||
+             strcmp(nodeType, "Solid") == 0 ||
              strcmp(nodeType, "TriangulatedSurface") == 0) {
       for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject, nodesById);
     }
