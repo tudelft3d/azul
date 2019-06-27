@@ -207,6 +207,7 @@ class GMLParsingHelper {
       }
     }
     
+    // Custom attributes
     else if (strcmp(nodeType, "stringAttribute") == 0 ||
              strcmp(nodeType, "intAttribute") == 0 ||
              strcmp(nodeType, "doubleAttribute") == 0 ||
@@ -218,7 +219,7 @@ class GMLParsingHelper {
     }
     
     // Objects to flatten (not useful in hierarchy)
-    else if (strcmp(nodeType, "auxiliaryTrafficArea") == 0 ||
+    else if (strcmp(nodeType, "auxiliaryTrafficArea") == 0 || // Redundant elements from CityGML
              strcmp(nodeType, "boundedBy") == 0 ||
              strcmp(nodeType, "breaklines") == 0 ||
              strcmp(nodeType, "bridgeRoomInstallation") == 0 ||
@@ -249,14 +250,14 @@ class GMLParsingHelper {
              strcmp(nodeType, "trafficArea") == 0 ||
              strcmp(nodeType, "trianglePatches") == 0||
              
-             strcmp(nodeType, "exterior") == 0 ||
+             strcmp(nodeType, "exterior") == 0 || // Redundancy elements from GML
              strcmp(nodeType, "interior") == 0 ||
              strcmp(nodeType, "solidMember") == 0 ||
              strcmp(nodeType, "solidMembers") == 0 ||
              strcmp(nodeType, "surfaceMember") == 0 ||
              strcmp(nodeType, "surfaceMembers") == 0 ||
              
-             strcmp(nodeType, "CompositeSurface") == 0 ||
+             strcmp(nodeType, "CompositeSurface") == 0 || // Geometry types (not necessary to show)
              strcmp(nodeType, "MultiSolid") == 0 ||
              strcmp(nodeType, "MultiSurface") == 0 ||
              strcmp(nodeType, "Shell") == 0 ||
@@ -331,7 +332,7 @@ class GMLParsingHelper {
              strcmp(nodeType, "WallSurface") == 0 ||
              strcmp(nodeType, "Window") == 0 ||
              
-             strcmp(nodeType, "geometry") == 0 ||
+             strcmp(nodeType, "geometry") == 0 || // Geometry types (in case of multiple and to know which LoD is used)
              strcmp(nodeType, "lod0FootPrint") == 0 ||
              strcmp(nodeType, "lod1FootPrint") == 0 ||
              strcmp(nodeType, "lod2FootPrint") == 0 ||
