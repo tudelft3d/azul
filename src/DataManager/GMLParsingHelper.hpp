@@ -164,6 +164,7 @@ class GMLParsingHelper {
 
     // Geometry
     else if (strcmp(nodeType, "Polygon") == 0 ||
+             strcmp(nodeType, "Rectangle") == 0 ||
              strcmp(nodeType, "Triangle") == 0) {
       AzulPolygon polygon;
       parsePolygon(node, polygon);
@@ -184,6 +185,7 @@ class GMLParsingHelper {
     
     // Ignored types
     if (strcmp(nodeType, "address") == 0 || // Complex type
+        strcmp(nodeType, "appearance") == 0 ||  // Unsupported
         strcmp(nodeType, "appearanceMember") == 0 ||  // Unsupported
         strcmp(nodeType, "extent") == 0 ||  // Would cover other geometries, maybe render as edges later?
         strcmp(nodeType, "externalReference") == 0 || // Complex type
@@ -252,20 +254,38 @@ class GMLParsingHelper {
              strcmp(nodeType, "roomInstallation") == 0 ||
              strcmp(nodeType, "tin") == 0 ||
              strcmp(nodeType, "trafficArea") == 0 ||
-             strcmp(nodeType, "trianglePatches") == 0||
              
-             strcmp(nodeType, "exterior") == 0 || // Redundancy elements from GML
+             strcmp(nodeType, "baseSurface") == 0 ||  // Redundant elements from GML
+             strcmp(nodeType, "curveMember") == 0 ||
+             strcmp(nodeType, "curveMembers") == 0 ||
+             strcmp(nodeType, "element") == 0 ||
+             strcmp(nodeType, "exterior") == 0 ||
+             strcmp(nodeType, "geometryMember") == 0 ||
              strcmp(nodeType, "interior") == 0 ||
+             strcmp(nodeType, "patches") == 0||
+             strcmp(nodeType, "pointMember") == 0 ||
+             strcmp(nodeType, "pointMembers") == 0 ||
              strcmp(nodeType, "solidMember") == 0 ||
              strcmp(nodeType, "solidMembers") == 0 ||
              strcmp(nodeType, "surfaceMember") == 0 ||
              strcmp(nodeType, "surfaceMembers") == 0 ||
+             strcmp(nodeType, "trianglePatches") == 0||
              
-             strcmp(nodeType, "CompositeSurface") == 0 || // Geometry types (not necessary to show)
+             strcmp(nodeType, "CompositeCurve") == 0 || // Geometry types (not necessary to show)
+             strcmp(nodeType, "CompositeSolid") == 0 ||
+             strcmp(nodeType, "CompositeSurface") == 0 ||
+             strcmp(nodeType, "GeometricComplex") == 0 ||
+             strcmp(nodeType, "LineString") == 0 ||
+             strcmp(nodeType, "MultiCurve") == 0 ||
+             strcmp(nodeType, "MultiPoint") == 0 ||
+             strcmp(nodeType, "MultiGeometry") == 0 ||
              strcmp(nodeType, "MultiSolid") == 0 ||
              strcmp(nodeType, "MultiSurface") == 0 ||
+             strcmp(nodeType, "OrientableSurface") == 0 ||
              strcmp(nodeType, "Shell") == 0 ||
              strcmp(nodeType, "Solid") == 0 ||
+             strcmp(nodeType, "Surface") == 0 ||
+             strcmp(nodeType, "TIN") == 0 ||
              strcmp(nodeType, "TriangulatedSurface") == 0) {
       for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject, nodesById);
     }
