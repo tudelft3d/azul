@@ -166,6 +166,10 @@ class JSONParsingHelper {
         std::cout << "Unsupported geometry: " << geometry["type"] << std::endl;
       }
     }
+    
+//    for (auto const &attribute: jsonObject.value()["attributes"]) {
+//      object.attributes.append(std::pair<std::string, std::string>(attribute.k,));
+//    }
   }
   
   void parseCityJSONPolygon(const std::vector<std::vector<std::size_t>> &jsonPolygon, AzulPolygon &polygon, std::vector<std::vector<double>> &vertices) {
