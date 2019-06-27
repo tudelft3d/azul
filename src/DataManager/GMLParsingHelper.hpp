@@ -183,9 +183,13 @@ class GMLParsingHelper {
 //    std::cout << "Node: \"" << nodeType << "\"" << std::endl;
     
     // Ignored types
-    if (strcmp(nodeType, "appearanceMember") == 0 ||  // Unsupported
+    if (strcmp(nodeType, "address") == 0 || // Complex type
+        strcmp(nodeType, "appearanceMember") == 0 ||  // Unsupported
         strcmp(nodeType, "extent") == 0 ||  // Would cover other geometries, maybe render as edges later?
+        strcmp(nodeType, "externalReference") == 0 || // Complex type
         strcmp(nodeType, "generalizesTo") == 0 || // Circular reference
+        strcmp(nodeType, "genericAttributeSet") == 0 || // Complex type
+        strcmp(nodeType, "measureAttribute") == 0 || // Complex type (but maybe just append units?)
         strcmp(nodeType, "parent") == 0 || // Circular reference
         strcmp(nodeType, "Envelope") == 0) {  // Would cover other geometries, maybe render as edges later?
     }
