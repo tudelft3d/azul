@@ -36,6 +36,30 @@ class GMLParsingHelper {
     for (auto const &attribute: node.attributes()) {
       const char *attributeType = typeWithoutNamespace(attribute.name());
       if (strcmp(attributeType, "id") == 0) nodesById[attribute.value()] = node;
+      else if (strcmp(attributeType, "href") == 0) {
+        const char *nodeType = typeWithoutNamespace(node.name());
+        if (strcmp(nodeType, "relativeGMLGeometry") == 0 ||
+            
+            strcmp(nodeType, "baseSurface") == 0 ||
+            strcmp(nodeType, "curveMember") == 0 ||
+            strcmp(nodeType, "curveMembers") == 0 ||
+            strcmp(nodeType, "element") == 0 ||
+            strcmp(nodeType, "exterior") == 0 ||
+            strcmp(nodeType, "geometryMember") == 0 ||
+            strcmp(nodeType, "interior") == 0 ||
+            strcmp(nodeType, "patches") == 0||
+            strcmp(nodeType, "pointMember") == 0 ||
+            strcmp(nodeType, "pointMembers") == 0 ||
+            strcmp(nodeType, "segments") == 0 ||
+            strcmp(nodeType, "solidMember") == 0 ||
+            strcmp(nodeType, "solidMembers") == 0 ||
+            strcmp(nodeType, "surfaceMember") == 0 ||
+            strcmp(nodeType, "surfaceMembers") == 0 ||
+            strcmp(nodeType, "trianglePatches") == 0) {
+        } else {
+          std::cout << "Xlinked " << nodeType << std::endl;
+        }
+      }
     } for (auto const &child: node.children()) buildNodesIndex(child, nodesById);
   }
   
@@ -112,7 +136,7 @@ class GMLParsingHelper {
           std::unordered_map<std::string, pugi::xml_node> nodesById;
           std::cout << "Building nodes index...";
           buildNodesIndex(node, nodesById);
-          std::cout << " done." << std::endl;
+          std::cout << " done (" << nodesById.size() << " entries)." << std::endl;
           parseCityGMLObject(node, parsedObject, nodesById);
         }
       }
@@ -209,7 +233,7 @@ class GMLParsingHelper {
               parsedObject.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
             }
           } else parseCityGMLObject(child, parsedObject, nodesById);
-        } else parseCityGMLObject(child, parsedObject, nodesById);
+        } else if (numberOfChildren > 1) parseCityGMLObject(child, parsedObject, nodesById);
       }
     }
     
@@ -255,7 +279,29 @@ class GMLParsingHelper {
              strcmp(nodeType, "tin") == 0 ||
              strcmp(nodeType, "trafficArea") == 0 ||
              
-             strcmp(nodeType, "baseSurface") == 0 ||  // Redundant elements from GML
+             strcmp(nodeType, "CompositeCurve") == 0 || // Geometry types (not necessary to show)
+             strcmp(nodeType, "CompositeSolid") == 0 ||
+             strcmp(nodeType, "CompositeSurface") == 0 ||
+             strcmp(nodeType, "Curve") == 0 ||
+             strcmp(nodeType, "GeometricComplex") == 0 ||
+             strcmp(nodeType, "LineString") == 0 ||
+             strcmp(nodeType, "MultiCurve") == 0 ||
+             strcmp(nodeType, "MultiPoint") == 0 ||
+             strcmp(nodeType, "MultiGeometry") == 0 ||
+             strcmp(nodeType, "MultiSolid") == 0 ||
+             strcmp(nodeType, "MultiSurface") == 0 ||
+             strcmp(nodeType, "OrientableCurve") == 0 ||
+             strcmp(nodeType, "OrientableSurface") == 0 ||
+             strcmp(nodeType, "Shell") == 0 ||
+             strcmp(nodeType, "Solid") == 0 ||
+             strcmp(nodeType, "Surface") == 0 ||
+             strcmp(nodeType, "TIN") == 0 ||
+             strcmp(nodeType, "TriangulatedSurface") == 0) {
+      for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject, nodesById);
+    }
+    
+    // Objects to flatten (not useful in hierarchy), representing redundant info from GML, but with potential xlinks
+    else if (strcmp(nodeType, "baseSurface") == 0 ||
              strcmp(nodeType, "curveMember") == 0 ||
              strcmp(nodeType, "curveMembers") == 0 ||
              strcmp(nodeType, "element") == 0 ||
@@ -265,29 +311,28 @@ class GMLParsingHelper {
              strcmp(nodeType, "patches") == 0||
              strcmp(nodeType, "pointMember") == 0 ||
              strcmp(nodeType, "pointMembers") == 0 ||
+             strcmp(nodeType, "segments") == 0 ||
              strcmp(nodeType, "solidMember") == 0 ||
              strcmp(nodeType, "solidMembers") == 0 ||
              strcmp(nodeType, "surfaceMember") == 0 ||
              strcmp(nodeType, "surfaceMembers") == 0 ||
-             strcmp(nodeType, "trianglePatches") == 0||
-             
-             strcmp(nodeType, "CompositeCurve") == 0 || // Geometry types (not necessary to show)
-             strcmp(nodeType, "CompositeSolid") == 0 ||
-             strcmp(nodeType, "CompositeSurface") == 0 ||
-             strcmp(nodeType, "GeometricComplex") == 0 ||
-             strcmp(nodeType, "LineString") == 0 ||
-             strcmp(nodeType, "MultiCurve") == 0 ||
-             strcmp(nodeType, "MultiPoint") == 0 ||
-             strcmp(nodeType, "MultiGeometry") == 0 ||
-             strcmp(nodeType, "MultiSolid") == 0 ||
-             strcmp(nodeType, "MultiSurface") == 0 ||
-             strcmp(nodeType, "OrientableSurface") == 0 ||
-             strcmp(nodeType, "Shell") == 0 ||
-             strcmp(nodeType, "Solid") == 0 ||
-             strcmp(nodeType, "Surface") == 0 ||
-             strcmp(nodeType, "TIN") == 0 ||
-             strcmp(nodeType, "TriangulatedSurface") == 0) {
+             strcmp(nodeType, "trianglePatches") == 0) {
       for (auto const &child: node.children()) parseCityGMLObject(child, parsedObject, nodesById);
+      const char *xlink = NULL;
+      for (auto const &attribute: node.attributes()) {
+        const char *attributeType = typeWithoutNamespace(attribute.name());
+        if (strcmp(attributeType, "href") == 0) xlink = attribute.value();
+      } if (xlink != NULL) {
+        if (xlink[0] == '#') ++xlink;
+        std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlink);
+        if (xlinkNode != nodesById.end()) {
+//          const char *xlinkType = typeWithoutNamespace(xlinkNode->second.name());
+//          std::cout << xlinkType << " with xlink " << xlink << " found. Putting it in " << parsedObject.type << "." << std::endl;
+          parseCityGMLObject(xlinkNode->second, parsedObject, nodesById);
+        } else {
+          std::cout << "Geometry with xlink " << xlink << " not found. Skipped." << std::endl;
+        }
+      }
     }
     
     // Objects to put in hierarchy
@@ -431,7 +476,7 @@ class GMLParsingHelper {
               newChild.attributes.push_back(std::pair<std::string, std::string>(childType, child.first_child().value()));
             }
           } else parseCityGMLObject(child, newChild, nodesById);
-        } else parseCityGMLObject(child, newChild, nodesById);
+        } else if (numberOfChildren > 1) parseCityGMLObject(child, newChild, nodesById);
       }
       
       parsedObject.children.push_back(newChild);
@@ -474,19 +519,17 @@ class GMLParsingHelper {
         
         else if (strcmp(childType, "relativeGMLGeometry") == 0) {
           for (auto const &grandchild: child.children()) parseCityGMLObject(grandchild, transformedChild, nodesById);
-          std::string xlink;
+          const char *xlink = NULL;
           for (auto const &attribute: child.attributes()) {
             const char *attributeType = typeWithoutNamespace(attribute.name());
             if (strcmp(attributeType, "href") == 0) xlink = attribute.value();
-          } if (!xlink.empty()) {
-            const char *xlinkId = xlink.c_str();
-            if (xlinkId[0] == '#') ++xlinkId;
-            
-            std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlinkId);
+          } if (xlink != NULL) {
+            if (xlink[0] == '#') ++xlink;
+            std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlink);
             if (xlinkNode != nodesById.end()) {
               parseCityGMLObject(xlinkNode->second, transformedChild, nodesById);
             } else {
-              std::cout << "Geometry with xlink " << xlinkId << " not found" << std::endl;
+              std::cout << "Geometry with xlink " << xlink << " not found" << std::endl;
             }
           }
         }
@@ -568,7 +611,15 @@ class GMLParsingHelper {
     }
     
     else {
-      std::cout << "Unknown node: \"" << nodeType << "\"" << std::endl;
+      std::cout << "Unknown node: \"" << node.name() << "\"" << std::endl;
+      pugi::xml_node currentNode = node;
+      std::list<std::string> hierarchy;
+      while (currentNode.type() != pugi::node_null) {
+        hierarchy.push_front(currentNode.name());
+        currentNode = currentNode.parent();
+      } std::cout << "  hierarchy:";
+      for (auto const &currentName: hierarchy) std::cout << " -> " << currentName;
+      std::cout << std::endl;
     }
   }
   
