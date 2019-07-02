@@ -22,7 +22,7 @@
 
 class JSONParsingHelper {
 
-  void parseCityJSONObject(ParsedJson &parsedJson, AzulObject &object) {
+  void parseCityJSONGeometry(ParsedJson::iterator &currentGeometry, AzulObject &object) {
     
 //    object.id = jsonObject.key();
 //    //  std::cout << "ID: " << object.id << std::endl;
@@ -196,18 +196,16 @@ public:
     ParsedJson parsedJson = build_parsed_json(get_corpus(filePath));
     if(!parsedJson.isValid()) {
       std::cout << "Invalid JSON file" << std::endl;
-    } else {
-      parsedFile.type = "File";
+      return;
+    } parsedFile.type = "File";
       parsedFile.id = filePath;
-      parseCityJSONObject(parsedJson, parsedFile);
-    }
     
     const char *docType;
     const char *docVersion;
     
     // Check what we have
     ParsedJson::iterator iterator(parsedJson);
-    ParsedJson::iterator *verticesIterator = NULL, *cityObjectsIterator = NULL, *metadataIterator = NULL;
+    ParsedJson::iterator *verticesIterator = NULL, *cityObjectsIterator = NULL, *metadataIterator = NULL, *geometryTemplatesIterator = NULL;
     if (!iterator.is_object()) return;
     if (!iterator.down()) return;
     do {
@@ -234,13 +232,7 @@ public:
         iterator.next();
       } else if (iterator.get_string_length() == 18 && memcmp(iterator.get_string(), "geometry-templates", 18) == 0) {
         iterator.next();
-      } else {
-//        std::cout << "Unknown type: ";
-//        iterator.print(std::cout);
-//        std::cout << "=";
-//        iterator.next();
-//        iterator.print(std::cout);
-//        std::cout << std::endl;
+        geometryTemplatesIterator = new ParsedJson::iterator(iterator);
       }
     } while (iterator.next());
     
@@ -323,8 +315,47 @@ public:
           else if (currentCityObject.get_string_length() == 8 && memcmp(currentCityObject.get_string(), "geometry", 8) == 0) {
             currentCityObject.next();
             ParsedJson::iterator currentGeometry(currentCityObject);
-            if (currentGeometry.is_object() && currentGeometry.down()) {
-              
+            if (currentGeometry.is_array() && currentGeometry.down()) {
+              do {
+                if (currentGeometry.is_object()) {
+                  ParsedJson::iterator currentGeometryParts(currentGeometry);
+                  if (currentGeometryParts.down()) {
+                    ParsedJson::iterator *boundariesIterator;
+                    std::string geometryType, geometryLod;
+                    do {
+                      if (currentGeometryParts.get_string_length() == 4 && memcmp(currentGeometryParts.get_string(), "type", 4) == 0) {
+                        currentGeometryParts.next();
+                        if (currentGeometryParts.is_string()) geometryType = currentGeometryParts.get_string();
+                      } else if (currentGeometryParts.get_string_length() == 3 && memcmp(currentGeometryParts.get_string(), "lod", 3) == 0) {
+                        currentGeometryParts.next();
+                        if (currentGeometryParts.is_string()) geometryLod = currentGeometryParts.get_string();
+                        else if (currentGeometryParts.is_double()) geometryLod = std::to_string(currentGeometryParts.get_double());
+                        else if (currentGeometryParts.is_integer()) geometryLod = std::to_string(currentGeometryParts.get_integer());
+                      } else if (currentGeometryParts.get_string_length() == 10 && memcmp(currentGeometryParts.get_string(), "boundaries", 10) == 0) {
+                        currentGeometryParts.next();
+                        boundariesIterator = new ParsedJson::iterator(currentGeometryParts);
+                      } else currentGeometryParts.next();
+                    } while (currentGeometryParts.next());
+                    parsedFile.children.back().children.push_back(AzulObject());
+                    parsedFile.children.back().children.back().type = "LoD";
+                    parsedFile.children.back().children.back().id = geometryLod;
+                    
+                    if (strcmp(geometryType.c_str(), "MultiSurface") != 0 ||
+                        strcmp(geometryType.c_str(), "CompositeSurface") != 0) {
+      
+                    }
+      
+                    else if (strcmp(geometryType.c_str(), "Solid") != 0) {
+      
+                    }
+      
+                    else if (strcmp(geometryType.c_str(), "MultiSolid") != 0 ||
+                             strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
+      
+                    }
+                  }
+                }
+              } while (currentGeometry.next());
             }
           }
           
