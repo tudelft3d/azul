@@ -202,8 +202,8 @@ public:
       parseCityJSONObject(parsedJson, parsedFile);
     }
     
-    std::string docType;
-    std::string docVersion;
+    const char *docType;
+    const char *docVersion;
     
     // Check what we have
     ParsedJson::iterator iterator(parsedJson);
@@ -244,14 +244,93 @@ public:
       }
     } while (iterator.next());
     
-    if (strcmp(docType.c_str(), "CityJSON") != 0) return;
+    if (strcmp(docType, "CityJSON") != 0) return;
     std::cout << docType << " " << docVersion << " detected" << std::endl;
-    if (strcmp(docVersion.c_str(), "1.0") != 0) return;
+    if (strcmp(docVersion, "1.0") != 0) return;
     
+    // Metadata
     if (metadataIterator != NULL && metadataIterator->is_object() && metadataIterator->down()) {
       do {
-        
+        const char *attributeName = metadataIterator->get_string();
+        metadataIterator->next();
+        if (metadataIterator->is_string()) {
+          const char *attributeValue = metadataIterator->get_string();
+          parsedFile.attributes.push_back(std::pair<std::string, std::string>(attributeName, attributeValue));
+        } else {
+          std::cout << attributeName << " is a complex attribute. Skipped." << std::endl;
+        }
       } while (metadataIterator->next());
+    }
+    
+    // Vertices
+    std::vector<std::tuple<double, double, double>> vertices;
+    if (verticesIterator != NULL && verticesIterator->is_array() && verticesIterator->down()) {
+      do {
+        ParsedJson::iterator currentVertex(*verticesIterator);
+        if (currentVertex.is_array()) {
+          currentVertex.down();
+          double x, y, z;
+          if (currentVertex.is_double()) x = currentVertex.get_double();
+          else if (currentVertex.is_integer()) x = currentVertex.get_integer();
+          else continue;
+          if (!currentVertex.next()) continue;
+          if (currentVertex.is_double()) y = currentVertex.get_double();
+          else if (currentVertex.is_integer()) y = currentVertex.get_integer();
+          else continue;
+          if (!currentVertex.next()) continue;
+          if (currentVertex.is_double()) z = currentVertex.get_double();
+          else if (currentVertex.is_integer()) z = currentVertex.get_integer();
+          else continue;
+          vertices.push_back(std::tuple<double, double, double>(x, y, z));
+//          std::cout << "Parsed (" << x << ", " << y << ", " << z << ")" << std::endl;
+        }
+      } while (verticesIterator->next());
+    }
+    
+    // CityObjects
+    if (cityObjectsIterator != NULL && cityObjectsIterator->is_object() && cityObjectsIterator->down()) {
+      do {
+//        std::cout << "Parsing ";
+//        cityObjectsIterator->print(std::cout);
+//        std::cout << "..." << std::endl;
+        parsedFile.children.push_back(AzulObject());
+        const char *objectId = cityObjectsIterator->get_string();
+        parsedFile.children.back().id = objectId;
+        cityObjectsIterator->next();
+        ParsedJson::iterator currentCityObject(*cityObjectsIterator);
+        if (!currentCityObject.is_object()) continue;
+        currentCityObject.down();
+        do {
+          if (currentCityObject.get_string_length() == 4 && memcmp(currentCityObject.get_string(), "type", 4) == 0) {
+            currentCityObject.next();
+            parsedFile.children.back().type = currentCityObject.get_string();
+          }
+          
+          else if (currentCityObject.get_string_length() == 10 && memcmp(currentCityObject.get_string(), "attributes", 10) == 0) {
+            currentCityObject.next();
+            ParsedJson::iterator currentAttribute(currentCityObject);
+            if (currentAttribute.is_object() && currentAttribute.down()) {
+              do {
+                const char *attributeName = currentAttribute.get_string();
+                currentAttribute.next();
+                if (currentAttribute.is_string()) parsedFile.children.back().attributes.push_back(std::pair<std::string, std::string>(attributeName, currentAttribute.get_string()));
+                else if (currentAttribute.is_double()) parsedFile.children.back().attributes.push_back(std::pair<std::string, std::string>(attributeName, std::to_string(currentAttribute.get_double())));
+                else if (currentAttribute.is_integer()) parsedFile.children.back().attributes.push_back(std::pair<std::string, std::string>(attributeName, std::to_string(currentAttribute.get_integer())));
+              } while (currentAttribute.next());
+            }
+          }
+          
+          else if (currentCityObject.get_string_length() == 8 && memcmp(currentCityObject.get_string(), "geometry", 8) == 0) {
+            currentCityObject.next();
+            ParsedJson::iterator currentGeometry(currentCityObject);
+            if (currentGeometry.is_object() && currentGeometry.down()) {
+              
+            }
+          }
+          
+          else currentCityObject.next();
+        } while (currentCityObject.next());
+      } while (cityObjectsIterator->next());
     }
   }
   
