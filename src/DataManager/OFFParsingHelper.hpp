@@ -36,7 +36,6 @@ public:
     parsedFile.id = filePath;
     
     std::vector<AzulPoint> vertices;
-    std::vector<AzulObject>::reverse_iterator currentObject;
     
     unsigned int parsingPhase = 0; // 0 - header, 1 - number of vertices/faces/edges, 2 - vertices, 3 - faces, 4 - colorspec (unsupported)
     
