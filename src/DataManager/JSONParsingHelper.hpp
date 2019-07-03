@@ -21,8 +21,6 @@
 #include "simdjson/jsonparser.h"
 
 class JSONParsingHelper {
-
-  void parseCityJSONGeometry(ParsedJson::iterator &currentGeometry, AzulObject &object) {
     
 //    object.id = jsonObject.key();
 //    //  std::cout << "ID: " << object.id << std::endl;
@@ -169,9 +167,28 @@ class JSONParsingHelper {
 ////    for (auto const &attribute: jsonObject.value()["attributes"]) {
 ////      object.attributes.append(std::pair<std::string, std::string>(attribute.k,));
 ////    }
-  }
+  
+  void parseCityJSONGeometry(ParsedJson::iterator &jsonGeometry, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+//    if (strcmp(geometryType.c_str(), "MultiSurface") != 0 ||
+//        strcmp(geometryType.c_str(), "CompositeSurface") != 0) {
+//      //                      std::cout << "MultiSurface" << std::endl;
+//      if (boundariesIterator->is_array()) {
+//        ParsedJson::iterator currentSurface(*boundariesIterator);
+//        if (!currentSurface.down()) continue;
+//        parseCityJSONPolygon(currentSurface);
+//      }
+//    }
 //
-//  void parseCityJSONPolygon(const std::vector<std::vector<std::size_t>> &jsonPolygon, AzulPolygon &polygon, std::vector<std::vector<double>> &vertices) {
+//    else if (strcmp(geometryType.c_str(), "Solid") != 0) {
+//      std::cout << "Solid" << std::endl;
+//    }
+//
+//    else if (strcmp(geometryType.c_str(), "MultiSolid") != 0 ||
+//             strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
+//      std::cout << "MultiSolid" << std::endl;
+//    }
+  }
+
 //    bool outer = true;
 //    for (auto const &ring: jsonPolygon) {
 //      if (outer) {
