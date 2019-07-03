@@ -255,9 +255,9 @@ class JSONParsingHelper {
           ring.points.back().coordinates[0] = std::get<0>(vertices[jsonVertex.get_integer()]);
           ring.points.back().coordinates[1] = std::get<1>(vertices[jsonVertex.get_integer()]);
           ring.points.back().coordinates[2] = std::get<2>(vertices[jsonVertex.get_integer()]);
-//          std::cout << "Putting point (" << ring.points.back().coordinates[0] << ", " << ring.points.back().coordinates[1] << ", " << ring.points.back().coordinates[2] << ")" << std::endl;
-        } ring.points.push_back(ring.points.front());
+        }
       } while (jsonVertex.next());
+      ring.points.push_back(ring.points.front());
     }
   }
 
