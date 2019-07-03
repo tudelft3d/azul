@@ -96,6 +96,7 @@ class JSONParsingHelper {
             if (currentGeometry.is_object()) {
               ParsedJson::iterator currentGeometryMember(currentGeometry);
               ParsedJson::iterator *boundariesIterator = NULL, *semanticsIterator = NULL;
+              std::vector<std::map<std::string, std::string>> semanticSurfaces;
               std::string geometryType, geometryLod;
               if (currentGeometryMember.down()) {
                 do {
@@ -112,28 +113,55 @@ class JSONParsingHelper {
                     boundariesIterator = new ParsedJson::iterator(currentGeometryMember);
                   } else if (currentGeometryMember.get_string_length() == 9 && memcmp(currentGeometryMember.get_string(), "semantics", 9) == 0) {
                     currentGeometryMember.next();
-                    semanticsIterator = new ParsedJson::iterator(currentGeometryMember);
+                    ParsedJson::iterator currentSemantics(currentGeometryMember);
+                    if (currentSemantics.is_object() && currentSemantics.down()) {
+                      do {
+                        if (currentSemantics.get_string_length() == 8 && memcmp(currentSemantics.get_string(), "surfaces", 8) == 0) {
+                          currentSemantics.next();
+                          ParsedJson::iterator currentSemanticSurface(currentSemantics);
+                          if (currentSemanticSurface.is_array() && currentSemanticSurface.down()) {
+                            semanticSurfaces.push_back(std::map<std::string, std::string>());
+                            ParsedJson::iterator currentAttribute(currentSemanticSurface);
+                            if (currentAttribute.is_object() && currentAttribute.down()) {
+                              do {
+                                if (currentAttribute.is_string()) {
+                                  const char *attributeName = currentAttribute.get_string();
+                                  currentAttribute.next();
+                                  if (currentAttribute.is_string()) semanticSurfaces.back()[attributeName] = currentAttribute.get_string();
+                                  else if (currentAttribute.is_double()) semanticSurfaces.back()[attributeName] = std::to_string(currentAttribute.get_double());
+                                  else if (currentAttribute.is_integer()) semanticSurfaces.back()[attributeName] = std::to_string(currentAttribute.get_integer());
+                                } else currentAttribute.next();
+                              } while (currentAttribute.next());
+                            }
+                          }
+                        } else if (currentSemantics.get_string_length() == 6 && memcmp(currentSemantics.get_string(), "values", 6) == 0) {
+                          currentSemantics.next();
+                          semanticsIterator = new ParsedJson::iterator(currentSemantics);
+                        } else currentSemantics.next();
+                      } while (currentSemantics.next());
+                    }
                   } else currentGeometryMember.next();
                 } while (currentGeometryMember.next());
               }
               
-              if (geometryType.empty() || geometryLod.empty() || boundariesIterator == NULL) continue;
-              object.children.push_back(AzulObject());
-              object.children.back().type = "LoD";
-              object.children.back().id = geometryLod;
-              
-              if (strcmp(geometryType.c_str(), "MultiSurface") != 0 ||
-                  strcmp(geometryType.c_str(), "CompositeSurface") != 0) {
-                parseCityJSONGeometry(boundariesIterator, semanticsIterator, 2, object.children.back(), vertices);
-              }
-              
-              else if (strcmp(geometryType.c_str(), "Solid") != 0) {
-                parseCityJSONGeometry(boundariesIterator, semanticsIterator, 3, object.children.back(), vertices);
-              }
-              
-              else if (strcmp(geometryType.c_str(), "MultiSolid") != 0 ||
-                       strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
-                parseCityJSONGeometry(boundariesIterator, semanticsIterator, 4, object.children.back(), vertices);
+              if (!geometryType.empty() && !geometryLod.empty() && boundariesIterator != NULL) {
+                object.children.push_back(AzulObject());
+                object.children.back().type = "LoD";
+                object.children.back().id = geometryLod;
+                
+                if (strcmp(geometryType.c_str(), "MultiSurface") == 0 ||
+                    strcmp(geometryType.c_str(), "CompositeSurface") == 0) {
+                  parseCityJSONGeometry(boundariesIterator, semanticsIterator, semanticSurfaces, 2, object.children.back(), vertices);
+                }
+                
+                else if (strcmp(geometryType.c_str(), "Solid") == 0) {
+                  parseCityJSONGeometry(boundariesIterator, semanticsIterator, semanticSurfaces, 3, object.children.back(), vertices);
+                }
+                
+                else if (strcmp(geometryType.c_str(), "MultiSolid") == 0 ||
+                         strcmp(geometryType.c_str(), "CompositeSolid") == 0) {
+                  parseCityJSONGeometry(boundariesIterator, semanticsIterator, semanticSurfaces, 4, object.children.back(), vertices);
+                }
               }
               
               if (boundariesIterator != NULL) delete boundariesIterator;
@@ -147,38 +175,81 @@ class JSONParsingHelper {
     } while (currentCityObject.next());
   }
   
-  void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+  void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, std::vector<std::map<std::string, std::string>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+    if (jsonBoundaries == NULL) return;
+    ParsedJson::iterator currentBoundary(*jsonBoundaries);
+    if (!currentBoundary.is_array() || !currentBoundary.down()) return;
+    
     if (nesting > 1) {
-//      ParsedJson::iterator currentBoundary(jsonBoundaries);
-//      ParsedJson::iterator currentSemantics(jsonSemantics);
-//      if (currentBoundary.is_array() && currentBoundary.down() && currentSemantics.is_array() && currentSemantics.down()) {
-//        do {
-//          parseCityJSONGeometry(currentBoundary, currentSemantics, nesting-1, object, vertices);
-//        } while (currentBoundary.next() && currentSemantics.next());
-//      }
-    } else {
-      
+      if (jsonSemantics != NULL && jsonSemantics->is_array()) {
+        ParsedJson::iterator currentSemantics(*jsonSemantics);
+        if (currentSemantics.down()) {
+          do {
+            parseCityJSONGeometry(&currentBoundary, &currentSemantics, semanticSurfaces, nesting-1, object, vertices);
+            if (!currentBoundary.next()) break;
+            if (!currentSemantics.next()) break;
+          } while (true);
+        } else {
+          do {
+            parseCityJSONGeometry(&currentBoundary, NULL, semanticSurfaces, nesting-1, object, vertices);
+          } while (currentBoundary.next());
+        }
+      } else {
+        do {
+          parseCityJSONGeometry(&currentBoundary, NULL, semanticSurfaces, nesting-1, object, vertices);
+        } while (currentBoundary.next());
+      }
+    }
+    
+    else if (nesting == 1) {
+      if (jsonSemantics != NULL && jsonSemantics->is_integer()) {
+        if (jsonSemantics->is_integer() && jsonSemantics->get_integer() < semanticSurfaces.size()) {
+          object.children.push_back(AzulObject());
+          for (auto const &attribute: semanticSurfaces[jsonSemantics->get_integer()]) {
+//            std::cout << attribute.first << ": " << attribute.second << std::endl;
+            if (strcmp(attribute.first.c_str(), "type") == 0) object.children.back().type = attribute.second;
+            else object.children.back().attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
+          } object.children.back().polygons.push_back(AzulPolygon());
+          parseCityJSONPolygon(currentBoundary, object.children.back().polygons.back(), vertices);
+        } else {
+          object.polygons.push_back(AzulPolygon());
+          parseCityJSONPolygon(currentBoundary, object.polygons.back(), vertices);
+        }
+      } else {
+        object.polygons.push_back(AzulPolygon());
+        parseCityJSONPolygon(currentBoundary, object.polygons.back(), vertices);
+      }
     }
   }
 
   void parseCityJSONPolygon(ParsedJson::iterator &jsonPolygon, AzulPolygon &polygon, std::vector<std::tuple<double, double, double>> &vertices) {
-//    bool outer = true;
-//    for (auto const &ring: jsonPolygon) {
-//      if (outer) {
-//        parseCityJSONRing(ring, polygon.exteriorRing, vertices);
-//        outer = false;
-//      } else {
-//        polygon.interiorRings.push_back(AzulRing());
-//        parseCityJSONRing(ring, polygon.interiorRings.back(), vertices);
-//      }
-//    }
+    bool outer = true;
+    ParsedJson::iterator jsonRing(jsonPolygon);
+    if (jsonRing.is_array() && jsonRing.down()) {
+      do {
+        if (outer) {
+          parseCityJSONRing(jsonRing, polygon.exteriorRing, vertices);
+          outer = false;
+        } else {
+          polygon.interiorRings.push_back(AzulRing());
+          parseCityJSONRing(jsonRing, polygon.interiorRings.back(), vertices);
+        }
+      } while (jsonRing.next());
+    }
   }
 
   void parseCityJSONRing(ParsedJson::iterator &jsonRing, AzulRing &ring, std::vector<std::tuple<double, double, double>> &vertices) {
-//    for (auto const &point: jsonRing) {
-//      ring.points.push_back(AzulPoint());
-//      for (int dimension = 0; dimension < 3; ++dimension) ring.points.back().coordinates[dimension] = vertices[point][dimension];
-//    } ring.points.push_back(ring.points.front());
+    ParsedJson::iterator jsonVertex(jsonRing);
+    if (jsonVertex.is_array() && jsonVertex.down()) {
+      do {
+        if (jsonVertex.is_integer()) {
+          ring.points.push_back(AzulPoint());
+          ring.points.back().coordinates[0] = std::get<0>(vertices[jsonVertex.get_integer()]);
+          ring.points.back().coordinates[1] = std::get<1>(vertices[jsonVertex.get_integer()]);
+          ring.points.back().coordinates[2] = std::get<2>(vertices[jsonVertex.get_integer()]);
+        } ring.points.push_back(ring.points.front());
+      } while (jsonVertex.next());
+    }
   }
 
 public:
@@ -188,7 +259,7 @@ public:
       std::cout << "Invalid JSON file" << std::endl;
       return;
     } parsedFile.type = "File";
-      parsedFile.id = filePath;
+    parsedFile.id = filePath;
     
     const char *docType;
     const char *docVersion;
@@ -196,8 +267,7 @@ public:
     // Check what we have
     ParsedJson::iterator iterator(parsedJson);
     ParsedJson::iterator *verticesIterator = NULL, *cityObjectsIterator = NULL, *metadataIterator = NULL, *geometryTemplatesIterator = NULL;
-    if (!iterator.is_object()) return;
-    if (!iterator.down()) return;
+    if (!iterator.is_object() || !iterator.down()) return;
     do {
       if (iterator.get_string_length() == 4 && memcmp(iterator.get_string(), "type", 4) == 0) {
         iterator.next();
@@ -226,60 +296,64 @@ public:
       }
     } while (iterator.next());
     
-    if (strcmp(docType, "CityJSON") != 0) return;
-    std::cout << docType << " " << docVersion << " detected" << std::endl;
-    if (strcmp(docVersion, "1.0") != 0) return;
-    
-    // Metadata
-    if (metadataIterator != NULL && metadataIterator->is_object() && metadataIterator->down()) {
-      do {
-        const char *attributeName = metadataIterator->get_string();
-        metadataIterator->next();
-        if (metadataIterator->is_string()) {
-          const char *attributeValue = metadataIterator->get_string();
-          parsedFile.attributes.push_back(std::pair<std::string, std::string>(attributeName, attributeValue));
-        } else {
-          std::cout << attributeName << " is a complex attribute. Skipped." << std::endl;
+    if (strcmp(docType, "CityJSON") == 0) {
+      std::cout << docType << " " << docVersion << " detected" << std::endl;
+      if (strcmp(docVersion, "1.0") == 0) {
+        // Metadata
+        if (metadataIterator != NULL && metadataIterator->is_object() && metadataIterator->down()) {
+          do {
+            const char *attributeName = metadataIterator->get_string();
+            metadataIterator->next();
+            if (metadataIterator->is_string()) {
+              const char *attributeValue = metadataIterator->get_string();
+              parsedFile.attributes.push_back(std::pair<std::string, std::string>(attributeName, attributeValue));
+            } else {
+              std::cout << attributeName << " is a complex attribute. Skipped." << std::endl;
+            }
+          } while (metadataIterator->next());
         }
-      } while (metadataIterator->next());
-    }
-    
-    // Vertices
-    std::vector<std::tuple<double, double, double>> vertices;
-    if (verticesIterator != NULL && verticesIterator->is_array() && verticesIterator->down()) {
-      do {
-        ParsedJson::iterator currentVertex(*verticesIterator);
-        if (currentVertex.is_array()) {
-          currentVertex.down();
-          double x, y, z;
-          if (currentVertex.is_double()) x = currentVertex.get_double();
-          else if (currentVertex.is_integer()) x = currentVertex.get_integer();
-          else continue;
-          if (!currentVertex.next()) continue;
-          if (currentVertex.is_double()) y = currentVertex.get_double();
-          else if (currentVertex.is_integer()) y = currentVertex.get_integer();
-          else continue;
-          if (!currentVertex.next()) continue;
-          if (currentVertex.is_double()) z = currentVertex.get_double();
-          else if (currentVertex.is_integer()) z = currentVertex.get_integer();
-          else continue;
-          vertices.push_back(std::tuple<double, double, double>(x, y, z));
-//          std::cout << "Parsed (" << x << ", " << y << ", " << z << ")" << std::endl;
+        
+        // Vertices
+        std::vector<std::tuple<double, double, double>> vertices;
+        if (verticesIterator != NULL && verticesIterator->is_array() && verticesIterator->down()) {
+          do {
+            ParsedJson::iterator currentVertex(*verticesIterator);
+            if (currentVertex.is_array()) {
+              currentVertex.down();
+              double x, y, z;
+              if (currentVertex.is_double()) x = currentVertex.get_double();
+              else if (currentVertex.is_integer()) x = currentVertex.get_integer();
+              else continue;
+              if (!currentVertex.next()) continue;
+              if (currentVertex.is_double()) y = currentVertex.get_double();
+              else if (currentVertex.is_integer()) y = currentVertex.get_integer();
+              else continue;
+              if (!currentVertex.next()) continue;
+              if (currentVertex.is_double()) z = currentVertex.get_double();
+              else if (currentVertex.is_integer()) z = currentVertex.get_integer();
+              else continue;
+              vertices.push_back(std::tuple<double, double, double>(x, y, z));
+              //          std::cout << "Parsed (" << x << ", " << y << ", " << z << ")" << std::endl;
+            }
+          } while (verticesIterator->next());
         }
-      } while (verticesIterator->next());
+        
+        // CityObjects
+        if (cityObjectsIterator != NULL && cityObjectsIterator->is_object() && cityObjectsIterator->down()) {
+          do {
+            parsedFile.children.push_back(AzulObject());
+            const char *objectId = cityObjectsIterator->get_string();
+            parsedFile.children.back().id = objectId;
+            cityObjectsIterator->next();
+            parseCityJSONObject(*cityObjectsIterator, parsedFile.children.back(), vertices);
+          } while (cityObjectsIterator->next());
+        }
+
+      } else {
+        std::cout << "Unsupported version" << std::endl;
+      }
     }
-    
-    // CityObjects
-    if (cityObjectsIterator != NULL && cityObjectsIterator->is_object() && cityObjectsIterator->down()) {
-      do {
-        parsedFile.children.push_back(AzulObject());
-        const char *objectId = cityObjectsIterator->get_string();
-        parsedFile.children.back().id = objectId;
-        cityObjectsIterator->next();
-        parseCityJSONObject(*cityObjectsIterator, parsedFile.children.back(), vertices);
-      } while (cityObjectsIterator->next());
-    }
-    
+
     if (verticesIterator != NULL) delete verticesIterator;
     if (cityObjectsIterator != NULL) delete cityObjectsIterator;
     if (metadataIterator != NULL) delete metadataIterator;

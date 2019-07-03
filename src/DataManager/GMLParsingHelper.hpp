@@ -143,6 +143,8 @@ class GMLParsingHelper {
           buildNodesIndex(node, nodesById);
           std::cout << " done (" << nodesById.size() << " entries)." << std::endl;
           parseCityGMLObject(node, parsedObject, nodesById);
+        } else {
+          std::cout << "Unsupported version" << std::endl;
         }
       }
     } 
