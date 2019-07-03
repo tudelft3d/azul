@@ -360,6 +360,37 @@ public:
     if (geometryTemplatesIterator != NULL) delete geometryTemplatesIterator;
   }
   
+  void dump(ParsedJson::iterator &iterator) {
+    if (iterator.is_string()) std::cout << iterator.get_string();
+    else if (iterator.is_integer()) std::cout << iterator.get_integer();
+    else if (iterator.is_double()) std::cout << iterator.get_double();
+    else if (iterator.is_array()) {
+      std::cout << "[";
+      if (iterator.down()) {
+        dump(iterator);
+        while (iterator.next()) {
+          std::cout << ",";
+          dump(iterator);
+        } iterator.up();
+      } std::cout << "]";
+    } else if (iterator.is_object()) {
+      std::cout << "{";
+      if (iterator.down()) {
+        std::cout << iterator.get_string();
+        std::cout << ":";
+        iterator.next();
+        dump(iterator);
+        while (iterator.next()) {
+          std::cout << ",";
+          std::cout << iterator.get_string();
+          std::cout << ":";
+          iterator.next();
+          dump(iterator);
+        } iterator.up();
+      } std::cout << "}";
+    }
+  }
+  
   void clearDOM() {
 //    json.clear();
   }
