@@ -62,131 +62,103 @@ class JSONParsingHelper {
 //          }
 //        }
 //      }
-//
-//      else if (geometry["type"] == "Solid") {
-////        std::cout << "Shells: " << geometry["boundaries"].dump() << std::endl;
-//        for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"].size(); ++shellIndex) {
-////          std::cout << "Shell: " << geometry["boundaries"][shellIndex].dump() << std::endl;
-//          for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][shellIndex].size(); ++surfaceIndex) {
-////            std::cout << "Surface: " << geometry["boundaries"][shellIndex][surfaceIndex].dump() << std::endl;
-//            std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][shellIndex][surfaceIndex];
-//            std::string surfaceType;
-//            if (geometry.count("semantics")) {
-////              std::cout << "Surface semantics: " << geometry["semantics"] << std::endl;
-//              if (geometry["semantics"]["values"].size() > shellIndex &&
-//                  !geometry["semantics"]["values"][shellIndex].is_null()) {
-//                if (geometry["semantics"]["values"][shellIndex].size() > surfaceIndex &&
-//                    !geometry["semantics"]["values"][shellIndex][surfaceIndex].is_null()) {
-//                  std::size_t semanticSurfaceIndex = geometry["semantics"]["values"][shellIndex][surfaceIndex];
-//                  auto const &surfaceSemantics = geometry["semantics"]["surfaces"][semanticSurfaceIndex];
-//                  surfaceType = surfaceSemantics["type"];
-//                  std::cout << "Surface type: " << surfaceType << std::endl;
-//                  AzulObject newChild;
-//                  newChild.type = surfaceType;
-//                  AzulPolygon newPolygon;
-//                  parseCityJSONPolygon(surface, newPolygon, vertices);
-//                  newChild.polygons.push_back(newPolygon);
-//                  object.children.push_back(newChild);
-//                } else {
-//                  AzulPolygon newPolygon;
-//                  parseCityJSONPolygon(surface, newPolygon, vertices);
-//                  object.polygons.push_back(newPolygon);
-//                }
-//              } else {
-//                AzulPolygon newPolygon;
-//                parseCityJSONPolygon(surface, newPolygon, vertices);
-//                object.polygons.push_back(newPolygon);
-//              }
-//            } else {
-//              AzulPolygon newPolygon;
-//              parseCityJSONPolygon(surface, newPolygon, vertices);
-//              object.polygons.push_back(newPolygon);
-//            }
-//          }
-//        }
-//      }
-//
-//      else if (geometry["type"] == "MultiSolid" || geometry["type"] == "CompositeSolid") {
-////        std::cout << "Solids: " << geometry["boundaries"].dump() << std::endl;
-//        for (unsigned int solidIndex = 0; solidIndex < geometry["boundaries"].size(); ++solidIndex) {
-////          std::cout << "Shells: " << geometry["boundaries"][solidIndex].dump() << std::endl;
-//          for (unsigned int shellIndex = 0; shellIndex < geometry["boundaries"][solidIndex].size(); ++shellIndex) {
-////            std::cout << "Shell: " << geometry["boundaries"][solidIndex][shellIndex].dump() << std::endl;
-//            for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"][solidIndex][shellIndex].size(); ++surfaceIndex) {
-////              std::cout << "Surface: " << geometry["boundaries"][solidIndex][shellIndex][surfaceIndex].dump() << std::endl;
-//              std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][solidIndex][shellIndex][surfaceIndex];
-//              std::string surfaceType;
-//              if (geometry.count("semantics")) {
-////                std::cout << "Surface semantics: " << geometry["semantics"] << std::endl;
-//                if (geometry["semantics"]["values"].size() > solidIndex &&
-//                    !geometry["semantics"]["values"][solidIndex].is_null()) {
-//                  if (geometry["semantics"]["values"].size() > shellIndex &&
-//                      !geometry["semantics"]["values"][solidIndex][shellIndex].is_null()) {
-//                    if (geometry["semantics"]["values"][solidIndex][shellIndex].size() > surfaceIndex &&
-//                        !geometry["semantics"]["values"][solidIndex][shellIndex][surfaceIndex].is_null()) {
-//                      std::size_t semanticSurfaceIndex = geometry["semantics"]["values"][solidIndex][shellIndex][surfaceIndex];
-//                      auto const &surfaceSemantics = geometry["semantics"]["surfaces"][semanticSurfaceIndex];
-//                      surfaceType = surfaceSemantics["type"];
-//                      std::cout << "Surface type: " << surfaceType << std::endl;
-//                      AzulObject newChild;
-//                      newChild.type = surfaceType;
-//                      AzulPolygon newPolygon;
-//                      parseCityJSONPolygon(surface, newPolygon, vertices);
-//                      newChild.polygons.push_back(newPolygon);
-//                      object.children.push_back(newChild);
-//                    } else {
-//                      AzulPolygon newPolygon;
-//                      parseCityJSONPolygon(surface, newPolygon, vertices);
-//                      object.polygons.push_back(newPolygon);
-//                    }
-//                  } else {
-//                    AzulPolygon newPolygon;
-//                    parseCityJSONPolygon(surface, newPolygon, vertices);
-//                    object.polygons.push_back(newPolygon);
-//                  }
-//                } else {
-//                  AzulPolygon newPolygon;
-//                  parseCityJSONPolygon(surface, newPolygon, vertices);
-//                  object.polygons.push_back(newPolygon);
-//                }
-//              } else {
-//                AzulPolygon newPolygon;
-//                parseCityJSONPolygon(surface, newPolygon, vertices);
-//                object.polygons.push_back(newPolygon);
-//              }
-//            }
-//          }
-//        }
-//      }
-//
-//      else {
-//        std::cout << "Unsupported geometry: " << geometry["type"] << std::endl;
-//      }
-//    }
-//
-////    for (auto const &attribute: jsonObject.value()["attributes"]) {
-////      object.attributes.append(std::pair<std::string, std::string>(attribute.k,));
-////    }
   
-  void parseCityJSONGeometry(ParsedJson::iterator &jsonGeometry, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
-//    if (strcmp(geometryType.c_str(), "MultiSurface") != 0 ||
-//        strcmp(geometryType.c_str(), "CompositeSurface") != 0) {
-//      //                      std::cout << "MultiSurface" << std::endl;
-//      if (boundariesIterator->is_array()) {
-//        ParsedJson::iterator currentSurface(*boundariesIterator);
-//        if (!currentSurface.down()) continue;
-//        parseCityJSONPolygon(currentSurface);
+  void parseCityJSONObject(ParsedJson::iterator &jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+    ParsedJson::iterator currentCityObject(jsonObject);
+    if (!currentCityObject.is_object()) return;
+    currentCityObject.down();
+    
+    do {
+      if (currentCityObject.get_string_length() == 4 && memcmp(currentCityObject.get_string(), "type", 4) == 0) {
+        currentCityObject.next();
+        object.type = currentCityObject.get_string();
+      }
+      
+      else if (currentCityObject.get_string_length() == 10 && memcmp(currentCityObject.get_string(), "attributes", 10) == 0) {
+        currentCityObject.next();
+        ParsedJson::iterator currentAttribute(currentCityObject);
+        if (currentAttribute.is_object() && currentAttribute.down()) {
+          do {
+            const char *attributeName = currentAttribute.get_string();
+            currentAttribute.next();
+            if (currentAttribute.is_string()) object.attributes.push_back(std::pair<std::string, std::string>(attributeName, currentAttribute.get_string()));
+            else if (currentAttribute.is_double()) object.attributes.push_back(std::pair<std::string, std::string>(attributeName, std::to_string(currentAttribute.get_double())));
+            else if (currentAttribute.is_integer()) object.attributes.push_back(std::pair<std::string, std::string>(attributeName, std::to_string(currentAttribute.get_integer())));
+          } while (currentAttribute.next());
+        }
+      }
+      
+      else if (currentCityObject.get_string_length() == 8 && memcmp(currentCityObject.get_string(), "geometry", 8) == 0) {
+        currentCityObject.next();
+        ParsedJson::iterator currentGeometry(currentCityObject);
+        if (currentGeometry.is_array() && currentGeometry.down()) {
+          do {
+            if (currentGeometry.is_object()) {
+              ParsedJson::iterator currentGeometryMember(currentGeometry);
+              ParsedJson::iterator *boundariesIterator = NULL, *semanticsIterator = NULL;
+              std::string geometryType, geometryLod;
+              if (currentGeometryMember.down()) {
+                do {
+                  if (currentGeometryMember.get_string_length() == 4 && memcmp(currentGeometryMember.get_string(), "type", 4) == 0) {
+                    currentGeometryMember.next();
+                    if (currentGeometryMember.is_string()) geometryType = currentGeometryMember.get_string();
+                  } else if (currentGeometryMember.get_string_length() == 3 && memcmp(currentGeometryMember.get_string(), "lod", 3) == 0) {
+                    currentGeometryMember.next();
+                    if (currentGeometryMember.is_string()) geometryLod = currentGeometryMember.get_string();
+                    else if (currentGeometryMember.is_double()) geometryLod = std::to_string(currentGeometryMember.get_double());
+                    else if (currentGeometryMember.is_integer()) geometryLod = std::to_string(currentGeometryMember.get_integer());
+                  } else if (currentGeometryMember.get_string_length() == 10 && memcmp(currentGeometryMember.get_string(), "boundaries", 10) == 0) {
+                    currentGeometryMember.next();
+                    boundariesIterator = new ParsedJson::iterator(currentGeometryMember);
+                  } else if (currentGeometryMember.get_string_length() == 9 && memcmp(currentGeometryMember.get_string(), "semantics", 9) == 0) {
+                    currentGeometryMember.next();
+                    semanticsIterator = new ParsedJson::iterator(currentGeometryMember);
+                  } else currentGeometryMember.next();
+                } while (currentGeometryMember.next());
+              }
+              
+              if (geometryType.empty() || geometryLod.empty() || boundariesIterator == NULL) continue;
+              object.children.push_back(AzulObject());
+              object.children.back().type = "LoD";
+              object.children.back().id = geometryLod;
+              
+              if (strcmp(geometryType.c_str(), "MultiSurface") != 0 ||
+                  strcmp(geometryType.c_str(), "CompositeSurface") != 0) {
+                parseCityJSONGeometry(boundariesIterator, semanticsIterator, 2, object.children.back(), vertices);
+              }
+              
+              else if (strcmp(geometryType.c_str(), "Solid") != 0) {
+                parseCityJSONGeometry(boundariesIterator, semanticsIterator, 3, object.children.back(), vertices);
+              }
+              
+              else if (strcmp(geometryType.c_str(), "MultiSolid") != 0 ||
+                       strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
+                parseCityJSONGeometry(boundariesIterator, semanticsIterator, 4, object.children.back(), vertices);
+              }
+              
+              if (boundariesIterator != NULL) delete boundariesIterator;
+              if (semanticsIterator != NULL) delete semanticsIterator;
+            }
+          } while (currentGeometry.next());
+        }
+      }
+      
+      else currentCityObject.next();
+    } while (currentCityObject.next());
+  }
+  
+  void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+    if (nesting > 1) {
+//      ParsedJson::iterator currentBoundary(jsonBoundaries);
+//      ParsedJson::iterator currentSemantics(jsonSemantics);
+//      if (currentBoundary.is_array() && currentBoundary.down() && currentSemantics.is_array() && currentSemantics.down()) {
+//        do {
+//          parseCityJSONGeometry(currentBoundary, currentSemantics, nesting-1, object, vertices);
+//        } while (currentBoundary.next() && currentSemantics.next());
 //      }
-//    }
-//
-//    else if (strcmp(geometryType.c_str(), "Solid") != 0) {
-//      std::cout << "Solid" << std::endl;
-//    }
-//
-//    else if (strcmp(geometryType.c_str(), "MultiSolid") != 0 ||
-//             strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
-//      std::cout << "MultiSolid" << std::endl;
-//    }
+    } else {
+      
+    }
   }
 
   void parseCityJSONPolygon(ParsedJson::iterator &jsonPolygon, AzulPolygon &polygon, std::vector<std::tuple<double, double, double>> &vertices) {
@@ -300,74 +272,11 @@ public:
     // CityObjects
     if (cityObjectsIterator != NULL && cityObjectsIterator->is_object() && cityObjectsIterator->down()) {
       do {
-//        std::cout << "Parsing ";
-//        cityObjectsIterator->print(std::cout);
-//        std::cout << "..." << std::endl;
         parsedFile.children.push_back(AzulObject());
         const char *objectId = cityObjectsIterator->get_string();
         parsedFile.children.back().id = objectId;
         cityObjectsIterator->next();
-        ParsedJson::iterator currentCityObject(*cityObjectsIterator);
-        if (!currentCityObject.is_object()) continue;
-        currentCityObject.down();
-        do {
-          if (currentCityObject.get_string_length() == 4 && memcmp(currentCityObject.get_string(), "type", 4) == 0) {
-            currentCityObject.next();
-            parsedFile.children.back().type = currentCityObject.get_string();
-          }
-          
-          else if (currentCityObject.get_string_length() == 10 && memcmp(currentCityObject.get_string(), "attributes", 10) == 0) {
-            currentCityObject.next();
-            ParsedJson::iterator currentAttribute(currentCityObject);
-            if (currentAttribute.is_object() && currentAttribute.down()) {
-              do {
-                const char *attributeName = currentAttribute.get_string();
-                currentAttribute.next();
-                if (currentAttribute.is_string()) parsedFile.children.back().attributes.push_back(std::pair<std::string, std::string>(attributeName, currentAttribute.get_string()));
-                else if (currentAttribute.is_double()) parsedFile.children.back().attributes.push_back(std::pair<std::string, std::string>(attributeName, std::to_string(currentAttribute.get_double())));
-                else if (currentAttribute.is_integer()) parsedFile.children.back().attributes.push_back(std::pair<std::string, std::string>(attributeName, std::to_string(currentAttribute.get_integer())));
-              } while (currentAttribute.next());
-            }
-          }
-          
-          else if (currentCityObject.get_string_length() == 8 && memcmp(currentCityObject.get_string(), "geometry", 8) == 0) {
-            currentCityObject.next();
-            ParsedJson::iterator currentGeometry(currentCityObject);
-            if (currentGeometry.is_array() && currentGeometry.down()) {
-              do {
-                if (currentGeometry.is_object()) {
-                  ParsedJson::iterator currentGeometryParts(currentGeometry);
-                  if (currentGeometryParts.down()) {
-                    ParsedJson::iterator *boundariesIterator = NULL;
-                    std::string geometryType, geometryLod;
-                    do {
-                      if (currentGeometryParts.get_string_length() == 4 && memcmp(currentGeometryParts.get_string(), "type", 4) == 0) {
-                        currentGeometryParts.next();
-                        if (currentGeometryParts.is_string()) geometryType = currentGeometryParts.get_string();
-                      } else if (currentGeometryParts.get_string_length() == 3 && memcmp(currentGeometryParts.get_string(), "lod", 3) == 0) {
-                        currentGeometryParts.next();
-                        if (currentGeometryParts.is_string()) geometryLod = currentGeometryParts.get_string();
-                        else if (currentGeometryParts.is_double()) geometryLod = std::to_string(currentGeometryParts.get_double());
-                        else if (currentGeometryParts.is_integer()) geometryLod = std::to_string(currentGeometryParts.get_integer());
-                      } else if (currentGeometryParts.get_string_length() == 10 && memcmp(currentGeometryParts.get_string(), "boundaries", 10) == 0) {
-                        currentGeometryParts.next();
-                        boundariesIterator = new ParsedJson::iterator(currentGeometryParts);
-                      } else currentGeometryParts.next();
-                    } while (currentGeometryParts.next());
-                    parsedFile.children.back().children.push_back(AzulObject());
-                    parsedFile.children.back().children.back().type = "LoD";
-                    parsedFile.children.back().children.back().id = geometryLod;
-                    if (boundariesIterator == NULL) continue;
-                    parseCityJSONGeometry(*boundariesIterator, parsedFile.children.back().children.back(), vertices);
-                    if (boundariesIterator != NULL) delete boundariesIterator;
-                  }
-                }
-              } while (currentGeometry.next());
-            }
-          }
-          
-          else currentCityObject.next();
-        } while (currentCityObject.next());
+        parseCityJSONObject(*cityObjectsIterator, parsedFile.children.back(), vertices);
       } while (cityObjectsIterator->next());
     }
     
