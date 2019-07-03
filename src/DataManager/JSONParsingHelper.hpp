@@ -176,11 +176,18 @@ class JSONParsingHelper {
   }
   
   void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, std::vector<std::map<std::string, std::string>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
-    if (jsonBoundaries == NULL) return;
-    ParsedJson::iterator currentBoundary(*jsonBoundaries);
-    if (!currentBoundary.is_array() || !currentBoundary.down()) return;
+//    std::cout << "jsonBoundaries: ";
+//    dump(*jsonBoundaries);
+//    std::cout << std::endl;
+//    std::cout << "jsonSemantics: ";
+//    dump(*jsonSemantics);
+//    std::cout << std::endl;
+//    std::cout << "nesting: " << nesting << std::endl;
+//    if (jsonBoundaries == NULL) return;
     
     if (nesting > 1) {
+      ParsedJson::iterator currentBoundary(*jsonBoundaries);
+      if (!currentBoundary.is_array() || !currentBoundary.down()) return;
       if (jsonSemantics != NULL && jsonSemantics->is_array()) {
         ParsedJson::iterator currentSemantics(*jsonSemantics);
         if (currentSemantics.down()) {
@@ -202,6 +209,7 @@ class JSONParsingHelper {
     }
     
     else if (nesting == 1) {
+      ParsedJson::iterator currentBoundary(*jsonBoundaries);
       if (jsonSemantics != NULL && jsonSemantics->is_integer()) {
         if (jsonSemantics->is_integer() && jsonSemantics->get_integer() < semanticSurfaces.size()) {
           object.children.push_back(AzulObject());
@@ -242,11 +250,12 @@ class JSONParsingHelper {
     ParsedJson::iterator jsonVertex(jsonRing);
     if (jsonVertex.is_array() && jsonVertex.down()) {
       do {
-        if (jsonVertex.is_integer()) {
+        if (jsonVertex.is_integer() && jsonVertex.get_integer() < vertices.size()) {
           ring.points.push_back(AzulPoint());
           ring.points.back().coordinates[0] = std::get<0>(vertices[jsonVertex.get_integer()]);
           ring.points.back().coordinates[1] = std::get<1>(vertices[jsonVertex.get_integer()]);
           ring.points.back().coordinates[2] = std::get<2>(vertices[jsonVertex.get_integer()]);
+//          std::cout << "Putting point (" << ring.points.back().coordinates[0] << ", " << ring.points.back().coordinates[1] << ", " << ring.points.back().coordinates[2] << ")" << std::endl;
         } ring.points.push_back(ring.points.front());
       } while (jsonVertex.next());
     }
