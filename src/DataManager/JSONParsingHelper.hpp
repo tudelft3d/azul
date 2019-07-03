@@ -353,6 +353,9 @@ public:
                              strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
       
                     }
+                    if (boundariesIterator == NULL) continue;
+                    parseCityJSONGeometry(*boundariesIterator, parsedFile.children.back().children.back(), vertices);
+                    if (boundariesIterator != NULL) delete boundariesIterator;
                   }
                 }
               } while (currentGeometry.next());
@@ -363,6 +366,11 @@ public:
         } while (currentCityObject.next());
       } while (cityObjectsIterator->next());
     }
+    
+    if (verticesIterator != NULL) delete verticesIterator;
+    if (cityObjectsIterator != NULL) delete cityObjectsIterator;
+    if (metadataIterator != NULL) delete metadataIterator;
+    if (geometryTemplatesIterator != NULL) delete geometryTemplatesIterator;
   }
   
   void clearDOM() {
