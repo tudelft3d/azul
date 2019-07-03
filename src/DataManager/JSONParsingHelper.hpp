@@ -189,6 +189,7 @@ class JSONParsingHelper {
 //    }
   }
 
+  void parseCityJSONPolygon(ParsedJson::iterator &jsonPolygon, AzulPolygon &polygon, std::vector<std::tuple<double, double, double>> &vertices) {
 //    bool outer = true;
 //    for (auto const &ring: jsonPolygon) {
 //      if (outer) {
@@ -199,14 +200,14 @@ class JSONParsingHelper {
 //        parseCityJSONRing(ring, polygon.interiorRings.back(), vertices);
 //      }
 //    }
-//  }
-//
-//  void parseCityJSONRing(const std::vector<std::size_t> &jsonRing, AzulRing &ring, std::vector<std::vector<double>> &vertices) {
+  }
+
+  void parseCityJSONRing(ParsedJson::iterator &jsonRing, AzulRing &ring, std::vector<std::tuple<double, double, double>> &vertices) {
 //    for (auto const &point: jsonRing) {
 //      ring.points.push_back(AzulPoint());
 //      for (int dimension = 0; dimension < 3; ++dimension) ring.points.back().coordinates[dimension] = vertices[point][dimension];
 //    } ring.points.push_back(ring.points.front());
-//  }
+  }
 
 public:
   void parse(const char *filePath, AzulObject &parsedFile) {
@@ -337,7 +338,7 @@ public:
                 if (currentGeometry.is_object()) {
                   ParsedJson::iterator currentGeometryParts(currentGeometry);
                   if (currentGeometryParts.down()) {
-                    ParsedJson::iterator *boundariesIterator;
+                    ParsedJson::iterator *boundariesIterator = NULL;
                     std::string geometryType, geometryLod;
                     do {
                       if (currentGeometryParts.get_string_length() == 4 && memcmp(currentGeometryParts.get_string(), "type", 4) == 0) {
@@ -356,20 +357,6 @@ public:
                     parsedFile.children.back().children.push_back(AzulObject());
                     parsedFile.children.back().children.back().type = "LoD";
                     parsedFile.children.back().children.back().id = geometryLod;
-                    
-                    if (strcmp(geometryType.c_str(), "MultiSurface") != 0 ||
-                        strcmp(geometryType.c_str(), "CompositeSurface") != 0) {
-      
-                    }
-      
-                    else if (strcmp(geometryType.c_str(), "Solid") != 0) {
-      
-                    }
-      
-                    else if (strcmp(geometryType.c_str(), "MultiSolid") != 0 ||
-                             strcmp(geometryType.c_str(), "CompositeSolid") != 0) {
-      
-                    }
                     if (boundariesIterator == NULL) continue;
                     parseCityJSONGeometry(*boundariesIterator, parsedFile.children.back().children.back(), vertices);
                     if (boundariesIterator != NULL) delete boundariesIterator;
