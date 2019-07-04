@@ -21,47 +21,6 @@
 #include "simdjson/jsonparser.h"
 
 class JSONParsingHelper {
-    
-//    object.id = jsonObject.key();
-//    //  std::cout << "ID: " << object.id << std::endl;
-//    object.type = jsonObject.value()["type"];
-//    //  std::cout << "Type: " << object.type << std::endl;
-//
-//    for (auto const &geometry: jsonObject.value()["geometry"]) {
-////      std::cout << "Geometry: " << geometry.dump(2) << std::endl;
-//
-//      if (geometry["type"] == "MultiSurface" || geometry["type"] == "CompositeSurface") {
-////        std::cout << "Surfaces: " << geometry["boundaries"].dump() << std::endl;
-//        for (unsigned int surfaceIndex = 0; surfaceIndex < geometry["boundaries"].size(); ++surfaceIndex) {
-////          std::cout << "Surface: " << geometry["boundaries"][surfaceIndex].dump() << std::endl;
-//          std::vector<std::vector<std::size_t>> surface = geometry["boundaries"][surfaceIndex];
-//          std::string surfaceType;
-//          if (geometry.count("semantics")) {
-////            std::cout << "Surface semantics: " << geometry["semantics"] << std::endl;
-//            if (geometry["semantics"]["values"].size() > surfaceIndex &&
-//                !geometry["semantics"]["values"][surfaceIndex].is_null()) {
-//              std::size_t semanticSurfaceIndex = geometry["semantics"]["values"][surfaceIndex];
-//              auto const &surfaceSemantics = geometry["semantics"]["surfaces"][semanticSurfaceIndex];
-//              surfaceType = surfaceSemantics["type"];
-//              std::cout << "Surface type: " << surfaceType << std::endl;
-//              AzulObject newChild;
-//              newChild.type = surfaceType;
-//              AzulPolygon newPolygon;
-//              parseCityJSONPolygon(surface, newPolygon, vertices);
-//              newChild.polygons.push_back(newPolygon);
-//              object.children.push_back(newChild);
-//            } else {
-//              AzulPolygon newPolygon;
-//              parseCityJSONPolygon(surface, newPolygon, vertices);
-//              object.polygons.push_back(newPolygon);
-//            }
-//          } else {
-//            AzulPolygon newPolygon;
-//            parseCityJSONPolygon(surface, newPolygon, vertices);
-//            object.polygons.push_back(newPolygon);
-//          }
-//        }
-//      }
   
   void parseCityJSONObject(ParsedJson::iterator &jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
     ParsedJson::iterator currentCityObject(jsonObject);
@@ -176,14 +135,6 @@ class JSONParsingHelper {
   }
   
   void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, std::vector<std::map<std::string, std::string>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
-//    std::cout << "jsonBoundaries: ";
-//    dump(*jsonBoundaries);
-//    std::cout << std::endl;
-//    std::cout << "jsonSemantics: ";
-//    dump(*jsonSemantics);
-//    std::cout << std::endl;
-//    std::cout << "nesting: " << nesting << std::endl;
-//    if (jsonBoundaries == NULL) return;
     
     if (nesting > 1) {
       ParsedJson::iterator currentBoundary(*jsonBoundaries);
