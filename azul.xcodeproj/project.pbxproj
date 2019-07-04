@@ -23,6 +23,8 @@
 		BE8C43D41F8D1E880021CA0B /* off.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CC1F8D1CAD0021CA0B /* off.icns */; };
 		BE8C43D51F8D1E8A0021CA0B /* poly.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CA1F8D1CAD0021CA0B /* poly.icns */; };
 		BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43D61F8D1EA50021CA0B /* xml.icns */; };
+		BE919E2F22CB5BAC002D42C5 /* simdjson in Resources */ = {isa = PBXBuildFile; fileRef = BE919E2E22CB5BAB002D42C5 /* simdjson */; };
+		BE919E3122CB64AD002D42C5 /* libsimdjson.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE919E3022CB64AD002D42C5 /* libsimdjson.a */; };
 		BEA3000E1F8EDB4F00DCC464 /* json.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEA3000D1F8EDB4800DCC464 /* json.icns */; };
 		BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */; };
 		BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */; };
@@ -61,13 +63,14 @@
 		BE8C43CC1F8D1CAD0021CA0B /* off.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = off.icns; sourceTree = "<group>"; };
 		BE8C43CD1F8D1CAD0021CA0B /* obj.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = obj.icns; sourceTree = "<group>"; };
 		BE8C43D61F8D1EA50021CA0B /* xml.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = xml.icns; sourceTree = "<group>"; };
+		BE919E2E22CB5BAB002D42C5 /* simdjson */ = {isa = PBXFileReference; lastKnownFileType = folder; path = simdjson; sourceTree = "<group>"; };
+		BE919E3022CB64AD002D42C5 /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libsimdjson.a; sourceTree = "<group>"; };
 		BEA2DACF1F705479002FBEF4 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		BEA2DAD01F705482002FBEF4 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		BEA2DAD21F7055A7002FBEF4 /* JSONParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSONParsingHelper.hpp; sourceTree = "<group>"; };
 		BEA3000D1F8EDB4800DCC464 /* json.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = json.icns; sourceTree = "<group>"; };
 		BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = azulview.icns; sourceTree = "<group>"; };
-		BECCEE4B1F7058B500527DC1 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		BED5AF5C1F6FC4960002A79E /* DataManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataManager.hpp; sourceTree = "<group>"; };
 		BED5AF5D1F6FC4960002A79E /* DataModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataModel.hpp; sourceTree = "<group>"; };
 		BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GMLParsingHelper.hpp; sourceTree = "<group>"; };
@@ -100,6 +103,7 @@
 				BE674A8822BCF485007B55B0 /* libboost_thread-mt.dylib in Frameworks */,
 				BE674A8922BCF485007B55B0 /* libboost_system-mt.dylib in Frameworks */,
 				BE88F43C2284BD6000A23F31 /* libmpfr.a in Frameworks */,
+				BE919E3122CB64AD002D42C5 /* libsimdjson.a in Frameworks */,
 				BE88F43D2284BD6000A23F31 /* libgmp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -144,13 +148,13 @@
 		BED5AF601F6FC49D0002A79E /* DataManager */ = {
 			isa = PBXGroup;
 			children = (
+				BE919E2E22CB5BAB002D42C5 /* simdjson */,
 				BEF1B7CB2283B90600A0DA71 /* Enhanced_constrained_triangulation_2.h */,
 				BED5AF5F1F6FC4970002A79E /* PerformanceHelper.hpp */,
 				BED5AF761F6FD2800002A79E /* PerformanceHelperWrapperWrapper.h */,
 				BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */,
 				BED5AF5D1F6FC4960002A79E /* DataModel.hpp */,
 				BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */,
-				BECCEE4B1F7058B500527DC1 /* json.hpp */,
 				BEA2DAD21F7055A7002FBEF4 /* JSONParsingHelper.hpp */,
 				BE5182981F7D3812000A7066 /* OBJParsingHelper.hpp */,
 				BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */,
@@ -173,6 +177,7 @@
 				BE674A8722BCF485007B55B0 /* libboost_system-mt.dylib */,
 				BE674A8622BCF485007B55B0 /* libboost_thread-mt.dylib */,
 				BE88F4442284BDAD00A23F31 /* libpugixml.a */,
+				BE919E3022CB64AD002D42C5 /* libsimdjson.a */,
 				BE88F4392284BD6000A23F31 /* libgmp.a */,
 				BE88F4382284BD6000A23F31 /* libmpfr.a */,
 			);
@@ -280,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEF69F431F6AA0520079531B /* Assets.xcassets in Resources */,
+				BE919E2F22CB5BAC002D42C5 /* simdjson in Resources */,
 				BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */,
 				BE8C43D21F8D1E830021CA0B /* gml.icns in Resources */,
 				BEA3000E1F8EDB4F00DCC464 /* json.icns in Resources */,
@@ -440,7 +446,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = azul.entitlements;
@@ -448,15 +454,25 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
+				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = /usr/local/include;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"\"$(SRCROOT)/src/DataManager\"",
+				);
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					"/usr/local/Cellar/pugixml/1.9/lib/pugixml-1.9",
+					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-march=native",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "src/azul-Bridging-Header.h";
@@ -469,7 +485,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = azul.entitlements;
@@ -477,18 +493,28 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
-				HEADER_SEARCH_PATHS = /usr/local/include;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"\"$(SRCROOT)/src/DataManager\"",
+				);
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					"/usr/local/Cellar/pugixml/1.9/lib/pugixml-1.9",
+					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-march=native",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "src/azul-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

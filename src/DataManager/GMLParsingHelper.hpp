@@ -40,6 +40,8 @@ class GMLParsingHelper {
         const char *nodeType = typeWithoutNamespace(node.name());
         if (strcmp(nodeType, "relativeGMLGeometry") == 0 ||
             
+            strcmp(nodeType, "appearance") == 0 ||
+            strcmp(nodeType, "appearanceMember") == 0 ||
             strcmp(nodeType, "baseSurface") == 0 ||
             strcmp(nodeType, "curveMember") == 0 ||
             strcmp(nodeType, "curveMembers") == 0 ||
@@ -50,11 +52,14 @@ class GMLParsingHelper {
             strcmp(nodeType, "patches") == 0||
             strcmp(nodeType, "pointMember") == 0 ||
             strcmp(nodeType, "pointMembers") == 0 ||
+            strcmp(nodeType, "referencePoint") == 0 ||
             strcmp(nodeType, "segments") == 0 ||
             strcmp(nodeType, "solidMember") == 0 ||
             strcmp(nodeType, "solidMembers") == 0 ||
+            strcmp(nodeType, "surfaceDataMember") == 0 ||
             strcmp(nodeType, "surfaceMember") == 0 ||
             strcmp(nodeType, "surfaceMembers") == 0 ||
+            strcmp(nodeType, "target") == 0 ||
             strcmp(nodeType, "trianglePatches") == 0) {
         } else {
           std::cout << "Xlinked " << nodeType << std::endl;
@@ -138,6 +143,8 @@ class GMLParsingHelper {
           buildNodesIndex(node, nodesById);
           std::cout << " done (" << nodesById.size() << " entries)." << std::endl;
           parseCityGMLObject(node, parsedObject, nodesById);
+        } else {
+          std::cout << "Unsupported version" << std::endl;
         }
       }
     } 
