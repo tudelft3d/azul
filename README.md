@@ -42,16 +42,19 @@ You can download the latest stable release of azul in the [releases page](https:
 
 ## Technical details
 
-azul is written in a mix of C++17, Swift 5, Objective-C 2 and Objective-C++. The core is written in C++, but it uses Apple's Metal for visualisation and SIMD for fast vector/matrix computations. It uses [pugixml](https://pugixml.org) in order to parse XML, Niels Lohmann's [simdjson](https://github.com/lemire/simdjson) library, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
+azul is written in a mix of C++17, Swift 5, Objective-C 2 and Objective-C++. The core is written in C++ for future portability, but it uses Apple's Metal for visualisation and SIMD for fast vector/matrix computations. It uses [pugixml](https://pugixml.org) to parse XML, [simdjson](https://github.com/lemire/simdjson) to parse JSON, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
 
 ## Not implemented / ideas for the future
 
 * Removing (unloading) files
-* Toggle to hide objects
+* Icons for missing types
+* Better handling of big coordinates
 * Improved search with live viewing of matching objects
+* Reordering hierarchies in sidebar
+* Way to navigate xlinks / implicit parent-child relationships
+* Use status bar to indicate actions, success/failure
 * Customising colours, more complex materials
 * Materials and textures (loaded from files)
-* Implicit representations
 * Shifting the rotation point out of the data plane
 * Using a rotation point at a visible object in the centre (good for zooming in and rotating)
 * Showing the data plane and rotation point
@@ -64,9 +67,9 @@ azul is written in a mix of C++17, Swift 5, Objective-C 2 and Objective-C++. The
 
 ## Compilation
 
-We have included an Xcode 10 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 4.
+We have included an Xcode 10 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 5.
 
-azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org), [pugixml](http://pugixml.org) and [simdjson](https://github.com/lemire/simdjson). These can be easily obtained using [Homebrew](http://brew.sh), but we provide bundled static versions of them for convenience.
+azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org), [pugixml](http://pugixml.org) and [simdjson](https://github.com/lemire/simdjson). Most of these can be easily obtained using [Homebrew](http://brew.sh), but we provide bundled static versions of them for convenience.
 
 ## Licence
 

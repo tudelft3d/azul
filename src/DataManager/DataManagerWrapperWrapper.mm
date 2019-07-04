@@ -413,7 +413,7 @@ struct DataManagerWrapper {
   [controller reloadEdgeBuffers];
   [[controller metalView] setNeedsDisplay:YES];
   
-  [[controller attributesTableView] reloadData];
+//  [[controller attributesTableView] reloadData];
 }
 
 - (void) toggleVisibilityForSelection:(NSOutlineView *)outlineView {
@@ -452,7 +452,7 @@ struct DataManagerWrapper {
   [controller reloadEdgeBuffers];
   [[controller metalView] setNeedsDisplay:YES];
   
-  [[controller attributesTableView] reloadData];
+//  [[controller attributesTableView] reloadData];
 }
 
 @end

@@ -331,14 +331,12 @@ class GMLParsingHelper {
         if (strcmp(attributeType, "href") == 0) xlink = attribute.value();
       } if (xlink != NULL) {
         if (xlink[0] == '#') ++xlink;
-        std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlink);
-        if (xlinkNode != nodesById.end()) {
-//          const char *xlinkType = typeWithoutNamespace(xlinkNode->second.name());
-//          std::cout << xlinkType << " with xlink " << xlink << " found. Putting it in " << parsedObject.type << "." << std::endl;
-          parseCityGMLObject(xlinkNode->second, parsedObject, nodesById);
-        } else {
-          std::cout << "Geometry with xlink " << xlink << " not found. Skipped." << std::endl;
-        }
+//        std::unordered_map<std::string, pugi::xml_node>::const_iterator xlinkNode = nodesById.find(xlink);
+//        if (xlinkNode != nodesById.end()) {
+//          parseCityGMLObject(xlinkNode->second, parsedObject, nodesById);
+//        } else {
+//          std::cout << "Geometry with xlink " << xlink << " not found. Skipped." << std::endl;
+//        }
       }
     }
     
