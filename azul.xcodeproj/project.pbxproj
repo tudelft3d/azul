@@ -16,7 +16,6 @@
 		BE8C43D41F8D1E880021CA0B /* off.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CC1F8D1CAD0021CA0B /* off.icns */; };
 		BE8C43D51F8D1E8A0021CA0B /* poly.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CA1F8D1CAD0021CA0B /* poly.icns */; };
 		BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43D61F8D1EA50021CA0B /* xml.icns */; };
-		BE919E2F22CB5BAC002D42C5 /* simdjson in Resources */ = {isa = PBXBuildFile; fileRef = BE919E2E22CB5BAB002D42C5 /* simdjson */; };
 		BEA3000E1F8EDB4F00DCC464 /* json.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEA3000D1F8EDB4800DCC464 /* json.icns */; };
 		BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */; };
 		BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */; };
@@ -285,7 +284,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEF69F431F6AA0520079531B /* Assets.xcassets in Resources */,
-				BE919E2F22CB5BAC002D42C5 /* simdjson in Resources */,
 				BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */,
 				BE8C43D21F8D1E830021CA0B /* gml.icns in Resources */,
 				BEA3000E1F8EDB4F00DCC464 /* json.icns in Resources */,
@@ -454,6 +452,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
@@ -464,8 +463,6 @@
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"/usr/local/Cellar/pugixml/1.9/lib/pugixml-1.9",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/libs",
 				);
@@ -494,6 +491,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = (
@@ -503,8 +501,6 @@
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"/usr/local/Cellar/pugixml/1.9/lib/pugixml-1.9",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/libs",
 				);
