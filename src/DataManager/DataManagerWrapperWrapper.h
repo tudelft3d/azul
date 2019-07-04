@@ -90,6 +90,7 @@ struct DataManagerWrapper;
 
 // Toggling visibility
 - (void) toggleVisibility:(id)sender;
+- (void) toggleVisibilityForSelection:(NSOutlineView *)outlineView;
 
 @end
 

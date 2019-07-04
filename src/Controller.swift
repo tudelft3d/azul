@@ -94,6 +94,18 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   }
 }
 
+class OutlineView: NSOutlineView {
+  var controller: Controller?
+  override func keyDown(with event: NSEvent) {
+    switch event.charactersIgnoringModifiers![(event.charactersIgnoringModifiers?.startIndex)!] {
+    case " ":
+      controller?.dataManager.toggleVisibility(forSelection: controller?.objectsSourceList)
+    default:
+      super.keyDown(with: event)
+    }
+  }
+}
+
 @NSApplicationMain
 @objc class Controller: NSObject, NSApplicationDelegate {
 
@@ -103,7 +115,7 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
   @objc var searchField: NSSearchField?
   var objectsScrollView: NSScrollView?
   var objectsClipView: NSClipView?
-  @objc var objectsSourceList: NSOutlineView?
+  @objc var objectsSourceList: OutlineView?
   var objectsSourceListColumn: NSTableColumn?
   var attributesScrollView: NSScrollView?
   var attributesClipView: NSClipView?
@@ -174,7 +186,8 @@ class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
     objectsClipView = NSClipView(frame: leftSplitView!.subviews[1].bounds)
     objectsScrollView!.contentView = objectsClipView!
     
-    objectsSourceList = NSOutlineView(frame: objectsScrollView!.bounds)
+    objectsSourceList = OutlineView(frame: objectsScrollView!.bounds)
+    objectsSourceList!.controller = self
     objectsSourceList!.selectionHighlightStyle = .sourceList
     objectsSourceList!.floatsGroupRows = false
     objectsSourceList!.indentationPerLevel = 16

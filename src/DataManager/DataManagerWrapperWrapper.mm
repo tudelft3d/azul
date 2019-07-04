@@ -416,4 +416,43 @@ struct DataManagerWrapper {
   [[controller attributesTableView] reloadData];
 }
 
+- (void) toggleVisibilityForSelection:(NSOutlineView *)outlineView {
+  NSIndexSet *rows = [outlineView selectedRowIndexes];
+  __block bool allVisible = true;
+  [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *_Nonnull stop) {
+    if (![[outlineView itemAtRow:idx] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
+    else {
+      AzulObjectIterator *currentItem = [outlineView itemAtRow:idx];
+      if ([currentItem iterator]->visible != 'Y') allVisible = false;
+    }
+  }];
+  if (allVisible) {
+    [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *_Nonnull stop) {
+      if (![[outlineView itemAtRow:idx] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
+      else {
+        AzulObjectIterator *currentItem = [outlineView itemAtRow:idx];
+        self->dataManagerWrapper->dataManager->setVisible(*[currentItem iterator], 'N');
+        [outlineView reloadItem:currentItem reloadChildren:YES];
+      }
+    }];
+  } else {
+    [rows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *_Nonnull stop) {
+      if (![[outlineView itemAtRow:idx] isKindOfClass:[AzulObjectIterator class]]) NSLog(@"Uh-oh!");
+      else {
+        AzulObjectIterator *currentItem = [outlineView itemAtRow:idx];
+        self->dataManagerWrapper->dataManager->setVisible(*[currentItem iterator], 'Y');
+        [outlineView reloadItem:currentItem reloadChildren:YES];
+      }
+    }];
+  }
+  
+  dataManagerWrapper->dataManager->regenerateTriangleBuffers(16*1024*1024);
+  [controller reloadTriangleBuffers];
+  dataManagerWrapper->dataManager->regenerateEdgeBuffers(16*1024*1024);
+  [controller reloadEdgeBuffers];
+  [[controller metalView] setNeedsDisplay:YES];
+  
+  [[controller attributesTableView] reloadData];
+}
+
 @end
