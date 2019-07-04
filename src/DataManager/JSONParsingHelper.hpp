@@ -79,19 +79,21 @@ class JSONParsingHelper {
                           currentSemantics.next();
                           ParsedJson::iterator currentSemanticSurface(currentSemantics);
                           if (currentSemanticSurface.is_array() && currentSemanticSurface.down()) {
-                            semanticSurfaces.push_back(std::map<std::string, std::string>());
-                            ParsedJson::iterator currentAttribute(currentSemanticSurface);
-                            if (currentAttribute.is_object() && currentAttribute.down()) {
-                              do {
-                                if (currentAttribute.is_string()) {
-                                  const char *attributeName = currentAttribute.get_string();
-                                  currentAttribute.next();
-                                  if (currentAttribute.is_string()) semanticSurfaces.back()[attributeName] = currentAttribute.get_string();
-                                  else if (currentAttribute.is_double()) semanticSurfaces.back()[attributeName] = std::to_string(currentAttribute.get_double());
-                                  else if (currentAttribute.is_integer()) semanticSurfaces.back()[attributeName] = std::to_string(currentAttribute.get_integer());
-                                } else currentAttribute.next();
-                              } while (currentAttribute.next());
-                            }
+                            do {
+                              semanticSurfaces.push_back(std::map<std::string, std::string>());
+                              ParsedJson::iterator currentAttribute(currentSemanticSurface);
+                              if (currentAttribute.is_object() && currentAttribute.down()) {
+                                do {
+                                  if (currentAttribute.is_string()) {
+                                    const char *attributeName = currentAttribute.get_string();
+                                    currentAttribute.next();
+                                    if (currentAttribute.is_string()) semanticSurfaces.back()[attributeName] = currentAttribute.get_string();
+                                    else if (currentAttribute.is_double()) semanticSurfaces.back()[attributeName] = std::to_string(currentAttribute.get_double());
+                                    else if (currentAttribute.is_integer()) semanticSurfaces.back()[attributeName] = std::to_string(currentAttribute.get_integer());
+                                  } else currentAttribute.next();
+                                } while (currentAttribute.next());
+                              }
+                            } while (currentSemanticSurface.next());
                           }
                         } else if (currentSemantics.get_string_length() == 6 && memcmp(currentSemantics.get_string(), "values", 6) == 0) {
                           currentSemantics.next();
@@ -135,6 +137,17 @@ class JSONParsingHelper {
   }
   
   void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, std::vector<std::map<std::string, std::string>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+//    std::cout << "jsonBoundaries: ";
+//    dump(*jsonBoundaries);
+//    std::cout << std::endl;
+//    std::cout << "jsonSemantics: ";
+//    dump(*jsonSemantics);
+//    std::cout << std::endl;
+//    std::cout << "semanticSurfaces: ";
+//    dump(semanticSurfaces);
+//    std::cout << std::endl;
+//    std::cout << "nesting: " << nesting << std::endl;
+    if (jsonBoundaries == NULL) return;
     
     if (nesting > 1) {
       ParsedJson::iterator currentBoundary(*jsonBoundaries);
@@ -165,9 +178,10 @@ class JSONParsingHelper {
         if (jsonSemantics->is_integer() && jsonSemantics->get_integer() < semanticSurfaces.size()) {
           object.children.push_back(AzulObject());
           for (auto const &attribute: semanticSurfaces[jsonSemantics->get_integer()]) {
-//            std::cout << attribute.first << ": " << attribute.second << std::endl;
-            if (strcmp(attribute.first.c_str(), "type") == 0) object.children.back().type = attribute.second;
-            else object.children.back().attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
+            if (strcmp(attribute.first.c_str(), "type") == 0) {
+//              std::cout << attribute.first << ": " << attribute.second << std::endl;
+              object.children.back().type = attribute.second;
+            } else object.children.back().attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
           } object.children.back().polygons.push_back(AzulPolygon());
           parseCityJSONPolygon(currentBoundary, object.children.back().polygons.back(), vertices);
         } else {
@@ -349,6 +363,16 @@ public:
         } iterator.up();
       } std::cout << "}";
     }
+  }
+  
+  void dump(std::vector<std::map<std::string, std::string>> &semanticSurfaces) {
+    std::cout << "[";
+    for (auto const &surface: semanticSurfaces) {
+      std::cout << "{";
+      for (auto const &attribute: surface) {
+        std::cout << attribute.first << ":" << attribute.second;
+      } std::cout << "}";
+    } std::cout << "]";
   }
   
   void clearDOM() {
