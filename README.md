@@ -1,6 +1,6 @@
 # ![Icon](https://3d.bk.tudelft.nl/ken/img/azul-small.png) azul
 
-azul is a 3D viewer for macOS 10.13. It is intended for viewing 3D city models in (City)GML, CityJSON, OBJ, OFF and POLY. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, and browsing their attributes. It is currently pre-release software, but it is pretty stable and most datasets already work without problems. It is available under the GPLv3 licence.
+azul is a 3D viewer for macOS 10.14 and higher. It is intended for viewing 3D city models in (City)GML, CityJSON, OBJ, OFF and POLY. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, toggling the visibility of individual items, and browsing their attributes. It is currently pre-release software, but it is pretty stable and most datasets already work without problems. It is available under the GPLv3 licence.
 
 ## Controls
 
@@ -42,7 +42,7 @@ You can download the latest stable release of azul in the [releases page](https:
 
 ## Technical details
 
-azul is written in a mix of C++14, Swift 4, Objective-C 2 and Objective-C++. The core is written in C++, but it uses Apple's Metal for visualisation and SIMD for fast vector/matrix computations. It uses [pugixml](https://pugixml.org) in order to parse XML, Niels Lohmann's [JSON for Modern C++](https://github.com/nlohmann/json) library, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
+azul is written in a mix of C++17, Swift 5, Objective-C 2 and Objective-C++. The core is written in C++, but it uses Apple's Metal for visualisation and SIMD for fast vector/matrix computations. It uses [pugixml](https://pugixml.org) in order to parse XML, Niels Lohmann's [simdjson](https://github.com/lemire/simdjson) library, and the [CGAL](https://www.cgal.org) Triangulation package to triangulate concave polygons for display.
 
 ## Not implemented / ideas for the future
 
@@ -64,9 +64,9 @@ azul is written in a mix of C++14, Swift 4, Objective-C 2 and Objective-C++. The
 
 ## Compilation
 
-We have included an Xcode 9 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 4.
+We have included an Xcode 10 project to easily compile azul. Note that older versions of Xcode cannot compile Swift 4.
 
-azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org) and [pugixml](http://pugixml.org). These can be easily obtained using [Homebrew](http://brew.sh), but we provide bundled static versions of them for convenience.
+azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org), [pugixml](http://pugixml.org) and [simdjson](https://github.com/lemire/simdjson). These can be easily obtained using [Homebrew](http://brew.sh), but we provide bundled static versions of them for convenience.
 
 ## Licence
 
