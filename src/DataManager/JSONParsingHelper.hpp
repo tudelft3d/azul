@@ -273,6 +273,7 @@ public:
     if (strcmp(docType, "CityJSON") == 0) {
       std::cout << docType << " " << docVersion << " detected" << std::endl;
       if (strcmp(docVersion, "1.0") == 0) {
+        
         // Metadata
         if (metadataIterator != NULL && metadataIterator->is_object() && metadataIterator->down()) {
           do {
@@ -285,6 +286,58 @@ public:
               std::cout << attributeName << " is a complex attribute. Skipped." << std::endl;
             }
           } while (metadataIterator->next());
+        }
+        
+        // Geometry templates
+        std::vector<AzulObject> geometryTemplates;
+        std::vector<std::tuple<double, double, double>> geometryTemplatesVertices;
+        if (geometryTemplatesIterator != NULL && geometryTemplatesIterator->is_object() && geometryTemplatesIterator->down()) {
+          ParsedJson::iterator *templatesIterator = NULL, *templatesVerticesIterator = NULL;
+          do {
+            if (geometryTemplatesIterator->get_string_length() == 9 && memcmp(geometryTemplatesIterator->get_string(), "templates", 9) == 0) {
+              geometryTemplatesIterator->next();
+              templatesIterator = new ParsedJson::iterator(*geometryTemplatesIterator);
+            } else if (geometryTemplatesIterator->get_string_length() == 18 &&
+                       memcmp(geometryTemplatesIterator->get_string(), "vertices-templates", 18) == 0) {
+              geometryTemplatesIterator->next();
+              templatesVerticesIterator = new ParsedJson::iterator(*geometryTemplatesIterator);
+            } else geometryTemplatesIterator->next();
+          } while (geometryTemplatesIterator->next());
+
+          // Template vertices
+          if (templatesVerticesIterator != NULL && templatesVerticesIterator->is_array() && templatesVerticesIterator->down()) {
+            do {
+              ParsedJson::iterator currentVertex(*templatesVerticesIterator);
+              if (currentVertex.is_array()) {
+                currentVertex.down();
+                double x, y, z;
+                if (currentVertex.is_double()) x = currentVertex.get_double();
+                else if (currentVertex.is_integer()) x = currentVertex.get_integer();
+                else continue;
+                if (!currentVertex.next()) continue;
+                if (currentVertex.is_double()) y = currentVertex.get_double();
+                else if (currentVertex.is_integer()) y = currentVertex.get_integer();
+                else continue;
+                if (!currentVertex.next()) continue;
+                if (currentVertex.is_double()) z = currentVertex.get_double();
+                else if (currentVertex.is_integer()) z = currentVertex.get_integer();
+                else continue;
+                geometryTemplatesVertices.push_back(std::tuple<double, double, double>(x, y, z));
+              }
+            } while (templatesVerticesIterator->next());
+          }
+
+          // Templates
+          if (templatesIterator != NULL && templatesIterator->is_array() && templatesIterator->down()) {
+            do {
+              geometryTemplates.push_back(AzulObject());
+              parseCityJSONObject(*templatesIterator, geometryTemplates.back(), geometryTemplatesVertices);
+            } while (templatesIterator->next());
+//            std::cout << "Parsed " << geometryTemplates.size() << " templates" << std::endl;
+          }
+
+          if (templatesIterator != NULL) delete templatesIterator;
+          if (templatesVerticesIterator != NULL) delete templatesVerticesIterator;
         }
         
         // Vertices
