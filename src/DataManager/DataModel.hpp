@@ -22,28 +22,54 @@
 
 struct AzulPoint {
   float coordinates[3];
+  AzulPoint() {}
+  AzulPoint(const AzulPoint &other) {
+    for (int i = 0; i < 3; ++i) coordinates[i] = other.coordinates[i];
+  }
 };
 
 struct AzulVector {
   float components[3];
+  AzulVector() {}
+  AzulVector(const AzulVector &other) {
+    for (int i = 0; i < 3; ++i) components[i] = other.components[i];
+  }
 };
 
 struct AzulRing {
   std::vector<AzulPoint> points;
+  AzulRing() {}
+  AzulRing(const AzulRing &other) {
+    for (auto const &point: other.points) points.push_back(AzulPoint(point));
+  }
 };
 
 struct AzulPolygon {
   AzulRing exteriorRing;
   std::vector<AzulRing> interiorRings;
+  AzulPolygon() {}
+  AzulPolygon(const AzulPolygon &other) {
+    for (auto const &point: other.exteriorRing.points) exteriorRing.points.push_back(AzulPoint(point));
+    for (auto const &ring: other.interiorRings) interiorRings.push_back(AzulRing(ring));
+  }
 };
 
 struct AzulTriangle {
   AzulPoint points[3];
   AzulVector normals[3];
+  AzulTriangle() {}
+  AzulTriangle(const AzulTriangle &other) {
+    for (int i = 0; i < 3; ++i) points[i] = other.points[i];
+    for (int i = 0; i < 3; ++i) normals[i] = other.normals[i];
+  }
 };
 
 struct AzulEdge {
   AzulPoint points[2];
+  AzulEdge() {}
+  AzulEdge(const AzulEdge &other) {
+    for (int i = 0; i < 2; ++i) for (int j = 0; j < 3; ++j) points[i].coordinates[j] = other.points[i].coordinates[j];
+  }
 };
 
 struct AzulObject {
@@ -57,10 +83,24 @@ struct AzulObject {
   std::vector<AzulPolygon> polygons;
   std::vector<AzulTriangle> triangles;
   std::vector<AzulEdge> edges;
+  
   AzulObject() {
     selected = false;
     visible = 'Y';
     matchesSearch = 'U';
+  }
+  
+  AzulObject(const AzulObject &other) {
+    type = other.type;
+    id = other.id;
+    selected = other.selected;
+    visible = other.visible;
+    matchesSearch = other.matchesSearch;
+    for (auto const &attribute: other.attributes) attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
+    for (auto const &child: other.children) children.push_back(AzulObject(child));
+    for (auto const &polygon: other.polygons) polygons.push_back(AzulPolygon(polygon));
+    for (auto const &triangle: other.triangles) triangles.push_back(AzulTriangle(triangle));
+    for (auto const &edge: other.edges) edges.push_back(AzulEdge(edge));
   }
 };
 
