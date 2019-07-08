@@ -32,13 +32,13 @@ You can download the latest stable release of azul in the [releases page](https:
 
 ![LOD2 example](https://3d.bk.tudelft.nl/ken/img/azul/lod2.png)
 
-![The Hague](https://3d.bk.tudelft.nl/ken/img/azul/denhaag.png)
-
-![CityGML 2.0 sample dataset](https://3d.bk.tudelft.nl/ken/img/azul/citygml2.png)
-
-![Ettenheim](https://3d.bk.tudelft.nl/ken/img/azul/ettenheim.png)
+![Railway](https://3d.bk.tudelft.nl/ken/img/azul/railway.png)
 
 ![New York City](https://3d.bk.tudelft.nl/ken/img/azul/nyc.png)
+
+![Leiden](https://3d.bk.tudelft.nl/ken/img/azul/leiden.png)
+
+![Zurich](https://3d.bk.tudelft.nl/ken/img/azul/zurich.png)
 
 ## Technical details
 
