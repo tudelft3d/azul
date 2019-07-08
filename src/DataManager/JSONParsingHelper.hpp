@@ -22,7 +22,7 @@
 
 class JSONParsingHelper {
   
-  void parseCityJSONObject(ParsedJson::iterator &jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
+  void parseCityJSONObject(ParsedJson::iterator &jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
     ParsedJson::iterator currentCityObject(jsonObject);
     if (!currentCityObject.is_object()) return;
     currentCityObject.down();
@@ -404,7 +404,7 @@ public:
 //        std::cout << "Translation: (" << translation[0] << ", " << translation[1] << ", " << translation[2] << ")" << std::endl;
         
         // Geometry templates
-        std::vector<AzulObject> geometryTemplates;
+        AzulObject geometryTemplates;
         std::vector<std::tuple<double, double, double>> geometryTemplatesVertices;
         if (geometryTemplatesIterator != NULL && geometryTemplatesIterator->is_object() && geometryTemplatesIterator->down()) {
           ParsedJson::iterator *templatesIterator = NULL, *templatesVerticesIterator = NULL;
@@ -445,10 +445,8 @@ public:
           // Templates
           if (templatesIterator != NULL && templatesIterator->is_array() && templatesIterator->down()) {
             do {
-              geometryTemplates.push_back(AzulObject());
-              parseCityJSONObject(*templatesIterator, geometryTemplates.back(), geometryTemplatesVertices);
+              parseCityJSONObjectGeometry(*templatesIterator, geometryTemplates, geometryTemplatesVertices, NULL);
             } while (templatesIterator->next());
-//            std::cout << "Parsed " << geometryTemplates.size() << " templates" << std::endl;
           }
 
           if (templatesIterator != NULL) delete templatesIterator;
@@ -490,7 +488,7 @@ public:
             const char *objectId = cityObjectsIterator->get_string();
             parsedFile.children.back().id = objectId;
             cityObjectsIterator->next();
-            parseCityJSONObject(*cityObjectsIterator, parsedFile.children.back(), vertices);
+            parseCityJSONObject(*cityObjectsIterator, parsedFile.children.back(), vertices, &geometryTemplates);
           } while (cityObjectsIterator->next());
         }
 
