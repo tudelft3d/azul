@@ -216,16 +216,6 @@ class JSONParsingHelper {
   }
   
   void parseCityJSONGeometry(ParsedJson::iterator *jsonBoundaries, ParsedJson::iterator *jsonSemantics, std::vector<std::map<std::string, std::string>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
-//    std::cout << "jsonBoundaries: ";
-//    dump(*jsonBoundaries);
-//    std::cout << std::endl;
-//    std::cout << "jsonSemantics: ";
-//    dump(*jsonSemantics);
-//    std::cout << std::endl;
-//    std::cout << "semanticSurfaces: ";
-//    dump(semanticSurfaces);
-//    std::cout << std::endl;
-//    std::cout << "nesting: " << nesting << std::endl;
     if (jsonBoundaries == NULL) return;
     
     if (nesting > 1) {
@@ -258,7 +248,6 @@ class JSONParsingHelper {
           object.children.push_back(AzulObject());
           for (auto const &attribute: semanticSurfaces[jsonSemantics->get_integer()]) {
             if (strcmp(attribute.first.c_str(), "type") == 0) {
-//              std::cout << attribute.first << ": " << attribute.second << std::endl;
               object.children.back().type = attribute.second;
             } else object.children.back().attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
           } object.children.back().polygons.push_back(AzulPolygon());
@@ -400,8 +389,6 @@ public:
           translation.clear();
           for (int i = 0; i < 3; ++i) scale.push_back(0.0);
         }
-//        std::cout << "Scale: (" << scale[0] << ", " << scale[1] << ", " << scale[2] << ")" << std::endl;
-//        std::cout << "Translation: (" << translation[0] << ", " << translation[1] << ", " << translation[2] << ")" << std::endl;
         
         // Geometry templates
         AzulObject geometryTemplates;
@@ -476,7 +463,6 @@ public:
               else continue;
               z = scale[2]*z+translation[2];
               vertices.push_back(std::tuple<double, double, double>(x, y, z));
-              //          std::cout << "Parsed (" << x << ", " << y << ", " << z << ")" << std::endl;
             }
           } while (verticesIterator->next());
         }
