@@ -288,6 +288,41 @@ public:
           } while (metadataIterator->next());
         }
         
+        // Transform object
+        std::vector<double> scale;
+        std::vector<double> translation;
+        if (transformIterator != NULL && transformIterator->is_object() && transformIterator->down()) {
+          do {
+            if (transformIterator->get_string_length() == 5 && memcmp(transformIterator->get_string(), "scale", 5) == 0) {
+              transformIterator->next();
+              if (transformIterator->is_array() && transformIterator->down()) {
+                do {
+                  if (transformIterator->is_double()) scale.push_back(transformIterator->get_double());
+                  else if (transformIterator->is_integer()) scale.push_back(transformIterator->get_integer());
+                } while (transformIterator->next());
+                transformIterator->up();
+              }
+            } else if (transformIterator->get_string_length() == 9 && memcmp(transformIterator->get_string(), "translate", 9) == 0) {
+              transformIterator->next();
+              if (transformIterator->is_array() && transformIterator->down()) {
+                do {
+                  if (transformIterator->is_double()) translation.push_back(transformIterator->get_double());
+                  else if (transformIterator->is_integer()) translation.push_back(transformIterator->get_integer());
+                } while (transformIterator->next());
+                transformIterator->up();
+              }
+            } else transformIterator->next();
+          } while (transformIterator->next());
+        } if (scale.size() != 3) {
+          scale.clear();
+          for (int i = 0; i < 3; ++i) scale.push_back(1.0);
+        } if (translation.size() != 3) {
+          translation.clear();
+          for (int i = 0; i < 3; ++i) scale.push_back(0.0);
+        }
+//        std::cout << "Scale: (" << scale[0] << ", " << scale[1] << ", " << scale[2] << ")" << std::endl;
+//        std::cout << "Translation: (" << translation[0] << ", " << translation[1] << ", " << translation[2] << ")" << std::endl;
+        
         // Geometry templates
         std::vector<AzulObject> geometryTemplates;
         std::vector<std::tuple<double, double, double>> geometryTemplatesVertices;
@@ -385,6 +420,7 @@ public:
     if (cityObjectsIterator != NULL) delete cityObjectsIterator;
     if (metadataIterator != NULL) delete metadataIterator;
     if (geometryTemplatesIterator != NULL) delete geometryTemplatesIterator;
+    if (transformIterator != NULL) delete transformIterator;
   }
   
   void dump(ParsedJson::iterator &iterator) {
