@@ -457,7 +457,7 @@ public:
     }
   }
   
-  void dump(std::vector<std::map<std::string, std::string>> &semanticSurfaces) {
+  void dump(const std::vector<std::map<std::string, std::string>> &semanticSurfaces) {
     std::cout << "[";
     for (auto const &surface: semanticSurfaces) {
       std::cout << "{";
