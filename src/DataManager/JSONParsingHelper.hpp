@@ -387,7 +387,7 @@ public:
           for (int i = 0; i < 3; ++i) scale.push_back(1.0);
         } if (translation.size() != 3) {
           translation.clear();
-          for (int i = 0; i < 3; ++i) scale.push_back(0.0);
+          for (int i = 0; i < 3; ++i) translation.push_back(0.0);
         }
         
         // Geometry templates
