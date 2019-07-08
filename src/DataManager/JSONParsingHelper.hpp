@@ -319,7 +319,7 @@ public:
     
     // Check what we have
     ParsedJson::iterator iterator(parsedJson);
-    ParsedJson::iterator *verticesIterator = NULL, *cityObjectsIterator = NULL, *metadataIterator = NULL, *geometryTemplatesIterator = NULL;
+    ParsedJson::iterator *verticesIterator = NULL, *cityObjectsIterator = NULL, *metadataIterator = NULL, *geometryTemplatesIterator = NULL, *transformIterator = NULL;
     if (!iterator.is_object() || !iterator.down()) return;
     do {
       if (iterator.get_string_length() == 4 && memcmp(iterator.get_string(), "type", 4) == 0) {
@@ -335,6 +335,7 @@ public:
         metadataIterator = new ParsedJson::iterator(iterator);
       } else if (iterator.get_string_length() == 9 && memcmp(iterator.get_string(), "transform", 9) == 0) {
         iterator.next();
+        transformIterator = new ParsedJson::iterator(iterator);
       } else if (iterator.get_string_length() == 11 && memcmp(iterator.get_string(), "CityObjects", 11) == 0) {
         iterator.next();
         cityObjectsIterator = new ParsedJson::iterator(iterator);
