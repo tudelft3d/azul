@@ -50,6 +50,7 @@
 		BE834FBB1F8EF86D00C49914 /* citygml2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = citygml2.png; sourceTree = "<group>"; };
 		BE834FBC1F8EF86E00C49914 /* ettenheim.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ettenheim.png; sourceTree = "<group>"; };
 		BE834FBD1F8EF91100C49914 /* nyc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nyc.png; sourceTree = "<group>"; };
+		BE89E06422D3C5AF003BBA86 /* PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRIVACY.md; sourceTree = "<group>"; };
 		BE8C43CA1F8D1CAD0021CA0B /* poly.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = poly.icns; sourceTree = "<group>"; };
 		BE8C43CB1F8D1CAD0021CA0B /* gml.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = gml.icns; sourceTree = "<group>"; };
 		BE8C43CC1F8D1CAD0021CA0B /* off.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = off.icns; sourceTree = "<group>"; };
@@ -189,6 +190,7 @@
 				BEF69F481F6AA0520079531B /* azul.entitlements */,
 				BEA2DACF1F705479002FBEF4 /* LICENSE */,
 				BEA2DAD01F705482002FBEF4 /* README.md */,
+				BE89E06422D3C5AF003BBA86 /* PRIVACY.md */,
 				BE834FBE1F8EF91800C49914 /* screenshots */,
 				BEB3C3511F8E5C8A00F14F1A /* libs */,
 				BEF69F3F1F6AA0520079531B /* src */,
