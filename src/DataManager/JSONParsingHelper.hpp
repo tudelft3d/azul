@@ -386,14 +386,17 @@ public:
               if (currentVertex.is_double()) x = currentVertex.get_double();
               else if (currentVertex.is_integer()) x = currentVertex.get_integer();
               else continue;
+              x = scale[0]*x+translation[0];
               if (!currentVertex.next()) continue;
               if (currentVertex.is_double()) y = currentVertex.get_double();
               else if (currentVertex.is_integer()) y = currentVertex.get_integer();
               else continue;
+              y = scale[1]*y+translation[1];
               if (!currentVertex.next()) continue;
               if (currentVertex.is_double()) z = currentVertex.get_double();
               else if (currentVertex.is_integer()) z = currentVertex.get_integer();
               else continue;
+              z = scale[2]*z+translation[2];
               vertices.push_back(std::tuple<double, double, double>(x, y, z));
               //          std::cout << "Parsed (" << x << ", " << y << ", " << z << ")" << std::endl;
             }
