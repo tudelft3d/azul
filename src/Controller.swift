@@ -567,78 +567,78 @@ class OutlineView: NSOutlineView {
     let maxRange = dataManager.maxRange()
     
     // Create bounding box vertices
-    let boundingBoxVertices: [Vertex] = [Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 000 -> 001
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 000 -> 010
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 000 -> 100
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 001 -> 011
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 001 -> 101
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 010 -> 011
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 010 -> 110
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((minCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 011 -> 111
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 100 -> 101
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 100 -> 110
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (minCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 101 -> 111
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange)),
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 110 -> 111
-                                         Vertex(position: float3((maxCoordinates[0]-midCoordinates[0])/maxRange,
-                                                                 (maxCoordinates[1]-midCoordinates[1])/maxRange,
-                                                                 (maxCoordinates[2]-midCoordinates[2])/maxRange))]
+    let boundingBoxVertices: [Vertex] = [Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 000 -> 001
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 000 -> 010
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 000 -> 100
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 001 -> 011
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 001 -> 101
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 010 -> 011
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 010 -> 110
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((minCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 011 -> 111
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 100 -> 101
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 100 -> 110
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (minCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),  // 101 -> 111
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange)),
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (minCoordinates[2]-midCoordinates[2])/maxRange)),  // 110 -> 111
+                                         Vertex(position: SIMD3<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange,
+                                                                       (maxCoordinates[1]-midCoordinates[1])/maxRange,
+                                                                       (maxCoordinates[2]-midCoordinates[2])/maxRange))]
     metalView!.boundingBoxBuffer = metalView!.device!.makeBuffer(bytes: boundingBoxVertices, length: MemoryLayout<Vertex>.size*boundingBoxVertices.count, options: [])
   }
   
@@ -653,8 +653,8 @@ class OutlineView: NSOutlineView {
       
       let firstBufferColourComponent = self.dataManager.currentTriangleBufferColour()
       let bufferColourBuffer = UnsafeBufferPointer(start: firstBufferColourComponent, count: 4)
-      var bufferColourArray = ContiguousArray(bufferColourBuffer)
-      let bufferColour = float4(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
+      let bufferColourArray = ContiguousArray(bufferColourBuffer)
+      let bufferColour = SIMD4<Float>(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
       
       var bufferSize: Int = 0
       let buffer = self.dataManager.currentTriangleBuffer(withSize: &bufferSize)
@@ -671,8 +671,8 @@ class OutlineView: NSOutlineView {
     while !self.dataManager.edgeBufferIteratorEnded() {
       let firstBufferColourComponent = self.dataManager.currentEdgeBufferColour()
       let bufferColourBuffer = UnsafeBufferPointer(start: firstBufferColourComponent, count: 4)
-      var bufferColourArray = ContiguousArray(bufferColourBuffer)
-      let bufferColour = float4(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
+      let bufferColourArray = ContiguousArray(bufferColourBuffer)
+      let bufferColour = SIMD4<Float>(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
       
       var bufferSize: Int = 0
       let buffer = self.dataManager.currentEdgeBuffer(withSize: &bufferSize)

@@ -22,22 +22,22 @@ struct Constants {
   var modelViewProjectionMatrix = matrix_identity_float4x4
   var modelMatrixInverseTransposed = matrix_identity_float3x3
   var viewMatrixInverse = matrix_identity_float4x4
-  var colour = float4(0.0, 0.0, 0.0, 1.0)
+  var colour = SIMD4<Float>(0.0, 0.0, 0.0, 1.0)
 }
 
 struct Vertex {
-  var position: float3
+  var position: SIMD3<Float>
 }
 
 struct VertexWithNormal {
-  var position: float3
-  var normal: float3
+  var position: SIMD3<Float>
+  var normal: SIMD3<Float>
 }
 
 struct BufferWithColour {
   var buffer: MTLBuffer
   var type: String
-  var colour: float4
+  var colour: SIMD4<Float>
 }
 
 @objc class MetalView: MTKView {
@@ -61,8 +61,8 @@ struct BufferWithColour {
   
   var constants = Constants()
   
-  var eye = float3(0.0, 0.0, 0.0)
-  var centre = float3(0.0, 0.0, -1.0)
+  var eye = SIMD3<Float>(0.0, 0.0, 0.0)
+  var centre = SIMD3<Float>(0.0, 0.0, -1.0)
   var fieldOfView: Float = 1.047197551196598
   
   @objc var modelTranslationToCentreOfRotationMatrix = matrix_identity_float4x4
@@ -124,7 +124,7 @@ struct BufferWithColour {
     // Matrices
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: SIMD3<Float>(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
@@ -194,7 +194,7 @@ struct BufferWithColour {
     
     if viewBoundingBox && boundingBoxBuffer != nil {
       renderEncoder.setVertexBuffer(boundingBoxBuffer, offset:0, index:0)
-      constants.colour = float4(0.0, 0.0, 0.0, 1.0)
+      constants.colour = SIMD4<Float>(0.0, 0.0, 0.0, 1.0)
       renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
       renderEncoder.drawPrimitives(type: .line, vertexStart: 0, vertexCount: boundingBoxBuffer!.length/MemoryLayout<Vertex>.size)
     }
@@ -234,9 +234,9 @@ struct BufferWithColour {
     let maxRange = dataManager!.maxRange()
 
     // Create three points along the data plane
-    let leftUpPointInObjectCoordinates = float4((minCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
-    let rightUpPointInObjectCoordinates = float4((maxCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
-    let centreDownPointInObjectCoordinates = float4(0.0, (minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let leftUpPointInObjectCoordinates = SIMD4<Float>((minCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let rightUpPointInObjectCoordinates = SIMD4<Float>((maxCoordinates[0]-midCoordinates[0])/maxRange, (maxCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
+    let centreDownPointInObjectCoordinates = SIMD4<Float>(0.0, (minCoordinates[1]-midCoordinates[1])/maxRange, 0.0, 1.0)
 
     // Obtain their coordinates in eye space
     let modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix)
@@ -246,10 +246,10 @@ struct BufferWithColour {
 
     // Compute the plane passing through the points.
     // In ax + by + cz + d = 0, abc are given by the cross product, d by evaluating a point in the equation.
-    let vector1 = float3(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z)
-    let vector2 = float3(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z)
+    let vector1 = SIMD3<Float>(leftUpPoint.x-centreDownPoint.x, leftUpPoint.y-centreDownPoint.y, leftUpPoint.z-centreDownPoint.z)
+    let vector2 = SIMD3<Float>(rightUpPoint.x-centreDownPoint.x, rightUpPoint.y-centreDownPoint.y, rightUpPoint.z-centreDownPoint.z)
     let crossProduct = cross(vector1, vector2)
-    let point3 = float3(centreDownPoint.x/centreDownPoint.w, centreDownPoint.y/centreDownPoint.w, centreDownPoint.z/centreDownPoint.w)
+    let point3 = SIMD3<Float>(centreDownPoint.x/centreDownPoint.w, centreDownPoint.y/centreDownPoint.w, centreDownPoint.z/centreDownPoint.w)
     let d = -dot(crossProduct, point3)
 
     // Assuming x = 0 and y = 0, z (i.e. depth at the centre) = -d/c
@@ -263,7 +263,7 @@ struct BufferWithColour {
 
     // Motion according to trackpad
     let scrollingSensitivity: Float = 0.003*(fieldOfView/(3.141519/4.0))
-    let motionInCameraCoordinates = float3(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
+    let motionInCameraCoordinates = SIMD3<Float>(scrollingSensitivity*Float(event.scrollingDeltaX), -scrollingSensitivity*Float(event.scrollingDeltaY), 0.0)
     var cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
     let motionInObjectCoordinates = matrix_multiply(cameraToObject, motionInCameraCoordinates)
     modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: motionInObjectCoordinates))
@@ -273,7 +273,7 @@ struct BufferWithColour {
     cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
     let depthOffset = 1.0+depthAtCentre()
     //    Swift.print("Depth offset: \(depthOffset)")
-    let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
+    let depthOffsetInCameraCoordinates = SIMD3<Float>(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
     modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
@@ -302,7 +302,7 @@ struct BufferWithColour {
     //    Swift.print("MetalView.rotate()")
     //    Swift.print("Rotation angle: \(event.rotation)")
     
-    let axisInCameraCoordinates = float3(0.0, 0.0, 1.0)
+    let axisInCameraCoordinates = SIMD3<Float>(0.0, 0.0, 1.0)
     let cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
     let axisInObjectCoordinates = matrix_multiply(cameraToObject, axisInCameraCoordinates)
     modelRotationMatrix = matrix_multiply(modelRotationMatrix, matrix4x4_rotation(angle: 3.14159*event.rotation/180.0, axis: axisInObjectCoordinates))
@@ -323,12 +323,12 @@ struct BufferWithColour {
     let currentX: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x) / bounds.size.width)
     let currentY: Float = Float(-1.0 + 2.0*(window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y) / bounds.size.height)
     let currentZ: Float = sqrt(1.0 - (currentX*currentX+currentY*currentY))
-    let currentPosition = normalize(float3(currentX, currentY, currentZ))
+    let currentPosition = normalize(SIMD3<Float>(currentX, currentY, currentZ))
     //    Swift.print("Current position \(currentPosition)")
     let lastX: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.x-viewFrameInWindowCoordinates.origin.x)-event.deltaX) / bounds.size.width)
     let lastY: Float = Float(-1.0 + 2.0*((window!.mouseLocationOutsideOfEventStream.y-viewFrameInWindowCoordinates.origin.y)+event.deltaY) / bounds.size.height)
     let lastZ: Float = sqrt(1.0 - (lastX*lastX+lastY*lastY))
-    let lastPosition = normalize(float3(lastX, lastY, lastZ))
+    let lastPosition = normalize(SIMD3<Float>(lastX, lastY, lastZ))
     //    Swift.print("Last position \(lastPosition)")
     if currentPosition.x == lastPosition.x && currentPosition.y == lastPosition.y && currentPosition.z == lastPosition.z {
       return
@@ -400,21 +400,21 @@ struct BufferWithColour {
     
     // Compute two points on the ray represented by the mouse position at the near and far planes
     let mvpInverse = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix)).inverse
-    let pointOnNearPlaneInProjectionCoordinates = float4(currentX, currentY, -1.0, 1.0)
+    let pointOnNearPlaneInProjectionCoordinates = SIMD4<Float>(currentX, currentY, -1.0, 1.0)
     let pointOnNearPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnNearPlaneInProjectionCoordinates)
-    let pointOnFarPlaneInProjectionCoordinates = float4(currentX, currentY, 1.0, 1.0)
+    let pointOnFarPlaneInProjectionCoordinates = SIMD4<Float>(currentX, currentY, 1.0, 1.0)
     let pointOnFarPlaneInObjectCoordinates = matrix_multiply(mvpInverse, pointOnFarPlaneInProjectionCoordinates)
     
     // Interpolate the points to obtain the intersection with the data plane z = 0
     let alpha: Float = -(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w)/((pointOnNearPlaneInObjectCoordinates.z/pointOnNearPlaneInObjectCoordinates.w)-(pointOnFarPlaneInObjectCoordinates.z/pointOnFarPlaneInObjectCoordinates.w))
-    let clickedPointInObjectCoordinates = float4(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
+    let clickedPointInObjectCoordinates = SIMD4<Float>(alpha*(pointOnNearPlaneInObjectCoordinates.x/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.x/pointOnFarPlaneInObjectCoordinates.w), alpha*(pointOnNearPlaneInObjectCoordinates.y/pointOnNearPlaneInObjectCoordinates.w)+(1.0-alpha)*(pointOnFarPlaneInObjectCoordinates.y/pointOnFarPlaneInObjectCoordinates.w), 0.0, 1.0)
     
     // Use the intersection to compute the shift in the view space
     let objectToCamera = matrix_multiply(viewMatrix, modelMatrix)
     let clickedPointInCameraCoordinates = matrix_multiply(objectToCamera, clickedPointInObjectCoordinates)
     
     // Compute shift in object space
-    let shiftInCameraCoordinates = float3(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
+    let shiftInCameraCoordinates = SIMD3<Float>(-clickedPointInCameraCoordinates.x, -clickedPointInCameraCoordinates.y, 0.0)
     var cameraToObject = matrix_upper_left_3x3(matrix: objectToCamera).inverse
     let shiftInObjectCoordinates = matrix_multiply(cameraToObject, shiftInCameraCoordinates)
     modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: shiftInObjectCoordinates))
@@ -423,7 +423,7 @@ struct BufferWithColour {
     // Correct shift so that the point of rotation remains at the same depth as the data
     cameraToObject = matrix_upper_left_3x3(matrix: matrix_multiply(viewMatrix, modelMatrix)).inverse
     let depthOffset = 1.0+depthAtCentre()
-    let depthOffsetInCameraCoordinates = float3(0.0, 0.0, -depthOffset)
+    let depthOffsetInCameraCoordinates = SIMD3<Float>(0.0, 0.0, -depthOffset)
     let depthOffsetInObjectCoordinates = matrix_multiply(cameraToObject, depthOffsetInCameraCoordinates)
     modelTranslationToCentreOfRotationMatrix = matrix_multiply(modelTranslationToCentreOfRotationMatrix, matrix4x4_translation(shift: depthOffsetInObjectCoordinates))
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
@@ -443,7 +443,7 @@ struct BufferWithColour {
     modelRotationMatrix = matrix_identity_float4x4
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: SIMD3<Float>(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
@@ -464,7 +464,7 @@ struct BufferWithColour {
     modelRotationMatrix = matrix_identity_float4x4
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
-    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: float3(0.0, 1.0, 0.0))
+    viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: SIMD3<Float>(0.0, 1.0, 0.0))
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     
     constants.modelMatrix = modelMatrix
