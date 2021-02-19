@@ -20,7 +20,7 @@
 #include "DataModel.hpp"
 
 #include <boost/spirit/home/x3.hpp>
-#include <pugixml-1.9/pugixml.hpp>
+#include <pugixml.hpp>
 #include <unordered_map>
 
 class GMLParsingHelper {
