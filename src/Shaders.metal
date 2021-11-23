@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2019 Ken Arroyo Ohori
+// Copyright © 2016-2021 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ struct VertexOut {
   float4 colour;
 };
 
-vertex VertexOut vertexLit(device VertexWithNormalIn *vertices [[buffer(0)]],
+vertex VertexOut vertexLit(const device VertexWithNormalIn *vertices [[buffer(0)]],
                            constant Constants &uniforms [[buffer(1)]],
                            uint VertexId [[vertex_id]]) {
   
@@ -62,7 +62,7 @@ vertex VertexOut vertexLit(device VertexWithNormalIn *vertices [[buffer(0)]],
   return out;
 }
 
-vertex VertexOut vertexUnlit(device VertexIn *vertices [[buffer(0)]],
+vertex VertexOut vertexUnlit(const device VertexIn *vertices [[buffer(0)]],
                              constant Constants &uniforms [[buffer(1)]],
                              uint VertexId [[vertex_id]]) {
   

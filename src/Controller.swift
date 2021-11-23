@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2019 Ken Arroyo Ohori
+// Copyright © 2016-2021 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -193,7 +193,7 @@ class OutlineView: NSOutlineView {
     objectsSourceList!.indentationPerLevel = 16
     objectsSourceList!.indentationMarkerFollowsCell = false
     objectsSourceList!.wantsLayer = true
-    objectsSourceList!.layer!.backgroundColor = NSColor.secondarySelectedControlColor.cgColor
+//    objectsSourceList!.layer!.backgroundColor = NSColor.secondarySelectedControlColor.cgColor
     objectsSourceList!.headerView = nil
     objectsSourceList!.allowsMultipleSelection = true
     objectsClipView!.documentView = objectsSourceList!
