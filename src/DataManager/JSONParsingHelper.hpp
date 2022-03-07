@@ -63,7 +63,7 @@ class JSONParsingHelper {
     unsigned long long templateIndex;
     bool withSemantics = false;
     
-    std::cout << currentGeometry << std::endl;
+//    std::cout << currentGeometry << std::endl;
 
     // Mandatory
     geometryType = currentGeometry["type"];
@@ -81,26 +81,44 @@ class JSONParsingHelper {
         break;
     } std::cout << "lod: " << geometryLod << std::endl;
     
-    std::list<std::any> boundaries;
-    parseCityJSONBoundaries(currentGeometry["boundaries"].get_array(), boundaries);
+    std::vector<std::any> boundaries;
+    parseNestedArray(currentGeometry["boundaries"].get_array(), boundaries);
     std::cout << "boundaries: ";
     dump(boundaries);
     std::cout << std::endl;
 
     // Optional
-    simdjson::ondemand::value semanticsArray;
+    std::vector<std::any> semanticsArray;
     simdjson::ondemand::object element;
     auto error = currentGeometry["semantics"].get(element);
     if (!error) {
-      std::cout << "semantics: " << element << std::endl;
       withSemantics = true;
       for (simdjson::ondemand::object surface: element["surfaces"]) {
         semanticSurfaces.push_back(std::map<std::string_view, std::string_view>());
         for (auto attribute: surface) {
-          semanticSurfaces.back()[attribute.unescaped_key().value()] = attribute.value().get_string().value();
+          switch (attribute.value().type()) {
+            case simdjson::ondemand::json_type::string:
+              semanticSurfaces.back()[attribute.unescaped_key().value()] = attribute.value().get_string().value();
+              break;
+            case simdjson::ondemand::json_type::number:
+              semanticSurfaces.back()[attribute.unescaped_key().value()] = std::to_string(attribute.value().get_double());
+              break;
+            default:
+              std::cout << "unknown attribute type" << std::endl;
+              break;
+          }
         }
-      } semanticsArray = element["values"];
-    } error = currentGeometry["template"].get_uint64().get(templateIndex);
+      } parseNestedArray(element["values"].get_array(), semanticsArray);
+      std::cout << "semantic surfaces: " << std::endl;
+      for (auto &surface: semanticSurfaces) {
+        for (auto &property: surface) {
+          std::cout << "\t" << property.first << ": " << property.second << "    ";
+        } std::cout << std::endl;
+      } std::cout << "semantics: ";
+      dump(semanticsArray);
+      std::cout << std::endl;
+    } else std::cout << "no semantics found" << std::endl;
+    error = currentGeometry["template"].get_uint64().get(templateIndex);
     if (error) templateIndex = 0;
     simdjson::ondemand::array transformationMatrixArray;
     error = currentGeometry["transformationMatrix"].get_array().get(transformationMatrixArray);
@@ -186,22 +204,23 @@ class JSONParsingHelper {
 //    }
   }
   
-  void parseCityJSONBoundaries(simdjson::ondemand::array jsonBoundaries, std::list<std::any> &boundaries) {
-    for (auto boundary: jsonBoundaries) {
-      switch (boundary.type()) {
+  void parseNestedArray(simdjson::ondemand::array jsonNestedArray, std::vector<std::any> &nestedArray) {
+    nestedArray.clear();
+    for (auto array: jsonNestedArray) {
+      switch (array.type()) {
         case simdjson::ondemand::json_type::array: {
-          std::list<std::any> newBoundary;
-          parseCityJSONBoundaries(boundary.get_array(), newBoundary);
-          boundaries.push_back(newBoundary);
+          std::vector<std::any> newArray;
+          parseNestedArray(array.get_array(), newArray);
+          nestedArray.push_back(newArray);
           break;
         } case simdjson::ondemand::json_type::number:
-          boundaries.push_back((uint64_t)boundary.get_uint64());
+          nestedArray.push_back((uint64_t)array.get_uint64());
           break;
         case simdjson::ondemand::json_type::null:
-          boundaries.push_back(std::any());
+          nestedArray.push_back(std::any());
           break;
         default:
-          boundaries.push_back(std::any());
+          nestedArray.push_back(std::any());
           break;
       }
     }
@@ -412,7 +431,7 @@ public:
     }
   }
   
-  void dump(const std::list<std::any> &list) {
+  void dump(const std::vector<std::any> &list) {
     std::cout << "[";
     for (auto const &element: list) {
       if (element.has_value()) {
@@ -420,7 +439,7 @@ public:
           std::cout << std::any_cast<uint64_t>(element);
         } catch (const std::bad_any_cast& e) {}
         try {
-          dump(std::any_cast<std::list<std::any>>(element));
+          dump(std::any_cast<std::vector<std::any>>(element));
         } catch (const std::bad_any_cast& e) {}
         std::cout << " ";
       } else {
