@@ -67,7 +67,7 @@ class JSONParsingHelper {
 
     // Mandatory
     geometryType = currentGeometry["type"];
-    std::cout << "type: " << geometryType << std::endl;
+//    std::cout << "type: " << geometryType << std::endl;
     
     switch (currentGeometry["lod"].type()) {
       case simdjson::ondemand::json_type::string:
@@ -79,16 +79,16 @@ class JSONParsingHelper {
       default:
         std::cout << "unknown lod type" << std::endl;
         break;
-    } std::cout << "lod: " << geometryLod << std::endl;
+    } // std::cout << "lod: " << geometryLod << std::endl;
     
     std::vector<std::any> boundaries;
     parseNestedArray(currentGeometry["boundaries"].get_array(), boundaries);
-    std::cout << "boundaries: ";
-    dump(boundaries);
-    std::cout << std::endl;
+//    std::cout << "boundaries: ";
+//    dump(boundaries);
+//    std::cout << std::endl;
 
     // Optional
-    std::vector<std::any> semanticsArray;
+    std::vector<std::any> semantics;
     simdjson::ondemand::object element;
     auto error = currentGeometry["semantics"].get(element);
     if (!error) {
@@ -108,15 +108,15 @@ class JSONParsingHelper {
               break;
           }
         }
-      } parseNestedArray(element["values"].get_array(), semanticsArray);
-      std::cout << "semantic surfaces: " << std::endl;
-      for (auto &surface: semanticSurfaces) {
-        for (auto &property: surface) {
-          std::cout << "\t" << property.first << ": " << property.second << "    ";
-        } std::cout << std::endl;
-      } std::cout << "semantics: ";
-      dump(semanticsArray);
-      std::cout << std::endl;
+      } parseNestedArray(element["values"].get_array(), semantics);
+//      std::cout << "semantic surfaces: " << std::endl;
+//      for (auto &surface: semanticSurfaces) {
+//        for (auto &property: surface) {
+//          std::cout << "\t" << property.first << ": " << property.second << "    ";
+//        } std::cout << std::endl;
+//      } std::cout << "semantics: ";
+//      dump(semantics);
+//      std::cout << std::endl;
     } else std::cout << "no semantics found" << std::endl;
     error = currentGeometry["template"].get_uint64().get(templateIndex);
     if (error) templateIndex = 0;
@@ -124,84 +124,85 @@ class JSONParsingHelper {
     error = currentGeometry["transformationMatrix"].get_array().get(transformationMatrixArray);
     if (!error) for (auto matrixElement: transformationMatrixArray) transformationMatrix.push_back(matrixElement.get_double().value());
 
-//    if (!geometryType.empty()) {
-//
-//      if (geometryType == "MultiSurface" ||
-//          geometryType == "CompositeSurface") {
-//        object.children.push_back(AzulObject());
-//        object.children.back().type = "LoD";
-//        object.children.back().id = geometryLod;
-//        parseCityJSONGeometry(boundariesArray, semanticsArray, withSemantics, semanticSurfaces, 2, object.children.back(), vertices);
-//      }
-//
-//      else if (geometryType == "Solid") {
-//        object.children.push_back(AzulObject());
-//        object.children.back().type = "LoD";
-//        object.children.back().id = geometryLod;
-//        parseCityJSONGeometry(boundariesArray, semanticsArray, withSemantics, semanticSurfaces, 3, object.children.back(), vertices);
-//      }
-//
-//      else if (geometryType == "MultiSolid" ||
-//               geometryType == "CompositeSolid") {
-//        object.children.push_back(AzulObject());
-//        object.children.back().type = "LoD";
-//        object.children.back().id = geometryLod;
-//        parseCityJSONGeometry(boundariesArray, semanticsArray, withSemantics, semanticSurfaces, 4, object.children.back(), vertices);
-//      }
-//
-//      else if (geometryType == "GeometryInstance") {
-//        if (geometryTemplates != NULL && templateIndex < geometryTemplates->children.size() && transformationMatrix.size() == 16) {
-//          unsigned long long anchorPoint = boundariesArray.at(0).get_uint64();
-//          object.children.push_back(AzulObject(geometryTemplates->children[templateIndex]));
-//          for (auto &polygon: object.children.back().polygons) {
-//            for (auto &point: polygon.exteriorRing.points) {
-//              float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
-//                                             transformationMatrix[13]*point.coordinates[1] +
-//                                             transformationMatrix[14]*point.coordinates[2] +
-//                                             transformationMatrix[15]);
-//              float x = (transformationMatrix[0]*point.coordinates[0] +
-//                         transformationMatrix[1]*point.coordinates[1] +
-//                         transformationMatrix[2]*point.coordinates[2] +
-//                         transformationMatrix[3])/homogeneousCoordinate + std::get<0>(vertices[anchorPoint]);
-//              float y = (transformationMatrix[4]*point.coordinates[0] +
-//                         transformationMatrix[5]*point.coordinates[1] +
-//                         transformationMatrix[6]*point.coordinates[2] +
-//                         transformationMatrix[7])/homogeneousCoordinate + std::get<1>(vertices[anchorPoint]);
-//              float z = (transformationMatrix[8]*point.coordinates[0] +
-//                         transformationMatrix[9]*point.coordinates[1] +
-//                         transformationMatrix[10]*point.coordinates[2] +
-//                         transformationMatrix[11])/homogeneousCoordinate + std::get<2>(vertices[anchorPoint]);
-//              point.coordinates[0] = x;
-//              point.coordinates[1] = y;
-//              point.coordinates[2] = z;
-//            } for (auto &ring: polygon.interiorRings) {
-//              for (auto &point: ring.points) {
-//                float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
-//                                               transformationMatrix[13]*point.coordinates[1] +
-//                                               transformationMatrix[14]*point.coordinates[2] +
-//                                               transformationMatrix[15]);
-//                float x = (transformationMatrix[0]*point.coordinates[0] +
-//                           transformationMatrix[1]*point.coordinates[1] +
-//                           transformationMatrix[2]*point.coordinates[2] +
-//                           transformationMatrix[3])/homogeneousCoordinate + std::get<0>(vertices[anchorPoint]);
-//                float y = (transformationMatrix[4]*point.coordinates[0] +
-//                           transformationMatrix[5]*point.coordinates[1] +
-//                           transformationMatrix[6]*point.coordinates[2] +
-//                           transformationMatrix[7])/homogeneousCoordinate + std::get<1>(vertices[anchorPoint]);
-//                float z = (transformationMatrix[8]*point.coordinates[0] +
-//                           transformationMatrix[9]*point.coordinates[1] +
-//                           transformationMatrix[10]*point.coordinates[2] +
-//                           transformationMatrix[11])/homogeneousCoordinate + std::get<2>(vertices[anchorPoint]);
-//                point.coordinates[0] = x;
-//                point.coordinates[1] = y;
-//                point.coordinates[2] = z;
-//              }
-//            }
-//          }
-//        }
-//
-//      }
-//    }
+    if (!geometryType.empty()) {
+      std::any semanticsAsAny(semantics);
+
+      if (geometryType == "MultiSurface" ||
+          geometryType == "CompositeSurface") {
+        object.children.push_back(AzulObject());
+        object.children.back().type = "LoD";
+        object.children.back().id = geometryLod;
+        parseCityJSONGeometry(boundaries, semanticsAsAny, withSemantics, semanticSurfaces, 2, object.children.back(), vertices);
+      }
+
+      else if (geometryType == "Solid") {
+        object.children.push_back(AzulObject());
+        object.children.back().type = "LoD";
+        object.children.back().id = geometryLod;
+        parseCityJSONGeometry(boundaries, semanticsAsAny, withSemantics, semanticSurfaces, 3, object.children.back(), vertices);
+      }
+
+      else if (geometryType == "MultiSolid" ||
+               geometryType == "CompositeSolid") {
+        object.children.push_back(AzulObject());
+        object.children.back().type = "LoD";
+        object.children.back().id = geometryLod;
+        parseCityJSONGeometry(boundaries, semanticsAsAny, withSemantics, semanticSurfaces, 4, object.children.back(), vertices);
+      }
+
+      else if (geometryType == "GeometryInstance") {
+        if (geometryTemplates != NULL && templateIndex < geometryTemplates->children.size() && transformationMatrix.size() == 16) {
+          unsigned long long anchorPoint = std::any_cast<unsigned long long>(boundaries[0]);
+          object.children.push_back(AzulObject(geometryTemplates->children[templateIndex]));
+          for (auto &polygon: object.children.back().polygons) {
+            for (auto &point: polygon.exteriorRing.points) {
+              float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
+                                             transformationMatrix[13]*point.coordinates[1] +
+                                             transformationMatrix[14]*point.coordinates[2] +
+                                             transformationMatrix[15]);
+              float x = (transformationMatrix[0]*point.coordinates[0] +
+                         transformationMatrix[1]*point.coordinates[1] +
+                         transformationMatrix[2]*point.coordinates[2] +
+                         transformationMatrix[3])/homogeneousCoordinate + std::get<0>(vertices[anchorPoint]);
+              float y = (transformationMatrix[4]*point.coordinates[0] +
+                         transformationMatrix[5]*point.coordinates[1] +
+                         transformationMatrix[6]*point.coordinates[2] +
+                         transformationMatrix[7])/homogeneousCoordinate + std::get<1>(vertices[anchorPoint]);
+              float z = (transformationMatrix[8]*point.coordinates[0] +
+                         transformationMatrix[9]*point.coordinates[1] +
+                         transformationMatrix[10]*point.coordinates[2] +
+                         transformationMatrix[11])/homogeneousCoordinate + std::get<2>(vertices[anchorPoint]);
+              point.coordinates[0] = x;
+              point.coordinates[1] = y;
+              point.coordinates[2] = z;
+            } for (auto &ring: polygon.interiorRings) {
+              for (auto &point: ring.points) {
+                float homogeneousCoordinate = (transformationMatrix[12]*point.coordinates[0] +
+                                               transformationMatrix[13]*point.coordinates[1] +
+                                               transformationMatrix[14]*point.coordinates[2] +
+                                               transformationMatrix[15]);
+                float x = (transformationMatrix[0]*point.coordinates[0] +
+                           transformationMatrix[1]*point.coordinates[1] +
+                           transformationMatrix[2]*point.coordinates[2] +
+                           transformationMatrix[3])/homogeneousCoordinate + std::get<0>(vertices[anchorPoint]);
+                float y = (transformationMatrix[4]*point.coordinates[0] +
+                           transformationMatrix[5]*point.coordinates[1] +
+                           transformationMatrix[6]*point.coordinates[2] +
+                           transformationMatrix[7])/homogeneousCoordinate + std::get<1>(vertices[anchorPoint]);
+                float z = (transformationMatrix[8]*point.coordinates[0] +
+                           transformationMatrix[9]*point.coordinates[1] +
+                           transformationMatrix[10]*point.coordinates[2] +
+                           transformationMatrix[11])/homogeneousCoordinate + std::get<2>(vertices[anchorPoint]);
+                point.coordinates[0] = x;
+                point.coordinates[1] = y;
+                point.coordinates[2] = z;
+              }
+            }
+          }
+        }
+
+      }
+    }
   }
   
   void parseNestedArray(simdjson::ondemand::array jsonNestedArray, std::vector<std::any> &nestedArray) {
@@ -214,7 +215,7 @@ class JSONParsingHelper {
           nestedArray.push_back(newArray);
           break;
         } case simdjson::ondemand::json_type::number:
-          nestedArray.push_back((uint64_t)array.get_uint64());
+          nestedArray.push_back((unsigned long long)array.get_uint64());
           break;
         case simdjson::ondemand::json_type::null:
           nestedArray.push_back(std::any());
@@ -226,74 +227,102 @@ class JSONParsingHelper {
     }
   }
 
-//  void parseCityJSONGeometry(simdjson::ondemand::array jsonBoundaries, simdjson::ondemand::value jsonSemantics, bool withSemantics, std::vector<std::map<std::string_view, std::string_view>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
-//
-//    std::cout << "nesting: " << nesting << std::endl;
-//    std::cout << "boundaries: " << jsonBoundaries << std::endl;
-//    std::cout << "semantics: " << jsonSemantics << std::endl;
-//
-//    if (nesting > 1) {
-//      if (jsonSemantics.type() == simdjson::ondemand::json_type::array && withSemantics) {
-//        simdjson::ondemand::array semanticsArray = jsonSemantics.get_array();
-//        auto boundary = jsonBoundaries.begin();
-//        auto semantics = semanticsArray.begin();
-//        while (boundary != jsonBoundaries.end() && semantics != semanticsArray.end()) {
-//          parseCityJSONGeometry(*boundary, *semantics, true, semanticSurfaces, nesting-1, object, vertices);
-//          ++boundary;
-//          ++semantics;
-//        }
-//      } else {
-//        for (auto boundary: jsonBoundaries) {
-//          parseCityJSONGeometry(boundary, simdjson::ondemand::value(), false, semanticSurfaces, nesting-1, object, vertices);
-//        }
-//      }
-//    }
-//
-//    else if (nesting == 1) {
-//      if (jsonSemantics.type() == simdjson::ondemand::json_type::number && withSemantics) {
-//        unsigned long long surfaceIndex = jsonSemantics.get_uint64();
-//        if (surfaceIndex < semanticSurfaces.size()) {
-//          object.children.push_back(AzulObject());
-//          for (auto attribute: semanticSurfaces[surfaceIndex]) {
-//            if (attribute.first == "type") {
-//              object.children.back().type = attribute.second;
-//            } else object.children.back().attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
-//          } object.children.back().polygons.push_back(AzulPolygon());
-//          parseCityJSONPolygon(jsonBoundaries, object.children.back().polygons.back(), vertices);
-//        } else {
-//          object.polygons.push_back(AzulPolygon());
-//          parseCityJSONPolygon(jsonBoundaries, object.polygons.back(), vertices);
-//        }
-//      } else {
-//        object.polygons.push_back(AzulPolygon());
-//        parseCityJSONPolygon(jsonBoundaries, object.polygons.back(), vertices);
-//      }
-//    }
-//  }
+  void parseCityJSONGeometry(std::vector<std::any> &boundaries, std::any &semantics, bool withSemantics, std::vector<std::map<std::string_view, std::string_view>> &semanticSurfaces, int nesting, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices) {
 
-  void parseCityJSONPolygon(simdjson::ondemand::array jsonPolygon, AzulPolygon &polygon, std::vector<std::tuple<double, double, double>> &vertices) {
-    bool outer = true;
-    for (auto jsonRing: jsonPolygon) {
-      if (outer) {
-        parseCityJSONRing(jsonRing, polygon.exteriorRing, vertices);
-        outer = false;
+//    std::cout << "nesting: " << nesting << std::endl;
+//    std::cout << "boundaries: "; dump(boundaries); std::cout << std::endl;
+//    std::cout << "semantics: "; dump(semantics); std::cout << std::endl;
+
+    if (nesting > 1) {
+      if (semantics.has_value()) {
+      
+        // Vector
+        try {
+          std::vector<std::any> semanticsAsVector = std::any_cast<std::vector<std::any>>(semantics);
+          auto boundary = boundaries.begin();
+          auto semantic = semanticsAsVector.begin();
+          while (boundary != boundaries.end() && semantic != semanticsAsVector.end()) {
+            std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(*boundary);
+            parseCityJSONGeometry(boundaryAsVector, *semantic, true, semanticSurfaces, nesting-1, object, vertices);
+            ++boundary;
+            ++semantic;
+          }
+        } catch (const std::bad_any_cast &e) {}
+        
+        // Index (that applies to whole list)
+        try {
+          unsigned long long semanticsAsIndex = std::any_cast<unsigned long long>(semantics);
+          for (auto boundary: boundaries) {
+            std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(boundary);
+            parseCityJSONGeometry(boundaryAsVector, semantics, true, semanticSurfaces, nesting-1, object, vertices);
+          }
+        } catch (const std::bad_any_cast &e) {}
+      }
+      
+      // Null
+      else {
+        for (auto boundary: boundaries) {
+          std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(boundary);
+          std::any empty;
+          parseCityJSONGeometry(boundaryAsVector, empty, false, semanticSurfaces, nesting-1, object, vertices);
+        }
+      }
+    }
+
+    else if (nesting == 1) {
+      if (withSemantics) {
+        try {
+          unsigned long long surfaceIndex = std::any_cast<unsigned long long>(semantics);
+          if (surfaceIndex < semanticSurfaces.size()) {
+            object.children.push_back(AzulObject());
+            for (auto attribute: semanticSurfaces[surfaceIndex]) {
+              if (attribute.first == "type") {
+                object.children.back().type = attribute.second;
+              } else object.children.back().attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
+            } object.children.back().polygons.push_back(AzulPolygon());
+            parseCityJSONPolygon(boundaries, object.children.back().polygons.back(), vertices);
+          } else {
+            object.polygons.push_back(AzulPolygon());
+            parseCityJSONPolygon(boundaries, object.polygons.back(), vertices);
+          } 
+        } catch (const std::bad_any_cast &e) {}
       } else {
-        polygon.interiorRings.push_back(AzulRing());
-        parseCityJSONRing(jsonRing, polygon.interiorRings.back(), vertices);
+        object.polygons.push_back(AzulPolygon());
+        parseCityJSONPolygon(boundaries, object.polygons.back(), vertices);
       }
     }
   }
 
-  void parseCityJSONRing(simdjson::ondemand::array jsonRing, AzulRing &ring, std::vector<std::tuple<double, double, double>> &vertices) {
+  void parseCityJSONPolygon(std::vector<std::any> &jsonPolygon, AzulPolygon &polygon, std::vector<std::tuple<double, double, double>> &vertices) {
+    bool outer = true;
+    for (auto ring: jsonPolygon) {
+      try {
+        std::vector<std::any> jsonRing = std::any_cast<std::vector<std::any>>(ring);
+        if (outer) {
+          parseCityJSONRing(jsonRing, polygon.exteriorRing, vertices);
+          outer = false;
+        } else {
+          polygon.interiorRings.push_back(AzulRing());
+          parseCityJSONRing(jsonRing, polygon.interiorRings.back(), vertices);
+        }
+      } catch (const std::bad_any_cast &e) {
+        std::cout << "Ring is not an array" << std::endl;
+      }
+    }
+  }
+
+  void parseCityJSONRing(std::vector<std::any> &jsonRing, AzulRing &ring, std::vector<std::tuple<double, double, double>> &vertices) {
     for (auto jsonVertex: jsonRing) {
-      if (jsonVertex.is_integer()) {
-        unsigned long long vertexIndex = jsonVertex.get_uint64();
+      try {
+        unsigned long long vertexIndex = std::any_cast<unsigned long long>(jsonVertex);
         if (vertexIndex < vertices.size()) {
           ring.points.push_back(AzulPoint());
           ring.points.back().coordinates[0] = std::get<0>(vertices[vertexIndex]);
           ring.points.back().coordinates[1] = std::get<1>(vertices[vertexIndex]);
           ring.points.back().coordinates[2] = std::get<2>(vertices[vertexIndex]);
         }
+      } catch (const std::bad_any_cast &e) {
+        std::cout << "Vertex index is not an integer" << std::endl;
       }
     } ring.points.push_back(ring.points.front());
   }
@@ -431,21 +460,23 @@ public:
     }
   }
   
+  void dump(const std::any &any) {
+    if (any.has_value()) {
+      try {
+        std::cout << std::any_cast<unsigned long long>(any);
+      } catch (const std::bad_any_cast &e) {}
+      try {
+        dump(std::any_cast<std::vector<std::any>>(any));
+      } catch (const std::bad_any_cast &e) {}
+      std::cout << " ";
+    } else {
+      std::cout << "null ";
+    }
+  }
+  
   void dump(const std::vector<std::any> &list) {
     std::cout << "[";
-    for (auto const &element: list) {
-      if (element.has_value()) {
-        try {
-          std::cout << std::any_cast<uint64_t>(element);
-        } catch (const std::bad_any_cast& e) {}
-        try {
-          dump(std::any_cast<std::vector<std::any>>(element));
-        } catch (const std::bad_any_cast& e) {}
-        std::cout << " ";
-      } else {
-        std::cout << "null ";
-      }
-    }
+    for (auto const &element: list) dump(element);
     std::cout << "]";
   }
 
