@@ -66,19 +66,27 @@ class JSONParsingHelper {
 //    std::cout << currentGeometry << std::endl;
 
     // Mandatory
-    geometryType = currentGeometry["type"];
-//    std::cout << "type: " << geometryType << std::endl;
+    try {
+      geometryType = currentGeometry["type"];
+    } catch (simdjson::simdjson_error &e) {
+      std::cout << "no geometry type specified" << std::endl;
+      return;
+    } // std::cout << "type: " << geometryType << std::endl;
     
-    switch (currentGeometry["lod"].type()) {
-      case simdjson::ondemand::json_type::string:
-        geometryLod = currentGeometry["lod"];
-        break;
-      case simdjson::ondemand::json_type::number:
-        geometryLod = std::to_string(currentGeometry["lod"].get_double());
-        break;
-      default:
-        std::cout << "unknown lod type" << std::endl;
-        break;
+    try {
+      switch (currentGeometry["lod"].type()) {
+        case simdjson::ondemand::json_type::string:
+          geometryLod = currentGeometry["lod"];
+          break;
+        case simdjson::ondemand::json_type::number:
+          geometryLod = std::to_string(currentGeometry["lod"].get_double());
+          break;
+        default:
+          std::cout << "unknown lod type" << std::endl;
+          break;
+      }
+    } catch (simdjson::simdjson_error &e) {
+      std::cout << "no lod specified" << std::endl;
     } // std::cout << "lod: " << geometryLod << std::endl;
     
     std::vector<std::any> boundaries;
@@ -117,7 +125,7 @@ class JSONParsingHelper {
 //      } std::cout << "semantics: ";
 //      dump(semantics);
 //      std::cout << std::endl;
-    } else std::cout << "no semantics found" << std::endl;
+    } // else std::cout << "no semantics found" << std::endl;
     error = currentGeometry["template"].get_uint64().get(templateIndex);
     if (error) templateIndex = 0;
     simdjson::ondemand::array transformationMatrixArray;
