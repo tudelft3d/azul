@@ -57,13 +57,17 @@ class JSONParsingHelper {
           case simdjson::ondemand::json_type::number:
             object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), std::to_string(attribute.value().get_double())));
             break;
+          case simdjson::ondemand::json_type::boolean:
+            if (attribute.value().get_bool() == true) object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "true"));
+            else object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "false"));
+            break;
           default:
-            std::cout << "Unknown attribute type" << std::endl;
+            std::cout << attribute.unescaped_key().value() << ": unknown attribute type" << std::endl;
             break;
         }
       }
     } catch (simdjson::simdjson_error &e) {
-//      std::cout << "\tno attributes" << std::endl;
+      std::cout << "\terror parsing attributes" << std::endl;
     }
 //    std::cout << "\tattributes:" << std::endl;
 //    for (const auto &attribute: object.attributes) {
@@ -75,7 +79,7 @@ class JSONParsingHelper {
 
   void parseCityJSONObjectGeometry(simdjson::ondemand::object currentGeometry, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
     std::vector<std::map<std::string_view, std::string_view>> semanticSurfaces;
-    std::string_view geometryType, geometryLod;
+    std::string geometryType, geometryLod;
     std::vector<double> transformationMatrix;
     unsigned long long templateIndex;
     bool withSemantics = false;
@@ -84,7 +88,7 @@ class JSONParsingHelper {
 
     // Mandatory
     try {
-      geometryType = currentGeometry["type"];
+      geometryType = currentGeometry["type"].get_string().value();
     } catch (simdjson::simdjson_error &e) {
       std::cout << "no geometry type specified" << std::endl;
       return;
@@ -93,7 +97,7 @@ class JSONParsingHelper {
     try {
       switch (currentGeometry["lod"].type()) {
         case simdjson::ondemand::json_type::string:
-          geometryLod = currentGeometry["lod"];
+          geometryLod = currentGeometry["lod"].get_string().value();
           break;
         case simdjson::ondemand::json_type::number:
           geometryLod = std::to_string(currentGeometry["lod"].get_double()); // invalid but common error
@@ -103,9 +107,9 @@ class JSONParsingHelper {
           break;
       }
     } catch (simdjson::simdjson_error &e) {
-      if (geometryType != "GeometryInstance") std::cout << "no lod specified" << std::endl;
+      if (geometryType != "GeometryInstance") std::cout << "no LoD specified" << std::endl;
       geometryLod = "unknown";
-    } // std::cout << "lod: " << geometryLod << std::endl;
+    } std::cout << "\tLoD: " << geometryLod << std::endl;
 
     std::vector<std::any> boundaries;
     parseNestedArray(currentGeometry["boundaries"].get_array(), boundaries);
@@ -165,6 +169,7 @@ class JSONParsingHelper {
         object.children.push_back(AzulObject());
         object.children.back().type = "LoD";
         object.children.back().id = geometryLod;
+        std::cout << "set LoD to " << geometryLod << std::endl;
         parseCityJSONGeometry(boundaries, semanticsAsAny, withSemantics, semanticSurfaces, 3, object.children.back(), vertices);
       }
 
