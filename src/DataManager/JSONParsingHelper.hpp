@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2021 Ken Arroyo Ohori
+// Copyright © 2016-2022 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,35 +25,52 @@
 class JSONParsingHelper {
   
   void parseCityJSONObject(simdjson::ondemand::object jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
+
+    // Type (mandatory)
+    try {
+      object.type = jsonObject["type"].get_string().value();
+    } catch (simdjson::simdjson_error &e) {
+      std::cout << "no type specified" << std::endl;
+      return;
+    } std::cout << object.type << std::endl;
     
-    for (auto element: jsonObject) {
-
-      if (element.key() == "type") {
-        object.type = element.value().get_string().value();
+    // Geometry (optional)
+    try {
+      for (auto geometry: jsonObject["geometry"]) {
+        parseCityJSONObjectGeometry(geometry.get_object(), object, vertices, geometryTemplates);
       }
-      
-      else if (element.key() == "attributes") {
-        for (auto attribute: element.value().get_object()) {
-          switch (attribute.value().type()) {
-            case simdjson::ondemand::json_type::string:
-              object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), attribute.value().get_string().value()));
-              break;
-            case simdjson::ondemand::json_type::number:
-              object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), std::to_string(attribute.value().get_double())));
-              break;
-            default:
-              std::cout << "Unknown attribute type" << std::endl;
-              break;
-          }
-        }
-      }
-
-      else if (element.key() == "geometry") {
-        for (auto geometry: element.value()) {
-          parseCityJSONObjectGeometry(geometry.get_object(), object, vertices, geometryTemplates);
-        }
-      }
+    } catch (simdjson::simdjson_error &e) {
+//      std::cout << "\tno geometry" << std::endl;
     }
+    std::cout << "\tgeometries:" << std::endl;
+    for (auto const &geometry: object.children) {
+      std::cout << "\t\t" << geometry.type << " " << geometry.id << std::endl;
+    }
+    
+    // Attributes (optional)
+    try {
+      for (auto attribute: jsonObject["attributes"].value().get_object()) {
+        switch (attribute.value().type()) {
+          case simdjson::ondemand::json_type::string:
+            object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), attribute.value().get_string().value()));
+            break;
+          case simdjson::ondemand::json_type::number:
+            object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), std::to_string(attribute.value().get_double())));
+            break;
+          default:
+            std::cout << "Unknown attribute type" << std::endl;
+            break;
+        }
+      }
+    } catch (simdjson::simdjson_error &e) {
+//      std::cout << "\tno attributes" << std::endl;
+    }
+//    std::cout << "\tattributes:" << std::endl;
+//    for (const auto &attribute: object.attributes) {
+//      std::cout << "\t\t" << attribute.first << ": " << attribute.second << std::endl;
+//    }
+    
+    // TODO: children, parents, geographicalExtent
   }
 
   void parseCityJSONObjectGeometry(simdjson::ondemand::object currentGeometry, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
@@ -62,7 +79,7 @@ class JSONParsingHelper {
     std::vector<double> transformationMatrix;
     unsigned long long templateIndex;
     bool withSemantics = false;
-    
+
 //    std::cout << currentGeometry << std::endl;
 
     // Mandatory
@@ -71,24 +88,25 @@ class JSONParsingHelper {
     } catch (simdjson::simdjson_error &e) {
       std::cout << "no geometry type specified" << std::endl;
       return;
-    } // std::cout << "type: " << geometryType << std::endl;
-    
+    } std::cout << "\tgeometry type: " << geometryType << std::endl;
+
     try {
       switch (currentGeometry["lod"].type()) {
         case simdjson::ondemand::json_type::string:
           geometryLod = currentGeometry["lod"];
           break;
         case simdjson::ondemand::json_type::number:
-          geometryLod = std::to_string(currentGeometry["lod"].get_double());
+          geometryLod = std::to_string(currentGeometry["lod"].get_double()); // invalid but common error
           break;
         default:
           std::cout << "unknown lod type" << std::endl;
           break;
       }
     } catch (simdjson::simdjson_error &e) {
-      std::cout << "no lod specified" << std::endl;
+      if (geometryType != "GeometryInstance") std::cout << "no lod specified" << std::endl;
+      geometryLod = "unknown";
     } // std::cout << "lod: " << geometryLod << std::endl;
-    
+
     std::vector<std::any> boundaries;
     parseNestedArray(currentGeometry["boundaries"].get_array(), boundaries);
 //    std::cout << "boundaries: ";
@@ -212,7 +230,7 @@ class JSONParsingHelper {
       }
     }
   }
-  
+
   void parseNestedArray(simdjson::ondemand::array jsonNestedArray, std::vector<std::any> &nestedArray) {
     nestedArray.clear();
     for (auto array: jsonNestedArray) {
@@ -243,20 +261,32 @@ class JSONParsingHelper {
 
     if (nesting > 1) {
       if (semantics.has_value()) {
-      
+
         // Vector
         try {
           std::vector<std::any> semanticsAsVector = std::any_cast<std::vector<std::any>>(semantics);
-          auto boundary = boundaries.begin();
-          auto semantic = semanticsAsVector.begin();
-          while (boundary != boundaries.end() && semantic != semanticsAsVector.end()) {
-            std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(*boundary);
-            parseCityJSONGeometry(boundaryAsVector, *semantic, true, semanticSurfaces, nesting-1, object, vertices);
-            ++boundary;
-            ++semantic;
+          if (!semanticsAsVector.empty()) {
+            auto boundary = boundaries.begin();
+            auto semantic = semanticsAsVector.begin();
+            while (boundary != boundaries.end() && semantic != semanticsAsVector.end()) {
+              std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(*boundary);
+              parseCityJSONGeometry(boundaryAsVector, *semantic, true, semanticSurfaces, nesting-1, object, vertices);
+              ++boundary;
+              ++semantic;
+            }
           }
+          
+          // Empty vector
+          else {
+            for (auto boundary: boundaries) {
+              std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(boundary);
+              std::any empty;
+              parseCityJSONGeometry(boundaryAsVector, empty, false, semanticSurfaces, nesting-1, object, vertices);
+            }
+          }
+          
         } catch (const std::bad_any_cast &e) {}
-        
+
         // Index (that applies to whole list)
         try {
           unsigned long long semanticsAsIndex = std::any_cast<unsigned long long>(semantics);
@@ -266,7 +296,7 @@ class JSONParsingHelper {
           }
         } catch (const std::bad_any_cast &e) {}
       }
-      
+
       // Null
       else {
         for (auto boundary: boundaries) {
@@ -292,7 +322,7 @@ class JSONParsingHelper {
           } else {
             object.polygons.push_back(AzulPolygon());
             parseCityJSONPolygon(boundaries, object.polygons.back(), vertices);
-          } 
+          }
         } catch (const std::bad_any_cast &e) {}
       } else {
         object.polygons.push_back(AzulPolygon());
@@ -353,7 +383,7 @@ public:
 
     std::string_view docType;
     std::string_view docVersion;
-    
+
     // Check what we have
     if (doc.type() != simdjson::ondemand::json_type::object) return;
     for (auto element: doc.get_object()) {
@@ -363,14 +393,14 @@ public:
         docVersion = element.value().get_string();
       }
     }
-    
+
     if (docType == "CityJSON") {
       std::cout << docType << " " << docVersion << " detected" << std::endl;
       if (docVersion == "1.0" ||
           docVersion == "1.1") {
-        
+
         simdjson::ondemand::object object;
-        
+
         // Metadata
         error = doc["metadata"].get(object);
         if (!error) {
@@ -384,7 +414,7 @@ public:
             }
           }
         }
-        
+
         // Transform object
         std::vector<double> scale;
         std::vector<double> translation;
@@ -416,13 +446,13 @@ public:
           for (int i = 0; i < 3; ++i) translation.push_back(0.0);
           std::cout << "Transform translation not provided: set to " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
         }
-        
+
         // Geometry templates
         AzulObject geometryTemplates;
         std::vector<std::tuple<double, double, double>> geometryTemplatesVertices;
         error = doc["geometry-templates"].get(object);
         if (!error) {
-          
+
           // Template vertices
           for (auto vertex: object["vertices-templates"].get_array()) {
             std::vector<double> coordinates;
@@ -433,13 +463,13 @@ public:
               geometryTemplatesVertices.push_back(std::tuple<double, double, double>(0, 0, 0));
             }
           }
-          
+
           // Templates
           for (auto t: object["templates"].get_array()) {
             parseCityJSONObjectGeometry(t.get_object(), geometryTemplates, geometryTemplatesVertices, NULL);
           }
         }
-        
+
         // Vertices
         std::vector<std::tuple<double, double, double>> vertices;
         for (auto vertex: doc["vertices"].get_array()) {
@@ -453,7 +483,7 @@ public:
             vertices.push_back(std::tuple<double, double, double>(0, 0, 0));
           }
         }
-        
+
         // CityObjects
         for (auto object: doc["CityObjects"].get_object()) {
           parsedFile.children.push_back(AzulObject());
@@ -461,13 +491,13 @@ public:
           parsedFile.children.back().id = objectId;
           parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), vertices, &geometryTemplates);
         }
-        
+
       } else {
         std::cout << "Unsupported CityJSON version " << docVersion << std::endl;
       }
     }
   }
-  
+
   void dump(const std::any &any) {
     if (any.has_value()) {
       try {
@@ -481,7 +511,7 @@ public:
       std::cout << "null ";
     }
   }
-  
+
   void dump(const std::vector<std::any> &list) {
     std::cout << "[";
     for (auto const &element: list) dump(element);
@@ -515,7 +545,7 @@ public:
 //    std::cout << ",triangles[" << object.triangles.size() << "]";
 //    std::cout << ")";
 //  }
-//
+
   void clearDOM() {
 //    json.clear();
   }
