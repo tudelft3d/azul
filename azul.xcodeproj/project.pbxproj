@@ -70,12 +70,7 @@
 		BED5AF641F6FC5BB0002A79E /* DataManagerWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataManagerWrapperWrapper.h; sourceTree = "<group>"; };
 		BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PerformanceHelperWrapperWrapper.mm; sourceTree = "<group>"; };
 		BED5AF761F6FD2800002A79E /* PerformanceHelperWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PerformanceHelperWrapperWrapper.h; sourceTree = "<group>"; };
-		BED7643A25E01565008C865E /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpugixml.a; sourceTree = "<group>"; };
-		BEEAEFA422CE7C3B0038F259 /* libCGAL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCGAL.a; path = libs/libCGAL.a; sourceTree = "<group>"; };
-		BEEAEFA522CE7C3B0038F259 /* libCGAL_Core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCGAL_Core.a; path = libs/libCGAL_Core.a; sourceTree = "<group>"; };
-		BEEAEFA622CE7C3B0038F259 /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "libs/libboost_system-mt.a"; sourceTree = "<group>"; };
 		BEEAEFA722CE7C3B0038F259 /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = libs/libgmp.a; sourceTree = "<group>"; };
-		BEEAEFA822CE7C3B0038F259 /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "libs/libboost_thread-mt.a"; sourceTree = "<group>"; };
 		BEEAEFA922CE7C3B0038F259 /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = libs/libmpfr.a; sourceTree = "<group>"; };
 		BEEAEFAB22CE7C3B0038F259 /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsimdjson.a; path = libs/libsimdjson.a; sourceTree = "<group>"; };
 		BEF1B7CB2283B90600A0DA71 /* Enhanced_constrained_triangulation_2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enhanced_constrained_triangulation_2.h; sourceTree = "<group>"; };
@@ -160,13 +155,8 @@
 				BE2F78E0274B3AF6007E89C4 /* libboost_system.a */,
 				BE2F78DF274B3AF6007E89C4 /* libboost_thread.a */,
 				BE2F78DD274B2E3B007E89C4 /* libpugixml.a */,
-				BEEAEFA622CE7C3B0038F259 /* libboost_system-mt.a */,
-				BEEAEFA822CE7C3B0038F259 /* libboost_thread-mt.a */,
-				BEEAEFA522CE7C3B0038F259 /* libCGAL_Core.a */,
-				BEEAEFA422CE7C3B0038F259 /* libCGAL.a */,
 				BEEAEFA722CE7C3B0038F259 /* libgmp.a */,
 				BEEAEFA922CE7C3B0038F259 /* libmpfr.a */,
-				BED7643A25E01565008C865E /* libpugixml.a */,
 				BEEAEFAB22CE7C3B0038F259 /* libsimdjson.a */,
 			);
 			name = Frameworks;
@@ -447,11 +437,12 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1000;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -466,7 +457,7 @@
 					"$(PROJECT_DIR)/libs\\ bak",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 0.9.1;
+				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -487,6 +478,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1000;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -505,7 +497,7 @@
 					"$(PROJECT_DIR)/libs\\ bak",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 0.9.1;
+				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
