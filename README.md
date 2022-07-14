@@ -71,7 +71,7 @@ azul is written in a mix of C++17, Swift 5, Objective-C 2 and Objective-C++. The
 
 We have included an Xcode 13 project to easily compile azul. It should be possible to compile azul on older macOS versions (from 10.14 onwards), but old versions of Xcode (older than 10) cannot compile Swift 5.
 
-azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org), [pugixml](http://pugixml.org) and [simdjson](https://github.com/simdjson/simdjson). Most of these can be easily obtained using [Homebrew](http://brew.sh), but we provide fat libraries (Apple Silicon + Intel) of them all for convenience.
+azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org), [pugixml](http://pugixml.org) and [simdjson](https://github.com/simdjson/simdjson). Most of these can be easily obtained using [Homebrew](http://brew.sh), but we provide fat libraries (arm64 + x86_64) of them all for convenience.
 
 ## Licence
 
