@@ -444,8 +444,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					"\"$(SRCROOT)/src/DataManager\"",
+					"$(SRCROOT)/libs\\ src/boost_1_77_0",
+					"$(SRCROOT)/src/DataManager",
+					/usr/local/Cellar/cgal/5.5/include,
+					"$(SRCROOT)/libs\\ src/pugixml-1.11/src",
 				);
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -483,8 +485,10 @@
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					"\"$(SRCROOT)/src/DataManager\"",
+					"$(SRCROOT)/libs\\ src/boost_1_77_0",
+					"$(SRCROOT)/src/DataManager",
+					/usr/local/Cellar/cgal/5.5/include,
+					"$(SRCROOT)/libs\\ src/pugixml-1.11/src",
 				);
 				INFOPLIST_FILE = src/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
