@@ -306,6 +306,7 @@ class JSONParsingHelper {
         // Index (that applies to whole list)
         try {
           unsigned long long semanticsAsIndex = std::any_cast<unsigned long long>(semantics);
+#pragma unused(semanticsAsIndex)
           for (auto boundary: boundaries) {
             std::vector<std::any> boundaryAsVector = std::any_cast<std::vector<std::any>>(boundary);
             parseCityJSONGeometry(boundaryAsVector, semantics, true, semanticSurfaces, nesting-1, object, vertices);
