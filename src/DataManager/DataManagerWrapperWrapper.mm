@@ -455,4 +455,9 @@ struct DataManagerWrapper {
 //  [[controller attributesTableView] reloadData];
 }
 
+- (NSString *)statusMessage {
+  NSString *statusMessage = [NSString stringWithUTF8String:self->dataManagerWrapper->dataManager->statusMessage.c_str()];
+  return statusMessage;
+}
+
 @end

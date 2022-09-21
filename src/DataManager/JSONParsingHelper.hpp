@@ -23,6 +23,8 @@
 #include "simdjson.h"
 
 class JSONParsingHelper {
+  std::string_view docType;
+  std::string_view docVersion;
   
   void parseCityJSONObject(simdjson::ondemand::object jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
 
@@ -380,6 +382,8 @@ class JSONParsingHelper {
   }
 
 public:
+  std::string statusMessage;
+  
   void parse(const char *filePath, AzulObject &parsedFile) {
     simdjson::ondemand::parser parser;
     simdjson::padded_string json;
@@ -394,9 +398,6 @@ public:
       return;
     } parsedFile.type = "File";
     parsedFile.id = filePath;
-
-    std::string_view docType;
-    std::string_view docVersion;
 
     // Check what we have
     if (doc.type() != simdjson::ondemand::json_type::object) return;
@@ -506,9 +507,12 @@ public:
           parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), vertices, &geometryTemplates);
         }
 
+        statusMessage = "Loaded CityJSON " + std::string(docVersion) + " file";
       } else {
-        std::cout << "Unsupported CityJSON version " << docVersion << std::endl;
+        statusMessage = "CityJSON " + std::string(docVersion) + " is not supported";
       }
+    } else {
+      statusMessage = "JSON files other than CityJSON are not supported";
     }
   }
 

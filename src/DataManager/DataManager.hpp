@@ -100,6 +100,9 @@ public:
   // Search
   std::string searchString;
   
+  // Status message
+  std::string statusMessage;
+  
   // Bounds
   float minCoordinates[3];
   float midCoordinates[3];

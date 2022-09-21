@@ -143,8 +143,9 @@ class GMLParsingHelper {
           buildNodesIndex(node, nodesById);
           std::cout << " done (" << nodesById.size() << " entries)." << std::endl;
           parseCityGMLObject(node, parsedObject, nodesById);
+          statusMessage = "Loaded CityGML " + docVersion + " file";
         } else {
-          std::cout << "Unsupported version" << std::endl;
+          statusMessage = "CityGML " + docVersion + " is not supported, please upgrade to CityJSON";
         }
       }
     } 
@@ -167,6 +168,7 @@ class GMLParsingHelper {
           buildNodesIndex(node, nodesById);
           std::cout << " done." << std::endl;
           parseIndoorGMLObject(node, parsedObject, nodesById);
+          statusMessage = "Loaded IndoorGML " + docVersion + " file";
         }
       }
     }
@@ -629,6 +631,8 @@ class GMLParsingHelper {
   }
   
 public:
+  std::string statusMessage;
+  
   void parse(const char *filePath, AzulObject &parsedFile) {
     parsedFile.type = "File";
     parsedFile.id = filePath;

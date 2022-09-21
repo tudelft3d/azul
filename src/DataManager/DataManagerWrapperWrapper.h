@@ -73,6 +73,9 @@ struct DataManagerWrapper;
 // Search
 - (void) setSearchString:(const char *)string;
 
+// Status message
+- (NSString *)statusMessage;
+
 // Objects source list
 - (NSInteger) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
 - (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;

@@ -421,16 +421,21 @@ void DataManager::parse(const char *filePath) {
   if (boost::algorithm::ends_with(filePath, ".gml") ||
       boost::algorithm::ends_with(filePath, ".xml")) {
     gmlParsingHelper.parse(filePath, parsedFiles.back());
+    statusMessage = gmlParsingHelper.statusMessage;
   } else if (boost::algorithm::ends_with(filePath, ".json")) {
     jsonParsingHelper.parse(filePath, parsedFiles.back());
+    statusMessage = jsonParsingHelper.statusMessage;
   } else if (boost::algorithm::ends_with(filePath, ".obj")) {
     objParsingHelper.parse(filePath, parsedFiles.back());
+    statusMessage = "";
   } else if (boost::algorithm::ends_with(filePath, ".poly")) {
     polyParsingHelper.parse(filePath, parsedFiles.back());
+    statusMessage = "";
   } else if (boost::algorithm::ends_with(filePath, ".off")) {
     offParsingHelper.parse(filePath, parsedFiles.back());
+    statusMessage = "";
   } else {
-    std::cout << "Unrecognised file type. Ignored." << std::endl;
+    statusMessage = "Unrecognised file type";
   }
 }
 
