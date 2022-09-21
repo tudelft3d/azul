@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2021 Ken Arroyo Ohori
+// Copyright © 2016-2022 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -188,7 +188,7 @@ class OutlineView: NSOutlineView {
     
     objectsSourceList = OutlineView(frame: objectsScrollView!.bounds)
     objectsSourceList!.controller = self
-    objectsSourceList!.selectionHighlightStyle = .sourceList
+    objectsSourceList!.style = .sourceList
     objectsSourceList!.floatsGroupRows = false
     objectsSourceList!.indentationPerLevel = 16
     objectsSourceList!.indentationMarkerFollowsCell = false
@@ -267,6 +267,7 @@ class OutlineView: NSOutlineView {
     openFiles = Set<URL>()
     self.window.representedURL = nil
     self.window.title = "azul"
+    self.statusTextField!.isHidden = true
   }
   
   @IBAction func openFile(_ sender: NSMenuItem) {
@@ -276,7 +277,7 @@ class OutlineView: NSOutlineView {
     openPanel.allowsMultipleSelection = true
     openPanel.canChooseDirectories = false
     openPanel.canChooseFiles = true
-    openPanel.allowedFileTypes = ["gml", "xml", "json", "obj", "off", "poly"]
+    openPanel.allowedContentTypes = [UTType(filenameExtension: "gml")!, UTType(filenameExtension: "xml")!, UTType(filenameExtension: "json")!, UTType(filenameExtension: "obj")!, UTType(filenameExtension: "off")!, UTType(filenameExtension: "poly")!]
     
     openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
       if result == .OK {
@@ -542,7 +543,8 @@ class OutlineView: NSOutlineView {
           }
           if urls.last == url {
             self.progressIndicator!.isHidden = true
-            self.statusTextField!.isHidden = true
+            Swift.print("status message: \(self.dataManager.statusMessage()!)")
+            self.statusTextField?.stringValue = self.dataManager.statusMessage()
           }
         }
       }
@@ -745,7 +747,7 @@ class OutlineView: NSOutlineView {
     openPanel.allowsMultipleSelection = false
     openPanel.canChooseDirectories = false
     openPanel.canChooseFiles = true
-    openPanel.allowedFileTypes = ["azulview"]
+    openPanel.allowedContentTypes = [UTType(filenameExtension: "azulview")!]
     openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
       if result == .OK {
         self.loadViewParameters(url: openPanel.url!)
@@ -769,7 +771,7 @@ class OutlineView: NSOutlineView {
     do {
       let jsonData = try jsonEncoder.encode(viewParameters)
       let savePanel = NSSavePanel()
-      savePanel.allowedFileTypes = ["azulview"]
+      savePanel.allowedContentTypes = [UTType(filenameExtension: "azulview")!]
       savePanel.beginSheetModal(for: window, completionHandler: { (result: NSApplication.ModalResponse) in
         if result == .OK {
           do {

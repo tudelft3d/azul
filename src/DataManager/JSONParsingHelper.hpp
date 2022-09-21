@@ -532,34 +532,6 @@ public:
     std::cout << "]";
   }
 
-//  void dump(const std::vector<std::map<std::string, std::string>> &semanticSurfaces) {
-//    std::cout << "[";
-//    for (auto const &surface: semanticSurfaces) {
-//      std::cout << "{";
-//      for (auto const &attribute: surface) {
-//        std::cout << attribute.first << ":" << attribute.second;
-//      } std::cout << "}";
-//    } std::cout << "]";
-//  }
-//
-//  void dump(const AzulObject &object) {
-//    std::cout << "AzulObject(";
-//    std::cout << "type=" << object.type;
-//    std::cout << ",id=" << object.id;
-//    std::cout << ",selected=";
-//    if (object.selected) std::cout << "true";
-//    else std::cout << "false";
-//    std::cout << ",visible=" << object.visible;
-//    std::cout << ",matchesSearch=" << object.matchesSearch;
-//    std::cout << ",attributes=";
-//    for (auto const &attribute: object.attributes) std::cout << "<" << attribute.first << "," << attribute.second << ">";
-//    std::cout << ",children[" << object.children.size() << "]=";
-//    for (auto const &child: object.children) dump(child);
-//    std::cout << ",polygons[" << object.polygons.size() << "]";
-//    std::cout << ",triangles[" << object.triangles.size() << "]";
-//    std::cout << ")";
-//  }
-
   void clearDOM() {
 //    json.clear();
   }

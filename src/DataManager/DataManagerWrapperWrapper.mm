@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2021 Ken Arroyo Ohori
+// Copyright © 2016-2022 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -203,7 +203,7 @@ struct DataManagerWrapper {
     NSString *filePath = [NSString stringWithUTF8String:[currentItem iterator]->id.c_str()];
     NSString *filename = [[filePath lastPathComponent] stringByDeletingPathExtension];
     NSString *fileExtension = [[filePath lastPathComponent] pathExtension];
-    NSImage *fileIcon = [[NSWorkspace sharedWorkspace] iconForFileType:fileExtension];
+    NSImage *fileIcon = [[NSWorkspace sharedWorkspace] iconForContentType:[UTType typeWithFilenameExtension:fileExtension]];
     TableCellView *result = [[TableCellView alloc] init];
     [[result imageView] setImage:fileIcon];
     if ([currentItem iterator]->visible == 'Y') [[result checkBox] setState:NSControlStateValueOn];
