@@ -7,11 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BE2F78DA274B2E3B007E89C4 /* libgmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEEAEFA722CE7C3B0038F259 /* libgmp.a */; };
-		BE2F78DB274B2E3B007E89C4 /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEEAEFA922CE7C3B0038F259 /* libmpfr.a */; };
-		BE2F78DE274B2E3B007E89C4 /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE2F78DD274B2E3B007E89C4 /* libpugixml.a */; };
-		BE2F78E1274B3AF6007E89C4 /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE2F78DF274B3AF6007E89C4 /* libboost_thread.a */; };
-		BE2F78E2274B3AF6007E89C4 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE2F78E0274B3AF6007E89C4 /* libboost_system.a */; };
 		BE2F78ED274B576E007E89C4 /* simdjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE2F78EB274B576E007E89C4 /* simdjson.cpp */; };
 		BE5724631F78FAAD008F4D54 /* TableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = BE5724621F78FAAD008F4D54 /* TableCellView.m */; };
 		BE7254FA1F711D87006E5AC8 /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7254F91F711D87006E5AC8 /* DataManager.cpp */; };
@@ -24,6 +19,11 @@
 		BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43D61F8D1EA50021CA0B /* xml.icns */; };
 		BEA3000E1F8EDB4F00DCC464 /* json.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEA3000D1F8EDB4800DCC464 /* json.icns */; };
 		BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */; };
+		BEB3C908288075240014932A /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C902288075240014932A /* libboost_system.a */; };
+		BEB3C909288075240014932A /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C903288075240014932A /* libpugixml.a */; };
+		BEB3C90A288075240014932A /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C904288075240014932A /* libmpfr.a */; };
+		BEB3C90B288075240014932A /* libgmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C905288075240014932A /* libgmp.a */; };
+		BEB3C90D288075240014932A /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C907288075240014932A /* libboost_thread.a */; };
 		BECCEE4C1F705F2900527DC1 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD11F7054F7002FBEF4 /* Credits.rtf */; };
 		BED5AF631F6FC5950002A79E /* DataManagerWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF621F6FC5950002A79E /* DataManagerWrapperWrapper.mm */; };
 		BED5AF751F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */; };
@@ -36,11 +36,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BE2F78DD274B2E3B007E89C4 /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = libs/libpugixml.a; sourceTree = "<group>"; };
-		BE2F78DF274B3AF6007E89C4 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = libs/libboost_thread.a; sourceTree = "<group>"; };
-		BE2F78E0274B3AF6007E89C4 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = libs/libboost_system.a; sourceTree = "<group>"; };
-		BE2F78E6274B4DB2007E89C4 /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsimdjson.a; path = ../../../../usr/local/Cellar/simdjson/1.0.2/lib/libsimdjson.a; sourceTree = "<group>"; };
-		BE2F78E8274B4DF7007E89C4 /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsimdjson.a; path = "libs bak/libsimdjson.a"; sourceTree = "<group>"; };
 		BE2F78EB274B576E007E89C4 /* simdjson.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simdjson.cpp; sourceTree = "<group>"; };
 		BE2F78EC274B576E007E89C4 /* simdjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simdjson.h; sourceTree = "<group>"; };
 		BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = POLYParsingHelper.hpp; sourceTree = "<group>"; };
@@ -61,6 +56,12 @@
 		BEA2DAD21F7055A7002FBEF4 /* JSONParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSONParsingHelper.hpp; sourceTree = "<group>"; };
 		BEA3000D1F8EDB4800DCC464 /* json.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = json.icns; sourceTree = "<group>"; };
 		BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = azulview.icns; sourceTree = "<group>"; };
+		BEB3C902288075240014932A /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = libs/libboost_system.a; sourceTree = "<group>"; };
+		BEB3C903288075240014932A /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = libs/libpugixml.a; sourceTree = "<group>"; };
+		BEB3C904288075240014932A /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = libs/libmpfr.a; sourceTree = "<group>"; };
+		BEB3C905288075240014932A /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = libs/libgmp.a; sourceTree = "<group>"; };
+		BEB3C906288075240014932A /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsimdjson.a; path = libs/libsimdjson.a; sourceTree = "<group>"; };
+		BEB3C907288075240014932A /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = libs/libboost_thread.a; sourceTree = "<group>"; };
 		BED5AF5C1F6FC4960002A79E /* DataManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataManager.hpp; sourceTree = "<group>"; };
 		BED5AF5D1F6FC4960002A79E /* DataModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataModel.hpp; sourceTree = "<group>"; };
 		BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GMLParsingHelper.hpp; sourceTree = "<group>"; };
@@ -70,9 +71,6 @@
 		BED5AF641F6FC5BB0002A79E /* DataManagerWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataManagerWrapperWrapper.h; sourceTree = "<group>"; };
 		BED5AF741F6FD2480002A79E /* PerformanceHelperWrapperWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PerformanceHelperWrapperWrapper.mm; sourceTree = "<group>"; };
 		BED5AF761F6FD2800002A79E /* PerformanceHelperWrapperWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PerformanceHelperWrapperWrapper.h; sourceTree = "<group>"; };
-		BEEAEFA722CE7C3B0038F259 /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = libs/libgmp.a; sourceTree = "<group>"; };
-		BEEAEFA922CE7C3B0038F259 /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = libs/libmpfr.a; sourceTree = "<group>"; };
-		BEEAEFAB22CE7C3B0038F259 /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsimdjson.a; path = libs/libsimdjson.a; sourceTree = "<group>"; };
 		BEF1B7CB2283B90600A0DA71 /* Enhanced_constrained_triangulation_2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enhanced_constrained_triangulation_2.h; sourceTree = "<group>"; };
 		BEF69F3D1F6AA0520079531B /* azul.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = azul.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEF69F401F6AA0520079531B /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
@@ -90,11 +88,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE2F78E1274B3AF6007E89C4 /* libboost_thread.a in Frameworks */,
-				BE2F78E2274B3AF6007E89C4 /* libboost_system.a in Frameworks */,
-				BE2F78DE274B2E3B007E89C4 /* libpugixml.a in Frameworks */,
-				BE2F78DA274B2E3B007E89C4 /* libgmp.a in Frameworks */,
-				BE2F78DB274B2E3B007E89C4 /* libmpfr.a in Frameworks */,
+				BEB3C908288075240014932A /* libboost_system.a in Frameworks */,
+				BEB3C909288075240014932A /* libpugixml.a in Frameworks */,
+				BEB3C90A288075240014932A /* libmpfr.a in Frameworks */,
+				BEB3C90B288075240014932A /* libgmp.a in Frameworks */,
+				BEB3C90D288075240014932A /* libboost_thread.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,14 +148,12 @@
 		BED5AF651F6FC8470002A79E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BE2F78E6274B4DB2007E89C4 /* libsimdjson.a */,
-				BE2F78E8274B4DF7007E89C4 /* libsimdjson.a */,
-				BE2F78E0274B3AF6007E89C4 /* libboost_system.a */,
-				BE2F78DF274B3AF6007E89C4 /* libboost_thread.a */,
-				BE2F78DD274B2E3B007E89C4 /* libpugixml.a */,
-				BEEAEFA722CE7C3B0038F259 /* libgmp.a */,
-				BEEAEFA922CE7C3B0038F259 /* libmpfr.a */,
-				BEEAEFAB22CE7C3B0038F259 /* libsimdjson.a */,
+				BEB3C902288075240014932A /* libboost_system.a */,
+				BEB3C907288075240014932A /* libboost_thread.a */,
+				BEB3C905288075240014932A /* libgmp.a */,
+				BEB3C904288075240014932A /* libmpfr.a */,
+				BEB3C903288075240014932A /* libpugixml.a */,
+				BEB3C906288075240014932A /* libsimdjson.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
