@@ -1,8 +1,8 @@
 # ![Icon](https://3d.bk.tudelft.nl/ken/img/azul-small.png) azul
 
-azul is a 3D city model viewer It is intended for viewing 3D city models in CityGML 1.0 and 2.0, CityJSON 1.0 and 1.1, IndoorGML, OBJ, OFF and POLY. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, toggling the visibility of individual items, and browsing their attributes. It is research software, but it is pretty stable and most datasets already work without problems. It is available under the GPLv3 licence.
+azul is a 3D city model viewer It is intended for viewing 3D city models in CityGML 1.0 and 2.0, CityJSON 1.0, 1.1 and 2.0, IndoorGML, OBJ, OFF and POLY. It supports loading multiple files, selecting objects by clicking them or selecting them in the sidebar, toggling the visibility of individual items, and browsing their attributes. It is research software, but it is pretty stable and most datasets already work without problems. It is available under the GPLv3 licence.
 
-The current version of azul is for macOS 12 and higher and supports both Apple Silicon and Intel Macs.
+The current version of azul is for macOS 13 and higher and supports both Apple Silicon and Intel Macs.
 
 ## Controls
 
@@ -69,7 +69,7 @@ azul is written in a mix of C++17, Swift 5, Objective-C 2 and Objective-C++. The
 
 ## Compilation
 
-We have included an Xcode 13 project to easily compile azul. It should be possible to compile azul on older macOS versions (from 10.14 onwards), but old versions of Xcode (older than 10) cannot compile Swift 5.
+We have included an Xcode 15 project to easily compile azul. It should be possible to compile azul on older macOS versions (from 10.14 onwards), but old versions of Xcode (older than 10) cannot compile Swift 5.
 
 azul depends on the following libraries: [Boost](http://www.boost.org), [CGAL](http://www.cgal.org), [GMP](https://gmplib.org), [MPFR](http://www.mpfr.org), [pugixml](http://pugixml.org) and [simdjson](https://github.com/simdjson/simdjson). Most of these can be easily obtained using [Homebrew](http://brew.sh), but we provide fat libraries (arm64 + x86_64) of them all for convenience.
 

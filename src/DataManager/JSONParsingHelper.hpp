@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2022 Ken Arroyo Ohori
+// Copyright © 2016-2023 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -413,7 +413,8 @@ public:
     if (docType == "CityJSON") {
       std::cout << docType << " " << docVersion << " detected" << std::endl;
       if (docVersion == "1.0" ||
-          docVersion == "1.1") {
+          docVersion == "1.1" ||
+          docVersion == "2.0") {
 
         simdjson::ondemand::object object;
 
