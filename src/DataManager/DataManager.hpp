@@ -1,5 +1,5 @@
 // azul
-// Copyright © 2016-2023 Ken Arroyo Ohori
+// Copyright © 2016-2024 Ken Arroyo Ohori
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 
 #include "GMLParsingHelper.hpp"
 #include "JSONParsingHelper.hpp"
+#include "JSONLinesParsingHelper.hpp"
 #include "OBJParsingHelper.hpp"
 #include "POLYParsingHelper.hpp"
 #include "OFFParsingHelper.hpp"
@@ -75,6 +76,7 @@ public:
   // Helpers
   GMLParsingHelper gmlParsingHelper;
   JSONParsingHelper jsonParsingHelper;
+  JSONLinesParsingHelper jsonLinesParsingHelper; 
   OBJParsingHelper objParsingHelper;
   POLYParsingHelper polyParsingHelper;
   OFFParsingHelper offParsingHelper;

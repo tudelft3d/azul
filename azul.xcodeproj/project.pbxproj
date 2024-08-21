@@ -36,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BE176F7F2C7532A1002C4093 /* JSONLinesParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSONLinesParsingHelper.hpp; sourceTree = "<group>"; };
 		BE2F78EB274B576E007E89C4 /* simdjson.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simdjson.cpp; sourceTree = "<group>"; };
 		BE2F78EC274B576E007E89C4 /* simdjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simdjson.h; sourceTree = "<group>"; };
 		BE4236931F8BB1B6009AD5D7 /* POLYParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = POLYParsingHelper.hpp; sourceTree = "<group>"; };
@@ -130,6 +131,7 @@
 				BED5AF5D1F6FC4960002A79E /* DataModel.hpp */,
 				BE2F78EB274B576E007E89C4 /* simdjson.cpp */,
 				BE2F78EC274B576E007E89C4 /* simdjson.h */,
+				BE176F7F2C7532A1002C4093 /* JSONLinesParsingHelper.hpp */,
 				BEA2DAD21F7055A7002FBEF4 /* JSONParsingHelper.hpp */,
 				BED5AF5E1F6FC4970002A79E /* GMLParsingHelper.hpp */,
 				BE5182981F7D3812000A7066 /* OBJParsingHelper.hpp */,
@@ -442,7 +444,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1110;
+				CURRENT_PROJECT_VERSION = 1200;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
@@ -464,8 +466,8 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/libs",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.1.1;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.2;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -487,7 +489,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1110;
+				CURRENT_PROJECT_VERSION = 1200;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = UD3V83TPY7;
@@ -508,8 +510,8 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/libs",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.1.1;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.2;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
