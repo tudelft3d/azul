@@ -61,7 +61,6 @@
 		BEB3C903288075240014932A /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = libs/libpugixml.a; sourceTree = "<group>"; };
 		BEB3C904288075240014932A /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = libs/libmpfr.a; sourceTree = "<group>"; };
 		BEB3C905288075240014932A /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = libs/libgmp.a; sourceTree = "<group>"; };
-		BEB3C906288075240014932A /* libsimdjson.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsimdjson.a; path = libs/libsimdjson.a; sourceTree = "<group>"; };
 		BEB3C907288075240014932A /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = libs/libboost_thread.a; sourceTree = "<group>"; };
 		BED5AF5C1F6FC4960002A79E /* DataManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataManager.hpp; sourceTree = "<group>"; };
 		BED5AF5D1F6FC4960002A79E /* DataModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataModel.hpp; sourceTree = "<group>"; };
@@ -155,7 +154,6 @@
 				BEB3C905288075240014932A /* libgmp.a */,
 				BEB3C904288075240014932A /* libmpfr.a */,
 				BEB3C903288075240014932A /* libpugixml.a */,
-				BEB3C906288075240014932A /* libsimdjson.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -466,7 +464,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/libs",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.2;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
@@ -510,7 +508,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/libs",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.2;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azul;
