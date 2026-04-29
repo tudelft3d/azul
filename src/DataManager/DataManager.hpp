@@ -24,9 +24,9 @@
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
-#include <CGAL/Triangulation_face_base_with_info_2.h>
 #include <CGAL/linear_least_squares_fitting_3.h>
-#include "Enhanced_constrained_triangulation_2.h"
+#include <CGAL/Polygon_repair/internal/Triangulation_face_base_with_repair_info_2.h>
+#include <CGAL/Polygon_repair/internal/Triangulation_with_even_odd_constraints_2.h>
 
 #include "GMLParsingHelper.hpp"
 #include "JSONParsingHelper.hpp"
@@ -45,20 +45,12 @@ struct VertexInfo {
     point = CGAL::ORIGIN;
   }
 };
-struct FaceInfo {
-  bool processed;
-  bool interior;
-  FaceInfo() {
-    processed = false;
-    interior = false;
-  }
-};
 typedef CGAL::Triangulation_vertex_base_with_info_2<VertexInfo, Kernel> VertexBase;
 typedef CGAL::Constrained_triangulation_face_base_2<Kernel> FaceBase;
-typedef CGAL::Triangulation_face_base_with_info_2<FaceInfo, Kernel, FaceBase> FaceBaseWithInfo;
+typedef CGAL::Polygon_repair::internal::Triangulation_face_base_with_repair_info_2<Kernel, FaceBase> FaceBaseWithInfo;
 typedef CGAL::Triangulation_data_structure_2<VertexBase, FaceBaseWithInfo> TriangulationDataStructure;
 typedef CGAL::Constrained_Delaunay_triangulation_2<Kernel, TriangulationDataStructure, Tag> ConstrainedDelaunayTriangulation;
-typedef Enhanced_constrained_triangulation_2<ConstrainedDelaunayTriangulation> Triangulation;
+typedef CGAL::Polygon_repair::internal::Triangulation_with_even_odd_constraints_2<ConstrainedDelaunayTriangulation> Triangulation;
 
 class DataManager {
 private:

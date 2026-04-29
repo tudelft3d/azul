@@ -140,7 +140,7 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
         currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
         currentVertex->info().hasPoint = true;
         currentVertex->info().point = newPoint;
-        if (previousVertex != currentVertex) triangulation.odd_even_insert_constraint(previousVertex, currentVertex);
+        if (previousVertex != currentVertex) triangulation.even_odd_insert_constraint(previousVertex, currentVertex);
         ++currentPoint;
       } for (auto const &ring: polygon.interiorRings) {
         if (ring.points.size() < 4) {
@@ -157,44 +157,50 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
           currentVertex = triangulation.insert(bestPlane.to_2d(newPoint));
           currentVertex->info().hasPoint = true;
           currentVertex->info().point = newPoint;
-          if (previousVertex != currentVertex) triangulation.odd_even_insert_constraint(previousVertex, currentVertex);
+          if (previousVertex != currentVertex) triangulation.even_odd_insert_constraint(previousVertex, currentVertex);
           ++currentPoint;
         }
       }
       
       // Label the triangles to find out interior/exterior
       if (triangulation.number_of_faces() == 0) {
-        //      std::cout << "Degenerate face produced no triangles. Skipping..." << std::endl;
         continue;
-      } std::list<Triangulation::Face_handle> toCheck;
-      triangulation.infinite_face()->info().processed = true;
-      CGAL_assertion(triangulation.infinite_face()->info().processed == true);
-      CGAL_assertion(triangulation.infinite_face()->info().interior == false);
-      toCheck.push_back(triangulation.infinite_face());
-      while (!toCheck.empty()) {
-        CGAL_assertion(toCheck.front()->info().processed == true);
+      }
+      
+      for (auto face: triangulation.all_face_handles()) {
+        face->label() = 0;
+        face->processed() = false;
+      }
+      
+      std::list<Triangulation::Face_handle> to_check;
+      std::list<int> to_check_added_by;
+      triangulation.infinite_face()->label() = -1;
+      triangulation.infinite_face()->processed() = true;
+      to_check.push_back(triangulation.infinite_face());
+      to_check_added_by.push_back(-1);
+      
+      while (!to_check.empty()) {
+        int current_label = to_check.front()->label();
         for (int neighbour = 0; neighbour < 3; ++neighbour) {
-          if (toCheck.front()->neighbor(neighbour)->info().processed == true) {
-            // Note: validation code.
-//            if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().interior != toCheck.front()->info().interior);
-//            else CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().interior == toCheck.front()->info().interior);
-          } else {
-            toCheck.front()->neighbor(neighbour)->info().processed = true;
-            CGAL_assertion(toCheck.front()->neighbor(neighbour)->info().processed == true);
-            if (triangulation.is_constrained(Triangulation::Edge(toCheck.front(), neighbour))) {
-              toCheck.front()->neighbor(neighbour)->info().interior = !toCheck.front()->info().interior;
-              toCheck.push_back(toCheck.front()->neighbor(neighbour));
+          if (!to_check.front()->neighbor(neighbour)->processed()) {
+            to_check.front()->neighbor(neighbour)->processed() = true;
+            if (triangulation.is_constrained(Triangulation::Edge(to_check.front(), neighbour))) {
+              to_check.front()->neighbor(neighbour)->label() = -current_label;
+              to_check.push_back(to_check.front()->neighbor(neighbour));
+              to_check_added_by.push_back(current_label);
             } else {
-              toCheck.front()->neighbor(neighbour)->info().interior = toCheck.front()->info().interior;
-              toCheck.push_back(toCheck.front()->neighbor(neighbour));
+              to_check.front()->neighbor(neighbour)->label() = current_label;
+              to_check.push_back(to_check.front()->neighbor(neighbour));
+              to_check_added_by.push_back(current_label);
             }
           }
-        } toCheck.pop_front();
+        } to_check.pop_front();
+        to_check_added_by.pop_front();
       }
       
       // Project the triangles back to 3D (if necessary) and add
       for (Triangulation::Finite_faces_iterator currentFace = triangulation.finite_faces_begin(); currentFace != triangulation.finite_faces_end(); ++currentFace) {
-        if (currentFace->info().interior == true) {
+        if (currentFace->label() > 0) {
           //        std::cout << "\tCreated triangle with points:" << std::endl;
           triangles.push_back(AzulTriangle());
           for (unsigned int currentVertexIndex = 0; currentVertexIndex < 3; ++currentVertexIndex) {
