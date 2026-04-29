@@ -89,27 +89,32 @@ struct BufferWithColour {
     let library = device!.makeDefaultLibrary()!
     let litVertexFunction = library.makeFunction(name: "vertexLit")
     let unlitVertexFunction = library.makeFunction(name: "vertexUnlit")
-    let fragmentFunction = library.makeFunction(name: "fragmentLit")
-    let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
-    renderPipelineDescriptor.vertexFunction = litVertexFunction
-    renderPipelineDescriptor.fragmentFunction = fragmentFunction
-    renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
-    renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
-    renderPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
-    renderPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
-    renderPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-    renderPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
-    renderPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    let litFragmentFunction = library.makeFunction(name: "fragmentLit")
+    let unlitFragmentFunction = library.makeFunction(name: "fragmentUnlit")
+    let litPipelineDescriptor = MTLRenderPipelineDescriptor()
+    litPipelineDescriptor.vertexFunction = litVertexFunction
+    litPipelineDescriptor.fragmentFunction = litFragmentFunction
+    litPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
+    litPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+    litPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+    litPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
+    litPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+    litPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+    litPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
     do {
-      litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+      litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: litPipelineDescriptor)
     } catch {
       Swift.print("Unable to compile lit render pipeline state")
       return
     }
-    renderPipelineDescriptor.vertexFunction = unlitVertexFunction
-    renderPipelineDescriptor.colorAttachments[0].isBlendingEnabled = false
+    let unlitPipelineDescriptor = MTLRenderPipelineDescriptor()
+    unlitPipelineDescriptor.vertexFunction = unlitVertexFunction
+    unlitPipelineDescriptor.fragmentFunction = unlitFragmentFunction
+    unlitPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
+    unlitPipelineDescriptor.colorAttachments[0].isBlendingEnabled = false
+    unlitPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
     do {
-      unlitRenderPipelineState = try device!.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+      unlitRenderPipelineState = try device!.makeRenderPipelineState(descriptor: unlitPipelineDescriptor)
     } catch {
       Swift.print("Unable to compile unlit render pipeline state")
       return
@@ -168,6 +173,7 @@ struct BufferWithColour {
         renderEncoder.setVertexBuffer(triangleBuffer.buffer, offset:0, index:0)
         constants.colour = triangleBuffer.colour
         renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+        renderEncoder.setFragmentBytes(&constants, length: MemoryLayout<Constants>.size, index: 0)
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
       }
     }
@@ -177,6 +183,7 @@ struct BufferWithColour {
         renderEncoder.setVertexBuffer(triangleBuffer.buffer, offset:0, index:0)
         constants.colour = triangleBuffer.colour
         renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+        renderEncoder.setFragmentBytes(&constants, length: MemoryLayout<Constants>.size, index: 0)
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
       }
     }

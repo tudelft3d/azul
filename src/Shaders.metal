@@ -39,40 +39,56 @@ struct VertexIn {
   float3 position;
 };
 
-struct VertexOut {
+struct VertexOutLit {
+  float4 position [[position]];
+  float3 worldNormal;
+  float3 worldPosition;
+};
+
+struct VertexOutUnlit {
   float4 position [[position]];
   float4 colour;
 };
 
-vertex VertexOut vertexLit(const device VertexWithNormalIn *vertices [[buffer(0)]],
-                           constant Constants &uniforms [[buffer(1)]],
-                           uint VertexId [[vertex_id]]) {
+vertex VertexOutLit vertexLit(const device VertexWithNormalIn *vertices [[buffer(0)]],
+                               constant Constants &uniforms [[buffer(1)]],
+                               uint VertexId [[vertex_id]]) {
   
-  float3 normalDirection = normalize(uniforms.modelMatrixInverseTransposed * vertices[VertexId].normal);
-  float3 viewDirection = normalize(float3(uniforms.viewMatrixInverse * float4(0.0, 0.0, 0.0, 1.0) - uniforms.modelMatrix * float4(vertices[VertexId].position, 1.0)));
+  float3 worldNormal = normalize(uniforms.modelMatrixInverseTransposed * vertices[VertexId].normal);
+  float4 worldPosition = uniforms.modelMatrix * float4(vertices[VertexId].position, 1.0);
+  
+  VertexOutLit out;
+  out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
+  out.worldNormal = worldNormal;
+  out.worldPosition = worldPosition.xyz;
+  return out;
+}
+
+vertex VertexOutUnlit vertexUnlit(const device VertexIn *vertices [[buffer(0)]],
+                                   constant Constants &uniforms [[buffer(1)]],
+                                   uint VertexId [[vertex_id]]) {
+  
+  VertexOutUnlit out;
+  out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
+  out.colour = uniforms.colour;
+  return out;
+}
+
+fragment half4 fragmentLit(VertexOutLit fragmentIn [[stage_in]],
+                            constant Constants &uniforms [[buffer(0)]]) {
+  
+  float3 normalDirection = normalize(fragmentIn.worldNormal);
+  float3 viewDirection = normalize(float3(uniforms.viewMatrixInverse * float4(0.0, 0.0, 0.0, 1.0) - float4(fragmentIn.worldPosition, 1.0)));
   float3 lightDirection = normalize(lightPosition);
   
   float3 ambient = ambientLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b);
   float3 diffuse = diffuseLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(normalDirection, lightDirection));
   float3 specular = specularLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection));
   
-  VertexOut out;
-  out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
-  out.colour = float4(ambient + diffuse + specular, uniforms.colour.a);
-  return out;
+  return half4(float4(ambient + diffuse + specular, uniforms.colour.a));
 }
 
-vertex VertexOut vertexUnlit(const device VertexIn *vertices [[buffer(0)]],
-                             constant Constants &uniforms [[buffer(1)]],
-                             uint VertexId [[vertex_id]]) {
-  
-  VertexOut out;
-  out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
-  out.colour = uniforms.colour;
-  return out;
-}
-
-fragment half4 fragmentLit(VertexOut fragmentIn [[stage_in]]) {
+fragment half4 fragmentUnlit(VertexOutUnlit fragmentIn [[stage_in]]) {
   return half4(fragmentIn.colour);
 }
 
