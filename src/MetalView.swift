@@ -87,15 +87,12 @@ struct BufferWithColour {
     // Command queue
     commandQueue = device!.makeCommandQueue()
     
-    // Render pipeline
+    // Build pipeline descriptors
     let library = device!.makeDefaultLibrary()!
-    let litVertexFunction = library.makeFunction(name: "vertexLit")
-    let unlitVertexFunction = library.makeFunction(name: "vertexUnlit")
-    let litFragmentFunction = library.makeFunction(name: "fragmentLit")
-    let unlitFragmentFunction = library.makeFunction(name: "fragmentUnlit")
+    
     let litPipelineDescriptor = MTLRenderPipelineDescriptor()
-    litPipelineDescriptor.vertexFunction = litVertexFunction
-    litPipelineDescriptor.fragmentFunction = litFragmentFunction
+    litPipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexLit")
+    litPipelineDescriptor.fragmentFunction = library.makeFunction(name: "fragmentLit")
     litPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
     litPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
     litPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
@@ -103,23 +100,42 @@ struct BufferWithColour {
     litPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
     litPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
     litPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
-    do {
-      litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: litPipelineDescriptor)
-    } catch {
-      Swift.print("Unable to compile lit render pipeline state")
-      return
-    }
+    
     let unlitPipelineDescriptor = MTLRenderPipelineDescriptor()
-    unlitPipelineDescriptor.vertexFunction = unlitVertexFunction
-    unlitPipelineDescriptor.fragmentFunction = unlitFragmentFunction
+    unlitPipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexUnlit")
+    unlitPipelineDescriptor.fragmentFunction = library.makeFunction(name: "fragmentUnlit")
     unlitPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
     unlitPipelineDescriptor.colorAttachments[0].isBlendingEnabled = false
     unlitPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    
+    // Create pipeline states (always compile from the offline-compiled metallib)
     do {
+      litRenderPipelineState = try device!.makeRenderPipelineState(descriptor: litPipelineDescriptor)
       unlitRenderPipelineState = try device!.makeRenderPipelineState(descriptor: unlitPipelineDescriptor)
     } catch {
-      Swift.print("Unable to compile unlit render pipeline state")
+      Swift.print("Unable to compile render pipeline states: \(error)")
       return
+    }
+    
+    // Cache compiled pipeline states as a binary archive for faster launches
+    let fileManager = FileManager.default
+    let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("azul", isDirectory: true)
+    let archiveURL = appSupportURL.appendingPathComponent("azul.metalar")
+    try? fileManager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
+    
+    if !fileManager.fileExists(atPath: archiveURL.path) {
+      if let archive = try? device!.makeBinaryArchive(descriptor: MTLBinaryArchiveDescriptor()) {
+        try? archive.addRenderPipelineFunctions(descriptor: litPipelineDescriptor)
+        try? archive.addRenderPipelineFunctions(descriptor: unlitPipelineDescriptor)
+        if let pickFunction = library.makeFunction(name: "pick") {
+          let pickDesc = MTLComputePipelineDescriptor()
+          pickDesc.computeFunction = pickFunction
+          try? archive.addComputePipelineFunctions(descriptor: pickDesc)
+        }
+        try? archive.serialize(to: archiveURL)
+        Swift.print("Cached binary archive to \(archiveURL.path)")
+      }
     }
     
     // Depth stencil
