@@ -19,7 +19,6 @@
 		BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43D61F8D1EA50021CA0B /* xml.icns */; };
 		BEA3000E1F8EDB4F00DCC464 /* json.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEA3000D1F8EDB4800DCC464 /* json.icns */; };
 		BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */; };
-		BEB3C908288075240014932A /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C902288075240014932A /* libboost_system.a */; };
 		BEB3C909288075240014932A /* libpugixml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C903288075240014932A /* libpugixml.a */; };
 		BEB3C90A288075240014932A /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C904288075240014932A /* libmpfr.a */; };
 		BEB3C90B288075240014932A /* libgmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEB3C905288075240014932A /* libgmp.a */; };
@@ -57,7 +56,6 @@
 		BEA2DAD21F7055A7002FBEF4 /* JSONParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSONParsingHelper.hpp; sourceTree = "<group>"; };
 		BEA3000D1F8EDB4800DCC464 /* json.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = json.icns; sourceTree = "<group>"; };
 		BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = azulview.icns; sourceTree = "<group>"; };
-		BEB3C902288075240014932A /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = libs/libboost_system.a; sourceTree = "<group>"; };
 		BEB3C903288075240014932A /* libpugixml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpugixml.a; path = libs/libpugixml.a; sourceTree = "<group>"; };
 		BEB3C904288075240014932A /* libmpfr.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmpfr.a; path = libs/libmpfr.a; sourceTree = "<group>"; };
 		BEB3C905288075240014932A /* libgmp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgmp.a; path = libs/libgmp.a; sourceTree = "<group>"; };
@@ -88,7 +86,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEB3C908288075240014932A /* libboost_system.a in Frameworks */,
 				BEB3C909288075240014932A /* libpugixml.a in Frameworks */,
 				BEB3C90A288075240014932A /* libmpfr.a in Frameworks */,
 				BEB3C90B288075240014932A /* libgmp.a in Frameworks */,
@@ -149,7 +146,6 @@
 		BED5AF651F6FC8470002A79E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BEB3C902288075240014932A /* libboost_system.a */,
 				BEB3C907288075240014932A /* libboost_thread.a */,
 				BEB3C905288075240014932A /* libgmp.a */,
 				BEB3C904288075240014932A /* libmpfr.a */,
@@ -226,7 +222,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0900;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2640;
 				ORGANIZATIONNAME = "Ken Arroyo Ohori";
 				TargetAttributes = {
 					BEF69F3C1F6AA0520079531B = {
@@ -344,6 +340,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UD3V83TPY7;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -365,6 +362,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ken/Versioned/azul/src/Azul-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -409,6 +407,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UD3V83TPY7;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -423,6 +422,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "/Users/ken/Versioned/azul/src/Azul-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -445,7 +445,6 @@
 				CURRENT_PROJECT_VERSION = 1200;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = UD3V83TPY7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -490,7 +489,6 @@
 				CURRENT_PROJECT_VERSION = 1200;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = UD3V83TPY7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
