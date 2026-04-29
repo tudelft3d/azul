@@ -36,6 +36,8 @@ struct VertexWithNormal {
 
 struct BufferWithColour {
   var buffer: MTLBuffer
+  var indexBuffer: MTLBuffer
+  var indexCount: Int
   var type: String
   var colour: SIMD4<Float>
 }
@@ -174,7 +176,7 @@ struct BufferWithColour {
         constants.colour = triangleBuffer.colour
         renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
         renderEncoder.setFragmentBytes(&constants, length: MemoryLayout<Constants>.size, index: 0)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
+        renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: triangleBuffer.indexCount, indexType: .uint32, indexBuffer: triangleBuffer.indexBuffer, indexBufferOffset: 0)
       }
     }
     
@@ -184,7 +186,7 @@ struct BufferWithColour {
         constants.colour = triangleBuffer.colour
         renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
         renderEncoder.setFragmentBytes(&constants, length: MemoryLayout<Constants>.size, index: 0)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: triangleBuffer.buffer.length/MemoryLayout<VertexWithNormal>.size)
+        renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: triangleBuffer.indexCount, indexType: .uint32, indexBuffer: triangleBuffer.indexBuffer, indexBufferOffset: 0)
       }
     }
     

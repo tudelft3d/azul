@@ -276,23 +276,50 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
   }
   
   if (object.triangles.empty()) return;
-  std::list<TriangleBuffer>::iterator currentBuffer;
-  
   if (object.visible == 'N') return;
+  
+  // Build unique vertices and indices for this object
+  std::vector<float> objectVertices;
+  std::vector<std::uint32_t> objectIndices;
+  std::map<std::array<float, 8>, std::uint32_t> vertexMap;
+  objectVertices.reserve(object.triangles.size() * 3 * 8);
+  objectIndices.reserve(object.triangles.size() * 3);
+  
+  for (auto const &triangle: object.triangles) {
+    for (int pointIndex = 0; pointIndex < 3; ++pointIndex) {
+      std::array<float, 8> vertexKey;
+      for (int coordinate = 0; coordinate < 3; ++coordinate)
+        vertexKey[coordinate] = (triangle.points[pointIndex].coordinates[coordinate]-midCoordinates[coordinate])/maxRange;
+      vertexKey[3] = 0.0;
+      for (int component = 0; component < 3; ++component)
+        vertexKey[4+component] = triangle.normals[pointIndex].components[component];
+      vertexKey[7] = 0.0;
+      
+      auto [it, inserted] = vertexMap.insert({vertexKey, static_cast<std::uint32_t>(objectVertices.size() / 8)});
+      if (inserted) {
+        objectVertices.insert(objectVertices.end(), vertexKey.begin(), vertexKey.end());
+      }
+      objectIndices.push_back(it->second);
+    }
+  }
+  
+  auto getBufferSize = [](const std::vector<float> &verts, const std::vector<std::uint32_t> &indices) -> long {
+    return verts.size() * sizeof(float) + indices.size() * sizeof(std::uint32_t);
+  };
+  
+  std::list<TriangleBuffer>::iterator currentBuffer;
   
   // Make new buffer if necessary (selected)
   if (object.selected) {
-//    std::cout << "AzulObject<" << &object << "> selected" << std::endl;
     if (lastTriangleBufferBySelection.count(true) == 0 ||
-        (lastTriangleBufferBySelection[true]->triangles.size()+object.triangles.size()) * sizeof(float) > maxBufferSize) {
-      TriangleBuffer newBuffer;
-      newBuffer.colour[0] = std::get<0>(selectedTrianglesColour);
-      newBuffer.colour[1] = std::get<1>(selectedTrianglesColour);
-      newBuffer.colour[2] = std::get<2>(selectedTrianglesColour);
-      newBuffer.colour[3] = std::get<3>(selectedTrianglesColour);
-      triangleBuffers.push_front(newBuffer);
-      lastTriangleBufferBySelection[true] = triangleBuffers.begin();
+        getBufferSize(lastTriangleBufferBySelection[true]->triangles, lastTriangleBufferBySelection[true]->indices) + getBufferSize(objectVertices, objectIndices) > maxBufferSize) {
+      triangleBuffers.push_front(TriangleBuffer());
       currentBuffer = triangleBuffers.begin();
+      currentBuffer->colour[0] = std::get<0>(selectedTrianglesColour);
+      currentBuffer->colour[1] = std::get<1>(selectedTrianglesColour);
+      currentBuffer->colour[2] = std::get<2>(selectedTrianglesColour);
+      currentBuffer->colour[3] = std::get<3>(selectedTrianglesColour);
+      lastTriangleBufferBySelection[true] = currentBuffer;
     } else {
       currentBuffer = lastTriangleBufferBySelection[true];
     }
@@ -301,32 +328,29 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
   // Make new buffer if necessary (not selected)
   else {
     if (lastTriangleBufferOfType.count(typeWithColour) == 0 ||
-        (lastTriangleBufferOfType[typeWithColour]->triangles.size()+object.triangles.size())*sizeof(float) > maxBufferSize) {
-      //      std::cout << "Making new buffer for " << typeWithColour << "..." << std::endl;
-      TriangleBuffer newBuffer;
-      newBuffer.type = typeWithColour;
-      newBuffer.colour[0] = std::get<0>(colourForType[typeWithColour]);
-      newBuffer.colour[1] = std::get<1>(colourForType[typeWithColour]);
-      newBuffer.colour[2] = std::get<2>(colourForType[typeWithColour]);
-      newBuffer.colour[3] = std::get<3>(colourForType[typeWithColour]);
-      triangleBuffers.push_front(newBuffer);
-      lastTriangleBufferOfType[typeWithColour] = triangleBuffers.begin();
+        getBufferSize(lastTriangleBufferOfType[typeWithColour]->triangles, lastTriangleBufferOfType[typeWithColour]->indices) + getBufferSize(objectVertices, objectIndices) > maxBufferSize) {
+      triangleBuffers.push_front(TriangleBuffer());
       currentBuffer = triangleBuffers.begin();
+      currentBuffer->type = typeWithColour;
+      {
+        auto const &colour = colourForType[typeWithColour];
+        currentBuffer->colour[0] = std::get<0>(colour);
+        currentBuffer->colour[1] = std::get<1>(colour);
+        currentBuffer->colour[2] = std::get<2>(colour);
+        currentBuffer->colour[3] = std::get<3>(colour);
+      }
+      lastTriangleBufferOfType[typeWithColour] = currentBuffer;
     } else {
       currentBuffer = lastTriangleBufferOfType[typeWithColour];
     }
   }
   
-  for (auto const &triangle: object.triangles) {
-    //      std::cout << "Triangle" << std::endl;
-    for (int pointIndex = 0; pointIndex < 3; ++pointIndex) {
-      //        std::cout << "\tPoint[" << pointIndex << "](" << triangle.points[pointIndex].coordinates[0] << ", " << triangle.points[pointIndex].coordinates[1] << ", " << triangle.points[pointIndex].coordinates[2] << ")" << std::endl;
-      //        std::cout << "\tNormal[" << pointIndex << "](" << triangle.normals[pointIndex].components[0] << ", " << triangle.normals[pointIndex].components[1] << ", " << triangle.normals[pointIndex].components[2] << ")" << std::endl;
-      for (int coordinate = 0; coordinate < 3; ++coordinate) currentBuffer->triangles.push_back((triangle.points[pointIndex].coordinates[coordinate]-midCoordinates[coordinate])/maxRange);
-      currentBuffer->triangles.push_back(0.0); // to match Metal float3 16 byte size
-      for (int component = 0; component < 3; ++component) currentBuffer->triangles.push_back(triangle.normals[pointIndex].components[component]);
-      currentBuffer->triangles.push_back(0.0); // to match Metal float3 16 byte size
-    }
+  // Append vertices and indices, offsetting indices by the current vertex count
+  std::uint32_t baseIndex = static_cast<std::uint32_t>(currentBuffer->triangles.size() / 8);
+  currentBuffer->triangles.insert(currentBuffer->triangles.end(), objectVertices.begin(), objectVertices.end());
+  currentBuffer->indices.reserve(currentBuffer->indices.size() + objectIndices.size());
+  for (std::uint32_t index : objectIndices) {
+    currentBuffer->indices.push_back(baseIndex + index);
   }
 }
 

@@ -98,6 +98,11 @@ struct DataManagerWrapper {
   return &dataManagerWrapper->dataManager->currentTriangleBuffer->triangles.front();
 }
 
+- (const unsigned int *) currentTriangleBufferIndicesWithSize:(long *)bytes {
+  *bytes = dataManagerWrapper->dataManager->currentTriangleBuffer->indices.size()*sizeof(unsigned int);
+  return dataManagerWrapper->dataManager->currentTriangleBuffer->indices.data();
+}
+
 - (const char *) currentTriangleBufferTypeWithLength:(long *)length {
   *length = dataManagerWrapper->dataManager->currentTriangleBuffer->type.size();
   return dataManagerWrapper->dataManager->currentTriangleBuffer->type.c_str();

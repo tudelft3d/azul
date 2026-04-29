@@ -658,10 +658,20 @@ class OutlineView: NSOutlineView {
       let bufferColourArray = ContiguousArray(bufferColourBuffer)
       let bufferColour = SIMD4<Float>(bufferColourArray[0], bufferColourArray[1], bufferColourArray[2], bufferColourArray[3])
       
-      var bufferSize: Int = 0
-      let buffer = self.dataManager.currentTriangleBuffer(withSize: &bufferSize)
-      if buffer != nil {
-        self.metalView!.triangleBuffers.append(BufferWithColour(buffer: self.metalView!.device!.makeBuffer(bytes: buffer!, length: bufferSize, options: [])!, type: bufferType, colour: bufferColour))
+      var vertexBufferSize: Int = 0
+      let vertexBuffer = self.dataManager.currentTriangleBuffer(withSize: &vertexBufferSize)
+      
+      var indexBufferSize: Int = 0
+      let indexBuffer = self.dataManager.currentTriangleBufferIndices(withSize: &indexBufferSize)
+      
+      if vertexBuffer != nil && indexBuffer != nil && indexBufferSize > 0 {
+        let vertexMTLBuffer = self.metalView!.device!.makeBuffer(bytes: vertexBuffer!, length: vertexBufferSize, options: [])!
+        let indexMTLBuffer = self.metalView!.device!.makeBuffer(bytes: indexBuffer!, length: indexBufferSize, options: [])!
+        self.metalView!.triangleBuffers.append(BufferWithColour(buffer: vertexMTLBuffer,
+                                                                indexBuffer: indexMTLBuffer,
+                                                                indexCount: indexBufferSize / MemoryLayout<UInt32>.size,
+                                                                type: bufferType,
+                                                                colour: bufferColour))
       }
       self.dataManager.advanceTriangleBufferIterator()
     }
@@ -679,7 +689,12 @@ class OutlineView: NSOutlineView {
       var bufferSize: Int = 0
       let buffer = self.dataManager.currentEdgeBuffer(withSize: &bufferSize)
       if buffer != nil {
-        self.metalView!.edgeBuffers.append(BufferWithColour(buffer: self.metalView!.device!.makeBuffer(bytes: buffer!, length: bufferSize, options: [])!, type: "", colour: bufferColour))
+        let vertexMTLBuffer = self.metalView!.device!.makeBuffer(bytes: buffer!, length: bufferSize, options: [])!
+        self.metalView!.edgeBuffers.append(BufferWithColour(buffer: vertexMTLBuffer,
+                                                            indexBuffer: vertexMTLBuffer,
+                                                            indexCount: 0,
+                                                            type: "",
+                                                            colour: bufferColour))
       }
       self.dataManager.advanceEdgeBufferIterator()
     }

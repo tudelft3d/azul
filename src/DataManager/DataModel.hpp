@@ -19,6 +19,8 @@
 
 #include <vector>
 #include <map>
+#include <array>
+#include <cstdint>
 
 struct AzulPoint {
   float coordinates[3];
@@ -108,6 +110,7 @@ struct TriangleBuffer {
   std::string type;
   float colour[4];
   std::vector<float> triangles;
+  std::vector<std::uint32_t> indices;
 };
 
 struct EdgeBuffer {

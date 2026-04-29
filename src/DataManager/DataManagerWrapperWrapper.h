@@ -52,6 +52,7 @@ struct DataManagerWrapper;
 // Triangle buffers
 - (void) initialiseTriangleBufferIterator;
 - (const float *) currentTriangleBufferWithSize:(long *)bytes;
+- (const unsigned int *) currentTriangleBufferIndicesWithSize:(long *)bytes;
 - (const char *) currentTriangleBufferTypeWithLength:(long *)length;
 - (const float *) currentTriangleBufferColour;
 - (void) advanceTriangleBufferIterator;
