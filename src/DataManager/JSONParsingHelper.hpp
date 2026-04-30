@@ -18,8 +18,7 @@
 #define JSONParsingHelper_hpp
 
 #include <any>
-#include <functional>
-#include <set>
+#include <unordered_map>
 
 #include "DataModel.hpp"
 #include "simdjson.h"
@@ -396,47 +395,48 @@ protected:
   void buildHierarchy(AzulObject &parsedFile) {
     if (parentToChildrenMap.empty()) return;
 
-    std::map<std::string, size_t> idToIndex;
+    std::unordered_map<std::string, size_t> idToIndex;
+    idToIndex.reserve(parsedFile.children.size());
     for (size_t i = 0; i < parsedFile.children.size(); ++i) {
       idToIndex[parsedFile.children[i].id] = i;
     }
 
-    std::set<std::string> allChildIds;
+    std::vector<bool> isChild(parsedFile.children.size(), false);
     for (auto &[parentId, childIds] : parentToChildrenMap) {
-      if (idToIndex.find(parentId) == idToIndex.end()) continue;
+      auto parentIt = idToIndex.find(parentId);
+      if (parentIt == idToIndex.end()) continue;
       for (auto &childId : childIds) {
-        allChildIds.insert(childId);
+        auto childIt = idToIndex.find(childId);
+        if (childIt != idToIndex.end()) isChild[childIt->second] = true;
       }
     }
 
     std::vector<size_t> rootIndices;
     for (size_t i = 0; i < parsedFile.children.size(); ++i) {
-      if (allChildIds.find(parsedFile.children[i].id) == allChildIds.end()) {
-        rootIndices.push_back(i);
-      }
+      if (!isChild[i]) rootIndices.push_back(i);
     }
 
     std::vector<AzulObject> hierarchicalChildren;
-    std::set<size_t> moved;
+    std::vector<bool> moved(parsedFile.children.size(), false);
+    hierarchicalChildren.reserve(rootIndices.size());
 
-    std::function<void(AzulObject&, const std::string&)> addChildren;
-    addChildren = [&](AzulObject &parent, const std::string &parentId) {
+    auto addChildren = [&](auto &&self, AzulObject &parent, const std::string &parentId) -> void {
       auto it = parentToChildrenMap.find(parentId);
       if (it == parentToChildrenMap.end()) return;
       for (auto &childId : it->second) {
         auto idxIt = idToIndex.find(childId);
         if (idxIt == idToIndex.end()) continue;
-        if (moved.find(idxIt->second) != moved.end()) continue;
-        moved.insert(idxIt->second);
+        if (moved[idxIt->second]) continue;
+        moved[idxIt->second] = true;
         parent.children.push_back(std::move(parsedFile.children[idxIt->second]));
-        addChildren(parent.children.back(), childId);
+        self(self, parent.children.back(), childId);
       }
     };
 
     for (size_t rootIdx : rootIndices) {
-      moved.insert(rootIdx);
+      moved[rootIdx] = true;
       hierarchicalChildren.push_back(std::move(parsedFile.children[rootIdx]));
-      addChildren(hierarchicalChildren.back(), hierarchicalChildren.back().id);
+      addChildren(addChildren, hierarchicalChildren.back(), hierarchicalChildren.back().id);
     }
 
     parsedFile.children = std::move(hierarchicalChildren);
