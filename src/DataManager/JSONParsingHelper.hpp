@@ -18,6 +18,7 @@
 #define JSONParsingHelper_hpp
 
 #include <any>
+#include <cstdint>
 #include <unordered_map>
 
 #include "DataModel.hpp"
@@ -27,7 +28,7 @@ class JSONParsingHelper {
 protected:
   std::string_view docType;
   std::string_view docVersion;
-  std::map<std::string, std::vector<std::string>> parentToChildrenMap;
+  std::unordered_map<std::string, std::vector<std::string>> parentToChildrenMap;
   
   void parseCityJSONObject(simdjson::ondemand::object jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
 
@@ -401,7 +402,7 @@ protected:
       idToIndex[parsedFile.children[i].id] = i;
     }
 
-    std::vector<bool> isChild(parsedFile.children.size(), false);
+    std::vector<uint8_t> isChild(parsedFile.children.size(), false);
     for (auto &[parentId, childIds] : parentToChildrenMap) {
       auto parentIt = idToIndex.find(parentId);
       if (parentIt == idToIndex.end()) continue;
@@ -417,7 +418,7 @@ protected:
     }
 
     std::vector<AzulObject> hierarchicalChildren;
-    std::vector<bool> moved(parsedFile.children.size(), false);
+    std::vector<uint8_t> moved(parsedFile.children.size(), false);
     hierarchicalChildren.reserve(rootIndices.size());
 
     auto addChildren = [&](auto &&self, AzulObject &parent, const std::string &parentId) -> void {
