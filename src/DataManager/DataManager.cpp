@@ -503,6 +503,7 @@ void DataManager::regenerateEdgeBuffers(long maxBufferSize) {
 void DataManager::clearHelpers() {
   gmlParsingHelper.clearDOM();
   jsonParsingHelper.clearDOM();
+  jsonLinesParsingHelper.clearDOM();
 }
 
 void DataManager::clear() {
