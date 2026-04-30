@@ -84,11 +84,14 @@ protected:
 //    }
     
     // Parents (optional)
-    try {
-      for (auto parent: jsonObject["parents"]) {
-        parentToChildrenMap[std::string(parent.get_string().value())].push_back(object.id);
+    {
+      simdjson::ondemand::array parents;
+      if (!jsonObject["parents"].get(parents)) {
+        for (auto parent: parents) {
+          parentToChildrenMap[std::string(parent.get_string().value())].push_back(object.id);
+        }
       }
-    } catch (simdjson::simdjson_error &e) {}
+    }
 
     // TODO: geographicalExtent
   }
@@ -402,13 +405,17 @@ protected:
       idToIndex[parsedFile.children[i].id] = i;
     }
 
+    std::vector<std::vector<size_t>> parentToChildrenIndices(parsedFile.children.size());
     std::vector<uint8_t> isChild(parsedFile.children.size(), false);
     for (auto &[parentId, childIds] : parentToChildrenMap) {
       auto parentIt = idToIndex.find(parentId);
       if (parentIt == idToIndex.end()) continue;
       for (auto &childId : childIds) {
         auto childIt = idToIndex.find(childId);
-        if (childIt != idToIndex.end()) isChild[childIt->second] = true;
+        if (childIt != idToIndex.end()) {
+          parentToChildrenIndices[parentIt->second].push_back(childIt->second);
+          isChild[childIt->second] = true;
+        }
       }
     }
 
@@ -421,23 +428,28 @@ protected:
     std::vector<uint8_t> moved(parsedFile.children.size(), false);
     hierarchicalChildren.reserve(rootIndices.size());
 
-    auto addChildren = [&](auto &&self, AzulObject &parent, const std::string &parentId) -> void {
-      auto it = parentToChildrenMap.find(parentId);
-      if (it == parentToChildrenMap.end()) return;
-      for (auto &childId : it->second) {
-        auto idxIt = idToIndex.find(childId);
-        if (idxIt == idToIndex.end()) continue;
-        if (moved[idxIt->second]) continue;
-        moved[idxIt->second] = true;
-        parent.children.push_back(std::move(parsedFile.children[idxIt->second]));
-        self(self, parent.children.back(), childId);
-      }
-    };
+    std::vector<std::pair<std::vector<AzulObject>*, size_t>> stack;
+    stack.reserve(parsedFile.children.size());
 
     for (size_t rootIdx : rootIndices) {
       moved[rootIdx] = true;
       hierarchicalChildren.push_back(std::move(parsedFile.children[rootIdx]));
-      addChildren(addChildren, hierarchicalChildren.back(), hierarchicalChildren.back().id);
+      auto &root = hierarchicalChildren.back();
+      root.children.reserve(parentToChildrenIndices[rootIdx].size());
+      stack.emplace_back(&root.children, rootIdx);
+    }
+
+    while (!stack.empty()) {
+      auto [slot, parentIdx] = stack.back();
+      stack.pop_back();
+      for (size_t childIdx : parentToChildrenIndices[parentIdx]) {
+        if (moved[childIdx]) continue;
+        moved[childIdx] = true;
+        slot->push_back(std::move(parsedFile.children[childIdx]));
+        auto &childChildren = slot->back().children;
+        childChildren.reserve(parentToChildrenIndices[childIdx].size());
+        stack.emplace_back(&childChildren, childIdx);
+      }
     }
 
     parsedFile.children = std::move(hierarchicalChildren);
