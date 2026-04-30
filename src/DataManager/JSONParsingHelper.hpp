@@ -28,9 +28,9 @@ class JSONParsingHelper {
 protected:
   std::string_view docType;
   std::string_view docVersion;
-  std::unordered_map<std::string, std::vector<std::string>> parentToChildrenMap;
+  std::vector<std::pair<std::string, size_t>> deferredParentRelationships;
   
-  void parseCityJSONObject(simdjson::ondemand::object jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
+  void parseCityJSONObject(simdjson::ondemand::object jsonObject, AzulObject &object, size_t childIdx, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
 
     // Type (mandatory)
     try {
@@ -88,7 +88,7 @@ protected:
       simdjson::ondemand::array parents;
       if (!jsonObject["parents"].get(parents)) {
         for (auto parent: parents) {
-          parentToChildrenMap[std::string(parent.get_string().value())].push_back(object.id);
+          deferredParentRelationships.emplace_back(std::string(parent.get_string().value()), childIdx);
         }
       }
     }
@@ -397,7 +397,7 @@ protected:
   }
 
   void buildHierarchy(AzulObject &parsedFile) {
-    if (parentToChildrenMap.empty()) return;
+    if (deferredParentRelationships.empty()) return;
 
     std::unordered_map<std::string, size_t> idToIndex;
     idToIndex.reserve(parsedFile.children.size());
@@ -407,16 +407,11 @@ protected:
 
     std::vector<std::vector<size_t>> parentToChildrenIndices(parsedFile.children.size());
     std::vector<uint8_t> isChild(parsedFile.children.size(), false);
-    for (auto &[parentId, childIds] : parentToChildrenMap) {
+    for (auto &[parentId, childIdx] : deferredParentRelationships) {
       auto parentIt = idToIndex.find(parentId);
       if (parentIt == idToIndex.end()) continue;
-      for (auto &childId : childIds) {
-        auto childIt = idToIndex.find(childId);
-        if (childIt != idToIndex.end()) {
-          parentToChildrenIndices[parentIt->second].push_back(childIt->second);
-          isChild[childIt->second] = true;
-        }
-      }
+      parentToChildrenIndices[parentIt->second].push_back(childIdx);
+      isChild[childIdx] = true;
     }
 
     std::vector<size_t> rootIndices;
@@ -579,7 +574,7 @@ public:
           parsedFile.children.push_back(AzulObject());
           std::string_view objectId = object.unescaped_key();
           parsedFile.children.back().id = objectId;
-          parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), vertices, &geometryTemplates);
+          parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), parsedFile.children.size() - 1, vertices, &geometryTemplates);
         } buildHierarchy(parsedFile);
 
         statusMessage = "Loaded CityJSON " + std::string(docVersion) + " file";
@@ -612,7 +607,7 @@ public:
   }
 
   void clearDOM() {
-    parentToChildrenMap.clear();
+    deferredParentRelationships.clear();
   }
 };
 
