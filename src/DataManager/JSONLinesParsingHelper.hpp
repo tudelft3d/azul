@@ -140,13 +140,14 @@ public:
           }
           
           // CityObjects
+          parentToChildrenMap.clear();
           for (auto object: doc["CityObjects"].get_object()) {
             parsedFile.children.push_back(AzulObject());
             std::string_view objectId = object.unescaped_key();
             parsedFile.children.back().id = objectId;
             parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), vertices, &geometryTemplates);
-          }
-          
+          } buildHierarchy(parsedFile);
+
           statusMessage = "Loaded CityJSON " + std::string(docVersion) + " file";
         } else {
           statusMessage = "CityJSON " + std::string(docVersion) + " is not supported";
@@ -170,13 +171,14 @@ public:
         }
 
         // CityObjects
+        parentToChildrenMap.clear();
         for (auto object: doc["CityObjects"].get_object()) {
           parsedFile.children.push_back(AzulObject());
           std::string_view objectId = object.unescaped_key();
           parsedFile.children.back().id = objectId;
           parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), vertices, &geometryTemplates);
-        }
-        
+        } buildHierarchy(parsedFile);
+
       }
       
       else {

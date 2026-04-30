@@ -18,6 +18,8 @@
 #define JSONParsingHelper_hpp
 
 #include <any>
+#include <functional>
+#include <set>
 
 #include "DataModel.hpp"
 #include "simdjson.h"
@@ -26,6 +28,7 @@ class JSONParsingHelper {
 protected:
   std::string_view docType;
   std::string_view docVersion;
+  std::map<std::string, std::vector<std::string>> parentToChildrenMap;
   
   void parseCityJSONObject(simdjson::ondemand::object jsonObject, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
 
@@ -80,7 +83,14 @@ protected:
 //      std::cout << "\t\t" << attribute.first << ": " << attribute.second << std::endl;
 //    }
     
-    // TODO: children, parents, geographicalExtent
+    // Parents (optional)
+    try {
+      for (auto parent: jsonObject["parents"]) {
+        parentToChildrenMap[std::string(parent.get_string().value())].push_back(object.id);
+      }
+    } catch (simdjson::simdjson_error &e) {}
+
+    // TODO: geographicalExtent
   }
 
   void parseCityJSONObjectGeometry(simdjson::ondemand::object currentGeometry, AzulObject &object, std::vector<std::tuple<double, double, double>> &vertices, AzulObject *geometryTemplates) {
@@ -383,6 +393,55 @@ protected:
     } ring.points.push_back(ring.points.front());
   }
 
+  void buildHierarchy(AzulObject &parsedFile) {
+    if (parentToChildrenMap.empty()) return;
+
+    std::map<std::string, size_t> idToIndex;
+    for (size_t i = 0; i < parsedFile.children.size(); ++i) {
+      idToIndex[parsedFile.children[i].id] = i;
+    }
+
+    std::set<std::string> allChildIds;
+    for (auto &[parentId, childIds] : parentToChildrenMap) {
+      if (idToIndex.find(parentId) == idToIndex.end()) continue;
+      for (auto &childId : childIds) {
+        allChildIds.insert(childId);
+      }
+    }
+
+    std::vector<size_t> rootIndices;
+    for (size_t i = 0; i < parsedFile.children.size(); ++i) {
+      if (allChildIds.find(parsedFile.children[i].id) == allChildIds.end()) {
+        rootIndices.push_back(i);
+      }
+    }
+
+    std::vector<AzulObject> hierarchicalChildren;
+    std::set<size_t> moved;
+
+    std::function<void(AzulObject&, const std::string&)> addChildren;
+    addChildren = [&](AzulObject &parent, const std::string &parentId) {
+      auto it = parentToChildrenMap.find(parentId);
+      if (it == parentToChildrenMap.end()) return;
+      for (auto &childId : it->second) {
+        auto idxIt = idToIndex.find(childId);
+        if (idxIt == idToIndex.end()) continue;
+        if (moved.find(idxIt->second) != moved.end()) continue;
+        moved.insert(idxIt->second);
+        parent.children.push_back(std::move(parsedFile.children[idxIt->second]));
+        addChildren(parent.children.back(), childId);
+      }
+    };
+
+    for (size_t rootIdx : rootIndices) {
+      moved.insert(rootIdx);
+      hierarchicalChildren.push_back(std::move(parsedFile.children[rootIdx]));
+      addChildren(hierarchicalChildren.back(), hierarchicalChildren.back().id);
+    }
+
+    parsedFile.children = std::move(hierarchicalChildren);
+  }
+
 public:
   std::string statusMessage;
   
@@ -508,7 +567,7 @@ public:
           std::string_view objectId = object.unescaped_key();
           parsedFile.children.back().id = objectId;
           parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), vertices, &geometryTemplates);
-        }
+        } buildHierarchy(parsedFile);
 
         statusMessage = "Loaded CityJSON " + std::string(docVersion) + " file";
       } else {
@@ -540,7 +599,7 @@ public:
   }
 
   void clearDOM() {
-//    json.clear();
+    parentToChildrenMap.clear();
   }
 };
 
