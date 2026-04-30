@@ -25,10 +25,13 @@ struct Constants {
   float4 colour;
 };
 
-constant float3 ambientLightIntensity(0.8, 0.8, 0.8);
-constant float3 diffuseLightIntensity(0.2, 0.2, 0.2);
+constant float3 ambientLightIntensity(0.6, 0.6, 0.6);
+constant float3 diffuseLightIntensity(0.65, 0.65, 0.65);
 constant float3 specularLightIntensity(0.2, 0.2, 0.2);
-constant float3 lightPosition(0.5, 0.5, -1.0);
+constant float3 lightDirectionInCamera(0.267, 0.802, -0.535);
+constant float3 skyColour(0.65, 0.7, 0.85);
+constant float3 groundColour(0.35, 0.3, 0.25);
+constant float shininess = 32.0;
 
 struct VertexWithNormalIn {
   float3 position;
@@ -79,11 +82,19 @@ fragment half4 fragmentLit(VertexOutLit fragmentIn [[stage_in]],
   
   float3 normalDirection = normalize(fragmentIn.worldNormal);
   float3 viewDirection = normalize(float3(uniforms.viewMatrixInverse * float4(0.0, 0.0, 0.0, 1.0) - float4(fragmentIn.worldPosition, 1.0)));
-  float3 lightDirection = normalize(lightPosition);
+  float3 lightDirection = normalize(float3(uniforms.viewMatrixInverse * float4(lightDirectionInCamera, 0.0)));
+  float3 baseColour = float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b);
   
-  float3 ambient = ambientLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b);
-  float3 diffuse = diffuseLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(normalDirection, lightDirection));
-  float3 specular = specularLightIntensity * float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b) * max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection));
+  float hemiWeight = 0.5 + 0.5 * normalDirection.y;
+  float3 ambient = mix(groundColour, skyColour, hemiWeight) * baseColour * ambientLightIntensity;
+  
+  float nDotL = dot(normalDirection, lightDirection);
+  float diffuseWeight = 0.5 + 0.5 * nDotL;
+  float3 diffuse = diffuseLightIntensity * baseColour * diffuseWeight;
+  
+  float3 r = reflect(-lightDirection, normalDirection);
+  float rDotV = max(0.0, dot(r, viewDirection));
+  float3 specular = specularLightIntensity * pow(rDotV, shininess);
   
   return half4(float4(ambient + diffuse + specular, uniforms.colour.a));
 }
