@@ -52,6 +52,9 @@ struct BufferWithColour {
   var unlitRenderPipelineState: MTLRenderPipelineState?
   var depthStencilState: MTLDepthStencilState?
   
+  var msaaTexture: MTLTexture?
+  var msaaDepthTexture: MTLTexture?
+  
   var triangleBuffers = [BufferWithColour]()
   var edgeBuffers = [BufferWithColour]()
   var boundingBoxBuffer: MTLBuffer?
@@ -83,6 +86,7 @@ struct BufferWithColour {
     clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1.0)
     colorPixelFormat = .bgra8Unorm
     depthStencilPixelFormat = .depth32Float
+    self.sampleCount = 4
     
     // Command queue
     commandQueue = device!.makeCommandQueue()
@@ -100,6 +104,7 @@ struct BufferWithColour {
     litPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
     litPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
     litPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    litPipelineDescriptor.rasterSampleCount = sampleCount
     
     let unlitPipelineDescriptor = MTLRenderPipelineDescriptor()
     unlitPipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexUnlit")
@@ -107,6 +112,7 @@ struct BufferWithColour {
     unlitPipelineDescriptor.colorAttachments[0].pixelFormat = colorPixelFormat
     unlitPipelineDescriptor.colorAttachments[0].isBlendingEnabled = false
     unlitPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    unlitPipelineDescriptor.rasterSampleCount = sampleCount
     
     // Create pipeline states (always compile from the offline-compiled metallib)
     do {
@@ -144,6 +150,9 @@ struct BufferWithColour {
     depthSencilDescriptor.isDepthWriteEnabled = true
     depthStencilState = device!.makeDepthStencilState(descriptor: depthSencilDescriptor)
     
+    // MSAA textures
+    createMSAATextures(size: drawableSize)
+    
     // Matrices
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
     modelMatrix = matrix_multiply(matrix_multiply(modelShiftBackMatrix, modelRotationMatrix), modelTranslationToCentreOfRotationMatrix)
@@ -171,6 +180,24 @@ struct BufferWithColour {
     return true
   }
   
+  func createMSAATextures(size: CGSize) {
+    let w = Int(size.width)
+    let h = Int(size.height)
+    guard w > 0, h > 0 else { return }
+    
+    let desc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: colorPixelFormat, width: w, height: h, mipmapped: false)
+    desc.textureType = .type2DMultisample
+    desc.sampleCount = sampleCount
+    desc.usage = .renderTarget
+    msaaTexture = device!.makeTexture(descriptor: desc)
+    
+    let depthDesc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: depthStencilPixelFormat, width: w, height: h, mipmapped: false)
+    depthDesc.textureType = .type2DMultisample
+    depthDesc.sampleCount = sampleCount
+    depthDesc.usage = .renderTarget
+    msaaDepthTexture = device!.makeTexture(descriptor: depthDesc)
+  }
+  
   override func draw(_ dirtyRect: NSRect) {
 //    Swift.print("MetalView.draw(NSRect)")
     
@@ -178,8 +205,19 @@ struct BufferWithColour {
       return
     }
     
+    guard let msaaTexture = msaaTexture, let msaaDepthTexture = msaaDepthTexture else { return }
+    
     let commandBuffer = commandQueue!.makeCommandBuffer()!
-    let renderPassDescriptor = currentRenderPassDescriptor!
+    let renderPassDescriptor = MTLRenderPassDescriptor()
+    renderPassDescriptor.colorAttachments[0].texture = msaaTexture
+    renderPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable!.texture
+    renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
+    renderPassDescriptor.colorAttachments[0].clearColor = clearColor
+    renderPassDescriptor.colorAttachments[0].loadAction = .clear
+    renderPassDescriptor.depthAttachment.texture = msaaDepthTexture
+    renderPassDescriptor.depthAttachment.clearDepth = 1.0
+    renderPassDescriptor.depthAttachment.loadAction = .clear
+    renderPassDescriptor.depthAttachment.storeAction = .dontCare
     let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
     
     renderEncoder.setFrontFacing(.counterClockwise)
@@ -233,6 +271,7 @@ struct BufferWithColour {
   override func setFrameSize(_ newSize: NSSize) {
 //    Swift.print("MetalView.setFrameSize(NSSize)")
     super.setFrameSize(newSize)
+    createMSAATextures(size: drawableSize)
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
