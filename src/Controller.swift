@@ -52,10 +52,10 @@ class SplitViewController: NSObject, NSSplitViewDelegate {
 
 class LeftSplitViewController: NSObject, NSSplitViewDelegate {
   func splitView(_ splitView: NSSplitView, effectiveRect proposedEffectiveRect: NSRect, forDrawnRect drawnRect: NSRect, ofDividerAt dividerIndex: Int) -> NSRect {
-    if dividerIndex == 0 {
+    if dividerIndex == 0 || dividerIndex == 1 {
       return NSZeroRect
     } else {
-      let effectiveRect = NSRect(x: 0, y: splitView.subviews[0].bounds.height+splitView.subviews[1].bounds.height-5, width: splitView.bounds.width, height: 10)
+      let effectiveRect = NSRect(x: 0, y: splitView.subviews[0].bounds.height+splitView.subviews[1].bounds.height+splitView.subviews[2].bounds.height-5, width: splitView.bounds.width, height: 10)
       return effectiveRect
     }
   }
@@ -63,23 +63,28 @@ class LeftSplitViewController: NSObject, NSSplitViewDelegate {
   func splitView(_ splitView: NSSplitView, resizeSubviewsWithOldSize oldSize: NSSize) {
     let dividerThickness = splitView.dividerThickness
     var searchRect = splitView.subviews[0].frame
-    var objectsRect = splitView.subviews[1].frame
-    var attributesRect = splitView.subviews[2].frame
+    var lodRect = splitView.subviews[1].frame
+    var objectsRect = splitView.subviews[2].frame
+    var attributesRect = splitView.subviews[3].frame
     let newFrame = splitView.frame
 
     searchRect.size.width = newFrame.size.width
     searchRect.origin = CGPoint(x: 0, y: 0)
     
+    lodRect.size.width = newFrame.size.width
+    lodRect.origin.y = searchRect.size.height + dividerThickness
+    
     objectsRect.size.width = newFrame.size.width
-    objectsRect.size.height = newFrame.size.height - searchRect.size.height - dividerThickness - attributesRect.size.height - dividerThickness
-    objectsRect.origin.y = searchRect.size.height + dividerThickness
+    objectsRect.size.height = newFrame.size.height - searchRect.size.height - lodRect.size.height - dividerThickness*2 - attributesRect.size.height - dividerThickness
+    objectsRect.origin.y = lodRect.origin.y + lodRect.size.height + dividerThickness
     
     attributesRect.size.width = newFrame.size.width
-    attributesRect.origin.y = searchRect.size.height + dividerThickness + objectsRect.size.height + dividerThickness
+    attributesRect.origin.y = objectsRect.origin.y + objectsRect.size.height + dividerThickness
 
     splitView.subviews[0].frame = searchRect
-    splitView.subviews[1].frame = objectsRect
-    splitView.subviews[2].frame = attributesRect
+    splitView.subviews[1].frame = lodRect
+    splitView.subviews[2].frame = objectsRect
+    splitView.subviews[3].frame = attributesRect
   }
 }
 
@@ -113,6 +118,7 @@ class OutlineView: NSOutlineView {
   var splitView: NSSplitView?
   var leftSplitView: NSSplitView?
   @objc var searchField: NSSearchField?
+  @objc var lodSegmentedControl: NSSegmentedControl?
   var objectsScrollView: NSScrollView?
   var objectsClipView: NSClipView?
   @objc var objectsSourceList: OutlineView?
@@ -165,10 +171,12 @@ class OutlineView: NSOutlineView {
     leftSplitView!.addSubview(NSView())
     leftSplitView!.addSubview(NSView())
     leftSplitView!.addSubview(NSView())
+    leftSplitView!.addSubview(NSView())
     splitView!.subviews[0] = leftSplitView!
     leftSplitView!.adjustSubviews()
     leftSplitView!.setPosition(20, ofDividerAt: 0)
-    leftSplitView!.setPosition(450, ofDividerAt: 1)
+    leftSplitView!.setPosition(44, ofDividerAt: 1)
+    leftSplitView!.setPosition(474, ofDividerAt: 2)
     leftSplitView!.delegate = leftSplitViewController
     
     searchField = NSSearchField(frame: leftSplitView!.subviews[0].bounds)
@@ -176,14 +184,24 @@ class OutlineView: NSOutlineView {
     searchFieldDelegate.controller = self
     leftSplitView!.subviews[0] = searchField!
     
-    objectsScrollView = NSScrollView(frame: leftSplitView!.subviews[1].bounds)
+    lodSegmentedControl = NSSegmentedControl(frame: leftSplitView!.subviews[1].bounds)
+    lodSegmentedControl!.segmentCount = 1
+    lodSegmentedControl!.setLabel("All", forSegment: 0)
+    lodSegmentedControl!.selectedSegment = 0
+    lodSegmentedControl!.target = self
+    lodSegmentedControl!.action = #selector(lodSegmentChanged)
+    lodSegmentedControl!.segmentStyle = .rounded
+    lodSegmentedControl!.isHidden = true
+    leftSplitView!.subviews[1] = lodSegmentedControl!
+    
+    objectsScrollView = NSScrollView(frame: leftSplitView!.subviews[2].bounds)
     objectsScrollView!.hasVerticalScroller = true
     objectsScrollView!.hasHorizontalScroller = true
     objectsScrollView!.wantsLayer = true
     objectsScrollView!.identifier = NSUserInterfaceItemIdentifier.init(rawValue: "ObjectsScrollView")
-    leftSplitView!.subviews[1] = objectsScrollView!
+    leftSplitView!.subviews[2] = objectsScrollView!
     
-    objectsClipView = NSClipView(frame: leftSplitView!.subviews[1].bounds)
+    objectsClipView = NSClipView(frame: leftSplitView!.subviews[2].bounds)
     objectsScrollView!.contentView = objectsClipView!
     
     objectsSourceList = OutlineView(frame: objectsScrollView!.bounds)
@@ -205,14 +223,14 @@ class OutlineView: NSOutlineView {
     objectsSourceList!.addTableColumn(objectsSourceListColumn!)
     objectsSourceList!.outlineTableColumn = objectsSourceListColumn
     
-    attributesScrollView = NSScrollView(frame: leftSplitView!.subviews[2].bounds)
+    attributesScrollView = NSScrollView(frame: leftSplitView!.subviews[3].bounds)
     attributesScrollView!.hasVerticalScroller = true
     attributesScrollView!.hasHorizontalScroller = true
     attributesScrollView!.wantsLayer = true
     attributesScrollView!.identifier = NSUserInterfaceItemIdentifier.init(rawValue: "AttributesScrollView")
-    leftSplitView!.subviews[2] = attributesScrollView!
+    leftSplitView!.subviews[3] = attributesScrollView!
     
-    attributesClipView = NSClipView(frame: leftSplitView!.subviews[2].bounds)
+    attributesClipView = NSClipView(frame: leftSplitView!.subviews[3].bounds)
     attributesScrollView!.contentView = attributesClipView!
     
     attributesTableView = NSTableView(frame: attributesScrollView!.bounds)
@@ -268,6 +286,7 @@ class OutlineView: NSOutlineView {
     self.window.representedURL = nil
     self.window.title = "azul"
     self.statusTextField!.isHidden = true
+    self.updateLodSegments()
   }
   
   @IBAction func openFile(_ sender: NSMenuItem) {
@@ -545,6 +564,7 @@ class OutlineView: NSOutlineView {
             self.progressIndicator!.isHidden = true
             Swift.print("status message: \(self.dataManager.statusMessage()!)")
             self.statusTextField?.stringValue = self.dataManager.statusMessage()
+            self.updateLodSegments()
           }
         }
       }
@@ -712,6 +732,49 @@ class OutlineView: NSOutlineView {
     metalView!.constants.modelViewProjectionMatrix = matrix_multiply(metalView!.projectionMatrix, matrix_multiply(metalView!.viewMatrix, metalView!.modelMatrix))
     metalView!.constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: metalView!.modelMatrix).inverse.transpose
     metalView!.needsDisplay = true
+  }
+  
+  @objc func lodSegmentChanged(_ sender: NSSegmentedControl) {
+    if sender.selectedSegment == 0 {
+      "".withCString { pointer in
+        dataManager.setLodFilter(pointer)
+      }
+    } else {
+      guard let label = sender.label(forSegment: sender.selectedSegment),
+            label.hasPrefix("LoD") else { return }
+      let lodValue = String(label.dropFirst(3))
+      lodValue.withCString { pointer in
+        dataManager.setLodFilter(pointer)
+      }
+    }
+    dataManager.regenerateTriangleBuffers(withMaximumSize: 16*1024*1024)
+    self.reloadTriangleBuffers()
+    dataManager.regenerateEdgeBuffers(withMaximumSize: 16*1024*1024)
+    self.reloadEdgeBuffers()
+    metalView!.needsDisplay = true
+    objectsSourceList!.reloadData()
+  }
+  
+  func updateLodSegments() {
+    let lods = dataManager.availableLods() as? [String] ?? []
+    guard let control = lodSegmentedControl else { return }
+    
+    if lods.isEmpty {
+      control.isHidden = true
+      return
+    }
+    
+    control.isHidden = false
+    control.segmentCount = 1 + lods.count
+    control.setLabel("All", forSegment: 0)
+    for (index, lod) in lods.sorted().enumerated() {
+      control.setLabel("LoD\(lod)", forSegment: index + 1)
+    }
+    control.selectedSegment = 0
+    "".withCString { pointer in
+      dataManager.setLodFilter(pointer)
+    }
+    objectsSourceList!.reloadData()
   }
   
   @IBAction func copyObjectId(_ sender: NSMenuItem) {

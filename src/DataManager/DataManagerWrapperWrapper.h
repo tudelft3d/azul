@@ -74,6 +74,10 @@ struct DataManagerWrapper;
 // Search
 - (void) setSearchString:(const char *)string;
 
+// LOD filtering
+- (void) setLodFilter:(const char *)lod;
+- (NSArray<NSString *> *) availableLods;
+
 // Status message
 - (NSString *)statusMessage;
 

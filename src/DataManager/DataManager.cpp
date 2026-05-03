@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <set>
+#include <functional>
+#include <cctype>
 #include "DataManager.hpp"
 
 void DataManager::printAzulObject(const AzulObject &object, unsigned int tabs) {
@@ -267,16 +270,16 @@ void DataManager::clearPolygonsOfAzulObjectAndItsChildren(AzulObject &object) {
   object.polygons.clear();
 }
 
-void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize) {
-  //    std::cout << "makeTriangleBuffersContainingAzulObjectAndItsChildren with type " << typeWithColour << std::endl;
+void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize, bool underMatchingLod) {
+  bool childUnderMatchingLod = underMatchingLod || (!lodFilter.empty() && directlyMatchesLodFilter(object));
   for (auto &child: object.children) {
-    //      std::cout << "\tchild type " << child.type << std::endl;
-    if (colourForType.count(child.type)) putAzulObjectAndItsChildrenIntoTriangleBuffers(child, child.type, maxBufferSize);
-    else putAzulObjectAndItsChildrenIntoTriangleBuffers(child, typeWithColour, maxBufferSize);
+    if (colourForType.count(child.type)) putAzulObjectAndItsChildrenIntoTriangleBuffers(child, child.type, maxBufferSize, childUnderMatchingLod);
+    else putAzulObjectAndItsChildrenIntoTriangleBuffers(child, typeWithColour, maxBufferSize, childUnderMatchingLod);
   }
   
   if (object.triangles.empty()) return;
   if (object.visible == 'N') return;
+  if (!lodFilter.empty() && !underMatchingLod && !directlyMatchesLodFilter(object)) return;
   
   // Pre-compute the size this object will add
   long vertexFloatCount = object.triangles.size() * 3 * 8;
@@ -340,13 +343,15 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
   }
 }
 
-void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize) {
-  for (auto &child: object.children) putAzulObjectAndItsChildrenIntoEdgeBuffers(child, maxBufferSize);
+void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize, bool underMatchingLod) {
+  bool childUnderMatchingLod = underMatchingLod || (!lodFilter.empty() && directlyMatchesLodFilter(object));
+  for (auto &child: object.children) putAzulObjectAndItsChildrenIntoEdgeBuffers(child, maxBufferSize, childUnderMatchingLod);
   
   if (object.edges.empty()) return;
   std::list<EdgeBuffer>::iterator currentBuffer;
   
   if (object.visible == 'N') return;
+  if (!lodFilter.empty() && !underMatchingLod && !directlyMatchesLodFilter(object)) return;
   
   // Make new buffer if necessary (selected)
   if (object.selected) {
@@ -703,40 +708,103 @@ bool DataManager::matchesSearch(AzulObject &object) {
   return false;
 }
 
-bool DataManager::isExpandable(AzulObject &object) {
-  if (searchString.empty()) {
-    if (!object.children.empty()) return true;
-    return false;
-  } else {
-    for (auto &child: object.children) {
-      if (matchesSearch(child)) return true;
-    } return false;
+std::vector<std::string> DataManager::getAvailableLods() {
+  std::set<std::string> lods;
+  for (const auto &file : parsedFiles) {
+    std::function<void(const AzulObject &)> collect = [&](const AzulObject &obj) {
+      if (obj.type == "LoD" && !obj.id.empty()) {
+        lods.insert(obj.id);
+      } else if (obj.type.size() > 3 &&
+                 obj.type.substr(0, 3) == "lod" &&
+                 obj.type.size() > 3 && isdigit(obj.type[3])) {
+        size_t end = 3;
+        while (end < obj.type.size() && isdigit(obj.type[end])) ++end;
+        lods.insert(obj.type.substr(3, end - 3));
+      }
+      for (const auto &child : obj.children) collect(child);
+    };
+    collect(file);
   }
+  return std::vector<std::string>(lods.begin(), lods.end());
+}
+
+void DataManager::setLodFilter(const char *lod) {
+  lodFilter = std::string(lod);
+}
+
+bool DataManager::matchesLodFilter(const AzulObject &object) {
+  if (lodFilter.empty()) return true;
+  
+  if (object.type == "LoD" && object.id == lodFilter) return true;
+  
+  std::string prefix = "lod" + lodFilter;
+  if (object.type.size() >= prefix.size() &&
+      object.type.substr(0, prefix.size()) == prefix) return true;
+  
+  for (const auto &child : object.children) {
+    if (matchesLodFilter(child)) return true;
+  }
+  
+  return false;
+}
+
+bool DataManager::directlyMatchesLodFilter(const AzulObject &object) {
+  if (lodFilter.empty()) return false;
+  if (object.type == "LoD" && object.id == lodFilter) return true;
+  std::string prefix = "lod" + lodFilter;
+  if (object.type.size() >= prefix.size() &&
+      object.type.substr(0, prefix.size()) == prefix) return true;
+  return false;
+}
+
+bool DataManager::isExpandable(AzulObject &object) {
+  if (searchString.empty() && lodFilter.empty()) {
+    return !object.children.empty();
+  }
+  if (!lodFilter.empty() && directlyMatchesLodFilter(object)) {
+    return !object.children.empty();
+  }
+  for (auto &child: object.children) {
+    bool searchMatch = searchString.empty() || matchesSearch(child);
+    bool lodMatch = lodFilter.empty() || matchesLodFilter(child);
+    if (searchMatch && lodMatch) return true;
+  }
+  return false;
 }
 
 int DataManager::numberOfChildren(AzulObject &object) {
-  if (searchString.empty()) {
+  if (searchString.empty() && lodFilter.empty()) {
     return (int)object.children.size();
-  } else {
-    int matchingChildren = 0;
-    for (auto &child: object.children) {
-      if (matchesSearch(child)) ++matchingChildren;
-    } return matchingChildren;
   }
+  if (!lodFilter.empty() && directlyMatchesLodFilter(object)) {
+    return (int)object.children.size();
+  }
+  int matchingChildren = 0;
+  for (auto &child: object.children) {
+    bool searchMatch = searchString.empty() || matchesSearch(child);
+    bool lodMatch = lodFilter.empty() || matchesLodFilter(child);
+    if (searchMatch && lodMatch) ++matchingChildren;
+  }
+  return matchingChildren;
 }
 
 std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long index) {
-  if (searchString.empty()) {
+  if (searchString.empty() && lodFilter.empty()) {
     return object.children.begin()+index;
-  } else {
-    int matchingChildren = 0;
-    for (std::vector<AzulObject>::iterator child = object.children.begin();
-         child != object.children.end();
-         ++child) {
-      if (matchesSearch(*child)) {
-        if (matchingChildren == index) return child;
-        ++matchingChildren;
-      }
-    } return object.children.begin();
   }
+  if (!lodFilter.empty() && directlyMatchesLodFilter(object)) {
+    return object.children.begin()+index;
+  }
+  int matchingChildren = 0;
+  for (std::vector<AzulObject>::iterator child = object.children.begin();
+       child != object.children.end();
+       ++child) {
+    bool searchMatch = searchString.empty() || matchesSearch(*child);
+    bool lodMatch = lodFilter.empty() || matchesLodFilter(*child);
+    if (searchMatch && lodMatch) {
+      if (matchingChildren == index) return child;
+      ++matchingChildren;
+    }
+  }
+  return object.children.begin();
 }

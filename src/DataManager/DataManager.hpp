@@ -58,8 +58,8 @@ private:
   void generateEdgesForAzulObjectAndItsChildren(AzulObject &object);
   void updateBoundsWithAzulObjectAndItsChildren(const AzulObject &object);
   void clearPolygonsOfAzulObjectAndItsChildren(AzulObject &object);
-  void putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize);
-  void putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize);
+  void putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize, bool underMatchingLod = false);
+  void putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize, bool underMatchingLod = false);
   void printAzulObject(const AzulObject &object, unsigned int tabs);
   void setMatchesSearch(AzulObject &object, char matches);
   bool matchesSearch(AzulObject &object);
@@ -93,6 +93,13 @@ public:
   
   // Search
   std::string searchString;
+  
+  // LOD filtering
+  std::string lodFilter;
+  std::vector<std::string> getAvailableLods();
+  void setLodFilter(const char *lod);
+  bool matchesLodFilter(const AzulObject &object);
+  bool directlyMatchesLodFilter(const AzulObject &object);
   
   // Status message
   std::string statusMessage;

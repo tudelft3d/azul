@@ -372,6 +372,19 @@ struct DataManagerWrapper {
   NSLog(@"Searching: %s", string);
 }
 
+- (void) setLodFilter:(const char *)lod {
+  dataManagerWrapper->dataManager->setLodFilter(lod);
+}
+
+- (NSArray<NSString *> *) availableLods {
+  std::vector<std::string> lods = dataManagerWrapper->dataManager->getAvailableLods();
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:lods.size()];
+  for (const auto &lod : lods) {
+    [result addObject:[NSString stringWithUTF8String:lod.c_str()]];
+  }
+  return result;
+}
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
   NSInteger objectsRow = [[controller objectsSourceList] selectedRow];
   if (objectsRow == -1) return 0;
