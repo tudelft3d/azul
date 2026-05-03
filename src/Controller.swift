@@ -740,9 +740,7 @@ class OutlineView: NSOutlineView {
         dataManager.setLodFilter(pointer)
       }
     } else {
-      guard let label = sender.label(forSegment: sender.selectedSegment),
-            label.hasPrefix("LoD") else { return }
-      let lodValue = String(label.dropFirst(3))
+      guard let lodValue = sender.label(forSegment: sender.selectedSegment) else { return }
       lodValue.withCString { pointer in
         dataManager.setLodFilter(pointer)
       }
@@ -768,7 +766,7 @@ class OutlineView: NSOutlineView {
     control.segmentCount = 1 + lods.count
     control.setLabel("All", forSegment: 0)
     for (index, lod) in lods.sorted().enumerated() {
-      control.setLabel("LoD\(lod)", forSegment: index + 1)
+      control.setLabel("\(lod)", forSegment: index + 1)
     }
     control.selectedSegment = 0
     "".withCString { pointer in
