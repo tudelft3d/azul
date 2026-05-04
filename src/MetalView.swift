@@ -30,8 +30,9 @@ struct Vertex {
 }
 
 struct VertexWithNormal {
-  var position: SIMD3<Float>
-  var normal: SIMD3<Float>
+  var px, py, pz: Float
+  var objectId: Float
+  var nx, ny, nz: Float
 }
 
 struct BufferWithColour {
@@ -58,6 +59,8 @@ struct BufferWithColour {
   var triangleBuffers = [BufferWithColour]()
   var edgeBuffers = [BufferWithColour]()
   var boundingBoxBuffer: MTLBuffer?
+  var selectionStateBuffer: MTLBuffer?
+  var selectionStateCount: Int = 0
   
   var viewEdges: Bool = false
   var viewBoundingBox: Bool = false
@@ -223,6 +226,13 @@ struct BufferWithColour {
     renderEncoder.setFrontFacing(.counterClockwise)
     renderEncoder.setDepthStencilState(depthStencilState)
     renderEncoder.setRenderPipelineState(litRenderPipelineState!)
+    
+    if let selBuffer = selectionStateBuffer, selectionStateCount > 0 {
+      renderEncoder.setFragmentBuffer(selBuffer, offset: 0, index: 2)
+    } else {
+      var zero: Float = 0
+      renderEncoder.setFragmentBytes(&zero, length: MemoryLayout<Float>.size, index: 2)
+    }
 
     for triangleBuffer in triangleBuffers {
       if triangleBuffer.colour.w == 1.0 {
@@ -515,6 +525,23 @@ struct BufferWithColour {
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     constants.viewMatrixInverse = viewMatrix.inverse
     needsDisplay = true
+  }
+  
+  @objc func updateSelectionStateBuffer(_ data: Data) {
+    selectionStateCount = data.count / MemoryLayout<Float>.size
+    guard selectionStateCount > 0 else {
+      selectionStateBuffer = nil
+      return
+    }
+    if selectionStateBuffer?.length ?? 0 >= data.count {
+      data.withUnsafeBytes { ptr in
+        selectionStateBuffer!.contents().copyMemory(from: ptr.baseAddress!, byteCount: data.count)
+      }
+    } else {
+      selectionStateBuffer = data.withUnsafeBytes { ptr in
+        device!.makeBuffer(bytes: ptr.baseAddress!, length: data.count, options: [])
+      }
+    }
   }
   
   func new() {

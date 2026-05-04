@@ -282,62 +282,45 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
   if (!lodFilter.empty() && !underMatchingLod && !directlyMatchesLodFilter(object)) return;
   
   // Pre-compute the size this object will add
-  long vertexFloatCount = object.triangles.size() * 3 * 8;
+  long vertexFloatCount = object.triangles.size() * 3 * 7;
   long indexCount = object.triangles.size() * 3;
   long objectBufferSize = vertexFloatCount * sizeof(float) + indexCount * sizeof(std::uint32_t);
   
   std::list<TriangleBuffer>::iterator currentBuffer;
   
-  // Make new buffer if necessary (selected)
-  if (object.selected) {
-    if (lastTriangleBufferBySelection.count(true) == 0 ||
-        (lastTriangleBufferBySelection[true]->triangles.size() * sizeof(float) +
-         lastTriangleBufferBySelection[true]->indices.size() * sizeof(std::uint32_t) +
-         objectBufferSize) > maxBufferSize) {
-      triangleBuffers.push_front(TriangleBuffer());
-      currentBuffer = triangleBuffers.begin();
-      currentBuffer->colour[0] = std::get<0>(selectedTrianglesColour);
-      currentBuffer->colour[1] = std::get<1>(selectedTrianglesColour);
-      currentBuffer->colour[2] = std::get<2>(selectedTrianglesColour);
-      currentBuffer->colour[3] = std::get<3>(selectedTrianglesColour);
-      lastTriangleBufferBySelection[true] = currentBuffer;
-    } else {
-      currentBuffer = lastTriangleBufferBySelection[true];
+  // Find or create a type-colored buffer (no more selected/non-selected split)
+  if (lastTriangleBufferOfType.count(typeWithColour) == 0 ||
+      (lastTriangleBufferOfType[typeWithColour]->triangles.size() * sizeof(float) +
+       lastTriangleBufferOfType[typeWithColour]->indices.size() * sizeof(std::uint32_t) +
+       objectBufferSize) > maxBufferSize) {
+    triangleBuffers.push_front(TriangleBuffer());
+    currentBuffer = triangleBuffers.begin();
+    currentBuffer->type = typeWithColour;
+    {
+      auto const &colour = colourForType[typeWithColour];
+      currentBuffer->colour[0] = std::get<0>(colour);
+      currentBuffer->colour[1] = std::get<1>(colour);
+      currentBuffer->colour[2] = std::get<2>(colour);
+      currentBuffer->colour[3] = std::get<3>(colour);
     }
+    lastTriangleBufferOfType[typeWithColour] = currentBuffer;
+  } else {
+    currentBuffer = lastTriangleBufferOfType[typeWithColour];
   }
   
-  // Make new buffer if necessary (not selected)
-  else {
-    if (lastTriangleBufferOfType.count(typeWithColour) == 0 ||
-        (lastTriangleBufferOfType[typeWithColour]->triangles.size() * sizeof(float) +
-         lastTriangleBufferOfType[typeWithColour]->indices.size() * sizeof(std::uint32_t) +
-         objectBufferSize) > maxBufferSize) {
-      triangleBuffers.push_front(TriangleBuffer());
-      currentBuffer = triangleBuffers.begin();
-      currentBuffer->type = typeWithColour;
-      {
-        auto const &colour = colourForType[typeWithColour];
-        currentBuffer->colour[0] = std::get<0>(colour);
-        currentBuffer->colour[1] = std::get<1>(colour);
-        currentBuffer->colour[2] = std::get<2>(colour);
-        currentBuffer->colour[3] = std::get<3>(colour);
-      }
-      lastTriangleBufferOfType[typeWithColour] = currentBuffer;
-    } else {
-      currentBuffer = lastTriangleBufferOfType[typeWithColour];
-    }
-  }
+  // Assign a unique objectId for selection tracking
+  int objectId = static_cast<int>(objectsById.size());
+  objectsById.push_back(const_cast<AzulObject *>(&object));
   
   // Push vertices and indices into the buffer
-  std::uint32_t vertexIndex = static_cast<std::uint32_t>(currentBuffer->triangles.size() / 8);
+  std::uint32_t vertexIndex = static_cast<std::uint32_t>(currentBuffer->triangles.size() / 7);
   for (auto const &triangle: object.triangles) {
     for (int pointIndex = 0; pointIndex < 3; ++pointIndex) {
       for (int coordinate = 0; coordinate < 3; ++coordinate)
         currentBuffer->triangles.push_back((triangle.points[pointIndex].coordinates[coordinate]-midCoordinates[coordinate])/maxRange);
-      currentBuffer->triangles.push_back(0.0);
+      currentBuffer->triangles.push_back(static_cast<float>(objectId));
       for (int component = 0; component < 3; ++component)
         currentBuffer->triangles.push_back(triangle.normals[pointIndex].components[component]);
-      currentBuffer->triangles.push_back(0.0);
       currentBuffer->indices.push_back(vertexIndex++);
     }
   }
@@ -432,7 +415,6 @@ DataManager::DataManager() {
   colourForType["TINRelief"] = std::tuple<float, float, float, float>(0.85, 0.92, 0.48, 1.0);
   
   black = std::tuple<float, float, float, float>(0.0, 0.0, 0.0, 1.0);
-  selectedTrianglesColour = std::tuple<float, float, float, float>(1.0, 1.0, 0.0, 1.0);
   selectedEdgesColour = std::tuple<float, float, float, float>(1.0, 0.0, 0.0, 1.0);
 }
 
@@ -491,10 +473,16 @@ void DataManager::regenerateTriangleBuffers(long maxBufferSize) {
   std::string defaultType = "";
   triangleBuffers.clear();
   lastTriangleBufferOfType.clear();
-  lastTriangleBufferBySelection.clear();
+  objectsById.clear();
   
   for (auto &file: parsedFiles) putAzulObjectAndItsChildrenIntoTriangleBuffers(file, defaultType, maxBufferSize);
-  std::cout << "Created " << triangleBuffers.size() << " triangle buffers" << std::endl;
+  std::cout << "Created " << triangleBuffers.size() << " triangle buffers with " << objectsById.size() << " objects" << std::endl;
+  
+  // Initialize selection states from current object states
+  selectionStates.resize(objectsById.size());
+  for (int i = 0; i < objectsById.size(); ++i) {
+    selectionStates[i] = objectsById[i]->selected ? 1.0f : 0.0f;
+  }
 }
 
 void DataManager::regenerateEdgeBuffers(long maxBufferSize) {
@@ -516,7 +504,8 @@ void DataManager::clear() {
   parsedFiles.clear();
   triangleBuffers.clear();
   lastTriangleBufferOfType.clear();
-  lastTriangleBufferBySelection.clear();
+  objectsById.clear();
+  selectionStates.clear();
   edgeBuffers.clear();
   lastEdgeBufferBySelection.clear();
   
@@ -528,6 +517,21 @@ void DataManager::clear() {
 
 void DataManager::printParsedFiles() {
   for (auto const &file: parsedFiles) printAzulObject(file, 0);
+}
+
+void DataManager::updateSelectionStates() {
+  selectionStates.resize(objectsById.size());
+  for (int i = 0; i < objectsById.size(); ++i) {
+    selectionStates[i] = objectsById[i]->selected ? 1.0f : 0.0f;
+  }
+}
+
+const float *DataManager::getSelectionStateData() {
+  return selectionStates.data();
+}
+
+int DataManager::getSelectionStateCount() {
+  return static_cast<int>(selectionStates.size());
 }
 
 void DataManager::setSelection(AzulObject &object, bool selected) {

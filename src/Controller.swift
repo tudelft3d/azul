@@ -512,6 +512,7 @@ class OutlineView: NSOutlineView {
           Thread.sleep(forTimeInterval: 0.01)
         }
         self.reloadTriangleBuffers()
+        self.updateSelectionStateBuffer()
         self.performanceHelper.printTimeSpent()
         self.performanceHelper.printMemoryUsage()
         DispatchQueue.main.async {
@@ -720,6 +721,14 @@ class OutlineView: NSOutlineView {
     }
   }
 
+  @objc func updateSelectionStateBuffer() {
+    let count = Int(dataManager.selectionStateCount())
+    guard count > 0 else { return }
+    guard let ptr = dataManager.selectionStateData() else { return }
+    let data = Data(bytes: UnsafeRawPointer(ptr), count: count * MemoryLayout<Float>.size)
+    metalView!.updateSelectionStateBuffer(data)
+  }
+
   func applicationWillTerminate(_ aNotification: Notification) {
     Swift.print("Controller.applicationWillTerminate(Notification)")
   }
@@ -747,6 +756,7 @@ class OutlineView: NSOutlineView {
     }
     dataManager.regenerateTriangleBuffers(withMaximumSize: 16*1024*1024)
     self.reloadTriangleBuffers()
+    self.updateSelectionStateBuffer()
     dataManager.regenerateEdgeBuffers(withMaximumSize: 16*1024*1024)
     self.reloadEdgeBuffers()
     metalView!.needsDisplay = true

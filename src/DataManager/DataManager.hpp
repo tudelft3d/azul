@@ -79,8 +79,11 @@ public:
   std::list<EdgeBuffer> edgeBuffers;
   
   std::map<std::string, std::list<TriangleBuffer>::iterator> lastTriangleBufferOfType;
-  std::map<bool, std::list<TriangleBuffer>::iterator> lastTriangleBufferBySelection;
   std::map<bool, std::list<EdgeBuffer>::iterator> lastEdgeBufferBySelection;
+  
+  // Selection state
+  std::vector<float> selectionStates;
+  std::vector<AzulObject *> objectsById;
   
   // Iterators for access from Swift
   std::list<TriangleBuffer>::const_iterator currentTriangleBuffer;
@@ -88,7 +91,7 @@ public:
   std::vector<AzulObject>::iterator bestHitFile, bestHitObject;
 
   // Colours
-  std::tuple<float, float, float, float> black, selectedTrianglesColour, selectedEdgesColour;
+  std::tuple<float, float, float, float> black, selectedEdgesColour;
   std::map<std::string, std::tuple<float, float, float, float>> colourForType;
   
   // Search
@@ -128,6 +131,9 @@ public:
   void setSelection(AzulObject &object, bool selected);
   float click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix);
   float hit(const AzulObject &object, const simd_float3 &rayOrigin, const simd_float3 &rayDirection, const simd_float4x4 &objectToCamera);
+  void updateSelectionStates();
+  const float *getSelectionStateData();
+  int getSelectionStateCount();
   
   // Visibility
   void setVisible(AzulObject &object, char visible);

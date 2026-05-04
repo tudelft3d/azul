@@ -257,10 +257,8 @@ struct DataManagerWrapper {
     }
   }];
 
-  dataManagerWrapper->dataManager->regenerateTriangleBuffers(16*1024*1024);
-  [controller reloadTriangleBuffers];
-  dataManagerWrapper->dataManager->regenerateEdgeBuffers(16*1024*1024);
-  [controller reloadEdgeBuffers];
+  dataManagerWrapper->dataManager->updateSelectionStates();
+  [controller updateSelectionStateBuffer];
   [[controller metalView] setNeedsDisplay:YES];
   
   [[controller attributesTableView] reloadData];
@@ -403,6 +401,18 @@ struct DataManagerWrapper {
   return cell;
 }
 
+- (void) updateSelectionStates {
+  dataManagerWrapper->dataManager->updateSelectionStates();
+}
+
+- (const float *) selectionStateData {
+  return dataManagerWrapper->dataManager->getSelectionStateData();
+}
+
+- (int) selectionStateCount {
+  return dataManagerWrapper->dataManager->getSelectionStateCount();
+}
+
 - (void) toggleVisibility:(id)sender {
   if (![sender isKindOfClass:[NSButton class]]) {
     NSLog(@"Uh-oh (not an NSButton)!");
@@ -427,6 +437,7 @@ struct DataManagerWrapper {
   
   dataManagerWrapper->dataManager->regenerateTriangleBuffers(16*1024*1024);
   [controller reloadTriangleBuffers];
+  [controller updateSelectionStateBuffer];
   dataManagerWrapper->dataManager->regenerateEdgeBuffers(16*1024*1024);
   [controller reloadEdgeBuffers];
   [[controller metalView] setNeedsDisplay:YES];
@@ -466,6 +477,7 @@ struct DataManagerWrapper {
   
   dataManagerWrapper->dataManager->regenerateTriangleBuffers(16*1024*1024);
   [controller reloadTriangleBuffers];
+  [controller updateSelectionStateBuffer];
   dataManagerWrapper->dataManager->regenerateEdgeBuffers(16*1024*1024);
   [controller reloadEdgeBuffers];
   [[controller metalView] setNeedsDisplay:YES];

@@ -31,11 +31,13 @@ constant float3 specularLightIntensity(0.2, 0.2, 0.2);
 constant float3 lightDirectionInCamera(0.267, 0.802, -0.535);
 constant float3 skyColour(0.65, 0.7, 0.85);
 constant float3 groundColour(0.35, 0.3, 0.25);
+constant float3 selectionColour(1.0, 1.0, 0.0);
 constant float shininess = 32.0;
 
 struct VertexWithNormalIn {
-  float3 position;
-  float3 normal;
+  packed_float3 position;
+  float objectId;
+  packed_float3 normal;
 };
 
 struct VertexIn {
@@ -46,6 +48,7 @@ struct VertexOutLit {
   float4 position [[position]];
   float3 worldNormal;
   float3 worldPosition;
+  float objectId;
 };
 
 struct VertexOutUnlit {
@@ -57,13 +60,14 @@ vertex VertexOutLit vertexLit(const device VertexWithNormalIn *vertices [[buffer
                                constant Constants &uniforms [[buffer(1)]],
                                uint VertexId [[vertex_id]]) {
   
-  float3 worldNormal = normalize(uniforms.modelMatrixInverseTransposed * vertices[VertexId].normal);
-  float4 worldPosition = uniforms.modelMatrix * float4(vertices[VertexId].position, 1.0);
-  
   VertexOutLit out;
-  out.position = uniforms.modelViewProjectionMatrix * float4(vertices[VertexId].position, 1.0);
-  out.worldNormal = worldNormal;
+  float3 position = float3(vertices[VertexId].position);
+  float3 normal = float3(vertices[VertexId].normal);
+  out.position = uniforms.modelViewProjectionMatrix * float4(position, 1.0);
+  out.worldNormal = normalize(uniforms.modelMatrixInverseTransposed * normal);
+  float4 worldPosition = uniforms.modelMatrix * float4(position, 1.0);
   out.worldPosition = worldPosition.xyz;
+  out.objectId = vertices[VertexId].objectId;
   return out;
 }
 
@@ -78,12 +82,15 @@ vertex VertexOutUnlit vertexUnlit(const device VertexIn *vertices [[buffer(0)]],
 }
 
 fragment half4 fragmentLit(VertexOutLit fragmentIn [[stage_in]],
-                            constant Constants &uniforms [[buffer(0)]]) {
+                            constant Constants &uniforms [[buffer(0)]],
+                            const device float *selectionStates [[buffer(2)]]) {
   
   float3 normalDirection = normalize(fragmentIn.worldNormal);
   float3 viewDirection = normalize(float3(uniforms.viewMatrixInverse * float4(0.0, 0.0, 0.0, 1.0) - float4(fragmentIn.worldPosition, 1.0)));
   float3 lightDirection = normalize(float3(uniforms.viewMatrixInverse * float4(lightDirectionInCamera, 0.0)));
-  float3 baseColour = float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b);
+  int objectId = int(fragmentIn.objectId);
+  float selected = selectionStates[objectId];
+  float3 baseColour = mix(float3(uniforms.colour.r, uniforms.colour.g, uniforms.colour.b), selectionColour, selected);
   
   float hemiWeight = 0.5 + 0.5 * normalDirection.y;
   float3 ambient = mix(groundColour, skyColour, hemiWeight) * baseColour * ambientLightIntensity;

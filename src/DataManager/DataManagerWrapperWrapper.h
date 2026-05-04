@@ -97,6 +97,11 @@ struct DataManagerWrapper;
 - (int) findObjectRow;
 - (void) sourceListDoubleClick;
 
+// Selection state (GPU-based)
+- (void) updateSelectionStates;
+- (const float *) selectionStateData;
+- (int) selectionStateCount;
+
 // Toggling visibility
 - (void) toggleVisibility:(id)sender;
 - (void) toggleVisibilityForSelection:(NSOutlineView *)outlineView;
