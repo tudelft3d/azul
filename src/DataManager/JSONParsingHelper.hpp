@@ -54,29 +54,31 @@ protected:
 //    }
     
     // Attributes (optional)
-    try {
-      for (auto attribute: jsonObject["attributes"].value().get_object()) {
-        switch (attribute.value().type()) {
-          case simdjson::ondemand::json_type::string:
-            object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), attribute.value().get_string().value()));
-            break;
-          case simdjson::ondemand::json_type::number:
-            object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), std::to_string(attribute.value().get_double())));
-            break;
-          case simdjson::ondemand::json_type::boolean:
-            if (attribute.value().get_bool() == true) object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "true"));
-            else object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "false"));
-            break;
-          case simdjson::ondemand::json_type::null:
-            object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "null"));
-            break;
-          default:
-            std::cout << attribute.unescaped_key().value() << ": unknown attribute type" << std::endl;
-            break;
+    {
+      simdjson::ondemand::object attributesObject;
+      if (!jsonObject["attributes"].get(attributesObject)) {
+        for (auto attribute: attributesObject) {
+          simdjson::ondemand::value attrValue = attribute.value();
+          switch (attrValue.type()) {
+            case simdjson::ondemand::json_type::string:
+              object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), attrValue.get_string().value()));
+              break;
+            case simdjson::ondemand::json_type::number:
+              object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), std::to_string(attrValue.get_double())));
+              break;
+            case simdjson::ondemand::json_type::boolean:
+              if (attrValue.get_bool() == true) object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "true"));
+              else object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "false"));
+              break;
+            case simdjson::ondemand::json_type::null:
+              object.attributes.push_back(std::pair<std::string, std::string>(attribute.unescaped_key().value(), "null"));
+              break;
+            default:
+              std::cout << attribute.unescaped_key().value() << ": unknown attribute type" << std::endl;
+              break;
+          }
         }
       }
-    } catch (simdjson::simdjson_error &e) {
-      std::cout << "\terror parsing attributes" << std::endl;
     }
 //    std::cout << "\tattributes:" << std::endl;
 //    for (const auto &attribute: object.attributes) {
@@ -145,15 +147,16 @@ protected:
       for (simdjson::ondemand::object surface: element["surfaces"]) {
         semanticSurfaces.push_back(std::map<std::string_view, std::string_view>());
         for (auto attribute: surface) {
-          switch (attribute.value().type()) {
+          simdjson::ondemand::value attrValue = attribute.value();
+          switch (attrValue.type()) {
             case simdjson::ondemand::json_type::string:
-              semanticSurfaces.back()[attribute.unescaped_key().value()] = attribute.value().get_string().value();
+              semanticSurfaces.back()[attribute.unescaped_key().value()] = attrValue.get_string().value();
               break;
             case simdjson::ondemand::json_type::number:
-              semanticSurfaces.back()[attribute.unescaped_key().value()] = std::to_string(attribute.value().get_double());
+              semanticSurfaces.back()[attribute.unescaped_key().value()] = std::to_string(attrValue.get_double());
               break;
             case simdjson::ondemand::json_type::boolean:
-              if (attribute.value().get_bool() == true) semanticSurfaces.back()[attribute.unescaped_key().value()] = "true";
+              if (attrValue.get_bool() == true) semanticSurfaces.back()[attribute.unescaped_key().value()] = "true";
               else semanticSurfaces.back()[attribute.unescaped_key().value()] = "false";
               break;
             case simdjson::ondemand::json_type::null:
