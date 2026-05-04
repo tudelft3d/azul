@@ -64,6 +64,8 @@ private:
   void setMatchesSearch(AzulObject &object, char matches);
   bool matchesSearch(AzulObject &object);
   void computeLodMatches(AzulObject &object);
+  std::string lodOfObject(const AzulObject &object);
+  void setLodMatchRecursive(AzulObject &object, char value);
   bool containsObject(AzulObject &parent, AzulObject *target);
   std::vector<AzulObject>::iterator findContainingDirectChild(AzulObject &file, AzulObject *target);
   

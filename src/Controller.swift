@@ -186,7 +186,7 @@ class OutlineView: NSOutlineView {
     
     lodSegmentedControl = NSSegmentedControl(frame: leftSplitView!.subviews[1].bounds)
     lodSegmentedControl!.segmentCount = 1
-    lodSegmentedControl!.setLabel("All", forSegment: 0)
+    lodSegmentedControl!.setLabel("0", forSegment: 0)
     lodSegmentedControl!.selectedSegment = 0
     lodSegmentedControl!.target = self
     lodSegmentedControl!.action = #selector(lodSegmentChanged)
@@ -750,8 +750,8 @@ class OutlineView: NSOutlineView {
   }
   
   @objc func lodSegmentChanged(_ sender: NSSegmentedControl) {
-    if sender.selectedSegment == 0 {
-      "".withCString { pointer in
+    if sender.selectedSegment == sender.segmentCount - 1 {
+      "__highest__".withCString { pointer in
         dataManager.setLodFilter(pointer)
       }
     } else {
@@ -781,12 +781,12 @@ class OutlineView: NSOutlineView {
     control.isHidden = false
     let sortedLods = lods.sorted()
     control.segmentCount = 1 + sortedLods.count
-    control.setLabel("All", forSegment: 0)
     for (index, lod) in sortedLods.enumerated() {
-      control.setLabel("\(lod)", forSegment: index + 1)
+      control.setLabel("\(lod)", forSegment: index)
     }
+    control.setLabel("Highest", forSegment: sortedLods.count)
     control.selectedSegment = sortedLods.count
-    sortedLods.last!.withCString { pointer in
+    "__highest__".withCString { pointer in
       dataManager.setLodFilter(pointer)
     }
     
