@@ -48,7 +48,7 @@ copy_header_dir() {
     local src="$1"
     local dst="$2"
     if [ -e "$src" ]; then
-        cp -Rf "$src" "$dst"
+        cp -RfL "$src" "$dst"
         echo "  ✓ $(basename $src)"
     else
         echo "  ✗ $src not found"
@@ -59,7 +59,7 @@ copy_header_file() {
     local src="$1"
     local dst="$2"
     if [ -e "$src" ]; then
-        cp -f "$src" "$dst"
+        cp -fL "$src" "$dst"
         echo "  ✓ $(basename $src)"
     else
         echo "  ✗ $src not found"
@@ -76,5 +76,12 @@ copy_header_file "$BREW_PREFIX/include/mpfr.h"  "$INCLUDE_DIR/"
 copy_header_file "$BREW_PREFIX/include/pugixml.hpp"   "$INCLUDE_DIR/"
 copy_header_file "$BREW_PREFIX/include/pugiconfig.hpp" "$INCLUDE_DIR/"
 
+echo ""
+echo "azul CI: verifying copied files..."
+if [ -f "$INCLUDE_DIR/boost/algorithm/string/predicate.hpp" ]; then
+    echo "  ✓ boost/algorithm/string/predicate.hpp exists"
+else
+    echo "  ✗ boost/algorithm/string/predicate.hpp MISSING — copy failed"
+fi
 echo ""
 echo "azul CI: done"
