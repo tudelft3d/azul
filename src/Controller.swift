@@ -797,6 +797,11 @@ class OutlineView: NSOutlineView {
     reloadEdgeBuffers()
     metalView!.needsDisplay = true
     objectsSourceList!.reloadData()
+    for row in 0..<objectsSourceList!.numberOfRows {
+      if let item = objectsSourceList!.item(atRow: row), objectsSourceList!.parent(forItem: item) == nil {
+        objectsSourceList!.expandItem(item)
+      }
+    }
   }
   
   @IBAction func copyObjectId(_ sender: NSMenuItem) {
