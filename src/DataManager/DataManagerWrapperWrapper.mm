@@ -287,7 +287,13 @@ struct DataManagerWrapper {
       NSIndexSet *rowToSelectIndexes = [NSIndexSet indexSetWithIndex:rowToSelect];
       [[controller objectsSourceList] selectRowIndexes:rowToSelectIndexes byExtendingSelection:false];
     } [[controller objectsSourceList] scrollRowToVisible:rowToSelect];
-  } else if (![[controller metalView] multipleSelection]) [[controller objectsSourceList] deselectAll:self];
+  } else if (![[controller metalView] multipleSelection]) {
+    [[controller objectsSourceList] deselectAll:self];
+    for (auto &currentFile: dataManagerWrapper->dataManager->parsedFiles) dataManagerWrapper->dataManager->setSelection(currentFile, false);
+    dataManagerWrapper->dataManager->updateSelectionStates();
+    [controller updateSelectionStateBuffer];
+    [[controller metalView] setNeedsDisplay:YES];
+  }
 }
 
 - (int) findObjectRow {
