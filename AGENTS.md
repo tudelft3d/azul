@@ -12,6 +12,8 @@ Open `azul.xcodeproj` in Xcode, select the azul scheme, build and run. There is 
 
 Minimum macOS 13.0; Xcode targets macOS 26 (Tahoe) but works on older Xcode.
 
+Xcode Cloud uses `ci_scripts/ci_pre_xcodebuild.sh` to install pinned dependency versions from Homebrew before building.
+
 ## Architecture
 
 - **Entry point**: `src/Controller.swift` (`@NSApplicationMain` app delegate)
@@ -24,11 +26,22 @@ Minimum macOS 13.0; Xcode targets macOS 26 (Tahoe) but works on older Xcode.
 
 | Directory | Contents |
 |-----------|----------|
-| `include/` | Boost, CGAL, GMP, MPFR, pugixml headers/source |
+| `include/` | Boost, CGAL, GMP, MPFR, pugixml headers/source (gitignored) |
 | `libs/` | Fat (arm64+x86_64) static libs: boost_thread, gmp, mpfr, pugixml |
 | `libs src/` | Dependency source (not tracked) |
 
-Install via Homebrew if needed, but the prebuilt libs are provided. simdjson is vendored as source in `src/DataManager/simdjson.{cpp,h}`.
+`include/` is gitignored — populated locally via vendored copy, on Xcode Cloud by `ci_scripts/ci_pre_xcodebuild.sh` from Homebrew. simdjson is vendored as source in `src/DataManager/simdjson.{cpp,h}`.
+
+### Pinned versions
+
+| Library | Version | Homebrew formula |
+|---------|---------|-----------------|
+| Boost | 1.90.0 | `boost` |
+| CGAL | 6.1.1 | `cgal` |
+| GMP | 6.3.0 | `gmp` |
+| MPFR | 4.2.2 | `mpfr` |
+| pugixml | 1.15 | `pugixml` |
+| simdjson | 4.6.3 | vendored in source |
 
 ## Source layout
 
