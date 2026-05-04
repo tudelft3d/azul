@@ -265,17 +265,16 @@ struct DataManagerWrapper {
 }
 
 - (void) click {
-  CGRect viewFrameInWindowCoordinates = [[controller metalView] convertRect:[[controller metalView] bounds] toView:nil];
+  CGFloat mouseX = [[controller window] mouseLocationOutsideOfEventStream].x;
+  CGFloat mouseY = [[controller window] mouseLocationOutsideOfEventStream].y;
+  NSLog(@"click: mouse=(%f, %f)", mouseX, mouseY);
 
-  // Compute the current mouse position
-  float currentX = -1.0 + 2.0*([[controller window] mouseLocationOutsideOfEventStream].x-viewFrameInWindowCoordinates.origin.x) / [[controller metalView] bounds].size.width;
-  float currentY = -1.0 + 2.0*([[controller window] mouseLocationOutsideOfEventStream].y-viewFrameInWindowCoordinates.origin.y) / [[controller metalView] bounds].size.height;
+  int objectId = [[controller metalView] pickObjectAtX:mouseX y:mouseY];
+  NSLog(@"click: objectId=%d", objectId);
 
-  float bestHit = dataManagerWrapper->dataManager->click(currentX, currentY, [[controller metalView] modelMatrix], [[controller metalView] viewMatrix], [[controller metalView] projectionMatrix]);
-
-  // (De)select closest hit
-  if (bestHit > -1.0) {
+  if (objectId >= 0 && dataManagerWrapper->dataManager->setBestHitFromObjectId(objectId) == 0) {
     int rowToSelect = [self findObjectRow];
+    NSLog(@"click: rowToSelect=%d", rowToSelect);
     if (rowToSelect == -1) return;
     if ([[controller metalView] multipleSelection]) {
       if ([[[controller objectsSourceList] selectedRowIndexes] containsIndex:rowToSelect]) [[controller objectsSourceList] deselectRow:rowToSelect];
@@ -288,6 +287,7 @@ struct DataManagerWrapper {
       [[controller objectsSourceList] selectRowIndexes:rowToSelectIndexes byExtendingSelection:false];
     } [[controller objectsSourceList] scrollRowToVisible:rowToSelect];
   } else if (![[controller metalView] multipleSelection]) {
+    NSLog(@"click: no hit, clearing selection");
     [[controller objectsSourceList] deselectAll:self];
     for (auto &currentFile: dataManagerWrapper->dataManager->parsedFiles) dataManagerWrapper->dataManager->setSelection(currentFile, false);
     dataManagerWrapper->dataManager->updateSelectionStates();

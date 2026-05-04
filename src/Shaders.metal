@@ -110,3 +110,28 @@ fragment half4 fragmentUnlit(VertexOutUnlit fragmentIn [[stage_in]]) {
   return half4(fragmentIn.colour);
 }
 
+struct VertexOutPicking {
+  float4 position [[position]];
+  float objectId;
+};
+
+vertex VertexOutPicking vertexPicking(const device VertexWithNormalIn *vertices [[buffer(0)]],
+                                       constant Constants &uniforms [[buffer(1)]],
+                                       uint VertexId [[vertex_id]]) {
+  VertexOutPicking out;
+  float3 position = float3(vertices[VertexId].position);
+  out.position = uniforms.modelViewProjectionMatrix * float4(position, 1.0);
+  out.objectId = vertices[VertexId].objectId;
+  return out;
+}
+
+fragment half4 fragmentPicking(VertexOutPicking fragmentIn [[stage_in]]) {
+  uint id = uint(fragmentIn.objectId) + 1;
+  return half4(
+    half(id & 0xFF) / 255.0h,
+    half((id >> 8) & 0xFF) / 255.0h,
+    half((id >> 16) & 0xFF) / 255.0h,
+    half((id >> 24) & 0xFF) / 255.0h
+  );
+}
+

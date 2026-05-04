@@ -63,6 +63,8 @@ private:
   void printAzulObject(const AzulObject &object, unsigned int tabs);
   void setMatchesSearch(AzulObject &object, char matches);
   bool matchesSearch(AzulObject &object);
+  bool containsObject(AzulObject &parent, AzulObject *target);
+  std::vector<AzulObject>::iterator findContainingDirectChild(AzulObject &file, AzulObject *target);
   
 public:
   // Helpers
@@ -131,6 +133,7 @@ public:
   void setSelection(AzulObject &object, bool selected);
   float click(const float currentX, const float currentY, const simd_float4x4 &modelMatrix, const simd_float4x4 &viewMatrix, const simd_float4x4 &projectionMatrix);
   float hit(const AzulObject &object, const simd_float3 &rayOrigin, const simd_float3 &rayDirection, const simd_float4x4 &objectToCamera);
+  int setBestHitFromObjectId(int objectId);
   void updateSelectionStates();
   const float *getSelectionStateData();
   int getSelectionStateCount();

@@ -534,6 +534,39 @@ int DataManager::getSelectionStateCount() {
   return static_cast<int>(selectionStates.size());
 }
 
+bool DataManager::containsObject(AzulObject &parent, AzulObject *target) {
+  for (auto &child: parent.children) {
+    if (&child == target || containsObject(child, target)) return true;
+  }
+  return false;
+}
+
+std::vector<AzulObject>::iterator DataManager::findContainingDirectChild(AzulObject &file, AzulObject *target) {
+  for (auto child = file.children.begin(); child != file.children.end(); ++child) {
+    if (&*child == target || containsObject(*child, target)) return child;
+  }
+  return file.children.end();
+}
+
+int DataManager::setBestHitFromObjectId(int objectId) {
+  if (objectId < 0 || objectId >= static_cast<int>(objectsById.size())) return -1;
+  AzulObject *object = objectsById[objectId];
+  for (auto file = parsedFiles.begin(); file != parsedFiles.end(); ++file) {
+    if (&*file == object) {
+      bestHitFile = file;
+      bestHitObject = file->children.end();
+      return 0;
+    }
+    auto child = findContainingDirectChild(*file, object);
+    if (child != file->children.end()) {
+      bestHitFile = file;
+      bestHitObject = child;
+      return 0;
+    }
+  }
+  return -1;
+}
+
 void DataManager::setSelection(AzulObject &object, bool selected) {
   for (auto &child: object.children) setSelection(child, selected);
   object.selected = selected;

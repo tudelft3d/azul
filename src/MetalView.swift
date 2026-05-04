@@ -62,6 +62,10 @@ struct BufferWithColour {
   var selectionStateBuffer: MTLBuffer?
   var selectionStateCount: Int = 0
   
+  var pickingRenderPipelineState: MTLRenderPipelineState?
+  var pickingTexture: MTLTexture?
+  var pickingDepthTexture: MTLTexture?
+  
   var viewEdges: Bool = false
   var viewBoundingBox: Bool = false
   
@@ -126,6 +130,19 @@ struct BufferWithColour {
       return
     }
     
+    // Picking pipeline
+    let pickingPipelineDescriptor = MTLRenderPipelineDescriptor()
+    pickingPipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexPicking")
+    pickingPipelineDescriptor.fragmentFunction = library.makeFunction(name: "fragmentPicking")
+    pickingPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba8Unorm
+    pickingPipelineDescriptor.depthAttachmentPixelFormat = depthStencilPixelFormat
+    pickingPipelineDescriptor.rasterSampleCount = 1
+    do {
+      pickingRenderPipelineState = try device!.makeRenderPipelineState(descriptor: pickingPipelineDescriptor)
+    } catch {
+      Swift.print("Unable to compile picking pipeline state: \(error)")
+    }
+    
     // Cache compiled pipeline states as a binary archive for faster launches
     let fileManager = FileManager.default
     let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -155,6 +172,7 @@ struct BufferWithColour {
     
     // MSAA textures
     createMSAATextures(size: drawableSize)
+    createPickingTextures()
     
     // Matrices
     modelShiftBackMatrix = matrix4x4_translation(shift: centre)
@@ -172,6 +190,20 @@ struct BufferWithColour {
     
     self.isPaused = true
     self.enableSetNeedsDisplay = true
+  }
+  
+  func createPickingTextures() {
+    let w = Int(drawableSize.width)
+    let h = Int(drawableSize.height)
+    guard w > 0, h > 0 else { return }
+    
+    let desc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm, width: w, height: h, mipmapped: false)
+    desc.usage = [.renderTarget, .shaderRead]
+    pickingTexture = device!.makeTexture(descriptor: desc)
+    
+    let depthDesc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: depthStencilPixelFormat, width: w, height: h, mipmapped: false)
+    depthDesc.usage = .renderTarget
+    pickingDepthTexture = device!.makeTexture(descriptor: depthDesc)
   }
   
   required init(coder: NSCoder) {
@@ -282,6 +314,7 @@ struct BufferWithColour {
 //    Swift.print("MetalView.setFrameSize(NSSize)")
     super.setFrameSize(newSize)
     createMSAATextures(size: drawableSize)
+    createPickingTextures()
     projectionMatrix = matrix4x4_perspective(fieldOfView: fieldOfView, aspectRatio: Float(bounds.size.width / bounds.size.height), nearZ: 0.001, farZ: 100.0)
     
     constants.modelViewProjectionMatrix = matrix_multiply(projectionMatrix, matrix_multiply(viewMatrix, modelMatrix))
@@ -525,6 +558,83 @@ struct BufferWithColour {
     constants.modelMatrixInverseTransposed = matrix_upper_left_3x3(matrix: modelMatrix).inverse.transpose
     constants.viewMatrixInverse = viewMatrix.inverse
     needsDisplay = true
+  }
+  
+  @objc func pickObjectAtX(_ windowX: CGFloat, y windowY: CGFloat) -> Int32 {
+    guard let pipeline = pickingRenderPipelineState else {
+      Swift.print("pickObject: no pipeline")
+      return -1
+    }
+    guard let colorTex = pickingTexture else {
+      Swift.print("pickObject: no color texture")
+      return -1
+    }
+    guard let depthTex = pickingDepthTexture else {
+      Swift.print("pickObject: no depth texture")
+      return -1
+    }
+    guard !triangleBuffers.isEmpty else {
+      Swift.print("pickObject: no triangle buffers")
+      return -1
+    }
+    
+    let viewFrameInWindow = convert(bounds, to: nil)
+    let viewX = windowX - viewFrameInWindow.origin.x
+    let viewY = windowY - viewFrameInWindow.origin.y
+    let scale = window?.backingScaleFactor ?? 1.0
+    let pixelX = Int(viewX * scale)
+    let pixelY = Int(bounds.height * scale - viewY * scale)
+    guard pixelX >= 0, pixelX < colorTex.width,
+          pixelY >= 0, pixelY < colorTex.height else {
+      Swift.print("pickObject: pixel out of bounds: \(pixelX), \(pixelY) (tex: \(colorTex.width)x\(colorTex.height))")
+      return -1
+    }
+    
+    let commandBuffer = commandQueue!.makeCommandBuffer()!
+    
+    let passDescriptor = MTLRenderPassDescriptor()
+    passDescriptor.colorAttachments[0].texture = colorTex
+    passDescriptor.colorAttachments[0].loadAction = .clear
+    passDescriptor.colorAttachments[0].storeAction = .store
+    passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+    passDescriptor.depthAttachment.texture = depthTex
+    passDescriptor.depthAttachment.loadAction = .clear
+    passDescriptor.depthAttachment.storeAction = .dontCare
+    passDescriptor.depthAttachment.clearDepth = 1.0
+    
+    let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)!
+    encoder.setRenderPipelineState(pipeline)
+    encoder.setFrontFacing(.counterClockwise)
+    encoder.setDepthStencilState(depthStencilState)
+    encoder.setViewport(MTLViewport(originX: 0, originY: 0,
+                                    width: Double(colorTex.width),
+                                    height: Double(colorTex.height),
+                                    znear: 0, zfar: 1))
+    encoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.size, index: 1)
+    
+    for triangleBuffer in triangleBuffers {
+      encoder.setVertexBuffer(triangleBuffer.buffer, offset: 0, index: 0)
+      encoder.drawIndexedPrimitives(type: .triangle, indexCount: triangleBuffer.indexCount, indexType: .uint32, indexBuffer: triangleBuffer.indexBuffer, indexBufferOffset: 0)
+    }
+    
+    encoder.endEncoding()
+    
+    let stagingBuffer = device!.makeBuffer(length: 4, options: .storageModeShared)!
+    let blitEncoder = commandBuffer.makeBlitCommandEncoder()!
+    blitEncoder.copy(from: colorTex, sourceSlice: 0, sourceLevel: 0,
+                     sourceOrigin: MTLOrigin(x: pixelX, y: pixelY, z: 0),
+                     sourceSize: MTLSize(width: 1, height: 1, depth: 1),
+                     to: stagingBuffer, destinationOffset: 0,
+                     destinationBytesPerRow: 4, destinationBytesPerImage: 4)
+    blitEncoder.endEncoding()
+    
+    commandBuffer.commit()
+    commandBuffer.waitUntilCompleted()
+    
+    let pixelValue = stagingBuffer.contents().load(as: UInt32.self)
+    let result: Int32 = pixelValue == 0 ? -1 : Int32(bitPattern: pixelValue) - 1
+    Swift.print("pickObject: pixelValue=\(pixelValue) result=\(result)")
+    return result
   }
   
   @objc func updateSelectionStateBuffer(_ data: Data) {
