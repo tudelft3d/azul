@@ -770,7 +770,7 @@ class OutlineView: NSOutlineView {
   }
   
   func updateLodSegments() {
-    let lods = dataManager.availableLods() as? [String] ?? []
+    let lods = dataManager.availableLods() ?? []
     guard let control = lodSegmentedControl else { return }
     
     if lods.isEmpty {
@@ -805,12 +805,13 @@ class OutlineView: NSOutlineView {
     pasteboard.declareTypes([NSPasteboard.PasteboardType.string], owner: self)
     var selectionString = String()
     for row in objectsSourceList!.selectedRowIndexes {
-      if let view = objectsSourceList!.view(atColumn: 0, row: row, makeIfNecessary: false)! as? TableCellView {
-        Swift.print("\(view.textField!.stringValue)")
-        if !selectionString.isEmpty {
-          selectionString.append("\n")
+      if let item = objectsSourceList!.item(atRow: row) {
+        if let objectId = dataManager.objectId(forItem: item), !objectId.isEmpty {
+          if !selectionString.isEmpty {
+            selectionString.append("\n")
+          }
+          selectionString.append(objectId)
         }
-        selectionString.append(view.textField!.stringValue)
       }
     }
     pasteboard.setString(selectionString, forType: NSPasteboard.PasteboardType.string)

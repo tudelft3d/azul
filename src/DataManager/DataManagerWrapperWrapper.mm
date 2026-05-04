@@ -496,4 +496,11 @@ struct DataManagerWrapper {
   return statusMessage;
 }
 
+- (NSString *) objectIdForItem:(id)item {
+  if (![item isKindOfClass:[AzulObjectIterator class]]) return @"";
+  AzulObjectIterator *currentItem = item;
+  if ([currentItem iterator]->id.empty()) return @"";
+  return [NSString stringWithUTF8String:[currentItem iterator]->id.c_str()];
+}
+
 @end

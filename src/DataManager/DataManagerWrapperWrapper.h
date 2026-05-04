@@ -97,6 +97,9 @@ struct DataManagerWrapper;
 - (int) findObjectRow;
 - (void) sourceListDoubleClick;
 
+// Object IDs from outline view items
+- (NSString *) objectIdForItem:(id)item;
+
 // Selection state (GPU-based)
 - (void) updateSelectionStates;
 - (const float *) selectionStateData;
