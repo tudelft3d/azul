@@ -263,6 +263,7 @@ class OutlineView: NSOutlineView {
     
     window.contentView!.addSubview(splitView!)
     window.makeFirstResponder(metalView)
+    toggleViewEdgesMenuItem.state = .on
     window.minSize = NSSize(width: 400, height: 300)
     
     objectsSourceList!.dataSource = dataManager
@@ -550,6 +551,11 @@ class OutlineView: NSOutlineView {
         DispatchQueue.main.async {
           self.metalView!.needsDisplay = true
           self.objectsSourceList!.reloadData()
+          for row in 0..<self.objectsSourceList!.numberOfRows {
+            if let item = self.objectsSourceList!.item(atRow: row), self.objectsSourceList!.parent(forItem: item) == nil {
+              self.objectsSourceList!.expandItem(item)
+            }
+          }
           switch self.openFiles.count {
           case 0:
             self.window.representedURL = nil
@@ -773,15 +779,23 @@ class OutlineView: NSOutlineView {
     }
     
     control.isHidden = false
-    control.segmentCount = 1 + lods.count
+    let sortedLods = lods.sorted()
+    control.segmentCount = 1 + sortedLods.count
     control.setLabel("All", forSegment: 0)
-    for (index, lod) in lods.sorted().enumerated() {
+    for (index, lod) in sortedLods.enumerated() {
       control.setLabel("\(lod)", forSegment: index + 1)
     }
-    control.selectedSegment = 0
-    "".withCString { pointer in
+    control.selectedSegment = sortedLods.count
+    sortedLods.last!.withCString { pointer in
       dataManager.setLodFilter(pointer)
     }
+    
+    dataManager.regenerateTriangleBuffers(withMaximumSize: 16*1024*1024)
+    reloadTriangleBuffers()
+    updateSelectionStateBuffer()
+    dataManager.regenerateEdgeBuffers(withMaximumSize: 16*1024*1024)
+    reloadEdgeBuffers()
+    metalView!.needsDisplay = true
     objectsSourceList!.reloadData()
   }
   

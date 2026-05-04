@@ -66,7 +66,7 @@ struct BufferWithColour {
   var pickingTexture: MTLTexture?
   var pickingDepthTexture: MTLTexture?
   
-  var viewEdges: Bool = false
+  var viewEdges: Bool = true
   var viewBoundingBox: Bool = false
   
   @objc var multipleSelection: Bool = false
