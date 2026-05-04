@@ -273,7 +273,7 @@ void DataManager::clearPolygonsOfAzulObjectAndItsChildren(AzulObject &object) {
 void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::string &typeWithColour, const long maxBufferSize, bool underMatchingLod) {
   bool childUnderMatchingLod;
   if (lodFilter == "__highest__") {
-    childUnderMatchingLod = underMatchingLod || object.lodMatch == 'Y';
+    childUnderMatchingLod = underMatchingLod || (object.lodMatch == 'Y' && !lodOfObject(object).empty());
   } else {
     childUnderMatchingLod = underMatchingLod || (!lodFilter.empty() && directlyMatchesLodFilter(object));
   }
@@ -336,7 +336,7 @@ void DataManager::putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObjec
 void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &object, const long maxBufferSize, bool underMatchingLod) {
   bool childUnderMatchingLod;
   if (lodFilter == "__highest__") {
-    childUnderMatchingLod = underMatchingLod || object.lodMatch == 'Y';
+    childUnderMatchingLod = underMatchingLod || (object.lodMatch == 'Y' && !lodOfObject(object).empty());
   } else {
     childUnderMatchingLod = underMatchingLod || (!lodFilter.empty() && directlyMatchesLodFilter(object));
   }
@@ -798,36 +798,42 @@ void DataManager::setLodMatchRecursive(AzulObject &object, char value) {
   for (auto &child : object.children) setLodMatchRecursive(child, value);
 }
 
-void DataManager::computeLodMatches(AzulObject &object) {
-  for (auto &child: object.children) computeLodMatches(child);
+std::string DataManager::computeLodMatches(AzulObject &object) {
+  std::string highestLod;
+  
+  for (auto &child: object.children) {
+    std::string childHighestLod = computeLodMatches(child);
+    if (!childHighestLod.empty()) {
+      if (highestLod.empty() || std::stod(childHighestLod) > std::stod(highestLod)) {
+        highestLod = childHighestLod;
+      }
+    }
+  }
   
   if (lodFilter == "__highest__") {
-    std::vector<std::pair<std::string, AzulObject *>> lodChildren;
-    for (auto &child: object.children) {
-      std::string lodValue = lodOfObject(child);
-      if (!lodValue.empty()) {
-        lodChildren.emplace_back(lodValue, &child);
+    std::string directLod = lodOfObject(object);
+    if (!directLod.empty()) {
+      if (highestLod.empty() || std::stod(directLod) > std::stod(highestLod)) {
+        highestLod = directLod;
       }
     }
     
-    if (!lodChildren.empty()) {
-      auto highest = *std::max_element(lodChildren.begin(), lodChildren.end(),
-        [](const auto &a, const auto &b) {
-          return std::stod(a.first) < std::stod(b.first);
-        });
-      
-      for (auto &childPair : lodChildren) {
-        if (childPair.second == highest.second) {
-          setLodMatchRecursive(*childPair.second, 'Y');
-        } else {
-          setLodMatchRecursive(*childPair.second, 'N');
+    if (!highestLod.empty()) {
+      for (auto &child : object.children) {
+        std::string childLod = lodOfObject(child);
+        if (!childLod.empty() && childLod != highestLod) {
+          setLodMatchRecursive(child, 'N');
         }
       }
     }
     
-    object.lodMatch = 'N';
-    for (auto &child: object.children) {
-      if (child.lodMatch == 'Y') { object.lodMatch = 'Y'; break; }
+    if (!directLod.empty()) {
+      object.lodMatch = (directLod == highestLod) ? 'Y' : 'N';
+    } else {
+      object.lodMatch = 'N';
+      for (auto &child: object.children) {
+        if (child.lodMatch == 'Y') { object.lodMatch = 'Y'; break; }
+      }
     }
   } else if (lodFilter.empty() || directlyMatchesLodFilter(object)) {
     object.lodMatch = 'Y';
@@ -837,6 +843,8 @@ void DataManager::computeLodMatches(AzulObject &object) {
       if (child.lodMatch == 'Y') { object.lodMatch = 'Y'; break; }
     }
   }
+  
+  return highestLod;
 }
 
 void DataManager::setLodFilter(const char *lod) {
