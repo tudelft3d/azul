@@ -80,6 +80,7 @@ struct AzulObject {
   bool selected;
   char visible; // 'Y'es, 'N'o, 'P'artly
   char matchesSearch; // 'Y'es, 'N'o, 'U'nknown
+  char lodMatch; // 'Y'es, 'N'o, 'U'nknown
   std::vector<std::pair<std::string, std::string>> attributes;
   std::vector<AzulObject> children;
   std::vector<AzulPolygon> polygons;
@@ -90,6 +91,7 @@ struct AzulObject {
     selected = false;
     visible = 'Y';
     matchesSearch = 'U';
+    lodMatch = 'U';
   }
   
   AzulObject(const AzulObject &other) {
@@ -98,6 +100,7 @@ struct AzulObject {
     selected = other.selected;
     visible = other.visible;
     matchesSearch = other.matchesSearch;
+    lodMatch = other.lodMatch;
     for (auto const &attribute: other.attributes) attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
     for (auto const &child: other.children) children.push_back(AzulObject(child));
     for (auto const &polygon: other.polygons) polygons.push_back(AzulPolygon(polygon));

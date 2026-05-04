@@ -63,6 +63,7 @@ private:
   void printAzulObject(const AzulObject &object, unsigned int tabs);
   void setMatchesSearch(AzulObject &object, char matches);
   bool matchesSearch(AzulObject &object);
+  void computeLodMatches(AzulObject &object);
   bool containsObject(AzulObject &parent, AzulObject *target);
   std::vector<AzulObject>::iterator findContainingDirectChild(AzulObject &file, AzulObject *target);
   

@@ -765,8 +765,21 @@ std::vector<std::string> DataManager::getAvailableLods() {
   return std::vector<std::string>(lods.begin(), lods.end());
 }
 
+void DataManager::computeLodMatches(AzulObject &object) {
+  for (auto &child: object.children) computeLodMatches(child);
+  if (lodFilter.empty() || directlyMatchesLodFilter(object)) {
+    object.lodMatch = 'Y';
+  } else {
+    object.lodMatch = 'N';
+    for (auto &child: object.children) {
+      if (child.lodMatch == 'Y') { object.lodMatch = 'Y'; break; }
+    }
+  }
+}
+
 void DataManager::setLodFilter(const char *lod) {
   lodFilter = std::string(lod);
+  for (auto &file: parsedFiles) computeLodMatches(file);
 }
 
 bool DataManager::matchesLodFilter(const AzulObject &object) {
@@ -795,16 +808,11 @@ bool DataManager::directlyMatchesLodFilter(const AzulObject &object) {
 }
 
 bool DataManager::isExpandable(AzulObject &object) {
-  if (searchString.empty() && lodFilter.empty()) {
-    return !object.children.empty();
-  }
-  if (!lodFilter.empty() && directlyMatchesLodFilter(object)) {
-    return !object.children.empty();
-  }
+  if (object.children.empty()) return false;
+  if (searchString.empty() && lodFilter.empty()) return true;
   for (auto &child: object.children) {
     bool searchMatch = searchString.empty() || matchesSearch(child);
-    bool lodMatch = lodFilter.empty() || matchesLodFilter(child);
-    if (searchMatch && lodMatch) return true;
+    if (searchMatch && (lodFilter.empty() || child.lodMatch == 'Y')) return true;
   }
   return false;
 }
@@ -813,14 +821,10 @@ int DataManager::numberOfChildren(AzulObject &object) {
   if (searchString.empty() && lodFilter.empty()) {
     return (int)object.children.size();
   }
-  if (!lodFilter.empty() && directlyMatchesLodFilter(object)) {
-    return (int)object.children.size();
-  }
   int matchingChildren = 0;
   for (auto &child: object.children) {
     bool searchMatch = searchString.empty() || matchesSearch(child);
-    bool lodMatch = lodFilter.empty() || matchesLodFilter(child);
-    if (searchMatch && lodMatch) ++matchingChildren;
+    if (searchMatch && (lodFilter.empty() || child.lodMatch == 'Y')) ++matchingChildren;
   }
   return matchingChildren;
 }
@@ -829,16 +833,12 @@ std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long in
   if (searchString.empty() && lodFilter.empty()) {
     return object.children.begin()+index;
   }
-  if (!lodFilter.empty() && directlyMatchesLodFilter(object)) {
-    return object.children.begin()+index;
-  }
   int matchingChildren = 0;
   for (std::vector<AzulObject>::iterator child = object.children.begin();
        child != object.children.end();
        ++child) {
     bool searchMatch = searchString.empty() || matchesSearch(*child);
-    bool lodMatch = lodFilter.empty() || matchesLodFilter(*child);
-    if (searchMatch && lodMatch) {
+    if (searchMatch && (lodFilter.empty() || child->lodMatch == 'Y')) {
       if (matchingChildren == index) return child;
       ++matchingChildren;
     }
