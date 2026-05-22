@@ -839,7 +839,7 @@ protected:
 public:
   std::string statusMessage;
   
-  void parse(const char *filePath, AzulObject &parsedFile) {
+  void parse(const char *filePath, AzulObject &parsedFile, bool knownCityJSON = false) {
     try {
 
     simdjson::ondemand::parser parser;
@@ -859,13 +859,22 @@ public:
     deferredParentRelationships.clear();
     resetAppearanceForNewFile();
 
-    // Check what we have
-    if (doc.type() != simdjson::ondemand::json_type::object) return;
-    for (auto element: doc.get_object()) {
-      if (element.key().value().is_equal("type")) {
-        docType = element.value().get_string();
-      } else if (element.key().value().is_equal("version")) {
-        docVersion = element.value().get_string();
+    if (knownCityJSON) {
+      // Known CityJSON from .city.json extension — skip the content probe
+      docType = "CityJSON";
+      std::string_view version;
+      if (!doc["version"].get_string().get(version)) {
+        docVersion = version;
+      }
+    } else {
+      // Probe file content to determine type
+      if (doc.type() != simdjson::ondemand::json_type::object) return;
+      for (auto element: doc.get_object()) {
+        if (element.key().value().is_equal("type")) {
+          docType = element.value().get_string();
+        } else if (element.key().value().is_equal("version")) {
+          docVersion = element.value().get_string();
+        }
       }
     }
 

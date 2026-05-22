@@ -809,9 +809,11 @@ void DataManager::parse(const char *filePath) {
       boost::algorithm::ends_with(filePath, ".xml")) {
     gmlParsingHelper.parse(filePath, parsedFiles.back());
     statusMessage = gmlParsingHelper.statusMessage;
-  } else if (boost::algorithm::ends_with(filePath, ".city.json") ||
-             boost::algorithm::ends_with(filePath, ".json")) {
-    jsonParsingHelper.parse(filePath, parsedFiles.back());
+  } else if (boost::algorithm::ends_with(filePath, ".city.json")) {
+    jsonParsingHelper.parse(filePath, parsedFiles.back(), true);
+    statusMessage = jsonParsingHelper.statusMessage;
+  } else if (boost::algorithm::ends_with(filePath, ".json")) {
+    jsonParsingHelper.parse(filePath, parsedFiles.back(), false);
     statusMessage = jsonParsingHelper.statusMessage;
   } else if (boost::algorithm::ends_with(filePath, ".jsonl")) {
     jsonLinesParsingHelper.parse(filePath, parsedFiles.back());
