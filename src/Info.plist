@@ -7,6 +7,18 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeName</key>
+			<string>CityJSON document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>tudelft3d.cityjson</string>
+			</array>
+		</dict>
+		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>xml</string>
 			<key>CFBundleTypeName</key>
@@ -119,6 +131,23 @@
 	<string>NSApplication</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CityJSON document</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.cityjson</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>city.json</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

@@ -574,7 +574,16 @@ extension NSToolbarItem.Identifier {
     openPanel.allowsMultipleSelection = true
     openPanel.canChooseDirectories = false
     openPanel.canChooseFiles = true
-    openPanel.allowedContentTypes = [UTType(filenameExtension: "gml")!, UTType(filenameExtension: "xml")!, UTType(filenameExtension: "json")!, UTType(filenameExtension: "jsonl")!, UTType(filenameExtension: "obj")!, UTType(filenameExtension: "off")!, UTType(filenameExtension: "poly")!]
+    openPanel.allowedContentTypes = [
+      UTType(filenameExtension: "gml"),
+      UTType(filenameExtension: "xml"),
+      UTType(filenameExtension: "json"),
+      UTType(filenameExtension: "jsonl"),
+      UTType(filenameExtension: "obj"),
+      UTType(filenameExtension: "off"),
+      UTType(filenameExtension: "poly"),
+      UTType(filenameExtension: "city.json")
+    ].compactMap { $0 }
     
     openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
       if result == .OK {

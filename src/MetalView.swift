@@ -1300,10 +1300,10 @@ import MetalKit
   }
   
   override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-    let acceptedFileTypes: Set = ["gml", "xml", "json", "jsonl", "obj", "off", "poly"]
+    let acceptedExtensions: Set = ["gml", "xml", "json", "jsonl", "obj", "off", "poly"]
     if let urls = sender.draggingPasteboard.readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
       for url in urls {
-        if acceptedFileTypes.contains(url.pathExtension) {
+        if acceptedExtensions.contains(url.pathExtension) || url.lastPathComponent.hasSuffix(".city.json") {
           dragOverlay?.isHidden = false
           return .copy
         }

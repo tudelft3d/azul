@@ -251,9 +251,16 @@ struct DataManagerWrapper {
   // Files
   if ([outlineView parentForItem:item] == nil) {
     NSString *filePath = [NSString stringWithUTF8String:[currentItem iterator]->id.c_str()];
-    NSString *filename = [[filePath lastPathComponent] stringByDeletingPathExtension];
-    NSString *fileExtension = [[filePath lastPathComponent] pathExtension];
-    NSImage *fileIcon = [[NSWorkspace sharedWorkspace] iconForContentType:[UTType typeWithFilenameExtension:fileExtension]];
+    NSString *lastComponent = [filePath lastPathComponent];
+    NSString *filename = [lastComponent stringByDeletingPathExtension];
+    UTType *fileType;
+    if ([lastComponent hasSuffix:@".city.json"]) {
+      fileType = [UTType typeWithFilenameExtension:@"city.json"];
+    } else {
+      NSString *fileExtension = [lastComponent pathExtension];
+      fileType = [UTType typeWithFilenameExtension:fileExtension];
+    }
+    NSImage *fileIcon = [[NSWorkspace sharedWorkspace] iconForContentType:fileType];
     [[result imageView] setImage:fileIcon];
     [[result textField] setStringValue:filename];
   }
