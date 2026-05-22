@@ -131,6 +131,10 @@ public:
 
   // Centroid for centering view on an object (iOS)
   double centroid[3];
+
+  // Shared projection center across geographic files
+  bool projectionCenterSet;
+  double projectionCenter[2];
   
   // Life cycle
   DataManager();

@@ -192,8 +192,16 @@ void DataManager::transformGeographicCoordinates() {
 
   if (!isGeographic) return;
 
-  double centerLon = (fileMin[0] + fileMax[0]) / 2.0;
-  double centerLat = (fileMin[1] + fileMax[1]) / 2.0;
+  // Use a single projection center across all loaded geographic files
+  // so they maintain their relative spatial offsets.
+  if (!projectionCenterSet) {
+    projectionCenter[0] = (fileMin[0] + fileMax[0]) / 2.0;
+    projectionCenter[1] = (fileMin[1] + fileMax[1]) / 2.0;
+    projectionCenterSet = true;
+  }
+
+  double centerLon = projectionCenter[0];
+  double centerLat = projectionCenter[1];
   double cosCenterLat = std::cos(centerLat * M_PI / 180.0);
   double R = 6378137.0; // WGS84 semi-major axis
 
@@ -690,6 +698,8 @@ void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &o
 DataManager::DataManager() {
   useAppearances = false;
   appearanceTheme.clear();
+  projectionCenterSet = false;
+  projectionCenter[0] = projectionCenter[1] = 0.0;
   for (int coordinate = 0; coordinate < 3; ++coordinate) {
     minCoordinates[coordinate] = std::numeric_limits<double>::max();
     maxCoordinates[coordinate] = std::numeric_limits<double>::lowest();
@@ -887,6 +897,8 @@ void DataManager::clear() {
   lastEdgeBufferBySelection.clear();
   useAppearances = false;
   appearanceTheme.clear();
+  projectionCenterSet = false;
+  projectionCenter[0] = projectionCenter[1] = 0.0;
   
   for (int coordinate = 0; coordinate < 3; ++coordinate) {
     minCoordinates[coordinate] = std::numeric_limits<double>::max();
