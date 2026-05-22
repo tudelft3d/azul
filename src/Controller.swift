@@ -17,6 +17,7 @@
 import Cocoa
 import Metal
 import MetalKit
+import ObjectiveC
 
 struct ViewParameters: Codable {
   var eye: [Float]
@@ -570,11 +571,7 @@ extension NSToolbarItem.Identifier {
   @IBAction func openFile(_ sender: NSMenuItem) {
     Swift.print("Controller.openFile(NSMenuItem)")
     
-    let openPanel = NSOpenPanel()
-    openPanel.allowsMultipleSelection = true
-    openPanel.canChooseDirectories = false
-    openPanel.canChooseFiles = true
-    openPanel.allowedContentTypes = [
+    let allTypes = [
       UTType(filenameExtension: "gml"),
       UTType(filenameExtension: "xml"),
       UTType(filenameExtension: "json"),
@@ -584,12 +581,55 @@ extension NSToolbarItem.Identifier {
       UTType(filenameExtension: "poly"),
       UTType(filenameExtension: "city.json")
     ].compactMap { $0 }
+    let cityJSONOnly = [UTType(filenameExtension: "city.json")].compactMap { $0 }
+    
+    let openPanel = NSOpenPanel()
+    openPanel.allowsMultipleSelection = true
+    openPanel.canChooseDirectories = false
+    openPanel.canChooseFiles = true
+    openPanel.allowedContentTypes = allTypes
+    
+    let formatLabel = NSTextField(labelWithString: "Format:")
+    let formatPopup = NSPopUpButton()
+    formatPopup.addItems(withTitles: ["All Supported", "CityJSON Only"])
+    formatPopup.target = self
+    formatPopup.action = #selector(formatFilterChanged(_:))
+    formatPopup.identifier = NSUserInterfaceItemIdentifier("openPanelFormatFilter")
+    
+    let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 24))
+    formatLabel.frame = NSRect(x: 0, y: 2, width: 50, height: 20)
+    formatPopup.frame = NSRect(x: 54, y: 0, width: 186, height: 24)
+    accessoryView.addSubview(formatLabel)
+    accessoryView.addSubview(formatPopup)
+    openPanel.accessoryView = accessoryView
+    
+    // Store which types to use per filter choice
+    objc_setAssociatedObject(openPanel, &OpenPanelTypesKey.all, allTypes, .OBJC_ASSOCIATION_RETAIN)
+    objc_setAssociatedObject(openPanel, &OpenPanelTypesKey.cityJSON, cityJSONOnly, .OBJC_ASSOCIATION_RETAIN)
     
     openPanel.beginSheetModal(for: window) { (result: NSApplication.ModalResponse) in
       if result == .OK {
         self.loadData(from: openPanel.urls)
       }
     }
+  }
+  
+  @objc private func formatFilterChanged(_ sender: NSPopUpButton) {
+    guard let openPanel = sender.window as? NSOpenPanel else { return }
+    if sender.indexOfSelectedItem == 0 {
+      if let types = objc_getAssociatedObject(openPanel, &OpenPanelTypesKey.all) as? [UTType] {
+        openPanel.allowedContentTypes = types
+      }
+    } else {
+      if let types = objc_getAssociatedObject(openPanel, &OpenPanelTypesKey.cityJSON) as? [UTType] {
+        openPanel.allowedContentTypes = types
+      }
+    }
+  }
+  
+  private struct OpenPanelTypesKey {
+    static var all: UInt8 = 0
+    static var cityJSON: UInt8 = 0
   }
   
   func application(_ sender: NSApplication, openFile filename: String) -> Bool {
