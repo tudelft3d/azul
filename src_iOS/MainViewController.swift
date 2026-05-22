@@ -755,6 +755,8 @@ class MainViewController: UIViewController, MTKViewDelegate {
                 action.setValue(UIImage(systemName: "paintbrush.fill"), forKey: "image")
             } else if theme == "Textures" {
                 action.setValue(UIImage(systemName: "photo.fill"), forKey: "image")
+            } else {
+                action.setValue(UIImage(systemName: "paintpalette"), forKey: "image")
             }
             action.accessibilityTraits = showTextures && currentAppearanceTheme == theme ? [.selected] : []
             alert.addAction(action)
@@ -993,7 +995,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
         objectsButton = makeFloatingButton(systemName: "cube", config: buttonConfig, action: #selector(showObjects))
         lodButton = makeFloatingButton(systemName: "plus.minus.capsule", config: buttonConfig, action: #selector(showLodPicker))
         let multicolorConfig = buttonConfig.applying(UIImage.SymbolConfiguration.preferringMulticolor())
-        appearanceButton = makeFloatingButton(systemName: "paintpalette.fill", config: multicolorConfig, action: #selector(showAppearancePicker))
+        appearanceButton = makeFloatingButton(systemName: "paintpalette.fill", config: multicolorConfig, action: #selector(showAppearancePicker), tintColor: nil)
         homeButton = makeFloatingButton(systemName: "viewfinder.circle", config: buttonConfig, action: #selector(goHome))
         
         let bottomStack = UIStackView(arrangedSubviews: [openButton, objectsButton, lodButton, appearanceButton, homeButton])
@@ -1009,13 +1011,17 @@ class MainViewController: UIViewController, MTKViewDelegate {
         ])
     }
 
-    func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector) -> UIButton {
+    func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector, tintColor: UIColor? = .white) -> UIButton {
         let isPad = UIDevice.current.userInterfaceIdiom == .pad
         let size: CGFloat = isPad ? 40 : 32
         let image = UIImage(systemName: systemName, withConfiguration: config)
         let button = UIButton(type: .system)
-        button.setImage(image, for: .normal)
-        button.tintColor = .white
+        if let tintColor {
+            button.setImage(image, for: .normal)
+            button.tintColor = tintColor
+        } else {
+            button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
         button.backgroundColor = UIColor(white: 0, alpha: 0.4)
         button.layer.cornerRadius = size / 2
         button.layer.cornerCurve = .continuous

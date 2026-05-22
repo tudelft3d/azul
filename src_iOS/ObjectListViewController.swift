@@ -225,12 +225,5 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 private func sfSymbolForFileExtension(_ ext: String) -> String {
-    switch ext.lowercased() {
-    case "json", "jsonl": return "curlybraces"
-    case "xml", "gml": return "doc.richtext"
-    case "obj": return "cube"
-    case "off", "poly": return "shapes"
-    case "azulview": return "gearshape.2"
-    default: return "doc"
-    }
+    "doc"
 }

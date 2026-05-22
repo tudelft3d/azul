@@ -437,12 +437,15 @@ extension NSToolbarItem.Identifier {
     popUpButton.removeAllItems()
     popUpButton.addItem(withTitle: "By Type")
     popUpButton.lastItem?.image = NSImage(systemSymbolName: "paintpalette.fill", accessibilityDescription: "By Type")?.withSymbolConfiguration(NSImage.SymbolConfiguration.preferringMulticolor())
-    for theme in sortedThemes { popUpButton.addItem(withTitle: theme) }
-    if let materialsItem = popUpButton.item(withTitle: "Materials") {
-      materialsItem.image = NSImage(systemSymbolName: "paintbrush.fill", accessibilityDescription: "Materials")
-    }
-    if let texturesItem = popUpButton.item(withTitle: "Textures") {
-      texturesItem.image = NSImage(systemSymbolName: "photo.fill", accessibilityDescription: "Textures")
+    for theme in sortedThemes {
+      popUpButton.addItem(withTitle: theme)
+      if theme == "Materials" {
+        popUpButton.lastItem?.image = NSImage(systemSymbolName: "paintbrush.fill", accessibilityDescription: "Materials")
+      } else if theme == "Textures" {
+        popUpButton.lastItem?.image = NSImage(systemSymbolName: "photo.fill", accessibilityDescription: "Textures")
+      } else {
+        popUpButton.lastItem?.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: theme)
+      }
     }
 
     appearanceThemeToolbarItem?.isEnabled = true
