@@ -24,7 +24,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>None</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.json</string>
