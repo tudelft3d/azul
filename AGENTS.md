@@ -12,7 +12,7 @@ macOS + iOS 3D city model viewer (AppKit/Metal + UIKit/Metal). Open-source (GPLv
 
 Open `azul.xcodeproj` in Xcode, select the **azul** scheme, build and run. There is no command-line build. No CI, no tests, no linter, no formatter.
 
-Minimum macOS 13.0, minimum iOS 14.0; Xcode targets macOS 26 (Tahoe) but works on older Xcode.
+Minimum macOS 13.0, minimum iOS 15.0; Xcode targets macOS 26 (Tahoe) but works on older Xcode.
 
 ### iOS
 

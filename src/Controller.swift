@@ -436,13 +436,13 @@ extension NSToolbarItem.Identifier {
 
     popUpButton.removeAllItems()
     popUpButton.addItem(withTitle: "By Type")
-    popUpButton.lastItem?.image = NSImage(systemSymbolName: "tag.fill", accessibilityDescription: "By Type")
+    popUpButton.lastItem?.image = NSImage(systemSymbolName: "paintpalette.fill", accessibilityDescription: "By Type")?.withSymbolConfiguration(NSImage.SymbolConfiguration.preferringMulticolor())
     for theme in sortedThemes { popUpButton.addItem(withTitle: theme) }
     if let materialsItem = popUpButton.item(withTitle: "Materials") {
-      materialsItem.image = NSImage(systemSymbolName: "cube.fill", accessibilityDescription: "Materials")
+      materialsItem.image = NSImage(systemSymbolName: "paintbrush.fill", accessibilityDescription: "Materials")
     }
     if let texturesItem = popUpButton.item(withTitle: "Textures") {
-      texturesItem.image = NSImage(systemSymbolName: "grid", accessibilityDescription: "Textures")
+      texturesItem.image = NSImage(systemSymbolName: "photo.fill", accessibilityDescription: "Textures")
     }
 
     appearanceThemeToolbarItem?.isEnabled = true
@@ -511,7 +511,6 @@ extension NSToolbarItem.Identifier {
       popUpButton.toolTip = "Type-based colours when \"By Type\" is selected; otherwise uses material/texture themes from the file"
       item.view = popUpButton
       item.label = "Colour Mode"
-      item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: "Appearances")
       appearanceThemePopUpButton = popUpButton
       appearanceThemeToolbarItem = item
       updateAppearanceThemeOptions()
@@ -526,7 +525,6 @@ extension NSToolbarItem.Identifier {
       seg.target = self
       seg.action = #selector(lodSegmentChanged)
       lodItem.view = seg
-      lodItem.image = NSImage(systemSymbolName: "square.3.layers.3d", accessibilityDescription: "Level of Detail")
       lodItem.label = "LoD"
       lodSegmentedControl = seg
       lodToolbarItem = lodItem

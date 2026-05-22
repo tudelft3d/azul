@@ -734,12 +734,13 @@ class MainViewController: UIViewController, MTKViewDelegate {
 
         let alert = UIAlertController(title: "Appearance", message: nil, preferredStyle: .actionSheet)
 
-        let semanticsAction = UIAlertAction(title: "Semantics", style: .default) { [weak self] _ in
+        let semanticsAction = UIAlertAction(title: "By Type", style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.showTextures = false
             self.currentAppearanceTheme = ""
             self.refreshAppearanceRendering()
         }
+        semanticsAction.setValue(UIImage(systemName: "paintpalette.fill", withConfiguration: UIImage.SymbolConfiguration.preferringMulticolor()), forKey: "image")
         semanticsAction.accessibilityTraits = !showTextures && currentAppearanceTheme.isEmpty ? [.selected] : []
         alert.addAction(semanticsAction)
 
@@ -749,6 +750,11 @@ class MainViewController: UIViewController, MTKViewDelegate {
                 self.showTextures = true
                 self.currentAppearanceTheme = theme
                 self.refreshAppearanceRendering()
+            }
+            if theme == "Materials" {
+                action.setValue(UIImage(systemName: "paintbrush.fill"), forKey: "image")
+            } else if theme == "Textures" {
+                action.setValue(UIImage(systemName: "photo.fill"), forKey: "image")
             }
             action.accessibilityTraits = showTextures && currentAppearanceTheme == theme ? [.selected] : []
             alert.addAction(action)
@@ -986,7 +992,8 @@ class MainViewController: UIViewController, MTKViewDelegate {
         openButton = makeFloatingButton(systemName: "doc", config: buttonConfig, action: #selector(openFile))
         objectsButton = makeFloatingButton(systemName: "cube", config: buttonConfig, action: #selector(showObjects))
         lodButton = makeFloatingButton(systemName: "plus.minus.capsule", config: buttonConfig, action: #selector(showLodPicker))
-        appearanceButton = makeFloatingButton(systemName: "paintbrush", config: buttonConfig, action: #selector(showAppearancePicker))
+        let multicolorConfig = buttonConfig.applying(UIImage.SymbolConfiguration.preferringMulticolor())
+        appearanceButton = makeFloatingButton(systemName: "paintpalette.fill", config: multicolorConfig, action: #selector(showAppearancePicker))
         homeButton = makeFloatingButton(systemName: "viewfinder.circle", config: buttonConfig, action: #selector(goHome))
         
         let bottomStack = UIStackView(arrangedSubviews: [openButton, objectsButton, lodButton, appearanceButton, homeButton])
