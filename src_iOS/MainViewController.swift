@@ -1096,7 +1096,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
 
     // MARK: Actions
     @objc func openFile() {
-        let types: [UTType] = [UTType(filenameExtension: "city.json"), .json, .xml, UTType(filenameExtension: "obj")!, UTType(filenameExtension: "off")!, UTType(filenameExtension: "poly")!, UTType(filenameExtension: "gml")!, UTType(filenameExtension: "azulview")!].compactMap { $0 }
+        let types: [UTType] = [UTType(filenameExtension: "city.json"), .json, .xml, UTType(filenameExtension: "obj")!, UTType(filenameExtension: "off")!, UTType(filenameExtension: "poly")!, UTType(filenameExtension: "gml")!, UTType(filenameExtension: "jsonl")!, UTType(filenameExtension: "azulview")!].compactMap { $0 }
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: false)
         picker.delegate = self
         picker.allowsMultipleSelection = true

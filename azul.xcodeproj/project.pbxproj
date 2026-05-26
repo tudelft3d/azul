@@ -533,6 +533,7 @@
 					"$(SRCROOT)/src/DataManager",
 					"$(SRCROOT)/include",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/src_iOS/iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = azul;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -585,6 +586,7 @@
 					"$(SRCROOT)/src/DataManager",
 					"$(SRCROOT)/include",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/src_iOS/iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = azul;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -639,6 +641,7 @@
 					"$(SRCROOT)/src/DataManager",
 					"$(SRCROOT)/include",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/src_iOS/iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = azul;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -691,6 +694,7 @@
 					"$(SRCROOT)/src/DataManager",
 					"$(SRCROOT)/include",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/src_iOS/iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = azul;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
