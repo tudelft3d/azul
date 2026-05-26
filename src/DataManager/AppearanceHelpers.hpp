@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <system_error>
 #include <sstream>
 #include <string>
 
@@ -45,7 +46,10 @@ inline std::string resolveImageUri(std::string imageUri, const std::string &curr
   if (imageUri.size() > 1 && imageUri[1] == ':') return imageUri;
   std::filesystem::path sourcePath(currentFilePath);
   std::filesystem::path resolved = (sourcePath.parent_path() / std::filesystem::path(imageUri)).lexically_normal();
-  if (std::filesystem::exists(resolved)) return resolved.string();
+  {
+    std::error_code ec;
+    if (std::filesystem::exists(resolved, ec)) return resolved.string();
+  }
 
   // Accept both common folder names used in datasets: "appearance" and "appearances".
   std::string altImageUri = imageUri;
@@ -61,7 +65,10 @@ inline std::string resolveImageUri(std::string imageUri, const std::string &curr
     }
   }
   resolved = (sourcePath.parent_path() / std::filesystem::path(altImageUri)).lexically_normal();
-  if (std::filesystem::exists(resolved)) return resolved.string();
+  {
+    std::error_code ec;
+    if (std::filesystem::exists(resolved, ec)) return resolved.string();
+  }
   return resolved.string();
 }
 
