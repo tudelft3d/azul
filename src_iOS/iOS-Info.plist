@@ -22,7 +22,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
-			<string>None</string>
+			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.json</string>
@@ -129,6 +129,7 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>city.json</string>
+					<string>cityjson</string>
 				</array>
 			</dict>
 		</dict>

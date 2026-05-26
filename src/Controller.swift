@@ -579,9 +579,10 @@ extension NSToolbarItem.Identifier {
       UTType(filenameExtension: "obj"),
       UTType(filenameExtension: "off"),
       UTType(filenameExtension: "poly"),
-      UTType(filenameExtension: "city.json")
+      UTType(filenameExtension: "city.json"),
+      UTType(filenameExtension: "cityjson")
     ].compactMap { $0 }
-    let cityJSONOnly = [UTType(filenameExtension: "city.json")].compactMap { $0 }
+    let cityJSONOnly = [UTType(filenameExtension: "city.json"), UTType(filenameExtension: "cityjson")].compactMap { $0 }
     
     let openPanel = NSOpenPanel()
     openPanel.allowsMultipleSelection = true
