@@ -17,6 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             objectsVC.isSidebar = true
 
             let sidebarNav = UINavigationController(rootViewController: objectsVC)
+            sidebarNav.interactivePopGestureRecognizer?.isEnabled = false
             let detailNav = UINavigationController(rootViewController: mainVC)
             detailNav.isNavigationBarHidden = true
 
@@ -25,8 +26,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             splitVC.minimumPrimaryColumnWidth = 260
             splitVC.maximumPrimaryColumnWidth = 400
             splitVC.presentsWithGesture = true
+            splitVC.preferredDisplayMode = .oneBesideSecondary
             splitVC.setViewController(sidebarNav, for: .primary)
             splitVC.setViewController(detailNav, for: .secondary)
+            splitVC.hide(.primary)
 
             window.rootViewController = splitVC
         } else {

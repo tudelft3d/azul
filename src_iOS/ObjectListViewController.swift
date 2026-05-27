@@ -52,9 +52,6 @@ class ObjectListViewController: UIViewController {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
         }
 
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        tableView.addGestureRecognizer(longPress)
-
         rebuildFlatItems()
     }
 
@@ -63,11 +60,21 @@ class ObjectListViewController: UIViewController {
         rebuildFlatItems()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(rebuildFlatItems), name: Notification.Name("AzulFileLoaded"), object: nil)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("AzulFileLoaded"), object: nil)
+    }
+
     @objc func dismissSelf() {
         dismiss(animated: true)
     }
 
-    func rebuildFlatItems() {
+    @objc func rebuildFlatItems() {
         allFlatItems.removeAll()
         let fileCount = dataManager.numberOfParsedFiles()
         for i in 0..<fileCount {
@@ -90,21 +97,6 @@ class ObjectListViewController: UIViewController {
                 appendFlattened(child)
             }
         }
-    }
-
-    @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        guard gesture.state == .began else { return }
-        let point = gesture.location(in: tableView)
-        guard let indexPath = tableView.indexPathForRow(at: point),
-              indexPath.row < filteredFlatItems.count else { return }
-        let item = filteredFlatItems[indexPath.row]
-
-        if dataManager.isItemExpandable(item) {
-            selectedItem = item
-            tableView.reloadData()
-            delegate?.objectListDidSelectItem(item)
-        }
-        delegate?.objectListDidRequestCenter(item)
     }
 
     func toggleExpandItem(_ item: AzulObjectIterator) {
@@ -228,6 +220,43 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
             selectedItem = item
             tableView.reloadData()
             delegate?.objectListDidSelectItem(item)
+        }
+    }
+
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let item = filteredFlatItems[indexPath.row]
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self = self else { return UIMenu() }
+            var actions = [UIAction]()
+
+            if self.dataManager.isItemExpandable(item) {
+                let title = self.expandedItems.contains(item) ? "Collapse" : "Expand"
+                actions.append(UIAction(title: title, image: UIImage(systemName: "chevron.down")) { _ in
+                    self.toggleExpandItem(item)
+                })
+            } else {
+                let visible = self.dataManager.visibleState(ofItem: item)
+                let isVisible = visible != 78 // 'N'
+                let visTitle = isVisible ? "Hide" : "Show"
+                let visImage = isVisible ? "eye.slash" : "eye"
+                actions.append(UIAction(title: visTitle, image: UIImage(systemName: visImage)) { _ in
+                    let newState: Int8 = isVisible ? 78 : 89 // 'N' : 'Y'
+                    self.dataManager.setVisibleState(newState, forItem: item)
+                    self.rebuildFlatItems()
+                })
+
+                actions.append(UIAction(title: "Attributes", image: UIImage(systemName: "info.circle")) { _ in
+                    self.selectedItem = item
+                    self.tableView.reloadData()
+                    self.delegate?.objectListDidSelectItem(item)
+                })
+            }
+
+            actions.append(UIAction(title: "Centre on Object", image: UIImage(systemName: "location")) { _ in
+                self.delegate?.objectListDidRequestCenter(item)
+            })
+
+            return UIMenu(title: "", children: actions)
         }
     }
 }

@@ -76,6 +76,9 @@ class MainViewController: UIViewController, MTKViewDelegate {
     var appearanceButton: UIView!
     var homeButton: UIView!
 
+    // MARK: Empty state
+    var emptyStateView: UIView!
+
     // MARK: Status bar
     var statusBarView: UIView!
     var progressBar: UIProgressView!
@@ -100,6 +103,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
         library = device.makeDefaultLibrary()
 
         setupMetal()
+        setupEmptyState()
         setupFloatingButtons()
         setupStatusBar()
         setupGestures()
@@ -127,6 +131,101 @@ class MainViewController: UIViewController, MTKViewDelegate {
             label.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 40),
             label.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -40),
         ])
+    }
+
+    func setupEmptyState() {
+        emptyStateView = UIView()
+        emptyStateView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(emptyStateView)
+
+        NSLayoutConstraint.activate([
+            emptyStateView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            emptyStateView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            emptyStateView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            emptyStateView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
+
+        let icon = UIImageView(image: UIImage(systemName: "building.2.fill"))
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.contentMode = .scaleAspectFit
+        icon.tintColor = .tertiaryLabel
+        emptyStateView.addSubview(icon)
+
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = "azul"
+        titleLabel.font = .systemFont(ofSize: 34, weight: .bold)
+        titleLabel.textColor = .label
+        titleLabel.textAlignment = .center
+        emptyStateView.addSubview(titleLabel)
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subtitleLabel.text = "3D city model viewer"
+        subtitleLabel.font = .systemFont(ofSize: 17)
+        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.textAlignment = .center
+        emptyStateView.addSubview(subtitleLabel)
+
+        let descriptionLabel = UILabel()
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.text = "Open a CityJSON, CityGML, OBJ, OFF or POLY file to view your model."
+        descriptionLabel.font = .systemFont(ofSize: 15)
+        descriptionLabel.textColor = .secondaryLabel
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.numberOfLines = 0
+        emptyStateView.addSubview(descriptionLabel)
+
+        let openButton: UIButton = {
+            var config = UIButton.Configuration.filled()
+            config.title = "  Open File"
+            config.image = UIImage(systemName: "doc")
+            config.baseForegroundColor = .white
+            config.baseBackgroundColor = UIColor(white: 0, alpha: 0.4)
+            config.background.cornerRadius = 12
+            config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+            let button = UIButton(configuration: config)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.addTarget(self, action: #selector(openFile), for: .touchUpInside)
+            return button
+        }()
+        emptyStateView.addSubview(openButton)
+
+        let hintLabel = UILabel()
+        hintLabel.translatesAutoresizingMaskIntoConstraints = false
+        hintLabel.text = "— or tap the 📄 button to open —"
+        hintLabel.font = .systemFont(ofSize: 13)
+        hintLabel.textColor = .tertiaryLabel
+        hintLabel.textAlignment = .center
+        emptyStateView.addSubview(hintLabel)
+
+        let stack = UIStackView(arrangedSubviews: [icon, titleLabel, subtitleLabel, descriptionLabel, openButton, hintLabel])
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 12
+        emptyStateView.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            icon.widthAnchor.constraint(equalToConstant: 60),
+            icon.heightAnchor.constraint(equalToConstant: 60),
+
+            stack.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: emptyStateView.centerYAnchor, constant: -30),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: emptyStateView.leadingAnchor, constant: 40),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: emptyStateView.trailingAnchor, constant: -40),
+
+            openButton.heightAnchor.constraint(equalToConstant: 44),
+        ])
+    }
+
+    func hideEmptyState() {
+        guard emptyStateView != nil, !emptyStateView.isHidden else { return }
+        UIView.animate(withDuration: 0.3) {
+            self.emptyStateView.alpha = 0
+        } completion: { _ in
+            self.emptyStateView.isHidden = true
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -863,6 +962,8 @@ class MainViewController: UIViewController, MTKViewDelegate {
 
                 self.statusLabel.text = self.dataManager.statusMessage() ?? "Done"
                 self.hideStatusBar()
+                self.hideEmptyState()
+                NotificationCenter.default.post(name: Notification.Name("AzulFileLoaded"), object: nil)
             }
         }
     }
