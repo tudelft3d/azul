@@ -975,10 +975,18 @@ class MainViewController: UIViewController, MTKViewDelegate {
                 attrsVC.selectedItem = hitItem
                 attrsVC.tableView.reloadData()
                 let nav = UINavigationController(rootViewController: attrsVC)
-                nav.modalPresentationStyle = .popover
-                if let popover = nav.popoverPresentationController {
-                    popover.sourceView = objectsButton ?? openButton ?? view
-                    popover.permittedArrowDirections = .down
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    nav.modalPresentationStyle = .popover
+                    if let popover = nav.popoverPresentationController {
+                        popover.sourceView = objectsButton ?? openButton ?? view
+                        popover.permittedArrowDirections = .down
+                    }
+                } else {
+                    nav.modalPresentationStyle = .pageSheet
+                    if let sheet = nav.sheetPresentationController {
+                        sheet.detents = [.medium(), .large()]
+                        sheet.prefersGrabberVisible = true
+                    }
                 }
                 present(nav, animated: true)
             }
@@ -1142,6 +1150,10 @@ class MainViewController: UIViewController, MTKViewDelegate {
             objectsVC.title = "Objects"
             let nav = UINavigationController(rootViewController: objectsVC)
             nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+            }
             present(nav, animated: true)
         }
     }
@@ -1173,10 +1185,18 @@ class MainViewController: UIViewController, MTKViewDelegate {
         picker.title = "Level of Detail"
 
         let nav = UINavigationController(rootViewController: picker)
-        nav.modalPresentationStyle = UIDevice.current.userInterfaceIdiom == .pad ? .popover : .pageSheet
-        if let popover = nav.popoverPresentationController {
-            popover.sourceView = lodButton
-            popover.permittedArrowDirections = .down
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            nav.modalPresentationStyle = .popover
+            if let popover = nav.popoverPresentationController {
+                popover.sourceView = lodButton
+                popover.permittedArrowDirections = .down
+            }
+        } else {
+            nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+            }
         }
         present(nav, animated: true)
     }
