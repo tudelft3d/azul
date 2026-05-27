@@ -10,15 +10,27 @@ class LodPickerViewController: UIViewController {
     var availableLods: [String] = []
     var currentLod: String = ""
 
-    let tableView = UITableView(frame: .zero, style: .plain)
+    private let cellReuseId = "cell"
+
+    private var allItems: [(name: String, lod: String, icon: String)] {
+        var items = [(name: String, lod: String, icon: String)]()
+        items.append(("Highest", "__highest__", "star"))
+        for lod in availableLods {
+            items.append(("LoD \(lod)", lod, "cube"))
+        }
+        return items
+    }
+
+    let tableView = UITableView(frame: .zero, style: .insetGrouped)
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Level of Detail"
         view.backgroundColor = .systemBackground
 
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseId)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
 
@@ -43,38 +55,23 @@ class LodPickerViewController: UIViewController {
 
 extension LodPickerViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        availableLods.count + 1
+        allItems.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-
-        if indexPath.row == 0 {
-            cell.textLabel?.text = "Highest"
-            cell.accessoryType = currentLod == "__highest__" ? .checkmark : .none
-        } else {
-            let lod = availableLods[indexPath.row - 1]
-            cell.textLabel?.text = lod
-            cell.accessoryType = currentLod == lod ? .checkmark : .none
-        }
-
-        cell.textLabel?.font = .systemFont(ofSize: UIFont.systemFontSize)
-        cell.selectionStyle = .default
-
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseId, for: indexPath)
+        let item = allItems[indexPath.row]
+        cell.textLabel?.text = item.name
+        cell.imageView?.image = UIImage(systemName: item.icon)
+        cell.imageView?.tintColor = .systemGray
+        cell.accessoryType = currentLod == item.lod ? .checkmark : .none
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        let lod: String
-        if indexPath.row == 0 {
-            lod = "__highest__"
-        } else {
-            lod = availableLods[indexPath.row - 1]
-        }
-
-        delegate?.lodPickerDidSelect(lod)
+        let item = allItems[indexPath.row]
+        delegate?.lodPickerDidSelect(item.lod)
         dismiss(animated: true)
     }
 }

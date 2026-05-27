@@ -831,40 +831,28 @@ class MainViewController: UIViewController, MTKViewDelegate {
         }
         let sortedThemes = themes.sorted()
 
-        let alert = UIAlertController(title: "Appearance", message: nil, preferredStyle: .actionSheet)
+        let picker = AppearancePickerViewController()
+        picker.availableThemes = sortedThemes
+        picker.currentType = showTextures ? "theme" : "semantics"
+        picker.currentTheme = currentAppearanceTheme
+        picker.delegate = self
+        picker.title = "Appearance"
 
-        let semanticsAction = UIAlertAction(title: "By Type", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.showTextures = false
-            self.currentAppearanceTheme = ""
-            self.refreshAppearanceRendering()
-        }
-        semanticsAction.setValue(UIImage(systemName: "paintpalette.fill", withConfiguration: UIImage.SymbolConfiguration.preferringMulticolor()), forKey: "image")
-        semanticsAction.accessibilityTraits = !showTextures && currentAppearanceTheme.isEmpty ? [.selected] : []
-        alert.addAction(semanticsAction)
-
-        for theme in sortedThemes {
-            let action = UIAlertAction(title: theme, style: .default) { [weak self] _ in
-                guard let self = self else { return }
-                self.showTextures = true
-                self.currentAppearanceTheme = theme
-                self.refreshAppearanceRendering()
+        let nav = UINavigationController(rootViewController: picker)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            nav.modalPresentationStyle = .popover
+            if let popover = nav.popoverPresentationController {
+                popover.sourceView = appearanceButton
+                popover.permittedArrowDirections = .down
             }
-            if theme == "Materials" {
-                action.setValue(UIImage(systemName: "paintbrush.fill"), forKey: "image")
-            } else if theme == "Textures" {
-                action.setValue(UIImage(systemName: "photo.fill"), forKey: "image")
-            } else {
-                action.setValue(UIImage(systemName: "paintpalette"), forKey: "image")
+        } else {
+            nav.modalPresentationStyle = .pageSheet
+            if let sheet = nav.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
             }
-            action.accessibilityTraits = showTextures && currentAppearanceTheme == theme ? [.selected] : []
-            alert.addAction(action)
         }
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.popoverPresentationController?.sourceView = appearanceButton
-        alert.popoverPresentationController?.permittedArrowDirections = .down
-        present(alert, animated: true)
+        present(nav, animated: true)
     }
 
     // MARK: File loading
@@ -1479,6 +1467,20 @@ extension MainViewController: ObjectListViewControllerDelegate {
             modelTranslationToCentreOfRotationMatrix)
 
         updateConstants()
+    }
+}
+
+// MARK: AppearancePickerDelegate
+extension MainViewController: AppearancePickerDelegate {
+    func appearancePickerDidSelect(type: String, theme: String) {
+        if type == "semantics" {
+            showTextures = false
+            currentAppearanceTheme = ""
+        } else {
+            showTextures = true
+            currentAppearanceTheme = theme
+        }
+        refreshAppearanceRendering()
     }
 }
 
