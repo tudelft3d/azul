@@ -1276,7 +1276,23 @@ import MetalKit
       }
     }
   }
-  
+
+  @objc func animateSelectionPulse() {
+    constants.selectionColour.w = 1.0
+    needsDisplay = true
+
+    let steps = 6
+    let stepDuration: TimeInterval = 0.05
+    for i in 1...steps {
+      DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * stepDuration) { [weak self] in
+        guard let self = self else { return }
+        let progress = Float(i) / Float(steps)
+        self.constants.selectionColour.w = 1.0 - (1.0 - 0.7) * progress
+        self.needsDisplay = true
+      }
+    }
+  }
+
   func new() {
     
     triangleBuffers.removeAll()

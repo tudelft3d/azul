@@ -310,6 +310,7 @@ struct DataManagerWrapper {
   dataManagerWrapper->dataManager->updateSelectionStates();
   [controller updateSelectionStateBuffer];
   [[controller metalView] setNeedsDisplay:YES];
+  [[controller metalView] animateSelectionPulse];
   
   [[controller attributesTableView] reloadData];
 }

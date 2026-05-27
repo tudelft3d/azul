@@ -233,6 +233,22 @@ class MainViewController: UIViewController, MTKViewDelegate {
         metalView?.frame = view.bounds
     }
 
+    func animateSelectionPulse() {
+        constants.selectionColour.w = 1.0
+        metalView?.setNeedsDisplay()
+
+        let steps = 6
+        let stepDuration = 0.05
+        for i in 1...steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * stepDuration) { [weak self] in
+                guard let self = self else { return }
+                let progress = Float(i) / Float(steps)
+                self.constants.selectionColour.w = 1.0 - (1.0 - 0.7) * progress
+                self.metalView?.setNeedsDisplay()
+            }
+        }
+    }
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
@@ -1061,6 +1077,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
             updateVisibleStateBuffer()
 
             if let hitItem = dataManager.bestHitObjectIterator() as? AzulObjectIterator {
+                animateSelectionPulse()
                 let attrsVC = AttributeTableViewController()
                 attrsVC.dataManager = dataManager
                 let ident = dataManager.identifier(ofItem: hitItem) ?? ""
@@ -1398,6 +1415,7 @@ extension MainViewController: LodPickerDelegate {
 extension MainViewController: ObjectListViewControllerDelegate {
     func objectListDidSelectItem(_ item: AzulObjectIterator) {
         dataManager.selectItem(item)
+        animateSelectionPulse()
         updateSelectionStateBuffer()
         dataManager.updateVisibleStates()
         updateVisibleStateBuffer()
@@ -1420,6 +1438,7 @@ extension MainViewController: ObjectListViewControllerDelegate {
 
     func objectListDidRequestCenter(_ item: AzulObjectIterator) {
         dataManager.selectItem(item)
+        animateSelectionPulse()
         updateSelectionStateBuffer()
         dataManager.updateVisibleStates()
         updateVisibleStateBuffer()
@@ -1518,6 +1537,7 @@ extension MainViewController: UIContextMenuInteractionDelegate {
 
         dataManager.setBestHitFromObjectId(objectId)
         dataManager.selectBestHitObject()
+        animateSelectionPulse()
         updateSelectionStateBuffer()
         dataManager.updateVisibleStates()
         updateVisibleStateBuffer()
