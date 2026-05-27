@@ -75,6 +75,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
     var lodButton: UIView!
     var appearanceButton: UIView!
     var homeButton: UIView!
+    private var openButtonControl: UIButton!
 
     // MARK: Empty state
     var emptyStateView: UIView!
@@ -145,10 +146,9 @@ class MainViewController: UIViewController, MTKViewDelegate {
             emptyStateView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
 
-        let icon = UIImageView(image: UIImage(systemName: "building.2.fill"))
+        let icon = UIImageView(image: UIImage(named: "AzulIcon"))
         icon.translatesAutoresizingMaskIntoConstraints = false
         icon.contentMode = .scaleAspectFit
-        icon.tintColor = .tertiaryLabel
         emptyStateView.addSubview(icon)
 
         let titleLabel = UILabel()
@@ -873,6 +873,8 @@ class MainViewController: UIViewController, MTKViewDelegate {
         url.startAccessingSecurityScopedResource()
         openedFileURL = url
         let path = url.path
+        addRecentFile(path)
+        updateOpenButtonMenu()
         let totalWeight: Float = 75.165239
         var progress: Float = 0
         DispatchQueue.main.async {
@@ -1103,6 +1105,10 @@ class MainViewController: UIViewController, MTKViewDelegate {
     func setupFloatingButtons() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         openButton = makeFloatingButton(systemName: "doc", config: buttonConfig, action: #selector(openFile))
+        if let btn = openButton.subviews.compactMap({ $0 as? UIButton }).first {
+            openButtonControl = btn
+            updateOpenButtonMenu()
+        }
         let objectIcon = UIDevice.current.userInterfaceIdiom == .pad ? "sidebar.leading" : "cube"
         objectsButton = makeFloatingButton(systemName: objectIcon, config: buttonConfig, action: #selector(showObjects))
         lodButton = makeFloatingButton(systemName: "plus.minus.capsule", config: buttonConfig, action: #selector(showLodPicker))
@@ -1123,7 +1129,45 @@ class MainViewController: UIViewController, MTKViewDelegate {
         ])
     }
 
-    func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector, tintColor: UIColor? = .label) -> UIView {
+    // MARK: Recent files
+    private func recentFiles() -> [String] {
+        UserDefaults.standard.stringArray(forKey: "azulRecentFiles") ?? []
+    }
+
+    private func addRecentFile(_ path: String) {
+        var files = recentFiles()
+        files.removeAll { $0 == path }
+        files.insert(path, at: 0)
+        if files.count > 5 { files = Array(files.prefix(5)) }
+        UserDefaults.standard.set(files, forKey: "azulRecentFiles")
+    }
+
+    private func updateOpenButtonMenu() {
+        var children = [UIMenuElement]()
+
+        children.append(UIAction(title: "New", image: UIImage(systemName: "plus")) { [weak self] _ in
+            self?.newDocument()
+        })
+
+        children.append(UIAction(title: "Open…", image: UIImage(systemName: "doc")) { [weak self] _ in
+            self?.openFile()
+        })
+
+        let recents = recentFiles()
+        if !recents.isEmpty {
+            let recentActions = recents.map { path in
+                let url = URL(fileURLWithPath: path)
+                return UIAction(title: url.lastPathComponent) { [weak self] _ in
+                    self?.loadFile(url: url)
+                }
+            }
+            children.append(UIMenu(title: "Open Recent", image: UIImage(systemName: "clock"), children: recentActions))
+        }
+
+        openButtonControl.menu = UIMenu(title: "", children: children)
+    }
+
+    func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector, tintColor: UIColor? = .label, menu: UIMenu? = nil) -> UIView {
         let isPad = UIDevice.current.userInterfaceIdiom == .pad
         let size: CGFloat = isPad ? 40 : 32
         let image = UIImage(systemName: systemName, withConfiguration: config)
@@ -1137,6 +1181,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
         }
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .clear
+        button.menu = menu
         button.addTarget(self, action: action, for: .touchUpInside)
 
         let container = UIView()
@@ -1270,6 +1315,33 @@ class MainViewController: UIViewController, MTKViewDelegate {
         viewMatrix = matrix4x4_look_at(eye: eye, centre: centre, up: SIMD3<Float>(0.0, 1.0, 0.0))
         projectionMatrix = matrix4x4_perspective_shorter_dim(fieldOfView: fieldOfView, width: Float(metalView.drawableSize.width), height: Float(metalView.drawableSize.height), nearZ: 0.001, farZ: 100.0)
         updateConstants()
+    }
+
+    func newDocument() {
+        dataManager.clear()
+        loadedTextures.removeAll()
+        failedTexturePaths.removeAll()
+        grantedTextureDirectoryURL = nil
+        openedFileURL?.stopAccessingSecurityScopedResource()
+        openedFileURL = nil
+
+        triangleBuffers.removeAll()
+        edgeBuffers.removeAll()
+        boundingBoxBuffer = nil
+        selectionStateBuffer = nil
+        selectionStateCount = 0
+        visibleStateBuffer = nil
+        visibleStateCount = 0
+
+        goHome()
+        showTextures = false
+        currentAppearanceTheme = ""
+        currentLodFilter = ""
+
+        metalView?.setNeedsDisplay()
+
+        emptyStateView?.isHidden = false
+        emptyStateView?.alpha = 1
     }
 
     // MARK: LoD filter

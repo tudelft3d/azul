@@ -118,6 +118,7 @@ extension NSToolbarItem.Identifier {
   let dataManager = DataManagerWrapperWrapper()!
   let performanceHelper = PerformanceHelperWrapperWrapper()!
   let mainSplitViewController = NSSplitViewController()
+  var emptyStateView: NSView?
   let searchFieldDelegate = SearchFieldDelegate()
   var pendingURLs = [URL]()
   var isLoading = false {
@@ -260,6 +261,8 @@ extension NSToolbarItem.Identifier {
       progressIndicator!.trailingAnchor.constraint(equalTo: statusTextField!.leadingAnchor, constant: -8),
     ])
     
+    setupEmptyStateView()
+    
     dataManager.controller = self
     
     // NSSplitViewController for the main horizontal split
@@ -319,14 +322,92 @@ extension NSToolbarItem.Identifier {
   }
   
   func setupFileMenu() {
-    guard let mainMenu = NSApp.mainMenu else { return }
-    for item in mainMenu.items {
-      guard item.title == "File", let fileMenu = item.submenu else { continue }
-      let exportItem = NSMenuItem(title: "Export Image…", action: #selector(exportImage(_:)), keyEquivalent: "e")
-      exportItem.target = self
-      fileMenu.addItem(NSMenuItem.separator())
-      fileMenu.addItem(exportItem)
-      break
+    let openRecentMenuItem = NSMenuItem(title: "Open Recent", action: nil, keyEquivalent: "")
+    openRecentMenuItem.submenu = NSMenu(title: "Open Recent")
+    NSDocumentController.shared.clearRecentDocuments(nil)
+    
+    let fileMenu = NSApp.mainMenu!.item(withTitle: "File")!.submenu!
+    var fileItems = fileMenu.items
+    fileItems.insert(openRecentMenuItem, at: fileItems.firstIndex(where: { $0.keyEquivalent == "w" })! )
+    fileMenu.items = fileItems
+  }
+
+  func setupEmptyStateView() {
+    let emptyView = NSView()
+    emptyView.translatesAutoresizingMaskIntoConstraints = false
+    emptyView.wantsLayer = true
+    metalView!.addSubview(emptyView)
+    emptyView.topAnchor.constraint(equalTo: metalView!.topAnchor).isActive = true
+    emptyView.leadingAnchor.constraint(equalTo: metalView!.leadingAnchor).isActive = true
+    emptyView.trailingAnchor.constraint(equalTo: metalView!.trailingAnchor).isActive = true
+    emptyView.bottomAnchor.constraint(equalTo: metalView!.bottomAnchor).isActive = true
+
+    let icon = NSImageView()
+    icon.translatesAutoresizingMaskIntoConstraints = false
+    icon.image = NSImage(named: "AzulIcon")
+    icon.contentTintColor = .tertiaryLabelColor
+    emptyView.addSubview(icon)
+
+    let titleLabel = NSTextField(labelWithString: "Azul")
+    titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    titleLabel.font = NSFont.systemFont(ofSize: 34, weight: .bold)
+    titleLabel.textColor = .labelColor
+    titleLabel.alignment = .center
+    emptyView.addSubview(titleLabel)
+
+    let subtitleLabel = NSTextField(labelWithString: "3D City Viewer")
+    subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+    subtitleLabel.font = NSFont.systemFont(ofSize: 17)
+    subtitleLabel.textColor = .secondaryLabelColor
+    subtitleLabel.alignment = .center
+    emptyView.addSubview(subtitleLabel)
+
+    let descriptionLabel = NSTextField(wrappingLabelWithString: "Open a CityJSON, CityGML, OBJ, OFF or POLY file to view your model.")
+    descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+    descriptionLabel.font = NSFont.systemFont(ofSize: 15)
+    descriptionLabel.textColor = .secondaryLabelColor
+    descriptionLabel.alignment = .center
+    emptyView.addSubview(descriptionLabel)
+
+    let openButton = NSButton(title: "  Open File", image: NSImage(systemSymbolName: "doc", accessibilityDescription: nil)!, target: self, action: #selector(openFile(_:)))
+    openButton.translatesAutoresizingMaskIntoConstraints = false
+    openButton.bezelStyle = .rounded
+    openButton.controlSize = .large
+    openButton.hasDestructiveAction = false
+    emptyView.addSubview(openButton)
+
+    let hintLabel = NSTextField(labelWithString: "— or use File → Open or ⌘O —")
+    hintLabel.translatesAutoresizingMaskIntoConstraints = false
+    hintLabel.font = NSFont.systemFont(ofSize: 13)
+    hintLabel.textColor = .tertiaryLabelColor
+    hintLabel.alignment = .center
+    emptyView.addSubview(hintLabel)
+
+    let stack = NSStackView(views: [icon, titleLabel, subtitleLabel, descriptionLabel, openButton, hintLabel])
+    stack.translatesAutoresizingMaskIntoConstraints = false
+    stack.orientation = .vertical
+    stack.alignment = .centerX
+    stack.spacing = 12
+    emptyView.addSubview(stack)
+
+    NSLayoutConstraint.activate([
+      icon.widthAnchor.constraint(equalToConstant: 86),
+      icon.heightAnchor.constraint(equalToConstant: 86),
+      stack.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+      stack.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor, constant: -30),
+      stack.leadingAnchor.constraint(greaterThanOrEqualTo: emptyView.leadingAnchor, constant: 40),
+      stack.trailingAnchor.constraint(lessThanOrEqualTo: emptyView.trailingAnchor, constant: -40),
+    ])
+    emptyStateView = emptyView
+  }
+
+  func hideEmptyStateView() {
+    guard let emptyView = emptyStateView, !emptyView.isHidden else { return }
+    NSAnimationContext.runAnimationGroup { context in
+      context.duration = 0.3
+      emptyView.animator().alphaValue = 0
+    } completionHandler: {
+      emptyView.isHidden = true
     }
   }
 
@@ -925,6 +1006,7 @@ extension NSToolbarItem.Identifier {
             }
             self.updateLodSegments()
             self.updateAppearanceThemeOptions()
+            self.hideEmptyStateView()
           }
         }
       }
