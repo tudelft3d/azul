@@ -988,6 +988,8 @@ class MainViewController: UIViewController, MTKViewDelegate {
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         metalView.addGestureRecognizer(tap)
+
+        metalView.addInteraction(UIContextMenuInteraction(delegate: self))
     }
 
     func updateConstants() {
@@ -1424,6 +1426,57 @@ extension MainViewController: UIDocumentPickerDelegate {
             } else {
                 loadFile(url: url)
             }
+        }
+    }
+}
+
+// MARK: UIContextMenuInteractionDelegate
+extension MainViewController: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        let objectId = pickObject(at: location)
+        guard objectId >= 0 else { return nil }
+
+        dataManager.setBestHitFromObjectId(objectId)
+        dataManager.selectBestHitObject()
+        updateSelectionStateBuffer()
+        dataManager.updateVisibleStates()
+        updateVisibleStateBuffer()
+
+        guard let hitItem = dataManager.bestHitObjectIterator() as? AzulObjectIterator else { return nil }
+        let ident = dataManager.identifier(ofItem: hitItem) ?? ""
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self = self else { return UIMenu() }
+            var actions = [UIAction]()
+
+            actions.append(UIAction(title: "Show Attributes", image: UIImage(systemName: "info.circle")) { _ in
+                let attrsVC = AttributeTableViewController()
+                attrsVC.dataManager = self.dataManager
+                attrsVC.title = ident.isEmpty ? (self.dataManager.type(ofItem: hitItem) ?? "") : ident
+                attrsVC.selectedItem = hitItem
+                attrsVC.tableView.reloadData()
+                let nav = UINavigationController(rootViewController: attrsVC)
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    nav.modalPresentationStyle = .popover
+                    if let popover = nav.popoverPresentationController {
+                        popover.sourceView = self.objectsButton ?? self.openButton ?? self.view
+                        popover.permittedArrowDirections = .down
+                    }
+                } else {
+                    nav.modalPresentationStyle = .pageSheet
+                    if let sheet = nav.sheetPresentationController {
+                        sheet.detents = [.medium(), .large()]
+                        sheet.prefersGrabberVisible = true
+                    }
+                }
+                self.present(nav, animated: true)
+            })
+
+            actions.append(UIAction(title: "Centre on Object", image: UIImage(systemName: "location")) { _ in
+                self.objectListDidRequestCenter(hitItem)
+            })
+
+            return UIMenu(title: ident, children: actions)
         }
     }
 }

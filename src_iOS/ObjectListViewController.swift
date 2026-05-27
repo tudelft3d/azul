@@ -225,7 +225,20 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let item = filteredFlatItems[indexPath.row]
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+
+        let previewProvider: UIContextMenuContentPreviewProvider? = {
+            guard !self.dataManager.isItemExpandable(item) else { return nil }
+            let attrsVC = AttributeTableViewController()
+            attrsVC.dataManager = self.dataManager
+            let ident = self.dataManager.identifier(ofItem: item) ?? ""
+            attrsVC.title = ident.isEmpty ? (self.dataManager.type(ofItem: item) ?? "") : ident
+            attrsVC.selectedItem = item
+            attrsVC.tableView.reloadData()
+            attrsVC.isPreview = true
+            return attrsVC
+        }
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
             guard let self = self else { return UIMenu() }
             var actions = [UIAction]()
 

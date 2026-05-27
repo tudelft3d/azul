@@ -4,6 +4,7 @@ class AttributeTableViewController: UIViewController {
 
     var dataManager: DataManagerWrapperWrapper!
     var selectedItem: AzulObjectIterator?
+    var isPreview: Bool = false
 
     let tableView = UITableView(frame: .zero, style: .plain)
 
@@ -30,21 +31,21 @@ class AttributeTableViewController: UIViewController {
             preferredContentSize = CGSize(width: 400, height: 500)
         }
 
-        if UIDevice.current.userInterfaceIdiom != .pad {
+        if !isPreview && UIDevice.current.userInterfaceIdiom != .pad {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
         }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if UIDevice.current.userInterfaceIdiom == .pad && !isPreview {
             navigationController?.setNavigationBarHidden(false, animated: animated)
         }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if UIDevice.current.userInterfaceIdiom == .pad && !isPreview {
             navigationController?.setNavigationBarHidden(true, animated: animated)
         }
     }
