@@ -70,11 +70,11 @@ class MainViewController: UIViewController, MTKViewDelegate {
     var currentAppearanceTheme: String = ""
 
     // MARK: Floating buttons
-    var openButton: UIButton!
-    var objectsButton: UIButton!
-    var lodButton: UIButton!
-    var appearanceButton: UIButton!
-    var homeButton: UIButton!
+    var openButton: UIView!
+    var objectsButton: UIView!
+    var lodButton: UIView!
+    var appearanceButton: UIView!
+    var homeButton: UIView!
 
     // MARK: Status bar
     var statusBarView: UIView!
@@ -1011,10 +1011,11 @@ class MainViewController: UIViewController, MTKViewDelegate {
         ])
     }
 
-    func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector, tintColor: UIColor? = .white) -> UIButton {
+    func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector, tintColor: UIColor? = .label) -> UIView {
         let isPad = UIDevice.current.userInterfaceIdiom == .pad
         let size: CGFloat = isPad ? 40 : 32
         let image = UIImage(systemName: systemName, withConfiguration: config)
+
         let button = UIButton(type: .system)
         if let tintColor {
             button.setImage(image, for: .normal)
@@ -1022,14 +1023,37 @@ class MainViewController: UIViewController, MTKViewDelegate {
         } else {
             button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
-        button.backgroundColor = UIColor(white: 0, alpha: 0.4)
-        button.layer.cornerRadius = size / 2
-        button.layer.cornerCurve = .continuous
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.widthAnchor.constraint(equalToConstant: size).isActive = true
-        button.heightAnchor.constraint(equalToConstant: size).isActive = true
+        button.backgroundColor = .clear
         button.addTarget(self, action: action, for: .touchUpInside)
-        return button
+
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.layer.cornerRadius = size / 2
+        container.layer.cornerCurve = .continuous
+        container.clipsToBounds = true
+        container.widthAnchor.constraint(equalToConstant: size).isActive = true
+        container.heightAnchor.constraint(equalToConstant: size).isActive = true
+
+        let blurEffect = UIBlurEffect(style: .systemThinMaterial)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.isUserInteractionEnabled = false
+        container.addSubview(blurView)
+        container.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            blurView.topAnchor.constraint(equalTo: container.topAnchor),
+            blurView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            blurView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            button.topAnchor.constraint(equalTo: container.topAnchor),
+            button.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            button.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+        ])
+
+        return container
     }
 
     // MARK: Status bar
