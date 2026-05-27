@@ -41,9 +41,11 @@ Xcode Cloud: macOS only; uses `ci_scripts/ci_pre_xcodebuild.sh` to install pinne
 
 ### iOS
 - **Entry point**: `src_iOS/AppDelegate.swift` (`@main` UIApplicationDelegate) + `src_iOS/SceneDelegate.swift` (UISceneDelegate)
-- **Root VC**: `src_iOS/MainViewController.swift` — full-screen MTKView, floating buttons, gesture recognizers, file loading, GPU picking
-- **Object browser**: `src_iOS/ObjectListViewController.swift` — expandable UITableView with hierarchy
+- **Root VC**: `src_iOS/MainViewController.swift` — full-screen MTKView, floating buttons (UIVisualEffectView blur), gesture recognizers, file loading, GPU picking, empty state view
+- **Object browser**: `src_iOS/ObjectListViewController.swift` — expandable UITableView with hierarchy (context menus with peek preview, visibility toggles)
 - **Attributes**: `src_iOS/AttributeTableViewController.swift` — key-value table for selected object
+- **Appearance picker**: `src_iOS/AppearancePickerViewController.swift` — inset grouped table with theme icons
+- **LoD picker**: `src_iOS/LodPickerViewController.swift` — inset grouped table with LoD icons
 - **Bridging**: Same ObjC++ bridge as macOS (`DataManagerWrapperWrapper.{h,mm}`) with `#if TARGET_OS_OSX` conditionals for platform-specific code. iOS bridging header: `src_iOS/Azul-Bridging-Header.h`
 - **Shared types**: `src/Math.swift` — matrix/vector helpers + Metal structs (`Constants`, `Vertex`, `EdgeVertex`, `VertexWithNormal`, `BufferWithColour`). Used by both platforms.
 
@@ -87,16 +89,17 @@ Xcode Cloud: macOS only; uses `ci_scripts/ci_pre_xcodebuild.sh` to install pinne
 | `src/DataManager/*ParsingHelper.hpp` | Format-specific parsers (GML, JSON, JSONL, OBJ, OFF, POLY) |
 | `src/DataManager/simdjson.{cpp,h}` | Vendored simdjson 4.6.3 |
 | `src/Base.lproj/MainMenu.xib` | macOS menu bar (XIB) |
-| `src/Assets.xcassets/` | App icon (macOS + iOS) + CityGML type icons |
+| `src/Assets.xcassets/` | App icon (macOS + iOS) + CityGML type icons + AzulIcon image set |
 | `src/Icons/` | Document type icons (.icns) |
 | `data/` | Sample city JSON files for testing |
 | `azul.entitlements` | macOS sandbox entitlements |
 | `src_iOS/AppDelegate.swift` | iOS app delegate, window/scene management |
 | `src_iOS/SceneDelegate.swift` | iOS scene delegate, window creation |
 | `src_iOS/MainViewController.swift` | iOS root VC: rendering, gestures, UI, file loading |
-| `src_iOS/ObjectListViewController.swift` | iOS expandable object hierarchy browser |
+| `src_iOS/ObjectListViewController.swift` | iOS expandable object hierarchy browser (context menus, peek preview, visibility toggles) |
 | `src_iOS/AttributeTableViewController.swift` | iOS attribute inspector |
-| `src_iOS/LodPickerViewController.swift` | iOS LoD filter picker popover |
+| `src_iOS/AppearancePickerViewController.swift` | iOS appearance theme picker (inset grouped table) |
+| `src_iOS/LodPickerViewController.swift` | iOS LoD filter picker (inset grouped table with icons) |
 | `src_iOS/Azul-Bridging-Header.h` | iOS bridging header (Swift→ObjC++) |
 | `libs-ios-device/` | iOS device static libraries |
 | `libs-ios-sim/` | iOS simulator static libraries |
@@ -138,7 +141,7 @@ Vegetation objects in CityGML often use `ImplicitGeometry` with a shared templat
 - Selected edges colour is configurable via Preferences (default red). Stored in `DataManager::selectedEdgesColour`, baked into edge buffers on regeneration.
 - Type/semantic surface colours are configurable via Preferences. Stored in `DataManager::colourForType` map; overrides persisted in UserDefaults `azulTypeColours` as `[type: [r, g, b, a]]`.
 - Preferences window has three tabbed panels: Rendering, Selection, Semantic Surfaces. All settings persist in UserDefaults.
-- UserDefaults keys: `azulLightBackgroundColor`, `azulDarkBackgroundColor`, `azulSampleCount`, `azulSelectionColour`, `azulSelectedEdgesColour`, `azulTypeColours`.
+- UserDefaults keys: `azulLightBackgroundColor`, `azulDarkBackgroundColor`, `azulSampleCount`, `azulSelectionColour`, `azulSelectedEdgesColour`, `azulTypeColours`, `azulRecentFiles`.
 - Object picking uses a dedicated GPU-only render pass (`vertexPicking`/`fragmentPicking`) that encodes `objectId` into pixel bytes.
 - `selectionStateCount` on GPU side = `objectsById.size()`; represents number of selectable flat objects.
 - LOD filter is a string match; empty string = no filter. LOD detected from objects with type `"LoD"` (id = lod string) or type starting with `"lod"` + digits.
@@ -149,3 +152,7 @@ Vegetation objects in CityGML often use `ImplicitGeometry` with a shared templat
 - `BOOL` return values in ObjC wrappers are `YES`/`NO` proper, not `true`/`false`.
 - iOS conditional compilation uses `#if TARGET_OS_OSX` / `#if !TARGET_OS_OSX` in ObjC++ files.
 - iOS uses `matrix4x4_perspective_shorter_dim()` (FOV constrained by shorter dimension) vs macOS which now also uses this function.
+- Empty state view (icon, title, subtitle, description, Open File button) shown when no file is loaded, on both iOS (`src_iOS/MainViewController.swift:setupEmptyState()`) and macOS (`src/Controller.swift:setupEmptyStateView()`). Fades out after file load.
+- Selection pulse: briefly boosts `selectionColour.w` to 1.0 then ramps back to 0.7 over 300ms when an object is selected. iOS: `MainViewController.animateSelectionPulse()`. macOS: `MetalView.animateSelectionPulse()`.
+- Context menus on iOS use `UIContextMenuConfiguration` with `UIContextMenuContentPreviewProvider` for peek previews. Object list (sidebar/modal) and 3D view (metalView) both have context menus.
+- Recent files for the Open button menu stored in `UserDefaults.standard` under key `"azulRecentFiles"`, capped at 5 entries.
