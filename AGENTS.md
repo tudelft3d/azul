@@ -16,11 +16,14 @@ Minimum macOS 13.0, minimum iOS 15.0; Xcode targets macOS 26 (Tahoe) but works o
 
 ### iOS
 
-Open `azul.xcodeproj` in Xcode, select the **azul-iOS** scheme, build and run on a simulator or device.
+Open `azul.xcodeproj` in Xcode and build:
+- **Device**: select the **azul-iOS** scheme, build and run on a device.
+- **Simulator**: select the **azul-iOS-simulator** scheme, build and run on a simulator.
 
 **Important**: The iOS target uses static libraries in `libs-ios/`. These must match the target platform:
 - **Device** (`iphoneos` SDK): `libs-ios-device/` contains `arm64-apple-ios` builds. Copy to `libs-ios/` before building for device.
 - **Simulator** (`iphonesimulator` SDK): `libs-ios-sim/` contains `arm64-apple-ios-simulator` builds. Copy to `libs-ios/` before building for simulator.
+- **Xcode schemes handle this automatically** — `azul-iOS` expects device libs, `azul-iOS-simulator` expects simulator libs.
 
 Both `arm64` variants are incompatible — lipo cannot combine them since they share the same architecture name.
 
