@@ -182,7 +182,7 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
         cell.contentConfiguration = config
 
         cell.indentationLevel = Int(item.depth)
-        cell.indentationWidth = 24
+        cell.indentationWidth = 16
         cell.selectionStyle = .default
         cell.backgroundColor = .secondarySystemBackground
 
@@ -273,8 +273,11 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
                 })
             }
 
-            actions.append(UIAction(title: "Centre on Object", image: UIImage(systemName: "location")) { _ in
+            actions.append(UIAction(title: "Select and centre", image: UIImage(systemName: "location")) { _ in
                 self.delegate?.objectListDidRequestCenter(item)
+                if !self.isSidebar {
+                    self.dismiss(animated: true)
+                }
             })
 
             return UIMenu(title: "", children: actions)

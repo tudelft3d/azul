@@ -1359,6 +1359,12 @@ extension MainViewController: ObjectListViewControllerDelegate {
     }
 
     func objectListDidRequestCenter(_ item: AzulObjectIterator) {
+        dataManager.selectItem(item)
+        updateSelectionStateBuffer()
+        dataManager.updateVisibleStates()
+        updateVisibleStateBuffer()
+        metalView?.setNeedsDisplay()
+
         guard let centroid = dataManager.centroid(ofItem: item),
               let mids = dataManager.midCoordinates(),
               let mins = dataManager.minCoordinates(),
@@ -1472,7 +1478,7 @@ extension MainViewController: UIContextMenuInteractionDelegate {
                 self.present(nav, animated: true)
             })
 
-            actions.append(UIAction(title: "Centre on Object", image: UIImage(systemName: "location")) { _ in
+            actions.append(UIAction(title: "Select and centre", image: UIImage(systemName: "location")) { _ in
                 self.objectListDidRequestCenter(hitItem)
             })
 
