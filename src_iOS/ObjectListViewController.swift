@@ -155,31 +155,43 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
         let hasChildren = dataManager.isItemExpandable(item)
         let visible = dataManager.visibleState(ofItem: item)
 
-        let isFile = item.depth == 0
-        if isFile {
-            let fileExtension = (identifier as NSString).pathExtension
-            cell.imageView?.image = UIImage(systemName: sfSymbolForFileExtension(fileExtension))
-            cell.imageView?.tintColor = .systemGray
-        } else {
-            if let icon = UIImage(named: typeName) {
-                cell.imageView?.image = icon
+        let image: UIImage? = {
+            let isFile = item.depth == 0
+            if isFile {
+                let fileExtension = (identifier as NSString).pathExtension
+                return UIImage(systemName: sfSymbolForFileExtension(fileExtension))
+            } else if let icon = UIImage(named: typeName) {
+                return icon
             } else {
-                cell.imageView?.image = UIImage(systemName: "cube.transparent")
-                cell.imageView?.tintColor = .systemGray
+                return UIImage(systemName: "cube.transparent")
             }
-        }
+        }()
 
         var displayText = typeName
         if !identifier.isEmpty {
             displayText += " — \(identifier)"
         }
-        cell.textLabel?.text = displayText
-        cell.textLabel?.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
-        cell.textLabel?.textColor = .label
+
+        var config = cell.defaultContentConfiguration()
+        config.text = displayText
+        config.textProperties.font = .systemFont(ofSize: UIFont.smallSystemFontSize)
+        config.textProperties.color = .label
+        config.image = image
+        config.imageProperties.tintColor = .systemGray
+        config.imageToTextPadding = 6
+        cell.contentConfiguration = config
+
+        cell.indentationLevel = Int(item.depth)
+        cell.indentationWidth = 24
+        cell.selectionStyle = .default
+        cell.backgroundColor = .secondarySystemBackground
 
         if hasChildren {
-            cell.accessoryType = .disclosureIndicator
-            cell.accessoryView = nil
+            cell.accessoryType = .none
+            let switchView = UISwitch()
+            switchView.isOn = visible != 78 // 'N' (on for 'Y' and 'P')
+            switchView.addTarget(self, action: #selector(visibilityToggled(_:)), for: .valueChanged)
+            cell.accessoryView = switchView
         } else {
             cell.accessoryType = .none
             if let sel = selectedItem, sel == item {
@@ -193,11 +205,6 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
             }
         }
 
-        cell.backgroundColor = .secondarySystemBackground
-        cell.indentationLevel = Int(item.depth)
-        cell.indentationWidth = 16
-        cell.selectionStyle = .default
-
         return cell
     }
 
@@ -208,6 +215,7 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
         let item = filteredFlatItems[indexPath.row]
         let newState: Int8 = sender.isOn ? 89 : 78 // 'Y' : 'N'
         dataManager.setVisibleState(newState, forItem: item)
+        rebuildFlatItems()
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
