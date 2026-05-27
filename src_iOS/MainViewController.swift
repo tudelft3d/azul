@@ -992,7 +992,8 @@ class MainViewController: UIViewController, MTKViewDelegate {
     func setupFloatingButtons() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         openButton = makeFloatingButton(systemName: "doc", config: buttonConfig, action: #selector(openFile))
-        objectsButton = makeFloatingButton(systemName: "cube", config: buttonConfig, action: #selector(showObjects))
+        let objectIcon = UIDevice.current.userInterfaceIdiom == .pad ? "sidebar.leading" : "cube"
+        objectsButton = makeFloatingButton(systemName: objectIcon, config: buttonConfig, action: #selector(showObjects))
         lodButton = makeFloatingButton(systemName: "plus.minus.capsule", config: buttonConfig, action: #selector(showLodPicker))
         let multicolorConfig = buttonConfig.applying(UIImage.SymbolConfiguration.preferringMulticolor())
         appearanceButton = makeFloatingButton(systemName: "paintpalette.fill", config: multicolorConfig, action: #selector(showAppearancePicker), tintColor: nil)
@@ -1128,17 +1129,21 @@ class MainViewController: UIViewController, MTKViewDelegate {
     }
 
     @objc func showObjects() {
-        let objectsVC = ObjectListViewController()
-        objectsVC.dataManager = dataManager
-        objectsVC.delegate = self
-        objectsVC.title = "Objects"
-        let nav = UINavigationController(rootViewController: objectsVC)
-        nav.modalPresentationStyle = UIDevice.current.userInterfaceIdiom == .pad ? .popover : .pageSheet
-        if let popover = nav.popoverPresentationController {
-            popover.sourceView = objectsButton
-            popover.permittedArrowDirections = .down
+        if UIDevice.current.userInterfaceIdiom == .pad, let split = splitViewController, !split.isCollapsed {
+            if split.viewController(for: .primary)?.view.window != nil {
+                split.hide(.primary)
+            } else {
+                split.show(.primary)
+            }
+        } else {
+            let objectsVC = ObjectListViewController()
+            objectsVC.dataManager = dataManager
+            objectsVC.delegate = self
+            objectsVC.title = "Objects"
+            let nav = UINavigationController(rootViewController: objectsVC)
+            nav.modalPresentationStyle = .pageSheet
+            present(nav, animated: true)
         }
-        present(nav, animated: true)
     }
 
     @objc func goHome() {
@@ -1220,7 +1225,12 @@ extension MainViewController: ObjectListViewControllerDelegate {
         attrsVC.title = ident.isEmpty ? (dataManager.type(ofItem: item) ?? "") : ident
         attrsVC.selectedItem = item
         attrsVC.tableView.reloadData()
-        if let nav = presentedViewController as? UINavigationController {
+
+        if UIDevice.current.userInterfaceIdiom == .pad,
+           let split = splitViewController,
+           let detailNav = split.viewController(for: .secondary) as? UINavigationController {
+            detailNav.pushViewController(attrsVC, animated: true)
+        } else if let nav = presentedViewController as? UINavigationController {
             nav.pushViewController(attrsVC, animated: true)
         }
     }

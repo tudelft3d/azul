@@ -30,7 +30,23 @@ class AttributeTableViewController: UIViewController {
             preferredContentSize = CGSize(width: 400, height: 500)
         }
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
+        }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            navigationController?.setNavigationBarHidden(false, animated: animated)
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            navigationController?.setNavigationBarHidden(true, animated: animated)
+        }
     }
 
     @objc func dismissSelf() {

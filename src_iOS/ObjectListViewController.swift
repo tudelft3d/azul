@@ -14,6 +14,7 @@ class ObjectListViewController: UIViewController {
     var filteredFlatItems: [AzulObjectIterator] = []
     var expandedItems = Set<AzulObjectIterator>()
     var selectedItem: AzulObjectIterator?
+    var isSidebar: Bool = false
 
     let tableView = UITableView(frame: .zero, style: .plain)
     let searchController = UISearchController(searchResultsController: nil)
@@ -43,15 +44,22 @@ class ObjectListViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if UIDevice.current.userInterfaceIdiom == .pad && !isSidebar {
             preferredContentSize = CGSize(width: 400, height: 600)
         }
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
+        if !isSidebar {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
+        }
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         tableView.addGestureRecognizer(longPress)
 
+        rebuildFlatItems()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         rebuildFlatItems()
     }
 
