@@ -329,6 +329,10 @@ extension NSToolbarItem.Identifier {
     let fileMenu = NSApp.mainMenu!.item(withTitle: "File")!.submenu!
     var fileItems = fileMenu.items
     fileItems.insert(openRecentMenuItem, at: fileItems.firstIndex(where: { $0.keyEquivalent == "w" })! )
+    let exportItem = NSMenuItem(title: "Export Image…", action: #selector(exportImage(_:)), keyEquivalent: "e")
+    exportItem.target = self
+    fileItems.append(NSMenuItem.separator())
+    fileItems.append(exportItem)
     fileMenu.items = fileItems
   }
 
