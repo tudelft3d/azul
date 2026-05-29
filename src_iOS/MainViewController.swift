@@ -874,10 +874,10 @@ class MainViewController: UIViewController, MTKViewDelegate {
     // MARK: File loading
     func loadFile(url: URL) {
         openedFileURL?.stopAccessingSecurityScopedResource()
-        url.startAccessingSecurityScopedResource()
-        openedFileURL = url
+        let accessGranted = url.startAccessingSecurityScopedResource()
+        openedFileURL = accessGranted ? url : nil
         let path = url.path
-        addRecentFile(path)
+        addRecentFile(url)
         updateOpenButtonMenu()
         let totalWeight: Float = 75.165239
         var progress: Float = 0
@@ -1135,16 +1135,26 @@ class MainViewController: UIViewController, MTKViewDelegate {
     }
 
     // MARK: Recent files
-    private func recentFiles() -> [String] {
-        UserDefaults.standard.stringArray(forKey: "azulRecentFiles") ?? []
+    private func recentFiles() -> [(path: String, bookmark: Data?)] {
+        guard let array = UserDefaults.standard.array(forKey: "azulRecentFiles") as? [[String: Any]] else { return [] }
+        return array.compactMap { dict in
+            guard let path = dict["path"] as? String else { return nil }
+            return (path, dict["bookmark"] as? Data)
+        }
     }
 
-    private func addRecentFile(_ path: String) {
+    private func addRecentFile(_ url: URL) {
         var files = recentFiles()
-        files.removeAll { $0 == path }
-        files.insert(path, at: 0)
+        files.removeAll { $0.path == url.path }
+        let bookmark = try? url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
+        files.insert((url.path, bookmark), at: 0)
         if files.count > 5 { files = Array(files.prefix(5)) }
-        UserDefaults.standard.set(files, forKey: "azulRecentFiles")
+        let array: [[String: Any]] = files.map { entry in
+            var dict: [String: Any] = ["path": entry.path]
+            if let bookmark = entry.bookmark { dict["bookmark"] = bookmark }
+            return dict
+        }
+        UserDefaults.standard.set(array, forKey: "azulRecentFiles")
     }
 
     private func updateOpenButtonMenu() {
@@ -1160,8 +1170,16 @@ class MainViewController: UIViewController, MTKViewDelegate {
 
         let recents = recentFiles()
         if !recents.isEmpty {
-            let recentActions = recents.map { path in
-                let url = URL(fileURLWithPath: path)
+            let recentActions = recents.map { entry in
+                let url: URL = {
+                    if let bookmark = entry.bookmark {
+                        var stale = false
+                        if let resolved = try? URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &stale) {
+                            return resolved
+                        }
+                    }
+                    return URL(fileURLWithPath: entry.path)
+                }()
                 return UIAction(title: url.lastPathComponent) { [weak self] _ in
                     self?.loadFile(url: url)
                 }
@@ -1282,7 +1300,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
 
     // MARK: Actions
     @objc func openFile() {
-        let types: [UTType] = [UTType(filenameExtension: "city.json"), UTType(filenameExtension: "cityjson")!, .json, .xml, UTType(filenameExtension: "obj")!, UTType(filenameExtension: "off")!, UTType(filenameExtension: "poly")!, UTType(filenameExtension: "gml")!, UTType(filenameExtension: "jsonl")!, UTType(filenameExtension: "azulview")!].compactMap { $0 }
+        let types: [UTType] = [UTType(filenameExtension: "city.json"), UTType(filenameExtension: "cityjson"), .json, .xml, UTType(filenameExtension: "obj"), UTType(filenameExtension: "off"), UTType(filenameExtension: "poly"), UTType(filenameExtension: "gml"), UTType(filenameExtension: "jsonl"), UTType(filenameExtension: "azulview")].compactMap { $0 }
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: false)
         picker.delegate = self
         picker.allowsMultipleSelection = true
