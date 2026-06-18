@@ -89,6 +89,18 @@
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleTypeName</key>
+			<string>JSON Lines document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>tudelft3d.jsonl</string>
+			</array>
+		</dict>
+		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>azulview</string>
 			<key>CFBundleTypeName</key>
@@ -203,6 +215,23 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>poly</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>JSON Lines document</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.jsonl</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>jsonl</string>
 				</array>
 			</dict>
 		</dict>
