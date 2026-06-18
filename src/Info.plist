@@ -89,6 +89,8 @@
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>json</string>
 			<key>CFBundleTypeName</key>
 			<string>JSON Lines document</string>
 			<key>CFBundleTypeRole</key>
