@@ -55,7 +55,6 @@ typedef CGAL::Polygon_repair::internal::Triangulation_with_even_odd_constraints_
 class DataManager {
 private:
   void triangulateAzulObjectAndItsChildren(AzulObject &object);
-  void generateEdgesForAzulObjectAndItsChildren(AzulObject &object);
   void updateBoundsWithAzulObjectAndItsChildren(const AzulObject &object);
   void clearPolygonsOfAzulObjectAndItsChildren(AzulObject &object);
   void putAzulObjectAndItsChildrenIntoTriangleBuffers(const AzulObject &object, const std::vector<AzulAppearanceStyle> &appearanceStyles, const std::string &typeWithColour, const long maxBufferSize, bool underMatchingLod = false, bool buildingHasNonLodGeometry = false);

@@ -20,6 +20,7 @@
 #include <cmath>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include "DataManager.hpp"
 
 namespace {
@@ -65,6 +66,80 @@ std::string triangleBufferKey(const std::string &type, const std::string &textur
 
 constexpr const char *kAppearanceMaterialsOnly = "Materials";
 constexpr const char *kAppearanceTexturesOnly = "Textures";
+
+struct EdgeKey {
+  PointKey points[2];
+  bool operator==(const EdgeKey &other) const {
+    return points[0] == other.points[0] && points[1] == other.points[1];
+  }
+};
+
+struct EdgeKeyHasher {
+  std::size_t operator()(const EdgeKey &key) const {
+    std::uint64_t hash = 1469598103934665603ULL;
+    for (int i = 0; i < 2; ++i) {
+      hash ^= static_cast<std::uint64_t>(key.points[i].x);
+      hash *= 1099511628211ULL;
+      hash ^= static_cast<std::uint64_t>(key.points[i].y);
+      hash *= 1099511628211ULL;
+      hash ^= static_cast<std::uint64_t>(key.points[i].z);
+      hash *= 1099511628211ULL;
+    }
+    return static_cast<std::size_t>(hash);
+  }
+};
+
+bool pointKeyLess(const PointKey &a, const PointKey &b) {
+  if (a.x < b.x) return true;
+  if (a.x > b.x) return false;
+  if (a.y < b.y) return true;
+  if (a.y > b.y) return false;
+  return a.z < b.z;
+}
+
+void generateEdgesForObject(AzulObject &object, std::unordered_set<EdgeKey, EdgeKeyHasher> &sharedEdges, bool isFileChild) {
+  std::unordered_set<EdgeKey, EdgeKeyHasher> localEdges;
+  std::unordered_set<EdgeKey, EdgeKeyHasher> *effectiveSet = &sharedEdges;
+  if (isFileChild || object.type == "LoD") {
+    effectiveSet = &localEdges;
+  }
+  for (auto &child: object.children) generateEdgesForObject(child, *effectiveSet, false);
+
+  std::size_t estimatedSegments = 0;
+  for (auto const &polygon: object.polygons) {
+    if (polygon.exteriorRing.points.size() >= 4) estimatedSegments += polygon.exteriorRing.points.size() - 1;
+  }
+
+  if (effectiveSet->empty()) effectiveSet->reserve(estimatedSegments);
+
+  std::vector<AzulEdge> edges;
+  edges.reserve(estimatedSegments);
+  for (auto const &polygon: object.polygons) {
+    if (polygon.exteriorRing.points.size() < 4) {
+      std::cout << "Polygon with < 4 points! Skipping..." << std::endl;
+      continue;
+    }
+    const auto &points = polygon.exteriorRing.points;
+    for (std::size_t i = 0; i + 1 < points.size(); ++i) {
+      EdgeKey key;
+      PointKey keyA = makePointKey(points[i]);
+      PointKey keyB = makePointKey(points[i + 1]);
+      if (pointKeyLess(keyA, keyB)) {
+        key.points[0] = keyA;
+        key.points[1] = keyB;
+      } else {
+        key.points[0] = keyB;
+        key.points[1] = keyA;
+      }
+      auto insertion = effectiveSet->insert(key);
+      if (!insertion.second) continue;
+      edges.push_back(AzulEdge());
+      for (int j = 0; j < 3; ++j) edges.back().points[0].coordinates[j] = points[i].coordinates[j];
+      for (int j = 0; j < 3; ++j) edges.back().points[1].coordinates[j] = points[i + 1].coordinates[j];
+    }
+  }
+  object.edges = edges;
+}
 
 }
 
@@ -459,29 +534,6 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
   object.triangles = triangles;
 }
 
-void DataManager::generateEdgesForAzulObjectAndItsChildren(AzulObject &object) {
-  for (auto &child: object.children) generateEdgesForAzulObjectAndItsChildren(child);
-  
-  std::vector<AzulEdge> edges;
-  for (auto const &polygon: object.polygons) {
-    if (polygon.exteriorRing.points.size() < 4) {
-      std::cout << "Polygon with < 4 points! Skipping..." << std::endl;
-      continue;
-    } std::vector<AzulPoint>::const_iterator currentPoint = polygon.exteriorRing.points.begin();
-    std::vector<AzulPoint>::const_iterator nextPoint = currentPoint;
-    ++nextPoint;
-    while (nextPoint != polygon.exteriorRing.points.end()) {
-      edges.push_back(AzulEdge());
-      for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-        edges.back().points[0].coordinates[currentCoordinate] = currentPoint->coordinates[currentCoordinate];
-      } for (unsigned int currentCoordinate = 0; currentCoordinate < 3; ++currentCoordinate) {
-        edges.back().points[1].coordinates[currentCoordinate] = nextPoint->coordinates[currentCoordinate];
-      } ++currentPoint;
-      ++nextPoint;
-    }
-  } object.edges = edges;
-}
-
 void DataManager::updateBoundsWithAzulObjectAndItsChildren(const AzulObject &object) {
   for (const auto &child: object.children) updateBoundsWithAzulObjectAndItsChildren(child);
   for (const auto &polygon: object.polygons) {
@@ -850,7 +902,8 @@ void DataManager::triangulateLastFile() {
 }
 
 void DataManager::generateEdgesForLastFile() {
-  generateEdgesForAzulObjectAndItsChildren(parsedFiles.back());
+  std::unordered_set<EdgeKey, EdgeKeyHasher> sharedEdges;
+  generateEdgesForObject(parsedFiles.back(), sharedEdges, false);
 }
 
 void DataManager::clearPolygonsOfLastFile() {

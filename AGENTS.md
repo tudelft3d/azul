@@ -112,7 +112,7 @@ This ordering matters — it's the exact sequence in `Controller.swift:loadData(
 2. `clearHelpers()` — releases parser memory
 3. `updateBoundsWithLastFile()` — computes bounding box
 4. `triangulateLastFile()` — CGAL triangulation of concave polygons
-5. `generateEdgesForLastFile()` — extracts edges
+5. `generateEdgesForLastFile()` — extracts edges, deduplicated per feature (file-child and CityJSON `LoD` subtrees), so shared polygon/triangle edges are stored once
 6. `clearPolygonsOfLastFile()` — frees polygon memory (only triangles/edges kept)
 7. `regenerateTriangleBuffers(maxBufferSize: 16*1024*1024)` — builds GPU buffers
 8. `regenerateEdgeBuffers(maxBufferSize: 16*1024*1024)` — builds edge buffers

@@ -5,3 +5,5 @@ include
 libs src
 data
 build
+perf/bench-*
+perf/verify-edges

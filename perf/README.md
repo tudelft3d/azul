@@ -65,3 +65,52 @@ Notes:
   +8–16% vs ondemand (DOM holds the full tape while ondemand reads lazily).
 - Peak RSS here is the whole process, parse-only; in the app the delta is on
   top of GUI/Metal buffers.
+
+# Full-pipeline benchmark (edge deduplication)
+
+`bench-full.cpp` (`build-full.sh`, `run-full.sh`, `summarize-full.py`) runs the
+real load pipeline used by the app — parse → clearHelpers → updateBounds →
+transformGeographic → triangulate → generateEdges → clearPolygons →
+regenerateTriangleBuffers → regenerateEdgeBuffers — through the full
+`DataManager` (CGAL, Boost, pugixml, simdjson), and reports per-stage times,
+edge counts, edge tree bytes (48 B/edge), edge buffer bytes, peak RSS and
+post-load RSS. It is how the edge-deduplication change is measured.
+
+```sh
+# Compare the current checkout against a `main` worktree.
+./perf/build-full.sh .            ../azul-main            # -> perf/bench-full-.
+./perf/build-full.sh ../azul-main perf/bench-full-old
+./perf/run-full.sh ./perf/bench-full-      /tmp/res-new 3 1 <files...>
+./perf/run-full.sh ./perf/bench-full-old   /tmp/res-old 3 1 <files...>
+./perf/summarize-full.py /tmp/res-new /tmp/res-old
+```
+
+`verify-edges.cpp` independently re-implements the edge generation (raw +
+deduplicated) from the parsing helpers and asserts the deduplicated edge set is
+a subset of the raw ring-segment set (no edges lost) and matches the counts the
+real `DataManager` produces.
+
+## Reference results (2026-08-13, Apple M4 Max, macOS 26, clang++ -O3)
+
+Comparing `dedupe-shared-edges` (new) against `main` (old). Edge generation
+deduplicates shared edges within each feature (a direct child of the file, and
+each CityJSON `LoD` child), which removes internal triangulation seams from the
+wireframe and halves the persistent edge storage:
+
+| file | edges old | edges new | cut | tree+buf old | tree+buf new | saved |
+|---|---:|---:|---:|---:|---:|---:|
+| Ingolstadt.city.json | 273970 | 144117 | 47.4% | 22.0 MB | 11.5 MB | 10.5 MB |
+| Vienna_102081.city.json | 264856 | 133556 | 49.6% | 21.2 MB | 10.7 MB | 10.5 MB |
+| 9-316-520.city.json | 346729 | 179454 | 48.2% | 27.7 MB | 14.3 MB | 13.4 MB |
+| 10-282-562.city.json | 350530 | 180662 | 48.5% | 28.0 MB | 14.5 MB | 13.5 MB |
+| Zurich_LoD2_V10.city.json | 8921524 | 5609111 | 37.1% | 713.7 MB | 448.7 MB | 265.0 MB |
+| s01.city.jsonl | 42746061 | 21614650 | 49.4% | 3419.7 MB | 1729.2 MB | 1690.5 MB |
+| Building_LOD2.gml | 101798 | 62436 | 38.7% | 8.2 MB | 5.0 MB | 3.2 MB |
+| e14a39d4.city.json (Mexico) | 1400517 | 806162 | 42.4% | 112.0 MB | 64.5 MB | 47.5 MB |
+| e14a39e1.city.json (Mexico) | 4772403 | 2677652 | 43.9% | 381.8 MB | 214.2 MB | 167.6 MB |
+
+Load-time impact is small: edge generation goes from ~3 ns/edge (pure
+push_back) to ~70 ns/edge (hash-set insert) — about +5–30 ms on small files and
++1.3–1.7 s on s01 (484 MB), where the total load time is ~15 s. Peak RSS and
+post-load RSS are lower on every file in the suite (post-load −0.4% to −13.5%).
+
