@@ -27,19 +27,21 @@ class JSONLinesParsingHelper : public JSONParsingHelper {
 public:
   void parse(const char *filePath, AzulObject &parsedFile) {
     try {
-      
-      simdjson::ondemand::parser parser;
+
       simdjson::padded_string json;
-      simdjson::ondemand::document_stream docs;
       auto error = simdjson::padded_string::load(filePath).get(json);
       if (error) {
         std::cout << "Failed to load file: " << simdjson::error_message(error) << std::endl;
         return;
-      } error = parser.iterate_many(json, json.size()).get(docs);
+      }
+      simdjson::dom::parser parser;
+      simdjson::dom::document_stream docs;
+      error = parser.parse_many(json, json.size()).get(docs);
       if (error) {
-        std::cout << "iterate_many failed: " << simdjson::error_message(error) << std::endl;
+        std::cout << "parse_many failed: " << simdjson::error_message(error) << std::endl;
         return;
-      } parsedFile.type = "File";
+      }
+      parsedFile.type = "File";
       parsedFile.id = filePath;
       currentFilePath = filePath;
       deferredParentRelationships.clear();
@@ -48,64 +50,67 @@ public:
       scale.clear();
       translation.clear();
       geometryTemplates = AzulObject();
-      
+
       for (auto doc: docs) {
-        
+
         // Check what we have
-        if (doc.type() != simdjson::ondemand::json_type::object) return;
-        for (auto element: doc.get_object()) {
-          if (element.key().value().is_equal("type")) {
-            docType = element.value().get_string();
-          } else if (element.key().value().is_equal("version")) {
-            docVersion = element.value().get_string();
-          }
+        if (!doc.is_object()) return;
+        simdjson::dom::element typeElement;
+        simdjson::dom::element versionElement;
+        if (doc["type"].get(typeElement) == simdjson::SUCCESS && typeElement.is_string()) {
+          docType = typeElement.get_string().value();
         }
-        
+        if (doc["version"].get(versionElement) == simdjson::SUCCESS && versionElement.is_string()) {
+          docVersion = versionElement.get_string().value();
+        }
+
         if (docType == "CityJSON") {
           std::cout << docType << " " << docVersion << " detected" << std::endl;
           if (docVersion == "1.0" ||
               docVersion == "1.1" ||
               docVersion == "2.0") {
-            
-            simdjson::ondemand::object object;
-            
+
             // Metadata
-            error = doc["metadata"].get(object);
-            if (!error) {
-              for (auto element: object) {
-                std::string_view attributeName = element.unescaped_key();
-                if (element.value().type() == simdjson::ondemand::json_type::string) {
-                  std::string_view attributeValue = element.value().get_string();
+            simdjson::dom::element metadataElement;
+            if (doc["metadata"].get(metadataElement) == simdjson::SUCCESS && metadataElement.is_object()) {
+              for (auto element: metadataElement.get_object()) {
+                std::string_view attributeName = element.key;
+                simdjson::dom::element attributeValueElement = element.value;
+                if (attributeValueElement.is_string()) {
+                  std::string_view attributeValue = attributeValueElement.get_string().value();
                   parsedFile.attributes.push_back(std::pair<std::string, std::string>(attributeName, attributeValue));
                 } else {
                   std::cout << attributeName << " is a complex attribute. Skipped." << std::endl;
                 }
               }
             }
-            
+
             // Appearance object
-            error = doc["appearance"].get(object);
-            if (!error) {
-              parseAppearanceObject(object);
+            simdjson::dom::element appearanceElement;
+            if (doc["appearance"].get(appearanceElement) == simdjson::SUCCESS) {
+              parseAppearanceObject(appearanceElement);
               rootAppearanceContext = currentAppearanceContext();
             } else {
               rootAppearanceContext.clear();
             }
 
             // Transform object
-            error = doc["transform"].get(object);
-            if (!error) {
-              for (auto element: object) {
-                if (element.key().value().is_equal("scale")) {
-                  for (auto axis: element.value()) {
-                    scale.push_back(axis.get_double().value());
-                  }
-                } else if (element.key().value().is_equal("translate")) {
-                  for (auto axis: element.value()) {
-                    translation.push_back(axis.get_double().value());
-                  }
+            simdjson::dom::element transformElement;
+            if (doc["transform"].get(transformElement) == simdjson::SUCCESS && transformElement.is_object()) {
+              simdjson::dom::object transformObject = transformElement.get_object();
+              simdjson::dom::element scaleElement;
+              if (transformObject["scale"].get(scaleElement) == simdjson::SUCCESS && scaleElement.is_array()) {
+                for (auto axis: scaleElement.get_array()) {
+                  scale.push_back(axis.get_double());
                 }
-              } if (scale.size() != 3) {
+              }
+              simdjson::dom::element translateElement;
+              if (transformObject["translate"].get(translateElement) == simdjson::SUCCESS && translateElement.is_array()) {
+                for (auto axis: translateElement.get_array()) {
+                  translation.push_back(axis.get_double());
+                }
+              }
+              if (scale.size() != 3) {
                 scale.clear();
                 for (int i = 0; i < 3; ++i) scale.push_back(1.0);
                 std::cout << "Transform scale incorrect: set to " << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl;
@@ -121,97 +126,136 @@ public:
               for (int i = 0; i < 3; ++i) translation.push_back(0.0);
               std::cout << "Transform translation not provided: set to " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
             }
-            
+
             // Geometry templates
             std::vector<std::tuple<double, double, double>> geometryTemplatesVertices;
-            error = doc["geometry-templates"].get(object);
-            if (!error) {
-              
+            simdjson::dom::element templatesElement;
+            if (doc["geometry-templates"].get(templatesElement) == simdjson::SUCCESS && templatesElement.is_object()) {
+              simdjson::dom::object templatesObject = templatesElement.get_object();
+
               // Template vertices
-              for (auto vertex: object["vertices-templates"].get_array()) {
-                std::vector<double> coordinates;
-                for (auto coordinate: vertex) coordinates.push_back(coordinate.get_double().value());
-                if (coordinates.size() == 3) geometryTemplatesVertices.push_back(std::tuple<double, double, double>(coordinates[0], coordinates[1], coordinates[2]));
-                else {
-                  std::cout << "Template vertex has " << coordinates.size() << " coordinates" << std::endl;
-                  geometryTemplatesVertices.push_back(std::tuple<double, double, double>(0, 0, 0));
+              simdjson::dom::element templateVerticesElement;
+              if (templatesObject["vertices-templates"].get(templateVerticesElement) == simdjson::SUCCESS && templateVerticesElement.is_array()) {
+                for (auto vertex: templateVerticesElement.get_array()) {
+                  simdjson::dom::array vertexArray;
+                  if (!vertex.is_array()) continue;
+                  vertexArray = vertex.get_array();
+                  double coordinates[3] = {0.0, 0.0, 0.0};
+                  if (vertexArray.size() >= 3) {
+                    coordinates[0] = vertexArray.at(0).get_double();
+                    coordinates[1] = vertexArray.at(1).get_double();
+                    coordinates[2] = vertexArray.at(2).get_double();
+                  } else {
+                    std::cout << "Template vertex has " << vertexArray.size() << " coordinates" << std::endl;
+                  }
+                  geometryTemplatesVertices.emplace_back(coordinates[0], coordinates[1], coordinates[2]);
                 }
               }
-              
+
               // Templates
-              for (auto t: object["templates"].get_array()) {
-                parseCityJSONObjectGeometry(t.get_object(), geometryTemplates, geometryTemplatesVertices, NULL);
+              simdjson::dom::element templatesArrayElement;
+              if (templatesObject["templates"].get(templatesArrayElement) == simdjson::SUCCESS && templatesArrayElement.is_array()) {
+                for (auto t: templatesArrayElement.get_array()) {
+                  parseCityJSONObjectGeometry(t, geometryTemplates, geometryTemplatesVertices, NULL);
+                }
               }
             }
-            
+
             // Vertices
             std::vector<std::tuple<double, double, double>> vertices;
-            for (auto vertex: doc["vertices"].get_array()) {
-              std::vector<double> coordinates;
-              for (auto coordinate: vertex) coordinates.push_back(coordinate.get_double().value());
-              if (coordinates.size() == 3) vertices.push_back(std::tuple<double, double, double>(scale[0]*coordinates[0]+translation[0],
-                                                                                                 scale[1]*coordinates[1]+translation[1],
-                                                                                                 scale[2]*coordinates[2]+translation[2]));
-              else {
-                std::cout << "Vertex has " << coordinates.size() << " coordinates" << std::endl;
-                vertices.push_back(std::tuple<double, double, double>(0, 0, 0));
+            simdjson::dom::element verticesElement;
+            if (doc["vertices"].get(verticesElement) == simdjson::SUCCESS && verticesElement.is_array()) {
+              simdjson::dom::array verticesArray = verticesElement.get_array();
+              vertices.reserve(verticesArray.size());
+              for (auto vertex: verticesArray) {
+                if (!vertex.is_array()) continue;
+                simdjson::dom::array vertexArray = vertex.get_array();
+                double coordinates[3] = {0.0, 0.0, 0.0};
+                if (vertexArray.size() >= 3) {
+                  coordinates[0] = vertexArray.at(0).get_double();
+                  coordinates[1] = vertexArray.at(1).get_double();
+                  coordinates[2] = vertexArray.at(2).get_double();
+                } else {
+                  std::cout << "Vertex has " << vertexArray.size() << " coordinates" << std::endl;
+                }
+                vertices.emplace_back(scale[0]*coordinates[0]+translation[0],
+                                      scale[1]*coordinates[1]+translation[1],
+                                      scale[2]*coordinates[2]+translation[2]);
               }
             }
-            
+
             // CityObjects
-            for (auto object: doc["CityObjects"].get_object()) {
-              parsedFile.children.push_back(AzulObject());
-              std::string_view objectId = object.unescaped_key();
-              parsedFile.children.back().id = objectId;
-              parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), parsedFile.children.size() - 1, vertices, &geometryTemplates);
+            simdjson::dom::element cityObjectsElement;
+            if (doc["CityObjects"].get(cityObjectsElement) == simdjson::SUCCESS && cityObjectsElement.is_object()) {
+              simdjson::dom::object cityObjects = cityObjectsElement.get_object();
+              parsedFile.children.reserve(cityObjects.size());
+              for (auto object: cityObjects) {
+                std::string_view objectId = object.key;
+                parsedFile.children.push_back(AzulObject());
+                parsedFile.children.back().id = objectId;
+                parseCityJSONObject(object.value.get_object(), parsedFile.children.back(), parsedFile.children.size() - 1, vertices, &geometryTemplates);
+              }
             }
-            
+
             statusMessage = "Loaded CityJSON " + std::string(docVersion) + " file";
           } else {
             statusMessage = "CityJSON " + std::string(docVersion) + " is not supported";
           }
         }
-        
+
         else if (docType == "CityJSONFeature") {
           AppearanceContext featureAppearanceContext = rootAppearanceContext;
-          simdjson::ondemand::object featureAppearanceObject;
-          if (!doc["appearance"].get(featureAppearanceObject)) {
-            parseAppearanceObjectInto(featureAppearanceObject, featureAppearanceContext);
+          simdjson::dom::element featureAppearanceElement;
+          if (doc["appearance"].get(featureAppearanceElement) == simdjson::SUCCESS) {
+            parseAppearanceObjectInto(featureAppearanceElement, featureAppearanceContext);
           }
           setAppearanceContext(featureAppearanceContext);
-          
+
           // Vertices
           std::vector<std::tuple<double, double, double>> vertices;
-          for (auto vertex: doc["vertices"].get_array()) {
-            std::vector<double> coordinates;
-            for (auto coordinate: vertex) coordinates.push_back(coordinate.get_double().value());
-            if (coordinates.size() == 3) vertices.push_back(std::tuple<double, double, double>(scale[0]*coordinates[0]+translation[0],
-                                                                                               scale[1]*coordinates[1]+translation[1],
-                                                                                               scale[2]*coordinates[2]+translation[2]));
-            else {
-              std::cout << "Vertex has " << coordinates.size() << " coordinates" << std::endl;
-              vertices.push_back(std::tuple<double, double, double>(0, 0, 0));
+          simdjson::dom::element verticesElement;
+          if (doc["vertices"].get(verticesElement) == simdjson::SUCCESS && verticesElement.is_array()) {
+            simdjson::dom::array verticesArray = verticesElement.get_array();
+            vertices.reserve(verticesArray.size());
+            for (auto vertex: verticesArray) {
+              if (!vertex.is_array()) continue;
+              simdjson::dom::array vertexArray = vertex.get_array();
+              double coordinates[3] = {0.0, 0.0, 0.0};
+              if (vertexArray.size() >= 3) {
+                coordinates[0] = vertexArray.at(0).get_double();
+                coordinates[1] = vertexArray.at(1).get_double();
+                coordinates[2] = vertexArray.at(2).get_double();
+              } else {
+                std::cout << "Vertex has " << vertexArray.size() << " coordinates" << std::endl;
+              }
+              vertices.emplace_back(scale[0]*coordinates[0]+translation[0],
+                                    scale[1]*coordinates[1]+translation[1],
+                                    scale[2]*coordinates[2]+translation[2]);
             }
           }
-          
+
           // CityObjects
-          for (auto object: doc["CityObjects"].get_object()) {
-            parsedFile.children.push_back(AzulObject());
-            std::string_view objectId = object.unescaped_key();
-            parsedFile.children.back().id = objectId;
-            parseCityJSONObject(object.value().get_object(), parsedFile.children.back(), parsedFile.children.size() - 1, vertices, &geometryTemplates);
+          simdjson::dom::element cityObjectsElement;
+          if (doc["CityObjects"].get(cityObjectsElement) == simdjson::SUCCESS && cityObjectsElement.is_object()) {
+            simdjson::dom::object cityObjects = cityObjectsElement.get_object();
+            for (auto object: cityObjects) {
+              std::string_view objectId = object.key;
+              parsedFile.children.push_back(AzulObject());
+              parsedFile.children.back().id = objectId;
+              parseCityJSONObject(object.value.get_object(), parsedFile.children.back(), parsedFile.children.size() - 1, vertices, &geometryTemplates);
+            }
           }
-          
+
         }
-        
+
         else {
           std::cout << "Found a line that isn't a CityJSONFeature";
         }
-        
+
       }
       buildHierarchy(parsedFile);
       finalizeAppearanceForFile(parsedFile);
-      
+
     } catch (simdjson::simdjson_error &e) {
       std::cout << "simdjson error: " << e.what() << std::endl;
       parsedFile.type = "File";
@@ -220,4 +264,4 @@ public:
   }
 };
 
-#endif /* JSONParsingHelper_hpp */
+#endif /* JSONLinesParsingHelper_hpp */
