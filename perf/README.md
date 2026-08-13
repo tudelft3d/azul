@@ -114,3 +114,49 @@ push_back) to ~70 ns/edge (hash-set insert) — about +5–30 ms on small files 
 +1.3–1.7 s on s01 (484 MB), where the total load time is ~15 s. Peak RSS and
 post-load RSS are lower on every file in the suite (post-load −0.4% to −13.5%).
 
+# Triangulation benchmark (convex-ring fan fast path)
+
+`bench-full.cpp` also times the triangulation stage separately. The fast path
+(`fastTriangulateConvexRing` in `DataManager.cpp`) replaces CGAL's least-squares
+plane fit + constrained Delaunay triangulation + flood fill with a fan /
+shortest-diagonal triangulation for strictly convex rings without holes,
+falling back to CGAL for concave, holed, degenerate or large (>64 vertices)
+rings. LoD2 city data is quad-dominated, so the vast majority of polygons hit
+the fast path (Zurich: 1.55 M of 1.75 M non-triangle rings, ~89%).
+
+## Reference results (2026-08-13, Apple M4 Max, macOS 26, clang++ -O3)
+
+Medians of 3 interleaved runs (2 for >100 MB). Comparing `fast-convex-triangulation`
+(new) against `main` (old). `TRIANGULATE_MS` is the triangulation stage alone;
+`TOTAL_MS` is parse → clear → bounds → transform → triangulate → edges →
+buffers. Edge counts are identical in all cases (triangulation only changes
+internal diagonals, never the ring edges).
+
+| file | tri old | tri new | speedup | total old | total new | peak RSS Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| Ingolstadt.city.json | 104 | 44 | 2.37× | 414 | 351 | +5.2% |
+| Vienna_102081.city.json | 88 | 60 | 1.47× | 271 | 242 | +0.2% |
+| 9-316-520.city.json | 121 | 66 | 1.84× | 418 | 365 | −0.2% |
+| 10-282-562.city.json | 120 | 68 | 1.78× | 421 | 365 | +14.2% |
+| Zurich_Building_LoD2_V10.city.json | 2858 | 1106 | 2.58× | 8878 | 7098 | +0.3% |
+| 9-316-520.city.jsonl | 121 | 66 | 1.82× | 591 | 539 | +2.5% |
+| Helsinki.city.jsonl | 3554 | 1656 | 2.15× | 18319 | 16352 | −0.1% |
+| s01.city.jsonl | 537 | 522 | 1.03× | 14030 | 14214 | +0.6% |
+| Building_LOD2.gml | 36 | 15 | 2.33× | 554 | 533 | −0.7% |
+| leiden_centre.gml | 92 | 73 | 1.26× | 209 | 191 | −0.6% |
+
+Notes:
+
+- Triangulation is 1.3–2.6× faster; the biggest win is Zurich (the quad-heavy
+  LoD2 file the fast path targets): 2.86 s → 1.11 s, cutting total load time
+  from 8.9 s to 7.1 s.
+- s01 is 100% triangles (never hits the fast path); its 1.03× is noise.
+- Memory is essentially unchanged: peak RSS moves within run noise because the
+  CGAL triangulation structures were already short-lived (allocated and freed
+  per polygon); the persistent triangle/edge buffers are identical.
+- Triangle counts are identical on every file in the suite except Zurich, where
+  one degenerate ring (a roof with 4 nearly-coincident vertices that CGAL's
+  flood fill splits into 12 triangles) now triangulates to the exact n−2 = 8.
+  Triangulation of a simple ring with k vertices is always k−2 triangles, so
+  the fast path is exact for every ring it accepts.
+

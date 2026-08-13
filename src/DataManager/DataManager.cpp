@@ -24,6 +24,11 @@
 #include "DataManager.hpp"
 
 namespace {
+// Rings up to this many vertices are triangulated with the fan fast path;
+// larger rings fall back to CGAL. Covers quads/pentagons/hexagons etc., which
+// dominate LoD2 building data, while keeping the projection on the stack.
+constexpr std::size_t kMaxFastPathRingSize = 64;
+
 struct PointKey {
   long long x;
   long long y;
@@ -139,6 +144,154 @@ void generateEdgesForObject(AzulObject &object, std::unordered_set<EdgeKey, Edge
     }
   }
   object.edges = edges;
+}
+
+// Fast path for triangulating a convex ring (no interior rings): a fan
+// triangulation (shortest diagonal for quads) replaces the CGAL least-squares
+// plane fit + constrained Delaunay triangulation + flood fill. Falls back by
+// returning false whenever the ring is not strictly convex in its Newell
+// plane, has holes, or is degenerate, in which case the caller uses CGAL.
+bool fastTriangulateConvexRing(const AzulPolygon &polygon,
+                               const std::unordered_map<PointKey, std::array<float, 2>, PointKeyHasher> &textureCoordinatesByPoint,
+                               bool polygonHasTextureCoordinates,
+                               std::vector<AzulTriangle> &triangles) {
+  if (!polygon.interiorRings.empty()) return false;
+  const std::vector<AzulPoint> &points = polygon.exteriorRing.points;
+  if (points.size() < 5) return false; // triangles are handled by the caller; a quad has 4 distinct vertices + closing point
+  const std::size_t ringSize = points.size() - 1;
+  if (ringSize > kMaxFastPathRingSize) return false; // larger rings fall back to CGAL
+
+  // Ring normal via Newell's method over the distinct vertices, normalised.
+  double nx = 0.0, ny = 0.0, nz = 0.0;
+  for (std::size_t i = 0; i < ringSize; ++i) {
+    const AzulPoint &p = points[i];
+    const AzulPoint &q = points[(i + 1) % ringSize];
+    nx += (p.coordinates[1] - q.coordinates[1]) * (p.coordinates[2] + q.coordinates[2]);
+    ny += (p.coordinates[2] - q.coordinates[2]) * (p.coordinates[0] + q.coordinates[0]);
+    nz += (p.coordinates[0] - q.coordinates[0]) * (p.coordinates[1] + q.coordinates[1]);
+  }
+  const double normalLength = std::sqrt(nx * nx + ny * ny + nz * nz);
+  if (normalLength == 0.0) return false;
+  const double inverseNormalLength = 1.0 / normalLength;
+  nx *= inverseNormalLength;
+  ny *= inverseNormalLength;
+  nz *= inverseNormalLength;
+
+  // Orthonormal basis (u, v) spanning the plane, from the coordinate axis
+  // least aligned with the normal so the basis is always well conditioned.
+  double referenceAxis[3];
+  if (std::abs(nx) <= std::abs(ny) && std::abs(nx) <= std::abs(nz)) {
+    referenceAxis[0] = 1.0; referenceAxis[1] = 0.0; referenceAxis[2] = 0.0;
+  } else if (std::abs(ny) <= std::abs(nz)) {
+    referenceAxis[0] = 0.0; referenceAxis[1] = 1.0; referenceAxis[2] = 0.0;
+  } else {
+    referenceAxis[0] = 0.0; referenceAxis[1] = 0.0; referenceAxis[2] = 1.0;
+  }
+  double ux = ny * referenceAxis[2] - nz * referenceAxis[1];
+  double uy = nz * referenceAxis[0] - nx * referenceAxis[2];
+  double uz = nx * referenceAxis[1] - ny * referenceAxis[0];
+  const double uLength = std::sqrt(ux * ux + uy * uy + uz * uz);
+  if (uLength == 0.0) return false;
+  ux /= uLength; uy /= uLength; uz /= uLength;
+  const double vx = ny * uz - nz * uy;
+  const double vy = nz * ux - nx * uz;
+  const double vz = nx * uy - ny * ux;
+
+  // Project the ring onto the plane. Consecutive points that coincide in the
+  // projection (or are so close that a fan triangle would be degenerate) are
+  // rejected by the strict convexity test below and fall back to CGAL.
+  double projectedX[kMaxFastPathRingSize], projectedY[kMaxFastPathRingSize];
+  for (std::size_t i = 0; i < ringSize; ++i) {
+    projectedX[i] = ux * points[i].coordinates[0] + uy * points[i].coordinates[1] + uz * points[i].coordinates[2];
+    projectedY[i] = vx * points[i].coordinates[0] + vy * points[i].coordinates[1] + vz * points[i].coordinates[2];
+  }
+  double maxEdgeLengthSquared = 0.0;
+  for (std::size_t i = 0; i < ringSize; ++i) {
+    const std::size_t previous = (i == 0) ? ringSize - 1 : i - 1;
+    const double dx = projectedX[i] - projectedX[previous];
+    const double dy = projectedY[i] - projectedY[previous];
+    const double edgeLengthSquared = dx * dx + dy * dy;
+    if (edgeLengthSquared > maxEdgeLengthSquared) maxEdgeLengthSquared = edgeLengthSquared;
+  }
+  if (maxEdgeLengthSquared == 0.0) return false;
+
+  // Strict convexity of the projected ring: every consecutive edge pair must
+  // turn the same way, i.e. the signed 2D cross products share a single
+  // non-zero sign. The epsilon is well above the projection noise floor for
+  // large-coordinate data so near-collinear vertices fall back to CGAL.
+  const double epsilon = 1e-8 * maxEdgeLengthSquared;
+  double firstTurnSign = 0.0;
+  for (std::size_t i = 0; i < ringSize; ++i) {
+    const std::size_t b = (i + 1) % ringSize;
+    const std::size_t c = (i + 2) % ringSize;
+    const double e1x = projectedX[b] - projectedX[i];
+    const double e1y = projectedY[b] - projectedY[i];
+    const double e2x = projectedX[c] - projectedX[b];
+    const double e2y = projectedY[c] - projectedY[b];
+    const double turn = e1x * e2y - e1y * e2x;
+    if (std::abs(turn) <= epsilon) return false;
+    const double turnSign = (turn > 0.0) ? 1.0 : -1.0;
+    if (firstTurnSign == 0.0) {
+      firstTurnSign = turnSign;
+    } else if (turnSign != firstTurnSign) {
+      return false;
+    }
+  }
+
+  // Fan triangulation. A convex quad is split along its shorter diagonal; any
+  // larger convex ring fans from the first vertex.
+  std::size_t fanRoot = 0;
+  if (ringSize == 4) {
+    const double d02x = projectedX[2] - projectedX[0];
+    const double d02y = projectedY[2] - projectedY[0];
+    const double d13x = projectedX[3] - projectedX[1];
+    const double d13y = projectedY[3] - projectedY[1];
+    const double diagonal02Squared = d02x * d02x + d02y * d02y;
+    const double diagonal13Squared = d13x * d13x + d13y * d13y;
+    if (diagonal13Squared < diagonal02Squared) fanRoot = 1;
+  }
+
+  const std::size_t trianglesStart = triangles.size();
+  for (std::size_t i = 1; i + 1 < ringSize; ++i) {
+    const std::size_t v0 = fanRoot;
+    const std::size_t v1 = (fanRoot + i) % ringSize;
+    const std::size_t v2 = (fanRoot + i + 1) % ringSize;
+    // Safety net: a fan triangle that is degenerate in the projection (e.g. a
+    // ring pinched by a near-duplicate vertex, or a needle sliver) falls back
+    // to CGAL. The threshold rejects triangles too thin to be meaningful
+    // (aspect below ~1e-3), matching the flood-fill behaviour on such rings.
+    const double area2 = std::abs((projectedX[v1] - projectedX[v0]) * (projectedY[v2] - projectedY[v0])
+                                - (projectedY[v1] - projectedY[v0]) * (projectedX[v2] - projectedX[v0]));
+    if (area2 <= 1e-3 * maxEdgeLengthSquared) {
+      triangles.resize(trianglesStart);
+      return false;
+    }
+    triangles.push_back(AzulTriangle());
+    AzulTriangle &triangle = triangles.back();
+    triangle.appearanceStyleId = polygon.appearanceStyleId;
+    bool triangleHasTextureCoordinates = polygonHasTextureCoordinates;
+    for (unsigned int currentVertexIndex = 0; currentVertexIndex < 3; ++currentVertexIndex) {
+      const std::size_t currentVertex = (currentVertexIndex == 0) ? v0 : (currentVertexIndex == 1) ? v1 : v2;
+      const AzulPoint &point = points[currentVertex];
+      triangle.points[currentVertexIndex].coordinates[0] = point.coordinates[0];
+      triangle.points[currentVertexIndex].coordinates[1] = point.coordinates[1];
+      triangle.points[currentVertexIndex].coordinates[2] = point.coordinates[2];
+      triangle.normals[currentVertexIndex].components[0] = static_cast<float>(nx);
+      triangle.normals[currentVertexIndex].components[1] = static_cast<float>(ny);
+      triangle.normals[currentVertexIndex].components[2] = static_cast<float>(nz);
+      if (polygonHasTextureCoordinates) {
+        auto foundTextureCoordinates = textureCoordinatesByPoint.find(makePointKey(point));
+        if (foundTextureCoordinates != textureCoordinatesByPoint.end()) {
+          triangle.textureCoordinates[currentVertexIndex][0] = foundTextureCoordinates->second[0];
+          triangle.textureCoordinates[currentVertexIndex][1] = foundTextureCoordinates->second[1];
+        } else {
+          triangleHasTextureCoordinates = false;
+        }
+      }
+    }
+    triangle.hasTextureCoordinates = triangleHasTextureCoordinates;
+  }
+  return true;
 }
 
 }
@@ -374,6 +527,12 @@ void DataManager::triangulateAzulObjectAndItsChildren(AzulObject &object) {
     
     // Polygon
     else {
+      
+      // Fast path: strictly convex ring without holes → fan/shortest-diagonal.
+      // Falls back to CGAL below for concave, holed or degenerate rings.
+      if (fastTriangulateConvexRing(polygon, textureCoordinatesByPoint, polygonHasTextureCoordinates, triangles)) {
+        continue;
+      }
       
       // Find the best fitting plane (first 3 points)
 //      Kernel::Plane_3 bestPlane(Kernel::Point_3(polygon.exteriorRing.points[0].coordinates[0],
