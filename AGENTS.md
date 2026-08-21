@@ -10,7 +10,13 @@ macOS + iOS 3D city model viewer (AppKit/Metal + UIKit/Metal). Open-source (GPLv
 
 ### macOS
 
-Open `azul.xcodeproj` in Xcode, select the **azul** scheme, build and run. There is no command-line build. No CI, no tests, no linter, no formatter.
+Open `azul.xcodeproj` in Xcode, select the **azul** scheme, build and run. There is no command-line build. No CI, no linter, no formatter.
+
+### Tests
+
+Unit tests live in the **azulTests** target (`tests/azulTests/`, XCTest). It is a hosted test bundle (runs inside the azul app), so tests use the existing ObjC++ bridge (`DataManagerWrapperWrapper`) via the app's bridging header and need no C++ compilation of their own. Fixtures are small files in `tests/Fixtures/` (bundled as a folder reference). Run with `⌘U` in Xcode or:
+
+    xcodebuild test -project azul.xcodeproj -scheme azulTests -destination 'platform=macOS'
 
 Minimum macOS 13.0, minimum iOS 15.0; Xcode targets macOS 26 (Tahoe) but works on older Xcode.
 

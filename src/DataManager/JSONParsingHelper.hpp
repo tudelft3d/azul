@@ -792,9 +792,15 @@ protected:
         ring.points.back().coordinates[0] = std::get<0>(vertices[vertexIndex]);
         ring.points.back().coordinates[1] = std::get<1>(vertices[vertexIndex]);
         ring.points.back().coordinates[2] = std::get<2>(vertices[vertexIndex]);
+      } else {
+        std::cout << "Warning: vertex index " << vertexIndex << " is out of range (file has " << vertices.size() << " vertices)" << std::endl;
       }
     }
-    if (!ring.points.empty()) ring.points.push_back(ring.points.front());
+    if (!ring.points.empty() && ring.points.size() < 3) {
+      std::cout << "Warning: ring has " << ring.points.size() << " points (at least 3 required), skipping it" << std::endl;
+    } else if (!ring.points.empty()) {
+      ring.points.push_back(ring.points.front());
+    }
   }
 
   void buildHierarchy(AzulObject &parsedFile) {

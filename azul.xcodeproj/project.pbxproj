@@ -78,7 +78,29 @@
 		BEF69F4F1F6AA0EC0079531B /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F4E1F6AA0EC0079531B /* MetalView.swift */; };
 		BEF69F511F6AA4C30079531B /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F501F6AA4C30079531B /* Shaders.metal */; };
 		BEF69F531F6AA9540079531B /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F521F6AA9540079531B /* Math.swift */; };
+		BEA1B0DE0000000000000001 /* DataManagerParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000001 /* DataManagerParsingTests.swift */; };
+		BEA1B0DE0000000000000002 /* MathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000002 /* MathTests.swift */; };
+		BEA1B0DE0000000000000003 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F521F6AA9540079531B /* Math.swift */; };
+		BEA1B0DE0000000000000004 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000003 /* Fixtures */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BEA1A0060000000000000006 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEF69F351F6AA0520079531B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BEF69F3C1F6AA0520079531B;
+			remoteInfo = azul;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		BEA1A0070000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BEF69F3C1F6AA0520079531B /* azul */;
+			targetProxy = BEA1A0060000000000000006 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXFileReference section */
 		BE176F7F2C7532A1002C4093 /* JSONLinesParsingHelper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSONLinesParsingHelper.hpp; sourceTree = "<group>"; };
@@ -135,6 +157,10 @@
 		BEF69F4E1F6AA0EC0079531B /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		BEF69F501F6AA4C30079531B /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BEF69F521F6AA9540079531B /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		BEA1F1EE0000000000000001 /* DataManagerParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerParsingTests.swift; sourceTree = "<group>"; };
+		BEA1F1EE0000000000000002 /* MathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathTests.swift; sourceTree = "<group>"; };
+		BEA1F1EE0000000000000003 /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fixtures; sourceTree = "<group>"; };
+		BEA1A00C000000000000000C /* azulTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = azulTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -142,6 +168,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		BEA1A0040000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BEE5F8B12FACA2C400653BE1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -254,6 +287,24 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BEA1A0010000000000000001 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				BEA1A0020000000000000002 /* azulTests */,
+				BEA1F1EE0000000000000003 /* Fixtures */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+		BEA1A0020000000000000002 /* azulTests */ = {
+			isa = PBXGroup;
+			children = (
+				BEA1F1EE0000000000000001 /* DataManagerParsingTests.swift */,
+				BEA1F1EE0000000000000002 /* MathTests.swift */,
+			);
+			path = azulTests;
+			sourceTree = "<group>";
+		};
 		BEF69F341F6AA0520079531B = {
 			isa = PBXGroup;
 			children = (
@@ -264,6 +315,7 @@
 				BEB3C3511F8E5C8A00F14F1A /* libs */,
 				BEF69F3F1F6AA0520079531B /* src */,
 				BEE5F90E2FACAEBF00653BE1 /* src_iOS */,
+				BEA1A0010000000000000001 /* tests */,
 				BEF69F3E1F6AA0520079531B /* Products */,
 				BED5AF651F6FC8470002A79E /* Frameworks */,
 			);
@@ -275,6 +327,7 @@
 				BEF69F3D1F6AA0520079531B /* azul.app */,
 				BEE5F8B42FACA2C400653BE1 /* azul-iOS.app */,
 				BEE5F9D32FAD44BD00653BE1 /* azul-iOS-simulator.app */,
+				BEA1A00C000000000000000C /* azulTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -300,6 +353,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		BEA1A00B000000000000000B /* azulTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEA1A00A000000000000000A /* Build configuration list for PBXNativeTarget "azulTests" */;
+			buildPhases = (
+				BEA1A0030000000000000003 /* Sources */,
+				BEA1A0040000000000000004 /* Frameworks */,
+				BEA1A0050000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BEA1A0070000000000000007 /* PBXTargetDependency */,
+			);
+			name = azulTests;
+			packageProductDependencies = (
+			);
+			productName = azulTests;
+			productReference = BEA1A00C000000000000000C /* azulTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		BEE5F8B32FACA2C400653BE1 /* azul-iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BEE5F8BE2FACA2C500653BE1 /* Build configuration list for PBXNativeTarget "azul-iOS" */;
@@ -372,6 +445,10 @@
 				LastUpgradeCheck = 2640;
 				ORGANIZATIONNAME = "Ken Arroyo Ohori";
 				TargetAttributes = {
+					BEA1A00B000000000000000B = {
+						CreatedOnToolsVersion = 26.4.1;
+						TestTargetID = BEF69F3C1F6AA0520079531B;
+					};
 					BEE5F8B32FACA2C400653BE1 = {
 						CreatedOnToolsVersion = 26.4.1;
 					};
@@ -398,11 +475,20 @@
 				BEF69F3C1F6AA0520079531B /* azul */,
 				BEE5F8B32FACA2C400653BE1 /* azul-iOS */,
 				BEE5F9B52FAD44BD00653BE1 /* azul-iOS-simulator */,
+				BEA1A00B000000000000000B /* azulTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		BEA1A0050000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEA1B0DE0000000000000004 /* Fixtures in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BEE5F8B22FACA2C400653BE1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -455,6 +541,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		BEA1A0030000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEA1B0DE0000000000000001 /* DataManagerParsingTests.swift in Sources */,
+				BEA1B0DE0000000000000002 /* MathTests.swift in Sources */,
+				BEA1B0DE0000000000000003 /* Math.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BEE5F8B02FACA2C400653BE1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -945,9 +1041,95 @@
 			};
 			name = Release;
 		};
+		BEA1A0080000000000000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1520;
+				DEVELOPMENT_TEAM = UD3V83TPY7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/include",
+					"$(SRCROOT)/src/DataManager",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/libs",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azulTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/src/Azul-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/azul.app/Contents/MacOS/azul";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		BEA1A0090000000000000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1520;
+				DEVELOPMENT_TEAM = UD3V83TPY7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/include",
+					"$(SRCROOT)/src/DataManager",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/libs",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = tudelft3d.azulTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/src/Azul-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/azul.app/Contents/MacOS/azul";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		BEA1A00A000000000000000A /* Build configuration list for PBXNativeTarget "azulTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEA1A0080000000000000008 /* Debug */,
+				BEA1A0090000000000000009 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		BEE5F8BE2FACA2C500653BE1 /* Build configuration list for PBXNativeTarget "azul-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
