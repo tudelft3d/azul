@@ -1316,7 +1316,7 @@ import MetalKit
   }
   
   override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-    let acceptedExtensions: Set = ["gml", "xml", "json", "jsonl", "obj", "off", "poly"]
+    let acceptedExtensions: Set = ["gml", "xml", "json", "jsonl", "obj", "off", "poly", "fcb"]
     if let urls = sender.draggingPasteboard.readObjects(forClasses: [NSURL.self], options: [:]) as? [URL] {
       for url in urls {
         if acceptedExtensions.contains(url.pathExtension) || url.lastPathComponent.hasSuffix(".city.json") {

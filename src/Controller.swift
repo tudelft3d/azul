@@ -664,6 +664,7 @@ extension NSToolbarItem.Identifier {
       UTType(filenameExtension: "obj"),
       UTType(filenameExtension: "off"),
       UTType(filenameExtension: "poly"),
+      UTType(filenameExtension: "fcb"),
       UTType(filenameExtension: "city.json"),
       UTType(filenameExtension: "cityjson")
     ].compactMap { $0 }

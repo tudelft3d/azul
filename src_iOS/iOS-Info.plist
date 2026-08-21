@@ -18,6 +18,18 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
+			<string>FlatCityBuf document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>tudelft3d.flatcitybuf</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
 			<string>JSON document</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
@@ -130,6 +142,23 @@
 				<array>
 					<string>city.json</string>
 					<string>cityjson</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>FlatCityBuf document</string>
+			<key>UTTypeIdentifier</key>
+			<string>tudelft3d.flatcitybuf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>fcb</string>
 				</array>
 			</dict>
 		</dict>
