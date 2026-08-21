@@ -28,6 +28,7 @@
 #include <CGAL/Polygon_repair/internal/Triangulation_face_base_with_repair_info_2.h>
 #include <CGAL/Polygon_repair/internal/Triangulation_with_even_odd_constraints_2.h>
 
+#include "FCBParsingHelper.hpp"
 #include "GMLParsingHelper.hpp"
 #include "JSONParsingHelper.hpp"
 #include "JSONLinesParsingHelper.hpp"
@@ -76,6 +77,7 @@ public:
   GMLParsingHelper gmlParsingHelper;
   JSONParsingHelper jsonParsingHelper;
   JSONLinesParsingHelper jsonLinesParsingHelper; 
+  FCBParsingHelper fcbParsingHelper;
   OBJParsingHelper objParsingHelper;
   POLYParsingHelper polyParsingHelper;
   OFFParsingHelper offParsingHelper;

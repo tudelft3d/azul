@@ -86,7 +86,7 @@ Xcode Cloud: macOS only; uses `ci_scripts/ci_pre_xcodebuild.sh` to install pinne
 | `src/DataManager/PerformanceHelperWrapperWrapper.{h,mm}` | ObjC++ bridge for performance timing/memory |
 | `src/DataManager/TableCellView.{h,m}` | macOS custom NSTableCellView with checkbox + icon + label |
 | `src/DataManager/AppearanceHelpers.hpp` | Shared appearance parsing helpers (style key, URI resolution) |
-| `src/DataManager/*ParsingHelper.hpp` | Format-specific parsers (GML, JSON, JSONL, OBJ, OFF, POLY) |
+| `src/DataManager/*ParsingHelper.hpp` | Format-specific parsers (GML, JSON, JSONL, OBJ, OFF, POLY, FCB) |
 | `src/DataManager/simdjson.{cpp,h}` | Vendored simdjson 4.6.3 |
 | `src/Base.lproj/MainMenu.xib` | macOS menu bar (XIB) |
 | `src/Assets.xcassets/` | App icon (macOS + iOS) + CityGML type icons + AzulIcon image set |
@@ -121,7 +121,7 @@ This ordering matters — it's the exact sequence in `Controller.swift:loadData(
 
 ## Appearance system
 
-CityGML and CityJSON appearance data (X3DMaterial and ParameterizedTexture) is parsed in `GMLParsingHelper.hpp` and `JSONParsingHelper.hpp`. Styles are pooled into `AzulAppearanceStyle` structs and assigned to polygons via `appearanceStyleId`. During buffer regeneration, the `DataManager::useAppearances` and `appearanceTheme` flags control whether appearance data overrides the semantic `colourForType` fallback.
+CityGML and CityJSON appearance data (X3DMaterial and ParameterizedTexture) is parsed in `GMLParsingHelper.hpp` and `JSONParsingHelper.hpp`; FlatCityBuf appearance data in `FCBParsingHelper.hpp`. Styles are pooled into `AzulAppearanceStyle` structs and assigned to polygons via `appearanceStyleId`. During buffer regeneration, the `DataManager::useAppearances` and `appearanceTheme` flags control whether appearance data overrides the semantic `colourForType` fallback.
 
 The toolbar dropdown offers:
 - **Semantics**: type-based colouring (`colourForType` map), appearances off
@@ -132,6 +132,10 @@ The toolbar dropdown offers:
 ### ImplicitGeometry (CityGML trees)
 
 Vegetation objects in CityGML often use `ImplicitGeometry` with a shared template geometry and `xlink:href` references. The parser expands these templates per instance, applying the transformation matrix to geometry points. Appearance data (`appearanceStyleId`, `textureCoordinates`) must be explicitly copied from the template — `AzulPolygon()` default constructor discards them (`GMLParsingHelper.hpp:947-1003`).
+
+### FlatCityBuf (`.fcb`)
+
+`FCBParsingHelper.hpp` is a self-contained binary reader: it hand-decodes the FlatBuffers subset the schemas use (no FlatBuffers runtime dependency) and mirrors the JSON parser's `AzulObject` output. Geometry is stored as flattened count arrays (`solids`/`shells`/`surfaces`/`strings`/`boundaries`) with one redundant count level above a type's depth, which the surface walker ignores. The R-tree and attribute B+tree index sections are skipped (azul loads whole files); only their byte lengths are computed from the header. The Rust flatbuffers builder omits scalar fields equal to their schema default (absent `template`, `index`, `type`…), so absent scalars read as defaults, and vtables may sit after their table (signed soffset). A `GeometryInstance` has no LoD field in the schema, so its LoD child uses the template's LoD. Theme selection skips mappings without values, and a shared material `value` colours the whole geometry, matching the JSON parser's theme handling.
 
 ## Key conventions
 

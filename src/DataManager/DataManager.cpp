@@ -1030,6 +1030,9 @@ void DataManager::parse(const char *filePath) {
   } else if (boost::algorithm::ends_with(filePath, ".jsonl")) {
     jsonLinesParsingHelper.parse(filePath, parsedFiles.back());
     statusMessage = jsonLinesParsingHelper.statusMessage;
+  } else if (boost::algorithm::ends_with(filePath, ".fcb")) {
+    fcbParsingHelper.parse(filePath, parsedFiles.back());
+    statusMessage = fcbParsingHelper.statusMessage;
   } else if (boost::algorithm::ends_with(filePath, ".obj")) {
     objParsingHelper.parse(filePath, parsedFiles.back());
     statusMessage = "";
