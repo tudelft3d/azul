@@ -1,0 +1,42 @@
+{
+  "type": "CityJSON",
+  "version": "2.0",
+  "transform": {"scale": [1.0, 1.0, 1.0], "translate": [0.0, 0.0, 0.0]},
+  "appearance": {
+    "materials": [
+      {"name": "red", "diffuseColor": [1.0, 0.0, 0.0], "transparency": 0.5},
+      {"name": "green", "diffuseColor": [0.0, 1.0, 0.0]}
+    ],
+    "textures": [
+      {"image": "facade.png", "type": "PNG", "wrapMode": "wrap", "textureType": "unknown"}
+    ],
+    "vertices-texture": [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]]
+  },
+  "CityObjects": {
+    "bld-1": {
+      "type": "Building",
+      "geometry": [
+        {
+          "type": "MultiSurface",
+          "lod": "1",
+          "boundaries": [
+            [[0, 1, 2, 3]],
+            [[4, 5, 6, 7]]
+          ],
+          "material": {"TestTheme": {"values": [0, 1]}},
+          "texture": {"TestTheme": {"values": [[[0, 0, 1, 2, 3]], [[0, 0, 1, 2, 3]]]}}
+        }
+      ]
+    }
+  },
+  "vertices": [
+    [0, 0, 0],
+    [1, 0, 0],
+    [1, 1, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 0, 1],
+    [1, 1, 1],
+    [0, 1, 1]
+  ]
+}
