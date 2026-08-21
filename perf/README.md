@@ -19,11 +19,11 @@ git worktree add --detach ../azul-main main
 # 3. Run both over the same files. 3 repeats for <=100MB, 2 for larger.
 #    Redirect stdout to a log so the parser's status output stays out of the way.
 ./perf/run-bench.sh ./perf/bench-azul      /tmp/res-new 3 2 \
-    data/9-316-520.city.json data/Zurich_Building_LoD2_V10.city.json \
-    data/9-316-520.city.jsonl data/Helsinki.city.jsonl > /tmp/new.tsv 2>&1
+    data/cityjson/9-316-520.city.json data/cityjson/Zurich_Building_LoD2_V10.city.json \
+    data/jsonl/9-316-520.city.jsonl data/jsonl/Helsinki.city.jsonl > /tmp/new.tsv 2>&1
 ./perf/run-bench.sh ./perf/bench-azul-main /tmp/res-old 3 2 \
-    data/9-316-520.city.json data/Zurich_Building_LoD2_V10.city.json \
-    data/9-316-520.city.jsonl data/Helsinki.city.jsonl > /tmp/old.tsv 2>&1
+    data/cityjson/9-316-520.city.json data/cityjson/Zurich_Building_LoD2_V10.city.json \
+    data/jsonl/9-316-520.city.jsonl data/jsonl/Helsinki.city.jsonl > /tmp/old.tsv 2>&1
 
 # 4. Summarise (second dir = baseline; speedup = old/new).
 ./perf/summarize.py /tmp/res-new /tmp/res-old

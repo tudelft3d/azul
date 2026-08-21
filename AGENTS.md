@@ -99,7 +99,7 @@ Xcode Cloud: macOS only; uses `ci_scripts/ci_pre_xcodebuild.sh` to install pinne
 | `src/Base.lproj/MainMenu.xib` | macOS menu bar (XIB) |
 | `src/Assets.xcassets/` | App icon (macOS + iOS) + CityGML type icons + AzulIcon image set |
 | `src/Icons/` | Document type icons (.icns) |
-| `data/` | Sample city JSON files for testing |
+| `data/` | Sample data files for testing, organised by format (`cityjson/`, `jsonl/`, `gml/`, `obj/`, `fcb/`) |
 | `azul.entitlements` | macOS sandbox entitlements |
 | `src_iOS/AppDelegate.swift` | iOS app delegate, window/scene management |
 | `src_iOS/SceneDelegate.swift` | iOS scene delegate, window creation |
