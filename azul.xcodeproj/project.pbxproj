@@ -82,6 +82,8 @@
 		BEA1B0DE0000000000000002 /* MathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000002 /* MathTests.swift */; };
 		BEA1B0DE0000000000000003 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F521F6AA9540079531B /* Math.swift */; };
 		BEA1B0DE0000000000000004 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000003 /* Fixtures */; };
+		BEA1B0DE0000000000000005 /* DataManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000004 /* DataManagerTestCase.swift */; };
+		BEA1B0DE0000000000000006 /* DataManagerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA1F1EE0000000000000005 /* DataManagerStateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -159,6 +161,8 @@
 		BEF69F521F6AA9540079531B /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
 		BEA1F1EE0000000000000001 /* DataManagerParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerParsingTests.swift; sourceTree = "<group>"; };
 		BEA1F1EE0000000000000002 /* MathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathTests.swift; sourceTree = "<group>"; };
+		BEA1F1EE0000000000000004 /* DataManagerTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerTestCase.swift; sourceTree = "<group>"; };
+		BEA1F1EE0000000000000005 /* DataManagerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManagerStateTests.swift; sourceTree = "<group>"; };
 		BEA1F1EE0000000000000003 /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fixtures; sourceTree = "<group>"; };
 		BEA1A00C000000000000000C /* azulTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = azulTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -301,6 +305,8 @@
 			children = (
 				BEA1F1EE0000000000000001 /* DataManagerParsingTests.swift */,
 				BEA1F1EE0000000000000002 /* MathTests.swift */,
+				BEA1F1EE0000000000000004 /* DataManagerTestCase.swift */,
+				BEA1F1EE0000000000000005 /* DataManagerStateTests.swift */,
 			);
 			path = azulTests;
 			sourceTree = "<group>";
@@ -548,6 +554,8 @@
 				BEA1B0DE0000000000000001 /* DataManagerParsingTests.swift in Sources */,
 				BEA1B0DE0000000000000002 /* MathTests.swift in Sources */,
 				BEA1B0DE0000000000000003 /* Math.swift in Sources */,
+				BEA1B0DE0000000000000005 /* DataManagerTestCase.swift in Sources */,
+				BEA1B0DE0000000000000006 /* DataManagerStateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

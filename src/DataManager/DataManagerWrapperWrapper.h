@@ -140,6 +140,17 @@ struct DataManagerWrapper;
 - (int) setBestHitFromObjectId:(int)objectId;
 - (id) bestHitObjectIterator;
 
+// Item-based access to the object tree (used by tests and iOS)
+- (char) visibleStateOfItem:(id)item;
+- (void) setVisibleState:(char)visible forItem:(id)item;
+- (NSInteger) numberOfAttributesOfItem:(id)item;
+- (NSString *) attributeKeyOfItem:(id)item atIndex:(NSInteger)index;
+- (NSString *) attributeValueOfItem:(id)item atIndex:(NSInteger)index;
+
+// Selection helpers
+- (void) selectBestHitObject;
+- (void) clearSelection;
+
 // Selection state (GPU-based)
 - (void) updateSelectionStates;
 - (const float *) selectionStateData;
@@ -162,14 +173,7 @@ struct DataManagerWrapper;
 - (id) childOfItem:(id)item atIndex:(NSInteger)index;
 - (NSString *) typeOfItem:(id)item;
 - (NSString *) identifierOfItem:(id)item;
-- (char) visibleStateOfItem:(id)item;
-- (NSInteger) numberOfAttributesOfItem:(id)item;
-- (NSString *) attributeKeyOfItem:(id)item atIndex:(NSInteger)index;
-- (NSString *) attributeValueOfItem:(id)item atIndex:(NSInteger)index;
-- (void) setVisibleState:(char)visible forItem:(id)item;
-- (void) selectBestHitObject;
 - (void) selectItem:(id)item;
-- (void) clearSelection;
 - (const double *) centroidOfItem:(id)item;
 - (int) centroidPointCountOfItem:(id)item;
 #endif

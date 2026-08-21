@@ -63,4 +63,66 @@ final class MathTests: XCTestCase {
     let portrait = matrix4x4_perspective_shorter_dim(fieldOfView: 60, width: 100, height: 200, nearZ: 0.1, farZ: 100)
     XCTAssertGreaterThan(portrait.columns.1.y, heightConstrained.columns.1.y)
   }
+
+  func testRotationMapsXToYForQuarterTurnAroundZ() {
+    let rotation = matrix4x4_rotation(angle: .pi / 2, axis: SIMD3<Float>(0, 0, 1))
+    let rotated = rotation * SIMD4<Float>(1, 0, 0, 1)
+    XCTAssertEqual(rotated.x, 0, accuracy: 1e-6)
+    XCTAssertEqual(rotated.y, 1, accuracy: 1e-6)
+    XCTAssertEqual(rotated.z, 0, accuracy: 1e-6)
+  }
+
+  func testRotationIsOrthogonal() {
+    let rotation = matrix4x4_rotation(angle: 0.7, axis: SIMD3<Float>(1, 2, 3))
+    let upperLeft = matrix_upper_left_3x3(matrix: rotation)
+    let product = upperLeft * upperLeft.transpose
+    for column in 0..<3 {
+      for row in 0..<3 {
+        let expected: Float = column == row ? 1 : 0
+        XCTAssertEqual(product[column][row], expected, accuracy: 1e-6)
+      }
+    }
+  }
+
+  func testLookAtPlacesCentreOnNegativeZAxis() {
+    let view = matrix4x4_look_at(eye: SIMD3<Float>(2, 3, 5), centre: SIMD3<Float>(1, 1, 1), up: SIMD3<Float>(0, 1, 0))
+    // The centre maps to a point straight ahead of the eye on the -z axis
+    let centreInView = view * SIMD4<Float>(1, 1, 1, 1)
+    XCTAssertEqual(centreInView.x, 0, accuracy: 1e-6)
+    XCTAssertEqual(centreInView.y, 0, accuracy: 1e-6)
+    XCTAssertLessThan(centreInView.z, 0)
+
+    // The eye itself maps to the origin
+    let eyeInView = view * SIMD4<Float>(2, 3, 5, 1)
+    XCTAssertEqual(eyeInView.x, 0, accuracy: 1e-6)
+    XCTAssertEqual(eyeInView.y, 0, accuracy: 1e-6)
+    XCTAssertEqual(eyeInView.z, 0, accuracy: 1e-6)
+  }
+
+  func testProjectionMapsNearAndFarPlanesToNdcDepthRange() {
+    let nearZ: Float = 0.1
+    let farZ: Float = 100.0
+    // Field of view is expressed in radians
+    let projection = matrix4x4_perspective(fieldOfView: .pi / 3, aspectRatio: 1.5, nearZ: nearZ, farZ: farZ)
+
+    func ndcDepth(_ z: Float) -> Float {
+      let clip = projection * SIMD4<Float>(0, 0, z, 1)
+      return clip.z / clip.w
+    }
+    XCTAssertEqual(ndcDepth(-nearZ), 0, accuracy: 1e-6)
+    XCTAssertEqual(ndcDepth(-farZ), 1, accuracy: 1e-6)
+
+    // The frustum edge at the near plane maps to NDC y = 1
+    let halfHeight = tanf(.pi / 6) * nearZ
+    let edgeClip = projection * SIMD4<Float>(0, halfHeight, -nearZ, 1)
+    XCTAssertEqual(edgeClip.y / edgeClip.w, 1, accuracy: 1e-6)
+  }
+
+  func testTranslationComposesWithRotation() {
+    let transform = matrix4x4_translation(shift: SIMD3<Float>(1, 0, 0)) * matrix4x4_rotation(angle: .pi / 2, axis: SIMD3<Float>(0, 0, 1))
+    let transformed = transform * SIMD4<Float>(1, 0, 0, 1)
+    XCTAssertEqual(transformed.x, 1, accuracy: 1e-6)
+    XCTAssertEqual(transformed.y, 1, accuracy: 1e-6)
+    XCTAssertEqual(transformed.z, 0, accuracy: 1e-6)
+  }
 }

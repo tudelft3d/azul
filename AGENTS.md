@@ -18,6 +18,8 @@ Unit tests live in the **azulTests** target (`tests/azulTests/`, XCTest). It is 
 
     xcodebuild test -project azul.xcodeproj -scheme azulTests -destination 'platform=macOS'
 
+Unit tests live in three classes: `DataManagerParsingTests` (per-format parsing), `DataManagerStateTests` (visibility, attributes, selection, buffer splitting, malformed input, degenerate geometry, FCB/JSON parity) and `MathTests`. `tests/generate_themed_fcb.py` regenerates `tests/Fixtures/themed.fcb` (a hand-built FlatCityBuf fixture with attributes, two LoDs and appearance themes); run it from the repo root after changing the FCB reader's expected schema.
+
 Minimum macOS 13.0, minimum iOS 15.0; Xcode targets macOS 26 (Tahoe) but works on older Xcode.
 
 ### iOS

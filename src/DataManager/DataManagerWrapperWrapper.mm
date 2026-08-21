@@ -28,6 +28,19 @@ struct DataManagerWrapper {
   DataManager *dataManager;
 };
 
+// Recomputes the derived visibility ('Y'/'N'/'P') of every ancestor of
+// `target` after its own state was set directly, mirroring what the macOS
+// checkbox toggle does. Returns true once `target` was found in this subtree.
+static bool refreshAncestorsVisibility(AzulObject &node, AzulObject *target, DataManager *dataManager) {
+  for (auto &child: node.children) {
+    if (&child == target || refreshAncestorsVisibility(child, target, dataManager)) {
+      dataManager->checkVisibility(node);
+      return true;
+    }
+  }
+  return false;
+}
+
 @interface AzulObjectIterator()
 @property std::vector<AzulObject>::iterator iterator;
 @end
@@ -662,6 +675,66 @@ struct DataManagerWrapper {
   return [NSString stringWithUTF8String:[currentItem iterator]->id.c_str()];
 }
 
+// MARK: Item-based access to the object tree
+
+- (char) visibleStateOfItem:(id)item {
+  if (![item isKindOfClass:[AzulObjectIterator class]]) return 'N';
+  AzulObjectIterator *currentItem = item;
+  return [currentItem iterator]->visible;
+}
+
+- (void) setVisibleState:(char)visible forItem:(id)item {
+  if (![item isKindOfClass:[AzulObjectIterator class]]) return;
+  AzulObjectIterator *currentItem = item;
+  dataManagerWrapper->dataManager->setVisible(*[currentItem iterator], visible);
+  for (auto &file: dataManagerWrapper->dataManager->parsedFiles) {
+    refreshAncestorsVisibility(file, &*[currentItem iterator], dataManagerWrapper->dataManager);
+  }
+  dataManagerWrapper->dataManager->updateVisibleStates();
+  [self.controller updateVisibleStateBuffer];
+  [self.controller updateSelectionStateBuffer];
+}
+
+- (NSInteger) numberOfAttributesOfItem:(id)item {
+  if (![item isKindOfClass:[AzulObjectIterator class]]) return 0;
+  AzulObjectIterator *currentItem = item;
+  return [currentItem iterator]->attributes.size();
+}
+
+- (NSString *) attributeKeyOfItem:(id)item atIndex:(NSInteger)index {
+  if (![item isKindOfClass:[AzulObjectIterator class]]) return @"";
+  AzulObjectIterator *currentItem = item;
+  if (index < 0 || index >= (NSInteger)[currentItem iterator]->attributes.size()) return @"";
+  return [NSString stringWithUTF8String:[currentItem iterator]->attributes[index].first.c_str()];
+}
+
+- (NSString *) attributeValueOfItem:(id)item atIndex:(NSInteger)index {
+  if (![item isKindOfClass:[AzulObjectIterator class]]) return @"";
+  AzulObjectIterator *currentItem = item;
+  if (index < 0 || index >= (NSInteger)[currentItem iterator]->attributes.size()) return @"";
+  return [NSString stringWithUTF8String:[currentItem iterator]->attributes[index].second.c_str()];
+}
+
+// MARK: Selection helpers
+
+- (void) selectBestHitObject {
+  for (auto &currentFile: dataManagerWrapper->dataManager->parsedFiles) {
+    dataManagerWrapper->dataManager->setSelection(currentFile, false);
+  }
+  if (dataManagerWrapper->dataManager->bestHitFile != dataManagerWrapper->dataManager->parsedFiles.end() &&
+      dataManagerWrapper->dataManager->bestHitObject != dataManagerWrapper->dataManager->bestHitFile->children.end()) {
+    dataManagerWrapper->dataManager->setSelection(*dataManagerWrapper->dataManager->bestHitObject, true);
+  }
+  dataManagerWrapper->dataManager->updateSelectionStates();
+}
+
+- (void) clearSelection {
+  for (auto &currentFile: dataManagerWrapper->dataManager->parsedFiles) {
+    dataManagerWrapper->dataManager->setSelection(currentFile, false);
+  }
+  dataManagerWrapper->dataManager->updateSelectionStates();
+}
+
 #if !TARGET_OS_OSX
 // MARK: iOS tree navigation
 
@@ -708,52 +781,6 @@ struct DataManagerWrapper {
   return [self objectIdForItem:item];
 }
 
-- (char) visibleStateOfItem:(id)item {
-  if (![item isKindOfClass:[AzulObjectIterator class]]) return 'N';
-  AzulObjectIterator *currentItem = item;
-  return [currentItem iterator]->visible;
-}
-
-- (NSInteger) numberOfAttributesOfItem:(id)item {
-  if (![item isKindOfClass:[AzulObjectIterator class]]) return 0;
-  AzulObjectIterator *currentItem = item;
-  return [currentItem iterator]->attributes.size();
-}
-
-- (NSString *) attributeKeyOfItem:(id)item atIndex:(NSInteger)index {
-  if (![item isKindOfClass:[AzulObjectIterator class]]) return @"";
-  AzulObjectIterator *currentItem = item;
-  if (index < 0 || index >= (NSInteger)[currentItem iterator]->attributes.size()) return @"";
-  return [NSString stringWithUTF8String:[currentItem iterator]->attributes[index].first.c_str()];
-}
-
-- (NSString *) attributeValueOfItem:(id)item atIndex:(NSInteger)index {
-  if (![item isKindOfClass:[AzulObjectIterator class]]) return @"";
-  AzulObjectIterator *currentItem = item;
-  if (index < 0 || index >= (NSInteger)[currentItem iterator]->attributes.size()) return @"";
-  return [NSString stringWithUTF8String:[currentItem iterator]->attributes[index].second.c_str()];
-}
-
-- (void) setVisibleState:(char)visible forItem:(id)item {
-  if (![item isKindOfClass:[AzulObjectIterator class]]) return;
-  AzulObjectIterator *currentItem = item;
-  dataManagerWrapper->dataManager->setVisible(*[currentItem iterator], visible);
-  dataManagerWrapper->dataManager->updateVisibleStates();
-  [self.controller updateVisibleStateBuffer];
-  [self.controller updateSelectionStateBuffer];
-}
-
-- (void) selectBestHitObject {
-  for (auto &currentFile: dataManagerWrapper->dataManager->parsedFiles) {
-    dataManagerWrapper->dataManager->setSelection(currentFile, false);
-  }
-  if (dataManagerWrapper->dataManager->bestHitFile != dataManagerWrapper->dataManager->parsedFiles.end() &&
-      dataManagerWrapper->dataManager->bestHitObject != dataManagerWrapper->dataManager->bestHitFile->children.end()) {
-    dataManagerWrapper->dataManager->setSelection(*dataManagerWrapper->dataManager->bestHitObject, true);
-  }
-  dataManagerWrapper->dataManager->updateSelectionStates();
-}
-
 - (void) selectItem:(id)item {
   if (![item isKindOfClass:[AzulObjectIterator class]]) return;
   AzulObjectIterator *currentItem = item;
@@ -794,13 +821,6 @@ struct DataManagerWrapper {
   centroidComputation.points = 0;
   dataManagerWrapper->dataManager->addAzulObjectAndItsChildrenToCentroidComputation(*[currentItem iterator], centroidComputation);
   return static_cast<int>(centroidComputation.points);
-}
-
-- (void) clearSelection {
-  for (auto &currentFile: dataManagerWrapper->dataManager->parsedFiles) {
-    dataManagerWrapper->dataManager->setSelection(currentFile, false);
-  }
-  dataManagerWrapper->dataManager->updateSelectionStates();
 }
 #endif
 
