@@ -78,6 +78,26 @@ final class DataManagerParsingTests: XCTestCase {
     return any
   }
 
+  private func triangleBufferTypesAndColours(_ dataManager: DataManagerWrapperWrapper) -> [(type: String, colour: [Float])] {
+    var result: [(type: String, colour: [Float])] = []
+    dataManager.initialiseTriangleBufferIterator()
+    while !dataManager.triangleBufferIteratorEnded() {
+      var length = 0
+      var type = ""
+      if let characters = dataManager.currentTriangleBufferType(withLength: &length), length > 0 {
+        type = String(data: Data(bytes: characters, count: length), encoding: .utf8) ?? ""
+      }
+      let colour = dataManager.currentTriangleBufferColour()
+      if let colour {
+        result.append((type, Array(UnsafeBufferPointer(start: colour, count: 4))))
+      } else {
+        result.append((type, []))
+      }
+      dataManager.advanceTriangleBufferIterator()
+    }
+    return result
+  }
+
   // MARK: - CityJSON
 
   func testParseCityJSONCube() {
@@ -157,6 +177,96 @@ final class DataManagerParsingTests: XCTestCase {
     XCTAssertEqual(totalTriangles(dataManager), 12)
     XCTAssertTrue(hasEdges(dataManager))
     XCTAssertEqual(dataManager.maxRange(), 1.0, accuracy: 1e-9)
+  }
+
+  // MARK: - Semantic surfaces
+
+  func testSemanticSurfaces() {
+    let dataManager = loadFixture("semisurf", "city.json")
+    XCTAssertEqual(numberOfParsedFiles(dataManager), 1)
+    // The cube is unchanged: 6 quads -> 12 triangles
+    XCTAssertEqual(totalTriangles(dataManager), 12)
+
+    // Each semantic surface type gets its own buffer with its own colour
+    let buffers = triangleBufferTypesAndColours(dataManager)
+    let types = Set(buffers.map { $0.type })
+    XCTAssertTrue(types.contains("GroundSurface"), "Expected GroundSurface in \(types)")
+    XCTAssertTrue(types.contains("RoofSurface"), "Expected RoofSurface in \(types)")
+    XCTAssertTrue(types.contains("WallSurface"), "Expected WallSurface in \(types)")
+
+    // Default semantic colours: ground grey, roof red, wall white
+    for buffer in buffers {
+      switch buffer.type {
+      case "GroundSurface":
+        XCTAssertEqual(buffer.colour[0], 0.7, accuracy: 1e-5)
+      case "RoofSurface":
+        XCTAssertEqual(buffer.colour[0], 1.0, accuracy: 1e-5)
+        XCTAssertEqual(buffer.colour[1], 0.2, accuracy: 1e-5)
+      case "WallSurface":
+        XCTAssertEqual(buffer.colour[0], 1.0, accuracy: 1e-5)
+        XCTAssertEqual(buffer.colour[1], 1.0, accuracy: 1e-5)
+      default:
+        XCTFail("Unexpected buffer type \(buffer.type)")
+      }
+    }
+  }
+
+  // MARK: - Triangulation edge cases
+
+  func testTriangulateConcavePolygonAndPolygonWithHole() {
+    let dataManager = loadFixture("concave_hole", "city.json")
+    XCTAssertEqual(numberOfParsedFiles(dataManager), 1)
+    // L-shape (6 vertices -> 4 triangles) + square with square hole (8 vertices, 1 hole -> 8 triangles)
+    XCTAssertEqual(totalTriangles(dataManager), 12)
+    XCTAssertTrue(hasEdges(dataManager))
+  }
+
+  // MARK: - Error handling
+
+  func testParseNonexistentFile() {
+    let dataManager = DataManagerWrapperWrapper()!
+    let path = NSTemporaryDirectory() + "azul-tests-nonexistent-\(UUID().uuidString).city.json"
+    dataManager.parse(path.cString(using: .utf8))
+    XCTAssertEqual(numberOfParsedFiles(dataManager), 1)
+    XCTAssertEqual(totalTriangles(dataManager), 0)
+  }
+
+  func testParseEmptyFile() {
+    let dataManager = loadFixture("empty", "city.json")
+    XCTAssertEqual(totalTriangles(dataManager), 0)
+  }
+
+  func testParseUnsupportedFileType() {
+    let dataManager = loadFixture("bogus", "txt")
+    XCTAssertEqual(dataManager.statusMessage(), "Unrecognised file type")
+    XCTAssertEqual(totalTriangles(dataManager), 0)
+  }
+
+  // MARK: - Multiple files
+
+  func testLoadMultipleFiles() {
+    let dataManager = DataManagerWrapperWrapper()!
+    for (name, `extension`) in [("cube.city", "json"), ("lods.city", "json")] {
+      let path = fixtureURL(name, `extension`).path
+      dataManager.parse(path.cString(using: .utf8))
+      dataManager.clearHelpers()
+      dataManager.updateBoundsWithLastFile()
+      dataManager.triangulateLastFile()
+      dataManager.generateEdgesForLastFile()
+      dataManager.clearPolygonsOfLastFile()
+      dataManager.regenerateTriangleBuffers(withMaximumSize: 16 * 1024 * 1024)
+      dataManager.regenerateEdgeBuffers(withMaximumSize: 16 * 1024 * 1024)
+    }
+    XCTAssertEqual(numberOfParsedFiles(dataManager), 2)
+    // cube: 12 triangles, lods: 2 quads -> 4 triangles
+    XCTAssertEqual(totalTriangles(dataManager), 16)
+    // Combined bounds span from the cube origin to the second LoD quad at x = 6
+    XCTAssertEqual(dataManager.maxRange(), 6.0, accuracy: 1e-9)
+
+    // LoD filtering still applies across both files
+    dataManager.setLodFilter("2")
+    dataManager.regenerateTriangleBuffers(withMaximumSize: 16 * 1024 * 1024)
+    XCTAssertEqual(totalTriangles(dataManager), 2)
   }
 
   // MARK: - Search
