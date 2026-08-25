@@ -322,13 +322,11 @@ extension NSToolbarItem.Identifier {
   }
   
   func setupFileMenu() {
-    let openRecentMenuItem = NSMenuItem(title: "Open Recent", action: nil, keyEquivalent: "")
-    openRecentMenuItem.submenu = NSMenu(title: "Open Recent")
+    // "Open Recent" is provided by the standard system menu in MainMenu.xib.
     NSDocumentController.shared.clearRecentDocuments(nil)
     
     let fileMenu = NSApp.mainMenu!.item(withTitle: "File")!.submenu!
     var fileItems = fileMenu.items
-    fileItems.insert(openRecentMenuItem, at: fileItems.firstIndex(where: { $0.keyEquivalent == "w" })! )
     let exportItem = NSMenuItem(title: "Export Image…", action: #selector(exportImage(_:)), keyEquivalent: "e")
     exportItem.target = self
     fileItems.append(NSMenuItem.separator())

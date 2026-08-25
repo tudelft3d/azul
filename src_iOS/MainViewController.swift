@@ -1180,7 +1180,7 @@ class MainViewController: UIViewController, MTKViewDelegate {
                     }
                     return URL(fileURLWithPath: entry.path)
                 }()
-                return UIAction(title: url.lastPathComponent) { [weak self] _ in
+                return UIAction(title: url.lastPathComponent, image: Self.fileTypeIcon(for: url)) { [weak self] _ in
                     self?.loadFile(url: url)
                 }
             }
@@ -1188,6 +1188,29 @@ class MainViewController: UIViewController, MTKViewDelegate {
         }
 
         openButtonControl.menu = UIMenu(title: "", children: children)
+    }
+
+    /// Returns the bundled file-type icon for a file azul can open, or nil if the extension is unknown.
+    private static func fileTypeIcon(for url: URL) -> UIImage? {
+        let fileName = url.lastPathComponent.lowercased()
+        let iconName: String
+        if fileName.hasSuffix(".city.json") || fileName.hasSuffix(".cityjson") {
+            iconName = "cityjson"
+        } else {
+            switch url.pathExtension.lowercased() {
+            case "gml": iconName = "gml"
+            case "xml": iconName = "xml"
+            case "json": iconName = "json"
+            case "jsonl": iconName = "jsonl"
+            case "obj": iconName = "obj"
+            case "off": iconName = "off"
+            case "poly": iconName = "poly"
+            case "fcb": iconName = "fcb"
+            case "azulview": iconName = "azulview"
+            default: return nil
+            }
+        }
+        return UIImage(named: iconName)?.withRenderingMode(.alwaysOriginal)
     }
 
     func makeFloatingButton(systemName: String, config: UIImage.SymbolConfiguration, action: Selector, tintColor: UIColor? = .label, menu: UIMenu? = nil) -> UIView {

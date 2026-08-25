@@ -13,6 +13,8 @@
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>cityjson</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>tudelft3d.cityjson</string>
@@ -25,6 +27,8 @@
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>fcb</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>tudelft3d.flatcitybuf</string>
@@ -102,7 +106,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
-			<string>json</string>
+			<string>jsonl</string>
 			<key>CFBundleTypeName</key>
 			<string>JSON Lines document</string>
 			<key>CFBundleTypeRole</key>
@@ -164,6 +168,8 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>CityJSON document</string>
+			<key>UTTypeIconFile</key>
+			<string>cityjson</string>
 			<key>UTTypeIdentifier</key>
 			<string>tudelft3d.cityjson</string>
 			<key>UTTypeTagSpecification</key>
@@ -182,6 +188,8 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>FlatCityBuf document</string>
+			<key>UTTypeIconFile</key>
+			<string>fcb</string>
 			<key>UTTypeIdentifier</key>
 			<string>tudelft3d.flatcitybuf</string>
 			<key>UTTypeTagSpecification</key>
@@ -256,6 +264,8 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>JSON Lines document</string>
+			<key>UTTypeIconFile</key>
+			<string>jsonl</string>
 			<key>UTTypeIdentifier</key>
 			<string>tudelft3d.jsonl</string>
 			<key>UTTypeTagSpecification</key>

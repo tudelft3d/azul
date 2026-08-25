@@ -13,6 +13,9 @@
 		BE8C43CF1F8D1E6A0021CA0B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DACF1F705479002FBEF4 /* LICENSE */; };
 		BE8C43D01F8D1E700021CA0B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BEA2DAD01F705482002FBEF4 /* README.md */; };
 		BE8C43D21F8D1E830021CA0B /* gml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CB1F8D1CAD0021CA0B /* gml.icns */; };
+		DEFCB0111FACB000000A0B1 /* fcb.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0011FACB000000A0A1 /* fcb.icns */; };
+		DEFCB0121FACB000000A0B2 /* jsonl.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0021FACB000000A0A2 /* jsonl.icns */; };
+		DEFCB0131FACB000000A0B3 /* cityjson.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0031FACB000000A0A3 /* cityjson.icns */; };
 		BE8C43D31F8D1E850021CA0B /* obj.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CD1F8D1CAD0021CA0B /* obj.icns */; };
 		BE8C43D41F8D1E880021CA0B /* off.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CC1F8D1CAD0021CA0B /* off.icns */; };
 		BE8C43D51F8D1E8A0021CA0B /* poly.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CA1F8D1CAD0021CA0B /* poly.icns */; };
@@ -42,6 +45,9 @@
 		BEE5F8D72FACA45D00653BE1 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F501F6AA4C30079531B /* Shaders.metal */; };
 		BEE5F8D92FACA45D00653BE1 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF69F521F6AA9540079531B /* Math.swift */; };
 		BEE5F8DB2FACA4A200653BE1 /* gml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CB1F8D1CAD0021CA0B /* gml.icns */; };
+		DEFCB0211FACB000000A0C1 /* fcb.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0011FACB000000A0A1 /* fcb.icns */; };
+		DEFCB0221FACB000000A0C2 /* jsonl.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0021FACB000000A0A2 /* jsonl.icns */; };
+		DEFCB0231FACB000000A0C3 /* cityjson.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0031FACB000000A0A3 /* cityjson.icns */; };
 		BEE5F8DC2FACA4A200653BE1 /* json.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEA3000D1F8EDB4800DCC464 /* json.icns */; };
 		BEE5F8DD2FACA4A200653BE1 /* obj.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CD1F8D1CAD0021CA0B /* obj.icns */; };
 		BEE5F8DE2FACA4A200653BE1 /* off.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CC1F8D1CAD0021CA0B /* off.icns */; };
@@ -65,6 +71,9 @@
 		BEE5F9C52FAD44BD00653BE1 /* libboost_atomic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE5F8C62FACA40300653BE1 /* libboost_atomic.a */; };
 		BEE5F9C62FAD44BD00653BE1 /* libmpfr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE5F8C72FACA40300653BE1 /* libmpfr.a */; };
 		BEE5F9C82FAD44BD00653BE1 /* gml.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CB1F8D1CAD0021CA0B /* gml.icns */; };
+		DEFCB0311FACB000000A0D1 /* fcb.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0011FACB000000A0A1 /* fcb.icns */; };
+		DEFCB0321FACB000000A0D2 /* jsonl.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0021FACB000000A0A2 /* jsonl.icns */; };
+		DEFCB0331FACB000000A0D3 /* cityjson.icns in Resources */ = {isa = PBXBuildFile; fileRef = DEFCB0031FACB000000A0A3 /* cityjson.icns */; };
 		BEE5F9C92FAD44BD00653BE1 /* json.icns in Resources */ = {isa = PBXBuildFile; fileRef = BEA3000D1F8EDB4800DCC464 /* json.icns */; };
 		BEE5F9CA2FAD44BD00653BE1 /* obj.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CD1F8D1CAD0021CA0B /* obj.icns */; };
 		BEE5F9CB2FAD44BD00653BE1 /* off.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE8C43CC1F8D1CAD0021CA0B /* off.icns */; };
@@ -119,6 +128,9 @@
 		BE8C43CB1F8D1CAD0021CA0B /* gml.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = gml.icns; sourceTree = "<group>"; };
 		BE8C43CC1F8D1CAD0021CA0B /* off.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = off.icns; sourceTree = "<group>"; };
 		BE8C43CD1F8D1CAD0021CA0B /* obj.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = obj.icns; sourceTree = "<group>"; };
+		DEFCB0011FACB000000A0A1 /* fcb.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = fcb.icns; sourceTree = "<group>"; };
+		DEFCB0021FACB000000A0A2 /* jsonl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = jsonl.icns; sourceTree = "<group>"; };
+		DEFCB0031FACB000000A0A3 /* cityjson.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cityjson.icns; sourceTree = "<group>"; };
 		BE8C43D61F8D1EA50021CA0B /* xml.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = xml.icns; sourceTree = "<group>"; };
 		BEA2DACF1F705479002FBEF4 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		BEA2DAD01F705482002FBEF4 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -235,6 +247,9 @@
 				BE8C43CA1F8D1CAD0021CA0B /* poly.icns */,
 				BEB3C35E1F8EC6BE00F14F1A /* azulview.icns */,
 				BE8C43D61F8D1EA50021CA0B /* xml.icns */,
+				DEFCB0011FACB000000A0A1 /* fcb.icns */,
+				DEFCB0021FACB000000A0A2 /* jsonl.icns */,
+				DEFCB0031FACB000000A0A3 /* cityjson.icns */,
 			);
 			path = Icons;
 			sourceTree = "<group>";
@@ -506,6 +521,9 @@
 				BEE5F8DF2FACA4A200653BE1 /* poly.icns in Resources */,
 				BEE5F8E02FACA4A200653BE1 /* azulview.icns in Resources */,
 				BEE5F8E12FACA4A200653BE1 /* xml.icns in Resources */,
+				DEFCB0211FACB000000A0C1 /* fcb.icns in Resources */,
+				DEFCB0221FACB000000A0C2 /* jsonl.icns in Resources */,
+				DEFCB0231FACB000000A0C3 /* cityjson.icns in Resources */,
 				BEE5F8E22FACA4A200653BE1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -521,6 +539,9 @@
 				BEE5F9CC2FAD44BD00653BE1 /* poly.icns in Resources */,
 				BEE5F9CD2FAD44BD00653BE1 /* azulview.icns in Resources */,
 				BEE5F9CE2FAD44BD00653BE1 /* xml.icns in Resources */,
+				DEFCB0311FACB000000A0D1 /* fcb.icns in Resources */,
+				DEFCB0321FACB000000A0D2 /* jsonl.icns in Resources */,
+				DEFCB0331FACB000000A0D3 /* cityjson.icns in Resources */,
 				BEE5F9CF2FAD44BD00653BE1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -538,6 +559,9 @@
 				BE8C43D51F8D1E8A0021CA0B /* poly.icns in Resources */,
 				BEB3C35F1F8EC6CB00F14F1A /* azulview.icns in Resources */,
 				BE8C43D71F8D1EA70021CA0B /* xml.icns in Resources */,
+				DEFCB0111FACB000000A0B1 /* fcb.icns in Resources */,
+				DEFCB0121FACB000000A0B2 /* jsonl.icns in Resources */,
+				DEFCB0131FACB000000A0B3 /* cityjson.icns in Resources */,
 				BE8C43CF1F8D1E6A0021CA0B /* LICENSE in Resources */,
 				BEF69F461F6AA0520079531B /* MainMenu.xib in Resources */,
 				BE8C43D01F8D1E700021CA0B /* README.md in Resources */,
