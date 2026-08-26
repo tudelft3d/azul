@@ -99,6 +99,7 @@ extension NSToolbarItem.Identifier {
   @objc var metalView: MetalView?
   var openFiles = Set<URL>()
   var retainedSecurityScopedURLs = [String: URL]()
+  var openRecentMenuItem: NSMenuItem?
   
   @IBOutlet weak var toggleViewEdgesMenuItem: NSMenuItem!
   @IBOutlet weak var toggleViewBoundingBoxMenuItem: NSMenuItem!
@@ -322,16 +323,128 @@ extension NSToolbarItem.Identifier {
   }
   
   func setupFileMenu() {
-    // "Open Recent" is provided by the standard system menu in MainMenu.xib.
-    NSDocumentController.shared.clearRecentDocuments(nil)
-    
     let fileMenu = NSApp.mainMenu!.item(withTitle: "File")!.submenu!
     var fileItems = fileMenu.items
+    // Persistent "Open Recent", backed by security-scoped bookmarks (the
+    // standard system menu is cleared at launch and loses sandbox access
+    // across launches).
+    let recentMenuItem = NSMenuItem(title: "Open Recent", action: nil, keyEquivalent: "")
+    recentMenuItem.submenu = NSMenu(title: "Open Recent")
+    if let index = fileItems.firstIndex(where: { $0.title == "Open Recent" }) {
+      fileItems[index] = recentMenuItem
+    } else {
+      fileItems.insert(recentMenuItem, at: fileItems.firstIndex(where: { $0.keyEquivalent == "w" })!)
+    }
+    self.openRecentMenuItem = recentMenuItem
     let exportItem = NSMenuItem(title: "Export Image…", action: #selector(exportImage(_:)), keyEquivalent: "e")
     exportItem.target = self
     fileItems.append(NSMenuItem.separator())
     fileItems.append(exportItem)
     fileMenu.items = fileItems
+    reloadRecentFilesMenu()
+  }
+
+  // MARK: Recent files
+
+  private func recentFiles() -> [(path: String, bookmark: Data?)] {
+    guard let array = UserDefaults.standard.array(forKey: "azulRecentFiles") as? [[String: Any]] else { return [] }
+    return array.compactMap { dict in
+      guard let path = dict["path"] as? String else { return nil }
+      return (path, dict["bookmark"] as? Data)
+    }
+  }
+
+  private func saveRecentFiles(_ files: [(path: String, bookmark: Data?)]) {
+    let array: [[String: Any]] = files.map { entry in
+      var dict: [String: Any] = ["path": entry.path]
+      if let bookmark = entry.bookmark { dict["bookmark"] = bookmark }
+      return dict
+    }
+    UserDefaults.standard.set(array, forKey: "azulRecentFiles")
+  }
+
+  // The number of recent documents a user wants: the "Recent documents,
+  // applications, and servers" setting is not exposed to apps, so honour the
+  // legacy global-domain limit when present, and Apple's historical default
+  // (10) otherwise.
+  private var recentFilesLimit: Int {
+    if let value = UserDefaults.standard.persistentDomain(forName: UserDefaults.globalDomain)?["NSRecentDocumentsLimit"] as? Int {
+      return max(0, value)
+    }
+    return 10
+  }
+
+  func addRecentFile(_ url: URL) {
+    var files = recentFiles()
+    files.removeAll { $0.path == url.path }
+    let bookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+    files.insert((url.path, bookmark), at: 0)
+    if files.count > recentFilesLimit { files = Array(files.prefix(recentFilesLimit)) }
+    saveRecentFiles(files)
+    DispatchQueue.main.async { self.reloadRecentFilesMenu() }
+  }
+
+  private func resolvedRecentFileURL(for entry: (path: String, bookmark: Data?)) -> URL? {
+    if let bookmark = entry.bookmark {
+      var stale = false
+      if let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope], relativeTo: nil, bookmarkDataIsStale: &stale) {
+        // Sandboxed apps cannot even check file existence without an active scope.
+        let accesses = url.startAccessingSecurityScopedResource()
+        let exists = FileManager.default.fileExists(atPath: url.path)
+        if accesses { url.stopAccessingSecurityScopedResource() }
+        if exists {
+          if stale { refreshRecentFileBookmark(for: url) }
+          return url
+        }
+      }
+    }
+    let url = URL(fileURLWithPath: entry.path)
+    return FileManager.default.fileExists(atPath: url.path) ? url : nil
+  }
+
+  private func refreshRecentFileBookmark(for url: URL) {
+    var files = recentFiles()
+    guard let index = files.firstIndex(where: { $0.path == url.path }) else { return }
+    files[index].bookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+    saveRecentFiles(files)
+  }
+
+  func reloadRecentFilesMenu() {
+    guard let submenu = openRecentMenuItem?.submenu else { return }
+    submenu.removeAllItems()
+    var files = recentFiles()
+    if files.count > recentFilesLimit {
+      files = Array(files.prefix(recentFilesLimit))
+      saveRecentFiles(files)
+    }
+    for entry in files {
+      guard let url = resolvedRecentFileURL(for: entry) else { continue }
+      let item = NSMenuItem(title: url.lastPathComponent, action: #selector(openRecentDocument(_:)), keyEquivalent: "")
+      item.target = self
+      item.representedObject = url
+      item.image = NSWorkspace.shared.icon(forFile: url.path)
+      submenu.addItem(item)
+    }
+    if submenu.items.isEmpty {
+      let placeholder = NSMenuItem(title: "No Recent Files", action: nil, keyEquivalent: "")
+      placeholder.isEnabled = false
+      submenu.addItem(placeholder)
+      return
+    }
+    submenu.addItem(NSMenuItem.separator())
+    let clearItem = NSMenuItem(title: "Clear Menu", action: #selector(clearRecentFiles(_:)), keyEquivalent: "")
+    clearItem.target = self
+    submenu.addItem(clearItem)
+  }
+
+  @objc func openRecentDocument(_ sender: NSMenuItem) {
+    guard !isLoading, let url = sender.representedObject as? URL else { return }
+    loadData(from: [url])
+  }
+
+  @objc func clearRecentFiles(_ sender: NSMenuItem) {
+    UserDefaults.standard.removeObject(forKey: "azulRecentFiles")
+    reloadRecentFilesMenu()
   }
 
   func setupEmptyStateView() {
@@ -490,6 +603,9 @@ extension NSToolbarItem.Identifier {
     }
     if menuItem.action == #selector(exportImage(_:)) {
       return !(metalView?.triangleBuffers.isEmpty ?? true)
+    }
+    if menuItem.action == #selector(openRecentDocument(_:)) {
+      return !isLoading
     }
     return true
   }
@@ -976,6 +1092,7 @@ extension NSToolbarItem.Identifier {
         
         self.openFiles.insert(url)
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        self.addRecentFile(url)
         
         DispatchQueue.main.async {
           self.metalView!.needsDisplay = true
