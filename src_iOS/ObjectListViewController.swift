@@ -163,7 +163,11 @@ extension ObjectListViewController: UITableViewDataSource, UITableViewDelegate {
             } else if let icon = UIImage(named: typeName) {
                 return icon
             } else {
-                return UIImage(systemName: "cube.transparent")
+                // CityGML uses the class names for a few types whose icons
+                // follow the CityJSON names
+                let gmlAlias = ["ReliefFeature": "TINRelief", "Square": "TransportSquare"]
+                return UIImage(named: gmlAlias[typeName] ?? "")
+                    ?? UIImage(systemName: "cube.transparent")
             }
         }()
 
