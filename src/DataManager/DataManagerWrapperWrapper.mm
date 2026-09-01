@@ -587,6 +587,13 @@ static bool refreshAncestorsVisibility(AzulObject &node, AzulObject *target, Dat
     filter.push_back(std::string([type UTF8String]));
   }
   dataManagerWrapper->dataManager->setObjectTypeFilter(filter);
+  // The type filter hides filtered-out geometry in 3D as well (via the GPU
+  // visibility states), so refresh the buffer like a visibility toggle would.
+  dataManagerWrapper->dataManager->updateVisibleStates();
+  [self.controller updateVisibleStateBuffer];
+#if TARGET_OS_OSX
+  [[controller metalView] setNeedsDisplay:YES];
+#endif
 }
 
 - (NSDictionary<NSString *, NSNumber *> *) availableObjectTypesWithCounts {

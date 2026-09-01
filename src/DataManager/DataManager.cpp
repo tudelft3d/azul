@@ -970,6 +970,15 @@ void sortDisplayOrder(std::vector<long> &order,
   else if (sortKey == "type") std::stable_sort(order.begin(), order.end(), compareByTypeThenId);
 }
 
+// Rows that carry no semantic city object type of their own: file rows and
+// the parser-created LoD groupings ("LoD", "lod<digits>").
+bool isStructuralType(const std::string &type) {
+  return type.empty() ||
+         type == "File" ||
+         type == "LoD" ||
+         (type.size() > 3 && type.substr(0, 3) == "lod" && isdigit(type[3]));
+}
+
 }
 
 DataManager::DataManager() {
@@ -1150,14 +1159,10 @@ void DataManager::regenerateTriangleBuffers(long maxBufferSize) {
   
   for (auto &file: parsedFiles) putAzulObjectAndItsChildrenIntoTriangleBuffers(file, file.appearanceStyles, defaultType, maxBufferSize);
   std::cout << "Created " << triangleBuffers.size() << " triangle buffers with " << objectsById.size() << " objects" << std::endl;
-  
+
   // Initialize selection and visibility states from current object states
-  selectionStates.resize(objectsById.size());
-  visibleStates.resize(objectsById.size());
-  for (int i = 0; i < objectsById.size(); ++i) {
-    selectionStates[i] = objectsById[i]->selected ? 1.0f : 0.0f;
-    visibleStates[i] = objectsById[i]->visible != 'N' ? 1.0f : 0.0f;
-  }
+  updateSelectionStates();
+  updateVisibleStates();
 }
 
 void DataManager::regenerateEdgeBuffers(long maxBufferSize) {
@@ -1245,10 +1250,30 @@ int DataManager::getSelectionStateCount() {
   return static_cast<int>(selectionStates.size());
 }
 
+void DataManager::computeGeometryTypeMatches(AzulObject &object, bool semanticAncestorMatches) {
+  // Structural rows (file rows, LoD groupings) carry no semantic type of
+  // their own: their geometry belongs to the nearest semantic ancestor, so
+  // they inherit its match. CityJSON geometry for example lives on "LoD"
+  // children of the actual city objects.
+  bool structural = isStructuralType(object.type);
+  bool effective = structural ? semanticAncestorMatches : matchesTypeFilter(object);
+  object.geometryTypeMatch = effective ? 'Y' : 'N';
+  for (auto &child: object.children) {
+    computeGeometryTypeMatches(child, structural ? semanticAncestorMatches : effective);
+  }
+}
+
 void DataManager::updateVisibleStates() {
+  // The object type filter hides geometry in 3D too (same predicate as the
+  // sidebar), so objects of filtered-out types are culled by the shaders and
+  // excluded from GPU picking without regenerating the buffers.
+  if (!objectTypeFilter.empty()) {
+    for (auto &file: parsedFiles) computeGeometryTypeMatches(file, false);
+  }
   visibleStates.resize(objectsById.size());
   for (int i = 0; i < objectsById.size(); ++i) {
-    visibleStates[i] = objectsById[i]->visible != 'N' ? 1.0f : 0.0f;
+    bool typeMatches = objectTypeFilter.empty() || objectsById[i]->geometryTypeMatch == 'Y';
+    visibleStates[i] = (objectsById[i]->visible != 'N' && typeMatches) ? 1.0f : 0.0f;
   }
 }
 
@@ -1519,13 +1544,7 @@ std::vector<std::pair<std::string, int>> DataManager::availableTypesWithCounts()
   std::map<std::string, int> counts;
   std::function<void(const AzulObject &)> collect = [&](const AzulObject &object) {
     // Skip structural rows that carry no semantic type (file rows and LoD groupings)
-    bool structural = object.type.empty() ||
-                      object.type == "File" ||
-                      object.type == "LoD" ||
-                      (object.type.size() > 3 &&
-                       object.type.substr(0, 3) == "lod" &&
-                       isdigit(object.type[3]));
-    if (!structural) ++counts[object.type];
+    if (!isStructuralType(object.type)) ++counts[object.type];
     for (auto const &child: object.children) collect(child);
   };
   for (auto const &file: parsedFiles) collect(file);

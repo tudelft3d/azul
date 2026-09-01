@@ -406,4 +406,21 @@ final class DataManagerStateTests: DataManagerTestCase {
     XCTAssertNil(counts?["File"])
     XCTAssertNil(counts?["LoD"])
   }
+
+  func testTypeFilterHidesGeometryIn3DState() {
+    // The type filter flags filtered-out objects as invisible in the GPU
+    // visibility state, which both the rendering and the picking shaders use
+    // to cull. Document order: bld-10, tree-1, bld-2, bld-1.
+    let dataManager = loadFixture("sorting", "city.json")
+    XCTAssertEqual(visibleStateValues(dataManager), [1, 1, 1, 1])
+
+    dataManager.setObjectTypeFilter(["Building"])
+    XCTAssertEqual(visibleStateValues(dataManager), [1, 0, 1, 1])
+
+    dataManager.setObjectTypeFilter(["Plant"])
+    XCTAssertEqual(visibleStateValues(dataManager), [0, 1, 0, 0])
+
+    dataManager.setObjectTypeFilter([])
+    XCTAssertEqual(visibleStateValues(dataManager), [1, 1, 1, 1])
+  }
 }

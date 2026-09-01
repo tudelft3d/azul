@@ -70,6 +70,7 @@ private:
   void setMatchesTypeFilter(AzulObject &object, char matches);
   bool matchesTypeFilter(AzulObject &object);
   bool matchesDisplayFilters(AzulObject &object);
+  void computeGeometryTypeMatches(AzulObject &object, bool semanticAncestorMatches);
   void computeSortOrders(AzulObject &object);
   std::string computeLodMatches(AzulObject &object);
   std::string lodOfObject(const AzulObject &object);

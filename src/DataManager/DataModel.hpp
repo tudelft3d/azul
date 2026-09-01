@@ -137,6 +137,7 @@ struct AzulObject {
   char matchesSearch; // 'Y'es, 'N'o, 'U'nknown
   char lodMatch; // 'Y'es, 'N'o, 'U'nknown
   char matchesTypeFilter; // 'Y'es, 'N'o, 'U'nknown
+  char geometryTypeMatch; // 'Y'es, 'N'o, 'U'nknown — 3D type filter match incl. structural nodes inheriting their nearest semantic ancestor
   std::vector<std::pair<std::string, std::string>> attributes;
   std::vector<AzulObject> children;
   std::vector<long> displayOrder; // sidebar display order of children (indices into children, only used when sorting is active)
@@ -153,6 +154,7 @@ struct AzulObject {
     matchesSearch = 'U';
     lodMatch = 'U';
     matchesTypeFilter = 'U';
+    geometryTypeMatch = 'U';
   }
   
   AzulObject(const AzulObject &other) {
@@ -165,6 +167,7 @@ struct AzulObject {
     matchesSearch = other.matchesSearch;
     lodMatch = other.lodMatch;
     matchesTypeFilter = other.matchesTypeFilter;
+    geometryTypeMatch = other.geometryTypeMatch;
     for (auto const &attribute: other.attributes) attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
     for (auto const &child: other.children) children.push_back(AzulObject(child));
     displayOrder = other.displayOrder;
