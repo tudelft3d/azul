@@ -581,6 +581,23 @@ static bool refreshAncestorsVisibility(AzulObject &node, AzulObject *target, Dat
   dataManagerWrapper->dataManager->setSortOrder(key, descending == YES);
 }
 
+- (void) setObjectTypeFilter:(NSArray<NSString *> *)types {
+  std::vector<std::string> filter;
+  for (NSString *type in types) {
+    filter.push_back(std::string([type UTF8String]));
+  }
+  dataManagerWrapper->dataManager->setObjectTypeFilter(filter);
+}
+
+- (NSDictionary<NSString *, NSNumber *> *) availableObjectTypesWithCounts {
+  std::vector<std::pair<std::string, int>> types = dataManagerWrapper->dataManager->availableTypesWithCounts();
+  NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary dictionaryWithCapacity:types.size()];
+  for (auto const &type: types) {
+    result[[NSString stringWithUTF8String:type.first.c_str()]] = @(type.second);
+  }
+  return result;
+}
+
 - (void) setLodFilter:(const char *)lod {
   dataManagerWrapper->dataManager->setLodFilter(lod);
 }

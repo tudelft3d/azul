@@ -18,6 +18,7 @@
 #define DataManager_hpp
 
 #include <fstream>
+#include <set>
 #include <boost/algorithm/string/predicate.hpp>
 #include <simd/simd.h>
 
@@ -66,6 +67,9 @@ private:
   void swapAzulObjectLatLon(AzulObject &object);
   void setMatchesSearch(AzulObject &object, char matches);
   bool matchesSearch(AzulObject &object);
+  void setMatchesTypeFilter(AzulObject &object, char matches);
+  bool matchesTypeFilter(AzulObject &object);
+  bool matchesDisplayFilters(AzulObject &object);
   void computeSortOrders(AzulObject &object);
   std::string computeLodMatches(AzulObject &object);
   std::string lodOfObject(const AzulObject &object);
@@ -107,6 +111,9 @@ public:
   
   // Search
   std::string searchString;
+
+  // Type filter (sidebar only; empty set = all types shown)
+  std::set<std::string> objectTypeFilter;
 
   // Sorting (sidebar display order; "" = document order)
   std::string sortKey;
@@ -181,6 +188,10 @@ public:
   int numberOfChildren(AzulObject &object);
   std::vector<AzulObject>::iterator child(AzulObject &object, long index);
   std::vector<AzulObject>::iterator fileChild(long index);
+
+  // Type filter
+  void setObjectTypeFilter(const std::vector<std::string> &types);
+  std::vector<std::pair<std::string, int>> availableTypesWithCounts();
 
   // Sorting
   void setSortOrder(const char *key, bool descending);

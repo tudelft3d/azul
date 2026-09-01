@@ -103,6 +103,10 @@ struct DataManagerWrapper;
 // Sorting (key: "" = document order, "id", "type")
 - (void) setSortOrderWithKey:(const char *)key descending:(BOOL)descending NS_SWIFT_NAME(setSortOrder(key:descending:));
 
+// Type filter (empty array = all types shown)
+- (void) setObjectTypeFilter:(NSArray<NSString *> *)types;
+- (NSDictionary<NSString *, NSNumber *> *) availableObjectTypesWithCounts;
+
 // LOD filtering
 - (void) setLodFilter:(const char *)lod;
 - (NSArray<NSString *> *) availableLods;

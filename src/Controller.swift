@@ -114,10 +114,12 @@ extension NSToolbarItem.Identifier {
   @IBOutlet weak var toggleFullScreenMenuItem: NSMenuItem!
   var lodMenuItem: NSMenuItem?
   var sortMenuItem: NSMenuItem?
+  var typeFilterMenuItem: NSMenuItem?
   var currentLodFilter: String = "__highest__"
   var currentAppearanceTheme: String = ""
   var sortKey: String = "none"
   var sortDescending = false
+  var selectedTypes: Set<String> = []
   
   let dataManager = DataManagerWrapperWrapper()!
   let performanceHelper = PerformanceHelperWrapperWrapper()!
@@ -644,6 +646,15 @@ extension NSToolbarItem.Identifier {
       sortMenuItem.submenu = sortSubmenu
       viewMenu.insertItem(sortMenuItem, at: 3)
       self.sortMenuItem = sortMenuItem
+
+      let typeFilterMenuItem = NSMenuItem(title: "Object Type Filter", action: nil, keyEquivalent: "")
+      let typeFilterSubmenu = NSMenu(title: "Object Type Filter")
+      let typeFilterPlaceholder = NSMenuItem(title: "Show All Types", action: nil, keyEquivalent: "")
+      typeFilterPlaceholder.isEnabled = false
+      typeFilterSubmenu.addItem(typeFilterPlaceholder)
+      typeFilterMenuItem.submenu = typeFilterSubmenu
+      viewMenu.insertItem(typeFilterMenuItem, at: 4)
+      self.typeFilterMenuItem = typeFilterMenuItem
       break
     }
     if let storedKey = UserDefaults.standard.string(forKey: "azulSortKey") {
@@ -689,6 +700,55 @@ extension NSToolbarItem.Identifier {
         item.state = value == sortKey ? .on : .off
       }
     }
+  }
+
+  func rebuildTypeFilterMenu() {
+    guard let submenu = typeFilterMenuItem?.submenu else { return }
+    submenu.removeAllItems()
+    let allItem = NSMenuItem(title: "Show All Types", action: #selector(typeFilterMenuItemClicked(_:)), keyEquivalent: "")
+    allItem.target = self
+    allItem.representedObject = "__all__"
+    allItem.state = selectedTypes.isEmpty ? .on : .off
+    submenu.addItem(allItem)
+    submenu.addItem(NSMenuItem.separator())
+    let counts = dataManager.availableObjectTypesWithCounts() ?? [:]
+    for (type, count) in counts.sorted(by: { $0.key < $1.key }) {
+      let item = NSMenuItem(title: "\(type) (\(count.intValue))", action: #selector(typeFilterMenuItemClicked(_:)), keyEquivalent: "")
+      item.target = self
+      item.representedObject = type
+      item.state = selectedTypes.contains(type) ? .on : .off
+      submenu.addItem(item)
+    }
+  }
+
+  @objc func typeFilterMenuItemClicked(_ sender: NSMenuItem) {
+    guard let value = sender.representedObject as? String else { return }
+    if value == "__all__" {
+      selectedTypes.removeAll()
+    } else if selectedTypes.contains(value) {
+      selectedTypes.remove(value)
+    } else {
+      selectedTypes.insert(value)
+    }
+    applyTypeFilter()
+  }
+
+  func applyTypeFilter() {
+    dataManager.setObjectTypeFilter(selectedTypes.sorted())
+    rebuildTypeFilterMenu()
+    guard let outlineView = objectsSourceList else { return }
+    outlineView.reloadData()
+    for row in 0..<outlineView.numberOfRows {
+      if let item = outlineView.item(atRow: row), outlineView.parent(forItem: item) == nil {
+        outlineView.expandItem(item)
+      }
+    }
+  }
+
+  func resetTypeFilter() {
+    selectedTypes.removeAll()
+    dataManager.setObjectTypeFilter([])
+    rebuildTypeFilterMenu()
   }
 
   func updateAppearanceThemeOptions() {
@@ -1191,6 +1251,7 @@ extension NSToolbarItem.Identifier {
             }
             self.updateLodSegments()
             self.updateAppearanceThemeOptions()
+            self.resetTypeFilter()
             self.hideEmptyStateView()
           }
         }

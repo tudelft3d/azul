@@ -345,4 +345,65 @@ final class DataManagerStateTests: DataManagerTestCase {
     XCTAssertTrue(sortedIds[0].hasSuffix("cube.city.json"))
     XCTAssertTrue(sortedIds[1].hasSuffix("lods.city.json"))
   }
+
+  // MARK: - Type filtering
+
+  func testTypeFilterShowsOnlySelectedTypes() {
+    // sorting: bld-10 (Building), tree-1 (Plant), bld-2 (Building), bld-1 (Building)
+    let dataManager = loadFixture("sorting", "city.json")
+    let file = firstChild(dataManager, of: nil)
+    XCTAssertNotNil(file)
+
+    dataManager.setObjectTypeFilter(["Building"])
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-10", "bld-2", "bld-1"])
+
+    dataManager.setObjectTypeFilter(["Plant"])
+    XCTAssertEqual(childIds(dataManager, of: file!), ["tree-1"])
+
+    // An empty filter shows everything again
+    dataManager.setObjectTypeFilter([])
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-10", "tree-1", "bld-2", "bld-1"])
+  }
+
+  func testTypeFilterKeepsAncestorsOfMatches() {
+    // semisurf: file > Building > LoD > GroundSurface, RoofSurface, 4× WallSurface.
+    // Filtering on WallSurface must keep the Building and LoD ancestors for
+    // context, but hide the non-matching surface siblings.
+    let dataManager = loadFixture("semisurf", "city.json")
+    let file = firstChild(dataManager, of: nil)
+    XCTAssertNotNil(file)
+    let building = firstChild(dataManager, of: file!)
+    XCTAssertNotNil(building)
+    let buildingId = dataManager.objectId(forItem: building!)
+    let lod = firstChild(dataManager, of: building!)
+    XCTAssertNotNil(lod)
+
+    dataManager.setObjectTypeFilter(["WallSurface"])
+    XCTAssertEqual(childIds(dataManager, of: file!), [buildingId])
+    XCTAssertEqual(dataManager.outlineView(nil, numberOfChildrenOfItem: building!), 1)
+    XCTAssertEqual(dataManager.outlineView(nil, numberOfChildrenOfItem: lod!), 4)
+  }
+
+  func testTypeFilterComposesWithSort() {
+    let dataManager = loadFixture("sorting", "city.json")
+    let file = firstChild(dataManager, of: nil)
+    XCTAssertNotNil(file)
+
+    dataManager.setObjectTypeFilter(["Building"])
+    dataManager.setSortOrder(key: "id", descending: false)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-1", "bld-2", "bld-10"])
+
+    dataManager.setSortOrder(key: "id", descending: true)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-10", "bld-2", "bld-1"])
+  }
+
+  func testAvailableTypesWithCounts() {
+    let dataManager = loadFixture("sorting", "city.json")
+    let counts = dataManager.availableObjectTypesWithCounts() as? [String: Int]
+    XCTAssertEqual(counts?["Building"], 3)
+    XCTAssertEqual(counts?["Plant"], 1)
+    // Structural rows (file, LoD groupings) must not be offered
+    XCTAssertNil(counts?["File"])
+    XCTAssertNil(counts?["LoD"])
+  }
 }

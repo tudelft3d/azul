@@ -136,6 +136,7 @@ struct AzulObject {
   char visible; // 'Y'es, 'N'o, 'P'artly
   char matchesSearch; // 'Y'es, 'N'o, 'U'nknown
   char lodMatch; // 'Y'es, 'N'o, 'U'nknown
+  char matchesTypeFilter; // 'Y'es, 'N'o, 'U'nknown
   std::vector<std::pair<std::string, std::string>> attributes;
   std::vector<AzulObject> children;
   std::vector<long> displayOrder; // sidebar display order of children (indices into children, only used when sorting is active)
@@ -151,6 +152,7 @@ struct AzulObject {
     visible = 'Y';
     matchesSearch = 'U';
     lodMatch = 'U';
+    matchesTypeFilter = 'U';
   }
   
   AzulObject(const AzulObject &other) {
@@ -162,6 +164,7 @@ struct AzulObject {
     visible = other.visible;
     matchesSearch = other.matchesSearch;
     lodMatch = other.lodMatch;
+    matchesTypeFilter = other.matchesTypeFilter;
     for (auto const &attribute: other.attributes) attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
     for (auto const &child: other.children) children.push_back(AzulObject(child));
     displayOrder = other.displayOrder;

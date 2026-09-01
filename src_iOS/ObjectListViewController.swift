@@ -21,8 +21,10 @@ class ObjectListViewController: UIViewController {
     var isSearchActive: Bool { !(searchController.searchBar.text ?? "").isEmpty }
 
     let sortButton = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down"), style: .plain, target: nil, action: nil)
+    let filterButton = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal.decrease.circle"), style: .plain, target: nil, action: nil)
     var sortKey: String = "none"
     var sortDescending = false
+    var selectedTypes: Set<String> = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,11 +61,14 @@ class ObjectListViewController: UIViewController {
         sortKey = UserDefaults.standard.string(forKey: "azulSortKey") ?? "none"
         sortDescending = UserDefaults.standard.bool(forKey: "azulSortDescending")
         applySortOrderToDataManager()
+        sortButton.target = nil
+        filterButton.target = self
+        filterButton.action = #selector(showTypeFilter)
         sortButton.menu = makeSortMenu()
         if isSidebar {
-            navigationItem.rightBarButtonItem = sortButton
+            navigationItem.rightBarButtonItems = [filterButton, sortButton]
         } else {
-            navigationItem.leftBarButtonItem = sortButton
+            navigationItem.leftBarButtonItems = [sortButton, filterButton]
         }
 
         rebuildFlatItems()
@@ -76,7 +81,7 @@ class ObjectListViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(rebuildFlatItems), name: Notification.Name("AzulFileLoaded"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFileLoaded), name: Notification.Name("AzulFileLoaded"), object: nil)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -86,6 +91,12 @@ class ObjectListViewController: UIViewController {
 
     @objc func dismissSelf() {
         dismiss(animated: true)
+    }
+
+    @objc func handleFileLoaded() {
+        // Type availability is file-specific, so a stale filter makes no sense
+        selectedTypes.removeAll()
+        applyTypeFilter()
     }
 
     @objc func rebuildFlatItems() {
@@ -141,6 +152,29 @@ class ObjectListViewController: UIViewController {
         }
     }
 
+    // MARK: - Type filtering
+
+    @objc func showTypeFilter() {
+        let picker = TypeFilterViewController()
+        let counts = (dataManager.availableObjectTypesWithCounts() as? [String: NSNumber]) ?? [:]
+        picker.availableTypes = counts
+            .map { (name: $0.key, count: $0.value.intValue) }
+            .sorted { $0.name < $1.name }
+        picker.selectedTypes = selectedTypes
+        picker.delegate = self
+        let nav = UINavigationController(rootViewController: picker)
+        nav.preferredContentSize = picker.preferredContentSize
+        present(nav, animated: true)
+    }
+
+    private func applyTypeFilter() {
+        dataManager.setObjectTypeFilter(selectedTypes.sorted())
+        filterButton.image = UIImage(systemName: selectedTypes.isEmpty
+            ? "line.3.horizontal.decrease.circle"
+            : "line.3.horizontal.decrease.circle.fill")
+        rebuildFlatItems()
+    }
+
     private func appendFlattened(_ item: AzulObjectIterator) {
         allFlatItems.append(item)
         if expandedItems.contains(item), dataManager.isItemExpandable(item) {
@@ -192,6 +226,13 @@ class ObjectListViewController: UIViewController {
 extension ObjectListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         applyFilter()
+    }
+}
+
+extension ObjectListViewController: TypeFilterPickerDelegate {
+    func typeFilterPicker(_ picker: TypeFilterViewController, didUpdateSelectedTypes selected: Set<String>) {
+        selectedTypes = selected
+        applyTypeFilter()
     }
 }
 

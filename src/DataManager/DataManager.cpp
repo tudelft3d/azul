@@ -1467,8 +1467,69 @@ bool DataManager::matchesSearch(AzulObject &object) {
       return true;
     }
   }
-  
+
   return false;
+}
+
+void DataManager::setMatchesTypeFilter(AzulObject &object, char matches) {
+  for (auto &child: object.children) setMatchesTypeFilter(child, matches);
+  object.matchesTypeFilter = matches;
+}
+
+bool DataManager::matchesTypeFilter(AzulObject &object) {
+
+  // No filter
+  if (objectTypeFilter.empty()) return true;
+
+  // Already known
+  if (object.matchesTypeFilter == 'Y') return true;
+  if (object.matchesTypeFilter == 'N') return false;
+
+  // Check here
+  if (objectTypeFilter.count(object.type) > 0) {
+    object.matchesTypeFilter = 'Y';
+    return true;
+  }
+
+  // Check children
+  for (auto &child: object.children) {
+    if (matchesTypeFilter(child)) {
+      object.matchesTypeFilter = 'Y';
+      return true;
+    }
+  }
+
+  object.matchesTypeFilter = 'N';
+  return false;
+}
+
+bool DataManager::matchesDisplayFilters(AzulObject &object) {
+  return (searchString.empty() || matchesSearch(object)) &&
+         (objectTypeFilter.empty() || matchesTypeFilter(object)) &&
+         (lodFilter.empty() || object.lodMatch == 'Y');
+}
+
+void DataManager::setObjectTypeFilter(const std::vector<std::string> &types) {
+  for (auto &file: parsedFiles) setMatchesTypeFilter(file, 'U');
+  objectTypeFilter.clear();
+  for (auto const &type: types) objectTypeFilter.insert(type);
+}
+
+std::vector<std::pair<std::string, int>> DataManager::availableTypesWithCounts() {
+  std::map<std::string, int> counts;
+  std::function<void(const AzulObject &)> collect = [&](const AzulObject &object) {
+    // Skip structural rows that carry no semantic type (file rows and LoD groupings)
+    bool structural = object.type.empty() ||
+                      object.type == "File" ||
+                      object.type == "LoD" ||
+                      (object.type.size() > 3 &&
+                       object.type.substr(0, 3) == "lod" &&
+                       isdigit(object.type[3]));
+    if (!structural) ++counts[object.type];
+    for (auto const &child: object.children) collect(child);
+  };
+  for (auto const &file: parsedFiles) collect(file);
+  return std::vector<std::pair<std::string, int>>(counts.begin(), counts.end());
 }
 
 std::vector<std::string> DataManager::getAvailableLods() {
@@ -1599,37 +1660,34 @@ bool DataManager::directlyMatchesLodFilter(const AzulObject &object) {
 
 bool DataManager::isExpandable(AzulObject &object) {
   if (object.children.empty()) return false;
-  if (searchString.empty() && lodFilter.empty()) return true;
+  if (searchString.empty() && lodFilter.empty() && objectTypeFilter.empty()) return true;
   for (auto &child: object.children) {
-    bool searchMatch = searchString.empty() || matchesSearch(child);
-    if (searchMatch && (lodFilter.empty() || child.lodMatch == 'Y')) return true;
+    if (matchesDisplayFilters(child)) return true;
   }
   return false;
 }
 
 int DataManager::numberOfChildren(AzulObject &object) {
-  if (searchString.empty() && lodFilter.empty()) {
+  if (searchString.empty() && lodFilter.empty() && objectTypeFilter.empty()) {
     return (int)object.children.size();
   }
   int matchingChildren = 0;
   for (auto &child: object.children) {
-    bool searchMatch = searchString.empty() || matchesSearch(child);
-    if (searchMatch && (lodFilter.empty() || child.lodMatch == 'Y')) ++matchingChildren;
+    if (matchesDisplayFilters(child)) ++matchingChildren;
   }
   return matchingChildren;
 }
 
 std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long index) {
   if (sortKey.empty()) {
-    if (searchString.empty() && lodFilter.empty()) {
+    if (searchString.empty() && lodFilter.empty() && objectTypeFilter.empty()) {
       return object.children.begin()+index;
     }
     int matchingChildren = 0;
     for (std::vector<AzulObject>::iterator child = object.children.begin();
          child != object.children.end();
          ++child) {
-      bool searchMatch = searchString.empty() || matchesSearch(*child);
-      if (searchMatch && (lodFilter.empty() || child->lodMatch == 'Y')) {
+      if (matchesDisplayFilters(*child)) {
         if (matchingChildren == index) return child;
         ++matchingChildren;
       }
@@ -1640,8 +1698,7 @@ std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long in
   int matchingChildren = 0;
   for (long position: object.displayOrder) {
     std::vector<AzulObject>::iterator child = object.children.begin()+position;
-    bool searchMatch = searchString.empty() || matchesSearch(*child);
-    if (searchMatch && (lodFilter.empty() || child->lodMatch == 'Y')) {
+    if (matchesDisplayFilters(*child)) {
       if (matchingChildren == index) return child;
       ++matchingChildren;
     }
