@@ -100,6 +100,9 @@ struct DataManagerWrapper;
 // Search
 - (void) setSearchString:(const char *)string;
 
+// Sorting (key: "" = document order, "id", "type")
+- (void) setSortOrderWithKey:(const char *)key descending:(BOOL)descending NS_SWIFT_NAME(setSortOrder(key:descending:));
+
 // LOD filtering
 - (void) setLodFilter:(const char *)lod;
 - (NSArray<NSString *> *) availableLods;

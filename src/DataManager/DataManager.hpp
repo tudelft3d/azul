@@ -66,6 +66,7 @@ private:
   void swapAzulObjectLatLon(AzulObject &object);
   void setMatchesSearch(AzulObject &object, char matches);
   bool matchesSearch(AzulObject &object);
+  void computeSortOrders(AzulObject &object);
   std::string computeLodMatches(AzulObject &object);
   std::string lodOfObject(const AzulObject &object);
   void setLodMatchRecursive(AzulObject &object, char value);
@@ -106,6 +107,12 @@ public:
   
   // Search
   std::string searchString;
+
+  // Sorting (sidebar display order; "" = document order)
+  std::string sortKey;
+  bool sortDescending;
+  std::vector<long> fileDisplayOrder;
+  bool sortOrdersCurrent;
 
   // Appearance rendering
   bool useAppearances;
@@ -173,6 +180,11 @@ public:
   bool isExpandable(AzulObject &object);
   int numberOfChildren(AzulObject &object);
   std::vector<AzulObject>::iterator child(AzulObject &object, long index);
+  std::vector<AzulObject>::iterator fileChild(long index);
+
+  // Sorting
+  void setSortOrder(const char *key, bool descending);
+  void computeSortOrders();
   
   // Math
   simd_float3x3 matrix_upper_left_3x3(const simd_float4x4 &matrix);

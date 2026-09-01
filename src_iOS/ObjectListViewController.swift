@@ -20,6 +20,10 @@ class ObjectListViewController: UIViewController {
     let searchController = UISearchController(searchResultsController: nil)
     var isSearchActive: Bool { !(searchController.searchBar.text ?? "").isEmpty }
 
+    let sortButton = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down"), style: .plain, target: nil, action: nil)
+    var sortKey: String = "none"
+    var sortDescending = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Objects"
@@ -50,6 +54,16 @@ class ObjectListViewController: UIViewController {
 
         if !isSidebar {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissSelf))
+        }
+
+        sortKey = UserDefaults.standard.string(forKey: "azulSortKey") ?? "none"
+        sortDescending = UserDefaults.standard.bool(forKey: "azulSortDescending")
+        applySortOrderToDataManager()
+        sortButton.menu = makeSortMenu()
+        if isSidebar {
+            navigationItem.rightBarButtonItem = sortButton
+        } else {
+            navigationItem.leftBarButtonItem = sortButton
         }
 
         rebuildFlatItems()
@@ -85,6 +99,46 @@ class ObjectListViewController: UIViewController {
             appendFlattened(file)
         }
         applyFilter()
+    }
+
+    // MARK: - Sorting
+
+    private func makeSortMenu() -> UIMenu {
+        func keyAction(_ key: String, _ title: String) -> UIAction {
+            UIAction(title: title, state: sortKey == key ? .on : .off) { [weak self] _ in
+                self?.updateSortOrder(key: key, descending: self?.sortDescending ?? false)
+            }
+        }
+        let ascending = UIAction(title: "Ascending", state: sortDescending ? .off : .on) { [weak self] _ in
+            self?.updateSortOrder(key: self?.sortKey ?? "none", descending: false)
+        }
+        let descending = UIAction(title: "Descending", state: sortDescending ? .on : .off) { [weak self] _ in
+            self?.updateSortOrder(key: self?.sortKey ?? "none", descending: true)
+        }
+        return UIMenu(title: "Sort By", children: [
+            UIMenu(options: .displayInline, children: [
+                keyAction("id", "Sort by ID"),
+                keyAction("type", "Sort by Type"),
+                keyAction("none", "Document Order"),
+            ]),
+            UIMenu(options: .displayInline, children: [ascending, descending]),
+        ])
+    }
+
+    private func updateSortOrder(key: String, descending: Bool) {
+        sortKey = key
+        sortDescending = descending
+        UserDefaults.standard.set(sortKey, forKey: "azulSortKey")
+        UserDefaults.standard.set(sortDescending, forKey: "azulSortDescending")
+        applySortOrderToDataManager()
+        sortButton.menu = makeSortMenu()
+        rebuildFlatItems()
+    }
+
+    private func applySortOrderToDataManager() {
+        sortKey.withCString { pointer in
+            dataManager.setSortOrder(key: pointer, descending: sortDescending)
+        }
     }
 
     private func appendFlattened(_ item: AzulObjectIterator) {

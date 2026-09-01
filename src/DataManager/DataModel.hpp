@@ -138,6 +138,7 @@ struct AzulObject {
   char lodMatch; // 'Y'es, 'N'o, 'U'nknown
   std::vector<std::pair<std::string, std::string>> attributes;
   std::vector<AzulObject> children;
+  std::vector<long> displayOrder; // sidebar display order of children (indices into children, only used when sorting is active)
   std::vector<AzulPolygon> polygons;
   std::vector<AzulTriangle> triangles;
   std::vector<AzulEdge> edges;
@@ -163,6 +164,7 @@ struct AzulObject {
     lodMatch = other.lodMatch;
     for (auto const &attribute: other.attributes) attributes.push_back(std::pair<std::string, std::string>(attribute.first, attribute.second));
     for (auto const &child: other.children) children.push_back(AzulObject(child));
+    displayOrder = other.displayOrder;
     for (auto const &polygon: other.polygons) polygons.push_back(AzulPolygon(polygon));
     for (auto const &triangle: other.triangles) triangles.push_back(AzulTriangle(triangle));
     for (auto const &edge: other.edges) edges.push_back(AzulEdge(edge));

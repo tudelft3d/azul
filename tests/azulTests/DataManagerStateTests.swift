@@ -264,4 +264,85 @@ final class DataManagerStateTests: DataManagerTestCase {
                      "LoD \(lod) filtering differs between parsers")
     }
   }
+
+  // MARK: - Sorting
+
+  /// Reads the IDs of an item's children in display order through the outline
+  /// view data source, i.e. exactly the order the sidebar would show.
+  private func childIds(_ dataManager: DataManagerWrapperWrapper, of item: Any?) -> [String] {
+    let count = dataManager.outlineView(nil, numberOfChildrenOfItem: item)
+    return (0..<count).compactMap { index in
+      guard let child = dataManager.outlineView(nil, child: index, ofItem: item) else { return nil }
+      return dataManager.objectId(forItem: child)
+    }
+  }
+
+  func testSortChildrenByIdNaturalOrder() {
+    // sorting: 4 objects in document order bld-10, tree-1, bld-2, bld-1
+    let dataManager = loadFixture("sorting", "city.json")
+    let file = firstChild(dataManager, of: nil)
+    XCTAssertNotNil(file)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-10", "tree-1", "bld-2", "bld-1"])
+
+    // Natural order: bld-2 before bld-10 (lexicographic would give bld-1, bld-10, bld-2)
+    dataManager.setSortOrder(key: "id", descending: false)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-1", "bld-2", "bld-10", "tree-1"])
+
+    dataManager.setSortOrder(key: "id", descending: true)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["tree-1", "bld-10", "bld-2", "bld-1"])
+
+    // Back to document order
+    dataManager.setSortOrder(key: "", descending: false)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-10", "tree-1", "bld-2", "bld-1"])
+  }
+
+  func testSortChildrenByTypeThenId() {
+    let dataManager = loadFixture("sorting", "city.json")
+    let file = firstChild(dataManager, of: nil)
+    XCTAssertNotNil(file)
+
+    dataManager.setSortOrder(key: "type", descending: false)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-1", "bld-2", "bld-10", "tree-1"])
+
+    dataManager.setSortOrder(key: "type", descending: true)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["tree-1", "bld-10", "bld-2", "bld-1"])
+  }
+
+  func testSortComposesWithSearch() {
+    let dataManager = loadFixture("sorting", "city.json")
+    let file = firstChild(dataManager, of: nil)
+    XCTAssertNotNil(file)
+
+    dataManager.setSearchString("bld")
+    dataManager.setSortOrder(key: "id", descending: false)
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-1", "bld-2", "bld-10"])
+
+    dataManager.setSearchString("")
+    XCTAssertEqual(childIds(dataManager, of: file!), ["bld-1", "bld-2", "bld-10", "tree-1"])
+  }
+
+  func testSortFilesById() {
+    let dataManager = DataManagerWrapperWrapper()!
+    for (name, `extension`) in [("lods", "city.json"), ("cube", "city.json")] {
+      dataManager.parse(fixtureURL(name, `extension`).path.cString(using: .utf8))
+      dataManager.clearHelpers()
+      dataManager.updateBoundsWithLastFile()
+      dataManager.triangulateLastFile()
+      dataManager.generateEdgesForLastFile()
+      dataManager.clearPolygonsOfLastFile()
+    }
+    dataManager.regenerateTriangleBuffers(withMaximumSize: 16 * 1024 * 1024)
+    dataManager.regenerateEdgeBuffers(withMaximumSize: 16 * 1024 * 1024)
+
+    // Document order = load order; file IDs are full paths
+    let loadedIds = childIds(dataManager, of: nil)
+    XCTAssertEqual(loadedIds.count, 2)
+    XCTAssertTrue(loadedIds[0].hasSuffix("lods.city.json"))
+    XCTAssertTrue(loadedIds[1].hasSuffix("cube.city.json"))
+
+    dataManager.setSortOrder(key: "id", descending: false)
+    let sortedIds = childIds(dataManager, of: nil)
+    XCTAssertTrue(sortedIds[0].hasSuffix("cube.city.json"))
+    XCTAssertTrue(sortedIds[1].hasSuffix("lods.city.json"))
+  }
 }

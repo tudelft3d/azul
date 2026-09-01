@@ -238,7 +238,7 @@ static bool refreshAncestorsVisibility(AzulObject &node, AzulObject *target, Dat
 //  NSLog(@"child:%ld ofItem:%@", (long)index, item);
   if (item == nil) {
     AzulObjectIterator *child = [[AzulObjectIterator alloc] init];
-    [child setIterator:dataManagerWrapper->dataManager->parsedFiles.begin()+index];
+    [child setIterator:dataManagerWrapper->dataManager->fileChild(index)];
     return child;
   } if (![item isKindOfClass:[AzulObjectIterator class]]) {
     NSLog(@"Uh-oh!");
@@ -577,6 +577,10 @@ static bool refreshAncestorsVisibility(AzulObject &node, AzulObject *target, Dat
   NSLog(@"Searching: %s", string);
 }
 
+- (void) setSortOrderWithKey:(const char *)key descending:(BOOL)descending {
+  dataManagerWrapper->dataManager->setSortOrder(key, descending == YES);
+}
+
 - (void) setLodFilter:(const char *)lod {
   dataManagerWrapper->dataManager->setLodFilter(lod);
 }
@@ -744,7 +748,7 @@ static bool refreshAncestorsVisibility(AzulObject &node, AzulObject *target, Dat
 
 - (id) iteratorForFileAtIndex:(NSInteger)index {
   AzulObjectIterator *item = [[AzulObjectIterator alloc] init];
-  item.iterator = dataManagerWrapper->dataManager->parsedFiles.begin() + index;
+  item.iterator = dataManagerWrapper->dataManager->fileChild(index);
   item.depth = 0;
   return item;
 }

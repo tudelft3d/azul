@@ -15,6 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <set>
+#include <algorithm>
 #include <functional>
 #include <cctype>
 #include <cmath>
@@ -906,9 +907,77 @@ void DataManager::putAzulObjectAndItsChildrenIntoEdgeBuffers(const AzulObject &o
   }
 }
 
+namespace {
+
+// Case-insensitive natural comparison: digit runs compare by numeric value,
+// so "b2" sorts before "b10". Returns <0, 0 or >0 like strcmp.
+int naturalCompare(const std::string &a, const std::string &b) {
+  std::size_t i = 0, j = 0;
+  while (i < a.size() && j < b.size()) {
+    bool digitA = isdigit(static_cast<unsigned char>(a[i])) != 0;
+    bool digitB = isdigit(static_cast<unsigned char>(b[j])) != 0;
+    if (digitA && digitB) {
+      std::size_t startA = i, startB = j;
+      while (i < a.size() && a[i] == '0') ++i;
+      while (j < b.size() && b[j] == '0') ++j;
+      std::size_t endA = i, endB = j;
+      while (endA < a.size() && isdigit(static_cast<unsigned char>(a[endA]))) ++endA;
+      while (endB < b.size() && isdigit(static_cast<unsigned char>(b[endB]))) ++endB;
+      if (endA-i != endB-j) return endA-i < endB-j ? -1 : 1;
+      while (i < endA) {
+        if (a[i] != b[j]) return a[i] < b[j] ? -1 : 1;
+        ++i; ++j;
+      }
+      // Same numeric value; tie-break on leading zeros ("01" < "1"), then move on
+      if (endA-startA != endB-startB) return endA-startA < endB-startB ? -1 : 1;
+      i = endA; j = endB;
+    } else {
+      int charA = tolower(static_cast<unsigned char>(a[i]));
+      int charB = tolower(static_cast<unsigned char>(b[j]));
+      if (charA != charB) return charA < charB ? -1 : 1;
+      ++i; ++j;
+    }
+  }
+  if (i < a.size()) return 1;
+  if (j < b.size()) return -1;
+  return 0;
+}
+
+// Fills order with the display permutation of children for the current sort
+// settings. Equal keys keep document order (stable sort). Objects without an
+// ID always group at the end regardless of direction.
+void sortDisplayOrder(std::vector<long> &order,
+                      const std::vector<AzulObject> &children,
+                      const std::string &sortKey,
+                      bool descending) {
+  auto compareById = [&](long indexA, long indexB) {
+    const std::string &idA = children[indexA].id;
+    const std::string &idB = children[indexB].id;
+    if (idA.empty() || idB.empty()) return !idA.empty(); // empty IDs last
+    int result = naturalCompare(idA, idB);
+    return descending ? result > 0 : result < 0;
+  };
+  auto compareByTypeThenId = [&](long indexA, long indexB) {
+    int result = children[indexA].type.compare(children[indexB].type);
+    if (result != 0) return descending ? result > 0 : result < 0;
+    const std::string &idA = children[indexA].id;
+    const std::string &idB = children[indexB].id;
+    if (idA.empty() || idB.empty()) return !idA.empty();
+    result = naturalCompare(idA, idB);
+    return descending ? result > 0 : result < 0;
+  };
+  if (sortKey == "id") std::stable_sort(order.begin(), order.end(), compareById);
+  else if (sortKey == "type") std::stable_sort(order.begin(), order.end(), compareByTypeThenId);
+}
+
+}
+
 DataManager::DataManager() {
   useAppearances = false;
   appearanceTheme.clear();
+  sortKey.clear();
+  sortDescending = false;
+  sortOrdersCurrent = false;
   projectionCenterSet = false;
   projectionCenter[0] = projectionCenter[1] = 0.0;
   for (int coordinate = 0; coordinate < 3; ++coordinate) {
@@ -1045,6 +1114,7 @@ void DataManager::parse(const char *filePath) {
   } else {
     statusMessage = "Unrecognised file type";
   }
+  sortOrdersCurrent = false;
 }
 
 void DataManager::updateBoundsWithLastFile() {
@@ -1116,6 +1186,8 @@ void DataManager::clear() {
   lastEdgeBufferBySelection.clear();
   useAppearances = false;
   appearanceTheme.clear();
+  fileDisplayOrder.clear();
+  sortOrdersCurrent = false;
   projectionCenterSet = false;
   projectionCenter[0] = projectionCenter[1] = 0.0;
   
@@ -1548,13 +1620,26 @@ int DataManager::numberOfChildren(AzulObject &object) {
 }
 
 std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long index) {
-  if (searchString.empty() && lodFilter.empty()) {
-    return object.children.begin()+index;
+  if (sortKey.empty()) {
+    if (searchString.empty() && lodFilter.empty()) {
+      return object.children.begin()+index;
+    }
+    int matchingChildren = 0;
+    for (std::vector<AzulObject>::iterator child = object.children.begin();
+         child != object.children.end();
+         ++child) {
+      bool searchMatch = searchString.empty() || matchesSearch(*child);
+      if (searchMatch && (lodFilter.empty() || child->lodMatch == 'Y')) {
+        if (matchingChildren == index) return child;
+        ++matchingChildren;
+      }
+    }
+    return object.children.begin();
   }
+  if (!sortOrdersCurrent) computeSortOrders();
   int matchingChildren = 0;
-  for (std::vector<AzulObject>::iterator child = object.children.begin();
-       child != object.children.end();
-       ++child) {
+  for (long position: object.displayOrder) {
+    std::vector<AzulObject>::iterator child = object.children.begin()+position;
     bool searchMatch = searchString.empty() || matchesSearch(*child);
     if (searchMatch && (lodFilter.empty() || child->lodMatch == 'Y')) {
       if (matchingChildren == index) return child;
@@ -1562,4 +1647,40 @@ std::vector<AzulObject>::iterator DataManager::child(AzulObject &object, long in
     }
   }
   return object.children.begin();
+}
+
+std::vector<AzulObject>::iterator DataManager::fileChild(long index) {
+  if (sortKey.empty() ||
+      index < 0 ||
+      index >= static_cast<long>(parsedFiles.size())) {
+    return parsedFiles.begin()+index;
+  }
+  if (!sortOrdersCurrent) computeSortOrders();
+  return parsedFiles.begin()+fileDisplayOrder[index];
+}
+
+void DataManager::setSortOrder(const char *key, bool descending) {
+  sortKey = key != nullptr ? std::string(key) : std::string();
+  if (sortKey != "id" && sortKey != "type") sortKey.clear();
+  sortDescending = descending;
+  sortOrdersCurrent = false;
+}
+
+void DataManager::computeSortOrders() {
+  fileDisplayOrder.resize(parsedFiles.size());
+  for (long index = 0; index < static_cast<long>(parsedFiles.size()); ++index) fileDisplayOrder[index] = index;
+  if (!sortKey.empty()) sortDisplayOrder(fileDisplayOrder, parsedFiles, sortKey, sortDescending);
+  for (auto &file: parsedFiles) computeSortOrders(file);
+  sortOrdersCurrent = true;
+}
+
+void DataManager::computeSortOrders(AzulObject &object) {
+  if (object.children.empty()) {
+    object.displayOrder.clear();
+    return;
+  }
+  object.displayOrder.resize(object.children.size());
+  for (long index = 0; index < static_cast<long>(object.children.size()); ++index) object.displayOrder[index] = index;
+  if (!sortKey.empty()) sortDisplayOrder(object.displayOrder, object.children, sortKey, sortDescending);
+  for (auto &child: object.children) computeSortOrders(child);
 }

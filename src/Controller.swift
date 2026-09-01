@@ -113,8 +113,11 @@ extension NSToolbarItem.Identifier {
   @IBOutlet weak var saveViewParametersMenuItem: NSMenuItem!
   @IBOutlet weak var toggleFullScreenMenuItem: NSMenuItem!
   var lodMenuItem: NSMenuItem?
+  var sortMenuItem: NSMenuItem?
   var currentLodFilter: String = "__highest__"
   var currentAppearanceTheme: String = ""
+  var sortKey: String = "none"
+  var sortDescending = false
   
   let dataManager = DataManagerWrapperWrapper()!
   let performanceHelper = PerformanceHelperWrapperWrapper()!
@@ -622,7 +625,69 @@ extension NSToolbarItem.Identifier {
       lodMenuItem.submenu = lodSubmenu
       viewMenu.insertItem(lodMenuItem, at: 2)
       self.lodMenuItem = lodMenuItem
+
+      let sortMenuItem = NSMenuItem(title: "Sort By", action: nil, keyEquivalent: "")
+      let sortSubmenu = NSMenu(title: "Sort By")
+      for (key, title) in [("id", "by ID"), ("type", "by Type"), ("none", "Document Order")] {
+        let item = NSMenuItem(title: title, action: #selector(sortMenuItemClicked(_:)), keyEquivalent: "")
+        item.target = self
+        item.representedObject = key
+        sortSubmenu.addItem(item)
+      }
+      sortSubmenu.addItem(NSMenuItem.separator())
+      for (direction, title) in [("ascending", "Ascending"), ("descending", "Descending")] {
+        let item = NSMenuItem(title: title, action: #selector(sortMenuItemClicked(_:)), keyEquivalent: "")
+        item.target = self
+        item.representedObject = direction
+        sortSubmenu.addItem(item)
+      }
+      sortMenuItem.submenu = sortSubmenu
+      viewMenu.insertItem(sortMenuItem, at: 3)
+      self.sortMenuItem = sortMenuItem
       break
+    }
+    if let storedKey = UserDefaults.standard.string(forKey: "azulSortKey") {
+      sortKey = storedKey
+    }
+    sortDescending = UserDefaults.standard.bool(forKey: "azulSortDescending")
+    applySortOrder()
+  }
+
+  @objc func sortMenuItemClicked(_ sender: NSMenuItem) {
+    guard let value = sender.representedObject as? String else { return }
+    switch value {
+    case "ascending": sortDescending = false
+    case "descending": sortDescending = true
+    default: sortKey = value
+    }
+    applySortOrder()
+  }
+
+  func applySortOrder() {
+    UserDefaults.standard.set(sortKey, forKey: "azulSortKey")
+    UserDefaults.standard.set(sortDescending, forKey: "azulSortDescending")
+    sortKey.withCString { pointer in
+      dataManager.setSortOrder(key: pointer, descending: sortDescending)
+    }
+    updateSortMenuStates()
+    guard let outlineView = objectsSourceList else { return }
+    outlineView.reloadData()
+    for row in 0..<outlineView.numberOfRows {
+      if let item = outlineView.item(atRow: row), outlineView.parent(forItem: item) == nil {
+        outlineView.expandItem(item)
+      }
+    }
+  }
+
+  func updateSortMenuStates() {
+    guard let submenu = sortMenuItem?.submenu else { return }
+    for item in submenu.items {
+      guard let value = item.representedObject as? String else { continue }
+      if value == "ascending" || value == "descending" {
+        item.state = (value == "descending") == sortDescending ? .on : .off
+      } else {
+        item.state = value == sortKey ? .on : .off
+      }
     }
   }
 

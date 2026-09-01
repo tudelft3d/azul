@@ -153,7 +153,8 @@ Vegetation objects in CityGML often use `ImplicitGeometry` with a shared templat
 - Selected edges colour is configurable via Preferences (default red). Stored in `DataManager::selectedEdgesColour`, baked into edge buffers on regeneration.
 - Type/semantic surface colours are configurable via Preferences. Stored in `DataManager::colourForType` map; overrides persisted in UserDefaults `azulTypeColours` as `[type: [r, g, b, a]]`.
 - Preferences window has three tabbed panels: Rendering, Selection, Semantic Surfaces. All settings persist in UserDefaults.
-- UserDefaults keys: `azulLightBackgroundColor`, `azulDarkBackgroundColor`, `azulSampleCount`, `azulSelectionColour`, `azulSelectedEdgesColour`, `azulTypeColours`, `azulRecentFiles`.
+- UserDefaults keys: `azulLightBackgroundColor`, `azulDarkBackgroundColor`, `azulSampleCount`, `azulSelectionColour`, `azulSelectedEdgesColour`, `azulTypeColours`, `azulRecentFiles`, `azulSortKey` (`"none"`/`"id"`/`"type"`), `azulSortDescending`.
+- Sorting is a cached display permutation, never an in-place sort of `AzulObject::children` (that would invalidate the iterators wrapped by `AzulObjectIterator` and the pointers in `objectsById`). `DataManager::child()`/`fileChild()` walk per-node `displayOrder` index vectors, recomputed lazily after `setSortOrder` or a new `parse` (invalidated via `sortOrdersCurrent`).
 - Object picking uses a dedicated GPU-only render pass (`vertexPicking`/`fragmentPicking`) that encodes `objectId` into pixel bytes.
 - `selectionStateCount` on GPU side = `objectsById.size()`; represents number of selectable flat objects.
 - LOD filter is a string match; empty string = no filter. LOD detected from objects with type `"LoD"` (id = lod string) or type starting with `"lod"` + digits.
